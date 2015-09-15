@@ -1,0 +1,1037 @@
+Universe   = vanilla
+should_transfer_files = YES
+when_to_transfer_output = ON_EXIT_OR_EVICT
+environment = "HOME=/home/ekoch"
+RunAsOwner = True
+next_job_start_delay = 240
+
+transfer_output_files = /dev/null
+
+request_cpus = 2
+
+Executable = code_repos/canfar_scripts/img_pipe/archival_data/single_channel_clean.bash
+Arguments = 10
+Log = output_files/logs/single_channel_clean_10.log
+Output = output_files/output/single_channel_clean_10.out
+Error = output_files/error/single_channel_clean_10.err
+Queue
+Arguments = 11
+Log = output_files/logs/single_channel_clean_11.log
+Output = output_files/output/single_channel_clean_11.out
+Error = output_files/error/single_channel_clean_11.err
+Queue
+Arguments = 12
+Log = output_files/logs/single_channel_clean_12.log
+Output = output_files/output/single_channel_clean_12.out
+Error = output_files/error/single_channel_clean_12.err
+Queue
+Arguments = 13
+Log = output_files/logs/single_channel_clean_13.log
+Output = output_files/output/single_channel_clean_13.out
+Error = output_files/error/single_channel_clean_13.err
+Queue
+Arguments = 14
+Log = output_files/logs/single_channel_clean_14.log
+Output = output_files/output/single_channel_clean_14.out
+Error = output_files/error/single_channel_clean_14.err
+Queue
+Arguments = 15
+Log = output_files/logs/single_channel_clean_15.log
+Output = output_files/output/single_channel_clean_15.out
+Error = output_files/error/single_channel_clean_15.err
+Queue
+Arguments = 16
+Log = output_files/logs/single_channel_clean_16.log
+Output = output_files/output/single_channel_clean_16.out
+Error = output_files/error/single_channel_clean_16.err
+Queue
+Arguments = 17
+Log = output_files/logs/single_channel_clean_17.log
+Output = output_files/output/single_channel_clean_17.out
+Error = output_files/error/single_channel_clean_17.err
+Queue
+Arguments = 18
+Log = output_files/logs/single_channel_clean_18.log
+Output = output_files/output/single_channel_clean_18.out
+Error = output_files/error/single_channel_clean_18.err
+Queue
+Arguments = 19
+Log = output_files/logs/single_channel_clean_19.log
+Output = output_files/output/single_channel_clean_19.out
+Error = output_files/error/single_channel_clean_19.err
+Queue
+Arguments = 20
+Log = output_files/logs/single_channel_clean_20.log
+Output = output_files/output/single_channel_clean_20.out
+Error = output_files/error/single_channel_clean_20.err
+Queue
+Arguments = 21
+Log = output_files/logs/single_channel_clean_21.log
+Output = output_files/output/single_channel_clean_21.out
+Error = output_files/error/single_channel_clean_21.err
+Queue
+Arguments = 22
+Log = output_files/logs/single_channel_clean_22.log
+Output = output_files/output/single_channel_clean_22.out
+Error = output_files/error/single_channel_clean_22.err
+Queue
+Arguments = 23
+Log = output_files/logs/single_channel_clean_23.log
+Output = output_files/output/single_channel_clean_23.out
+Error = output_files/error/single_channel_clean_23.err
+Queue
+Arguments = 24
+Log = output_files/logs/single_channel_clean_24.log
+Output = output_files/output/single_channel_clean_24.out
+Error = output_files/error/single_channel_clean_24.err
+Queue
+Arguments = 25
+Log = output_files/logs/single_channel_clean_25.log
+Output = output_files/output/single_channel_clean_25.out
+Error = output_files/error/single_channel_clean_25.err
+Queue
+Arguments = 26
+Log = output_files/logs/single_channel_clean_26.log
+Output = output_files/output/single_channel_clean_26.out
+Error = output_files/error/single_channel_clean_26.err
+Queue
+Arguments = 27
+Log = output_files/logs/single_channel_clean_27.log
+Output = output_files/output/single_channel_clean_27.out
+Error = output_files/error/single_channel_clean_27.err
+Queue
+Arguments = 28
+Log = output_files/logs/single_channel_clean_28.log
+Output = output_files/output/single_channel_clean_28.out
+Error = output_files/error/single_channel_clean_28.err
+Queue
+Arguments = 29
+Log = output_files/logs/single_channel_clean_29.log
+Output = output_files/output/single_channel_clean_29.out
+Error = output_files/error/single_channel_clean_29.err
+Queue
+Arguments = 30
+Log = output_files/logs/single_channel_clean_30.log
+Output = output_files/output/single_channel_clean_30.out
+Error = output_files/error/single_channel_clean_30.err
+Queue
+Arguments = 31
+Log = output_files/logs/single_channel_clean_31.log
+Output = output_files/output/single_channel_clean_31.out
+Error = output_files/error/single_channel_clean_31.err
+Queue
+Arguments = 32
+Log = output_files/logs/single_channel_clean_32.log
+Output = output_files/output/single_channel_clean_32.out
+Error = output_files/error/single_channel_clean_32.err
+Queue
+Arguments = 33
+Log = output_files/logs/single_channel_clean_33.log
+Output = output_files/output/single_channel_clean_33.out
+Error = output_files/error/single_channel_clean_33.err
+Queue
+Arguments = 34
+Log = output_files/logs/single_channel_clean_34.log
+Output = output_files/output/single_channel_clean_34.out
+Error = output_files/error/single_channel_clean_34.err
+Queue
+Arguments = 35
+Log = output_files/logs/single_channel_clean_35.log
+Output = output_files/output/single_channel_clean_35.out
+Error = output_files/error/single_channel_clean_35.err
+Queue
+Arguments = 36
+Log = output_files/logs/single_channel_clean_36.log
+Output = output_files/output/single_channel_clean_36.out
+Error = output_files/error/single_channel_clean_36.err
+Queue
+Arguments = 37
+Log = output_files/logs/single_channel_clean_37.log
+Output = output_files/output/single_channel_clean_37.out
+Error = output_files/error/single_channel_clean_37.err
+Queue
+Arguments = 38
+Log = output_files/logs/single_channel_clean_38.log
+Output = output_files/output/single_channel_clean_38.out
+Error = output_files/error/single_channel_clean_38.err
+Queue
+Arguments = 39
+Log = output_files/logs/single_channel_clean_39.log
+Output = output_files/output/single_channel_clean_39.out
+Error = output_files/error/single_channel_clean_39.err
+Queue
+Arguments = 40
+Log = output_files/logs/single_channel_clean_40.log
+Output = output_files/output/single_channel_clean_40.out
+Error = output_files/error/single_channel_clean_40.err
+Queue
+Arguments = 41
+Log = output_files/logs/single_channel_clean_41.log
+Output = output_files/output/single_channel_clean_41.out
+Error = output_files/error/single_channel_clean_41.err
+Queue
+Arguments = 42
+Log = output_files/logs/single_channel_clean_42.log
+Output = output_files/output/single_channel_clean_42.out
+Error = output_files/error/single_channel_clean_42.err
+Queue
+Arguments = 43
+Log = output_files/logs/single_channel_clean_43.log
+Output = output_files/output/single_channel_clean_43.out
+Error = output_files/error/single_channel_clean_43.err
+Queue
+Arguments = 44
+Log = output_files/logs/single_channel_clean_44.log
+Output = output_files/output/single_channel_clean_44.out
+Error = output_files/error/single_channel_clean_44.err
+Queue
+Arguments = 45
+Log = output_files/logs/single_channel_clean_45.log
+Output = output_files/output/single_channel_clean_45.out
+Error = output_files/error/single_channel_clean_45.err
+Queue
+Arguments = 46
+Log = output_files/logs/single_channel_clean_46.log
+Output = output_files/output/single_channel_clean_46.out
+Error = output_files/error/single_channel_clean_46.err
+Queue
+Arguments = 47
+Log = output_files/logs/single_channel_clean_47.log
+Output = output_files/output/single_channel_clean_47.out
+Error = output_files/error/single_channel_clean_47.err
+Queue
+Arguments = 48
+Log = output_files/logs/single_channel_clean_48.log
+Output = output_files/output/single_channel_clean_48.out
+Error = output_files/error/single_channel_clean_48.err
+Queue
+Arguments = 49
+Log = output_files/logs/single_channel_clean_49.log
+Output = output_files/output/single_channel_clean_49.out
+Error = output_files/error/single_channel_clean_49.err
+Queue
+Arguments = 50
+Log = output_files/logs/single_channel_clean_50.log
+Output = output_files/output/single_channel_clean_50.out
+Error = output_files/error/single_channel_clean_50.err
+Queue
+Arguments = 51
+Log = output_files/logs/single_channel_clean_51.log
+Output = output_files/output/single_channel_clean_51.out
+Error = output_files/error/single_channel_clean_51.err
+Queue
+Arguments = 52
+Log = output_files/logs/single_channel_clean_52.log
+Output = output_files/output/single_channel_clean_52.out
+Error = output_files/error/single_channel_clean_52.err
+Queue
+Arguments = 53
+Log = output_files/logs/single_channel_clean_53.log
+Output = output_files/output/single_channel_clean_53.out
+Error = output_files/error/single_channel_clean_53.err
+Queue
+Arguments = 54
+Log = output_files/logs/single_channel_clean_54.log
+Output = output_files/output/single_channel_clean_54.out
+Error = output_files/error/single_channel_clean_54.err
+Queue
+Arguments = 55
+Log = output_files/logs/single_channel_clean_55.log
+Output = output_files/output/single_channel_clean_55.out
+Error = output_files/error/single_channel_clean_55.err
+Queue
+Arguments = 56
+Log = output_files/logs/single_channel_clean_56.log
+Output = output_files/output/single_channel_clean_56.out
+Error = output_files/error/single_channel_clean_56.err
+Queue
+Arguments = 57
+Log = output_files/logs/single_channel_clean_57.log
+Output = output_files/output/single_channel_clean_57.out
+Error = output_files/error/single_channel_clean_57.err
+Queue
+Arguments = 58
+Log = output_files/logs/single_channel_clean_58.log
+Output = output_files/output/single_channel_clean_58.out
+Error = output_files/error/single_channel_clean_58.err
+Queue
+Arguments = 59
+Log = output_files/logs/single_channel_clean_59.log
+Output = output_files/output/single_channel_clean_59.out
+Error = output_files/error/single_channel_clean_59.err
+Queue
+Arguments = 60
+Log = output_files/logs/single_channel_clean_60.log
+Output = output_files/output/single_channel_clean_60.out
+Error = output_files/error/single_channel_clean_60.err
+Queue
+Arguments = 61
+Log = output_files/logs/single_channel_clean_61.log
+Output = output_files/output/single_channel_clean_61.out
+Error = output_files/error/single_channel_clean_61.err
+Queue
+Arguments = 62
+Log = output_files/logs/single_channel_clean_62.log
+Output = output_files/output/single_channel_clean_62.out
+Error = output_files/error/single_channel_clean_62.err
+Queue
+Arguments = 63
+Log = output_files/logs/single_channel_clean_63.log
+Output = output_files/output/single_channel_clean_63.out
+Error = output_files/error/single_channel_clean_63.err
+Queue
+Arguments = 64
+Log = output_files/logs/single_channel_clean_64.log
+Output = output_files/output/single_channel_clean_64.out
+Error = output_files/error/single_channel_clean_64.err
+Queue
+Arguments = 65
+Log = output_files/logs/single_channel_clean_65.log
+Output = output_files/output/single_channel_clean_65.out
+Error = output_files/error/single_channel_clean_65.err
+Queue
+Arguments = 66
+Log = output_files/logs/single_channel_clean_66.log
+Output = output_files/output/single_channel_clean_66.out
+Error = output_files/error/single_channel_clean_66.err
+Queue
+Arguments = 67
+Log = output_files/logs/single_channel_clean_67.log
+Output = output_files/output/single_channel_clean_67.out
+Error = output_files/error/single_channel_clean_67.err
+Queue
+Arguments = 68
+Log = output_files/logs/single_channel_clean_68.log
+Output = output_files/output/single_channel_clean_68.out
+Error = output_files/error/single_channel_clean_68.err
+Queue
+Arguments = 69
+Log = output_files/logs/single_channel_clean_69.log
+Output = output_files/output/single_channel_clean_69.out
+Error = output_files/error/single_channel_clean_69.err
+Queue
+Arguments = 70
+Log = output_files/logs/single_channel_clean_70.log
+Output = output_files/output/single_channel_clean_70.out
+Error = output_files/error/single_channel_clean_70.err
+Queue
+Arguments = 71
+Log = output_files/logs/single_channel_clean_71.log
+Output = output_files/output/single_channel_clean_71.out
+Error = output_files/error/single_channel_clean_71.err
+Queue
+Arguments = 72
+Log = output_files/logs/single_channel_clean_72.log
+Output = output_files/output/single_channel_clean_72.out
+Error = output_files/error/single_channel_clean_72.err
+Queue
+Arguments = 73
+Log = output_files/logs/single_channel_clean_73.log
+Output = output_files/output/single_channel_clean_73.out
+Error = output_files/error/single_channel_clean_73.err
+Queue
+Arguments = 74
+Log = output_files/logs/single_channel_clean_74.log
+Output = output_files/output/single_channel_clean_74.out
+Error = output_files/error/single_channel_clean_74.err
+Queue
+Arguments = 75
+Log = output_files/logs/single_channel_clean_75.log
+Output = output_files/output/single_channel_clean_75.out
+Error = output_files/error/single_channel_clean_75.err
+Queue
+Arguments = 76
+Log = output_files/logs/single_channel_clean_76.log
+Output = output_files/output/single_channel_clean_76.out
+Error = output_files/error/single_channel_clean_76.err
+Queue
+Arguments = 77
+Log = output_files/logs/single_channel_clean_77.log
+Output = output_files/output/single_channel_clean_77.out
+Error = output_files/error/single_channel_clean_77.err
+Queue
+Arguments = 78
+Log = output_files/logs/single_channel_clean_78.log
+Output = output_files/output/single_channel_clean_78.out
+Error = output_files/error/single_channel_clean_78.err
+Queue
+Arguments = 79
+Log = output_files/logs/single_channel_clean_79.log
+Output = output_files/output/single_channel_clean_79.out
+Error = output_files/error/single_channel_clean_79.err
+Queue
+Arguments = 80
+Log = output_files/logs/single_channel_clean_80.log
+Output = output_files/output/single_channel_clean_80.out
+Error = output_files/error/single_channel_clean_80.err
+Queue
+Arguments = 81
+Log = output_files/logs/single_channel_clean_81.log
+Output = output_files/output/single_channel_clean_81.out
+Error = output_files/error/single_channel_clean_81.err
+Queue
+Arguments = 82
+Log = output_files/logs/single_channel_clean_82.log
+Output = output_files/output/single_channel_clean_82.out
+Error = output_files/error/single_channel_clean_82.err
+Queue
+Arguments = 83
+Log = output_files/logs/single_channel_clean_83.log
+Output = output_files/output/single_channel_clean_83.out
+Error = output_files/error/single_channel_clean_83.err
+Queue
+Arguments = 84
+Log = output_files/logs/single_channel_clean_84.log
+Output = output_files/output/single_channel_clean_84.out
+Error = output_files/error/single_channel_clean_84.err
+Queue
+Arguments = 85
+Log = output_files/logs/single_channel_clean_85.log
+Output = output_files/output/single_channel_clean_85.out
+Error = output_files/error/single_channel_clean_85.err
+Queue
+Arguments = 86
+Log = output_files/logs/single_channel_clean_86.log
+Output = output_files/output/single_channel_clean_86.out
+Error = output_files/error/single_channel_clean_86.err
+Queue
+Arguments = 87
+Log = output_files/logs/single_channel_clean_87.log
+Output = output_files/output/single_channel_clean_87.out
+Error = output_files/error/single_channel_clean_87.err
+Queue
+Arguments = 88
+Log = output_files/logs/single_channel_clean_88.log
+Output = output_files/output/single_channel_clean_88.out
+Error = output_files/error/single_channel_clean_88.err
+Queue
+Arguments = 89
+Log = output_files/logs/single_channel_clean_89.log
+Output = output_files/output/single_channel_clean_89.out
+Error = output_files/error/single_channel_clean_89.err
+Queue
+Arguments = 90
+Log = output_files/logs/single_channel_clean_90.log
+Output = output_files/output/single_channel_clean_90.out
+Error = output_files/error/single_channel_clean_90.err
+Queue
+Arguments = 91
+Log = output_files/logs/single_channel_clean_91.log
+Output = output_files/output/single_channel_clean_91.out
+Error = output_files/error/single_channel_clean_91.err
+Queue
+Arguments = 92
+Log = output_files/logs/single_channel_clean_92.log
+Output = output_files/output/single_channel_clean_92.out
+Error = output_files/error/single_channel_clean_92.err
+Queue
+Arguments = 93
+Log = output_files/logs/single_channel_clean_93.log
+Output = output_files/output/single_channel_clean_93.out
+Error = output_files/error/single_channel_clean_93.err
+Queue
+Arguments = 94
+Log = output_files/logs/single_channel_clean_94.log
+Output = output_files/output/single_channel_clean_94.out
+Error = output_files/error/single_channel_clean_94.err
+Queue
+Arguments = 95
+Log = output_files/logs/single_channel_clean_95.log
+Output = output_files/output/single_channel_clean_95.out
+Error = output_files/error/single_channel_clean_95.err
+Queue
+Arguments = 96
+Log = output_files/logs/single_channel_clean_96.log
+Output = output_files/output/single_channel_clean_96.out
+Error = output_files/error/single_channel_clean_96.err
+Queue
+Arguments = 97
+Log = output_files/logs/single_channel_clean_97.log
+Output = output_files/output/single_channel_clean_97.out
+Error = output_files/error/single_channel_clean_97.err
+Queue
+Arguments = 98
+Log = output_files/logs/single_channel_clean_98.log
+Output = output_files/output/single_channel_clean_98.out
+Error = output_files/error/single_channel_clean_98.err
+Queue
+Arguments = 99
+Log = output_files/logs/single_channel_clean_99.log
+Output = output_files/output/single_channel_clean_99.out
+Error = output_files/error/single_channel_clean_99.err
+Queue
+Arguments = 100
+Log = output_files/logs/single_channel_clean_100.log
+Output = output_files/output/single_channel_clean_100.out
+Error = output_files/error/single_channel_clean_100.err
+Queue
+Arguments = 101
+Log = output_files/logs/single_channel_clean_101.log
+Output = output_files/output/single_channel_clean_101.out
+Error = output_files/error/single_channel_clean_101.err
+Queue
+Arguments = 102
+Log = output_files/logs/single_channel_clean_102.log
+Output = output_files/output/single_channel_clean_102.out
+Error = output_files/error/single_channel_clean_102.err
+Queue
+Arguments = 103
+Log = output_files/logs/single_channel_clean_103.log
+Output = output_files/output/single_channel_clean_103.out
+Error = output_files/error/single_channel_clean_103.err
+Queue
+Arguments = 104
+Log = output_files/logs/single_channel_clean_104.log
+Output = output_files/output/single_channel_clean_104.out
+Error = output_files/error/single_channel_clean_104.err
+Queue
+Arguments = 105
+Log = output_files/logs/single_channel_clean_105.log
+Output = output_files/output/single_channel_clean_105.out
+Error = output_files/error/single_channel_clean_105.err
+Queue
+Arguments = 106
+Log = output_files/logs/single_channel_clean_106.log
+Output = output_files/output/single_channel_clean_106.out
+Error = output_files/error/single_channel_clean_106.err
+Queue
+Arguments = 107
+Log = output_files/logs/single_channel_clean_107.log
+Output = output_files/output/single_channel_clean_107.out
+Error = output_files/error/single_channel_clean_107.err
+Queue
+Arguments = 108
+Log = output_files/logs/single_channel_clean_108.log
+Output = output_files/output/single_channel_clean_108.out
+Error = output_files/error/single_channel_clean_108.err
+Queue
+Arguments = 109
+Log = output_files/logs/single_channel_clean_109.log
+Output = output_files/output/single_channel_clean_109.out
+Error = output_files/error/single_channel_clean_109.err
+Queue
+Arguments = 110
+Log = output_files/logs/single_channel_clean_110.log
+Output = output_files/output/single_channel_clean_110.out
+Error = output_files/error/single_channel_clean_110.err
+Queue
+Arguments = 111
+Log = output_files/logs/single_channel_clean_111.log
+Output = output_files/output/single_channel_clean_111.out
+Error = output_files/error/single_channel_clean_111.err
+Queue
+Arguments = 112
+Log = output_files/logs/single_channel_clean_112.log
+Output = output_files/output/single_channel_clean_112.out
+Error = output_files/error/single_channel_clean_112.err
+Queue
+Arguments = 113
+Log = output_files/logs/single_channel_clean_113.log
+Output = output_files/output/single_channel_clean_113.out
+Error = output_files/error/single_channel_clean_113.err
+Queue
+Arguments = 114
+Log = output_files/logs/single_channel_clean_114.log
+Output = output_files/output/single_channel_clean_114.out
+Error = output_files/error/single_channel_clean_114.err
+Queue
+Arguments = 115
+Log = output_files/logs/single_channel_clean_115.log
+Output = output_files/output/single_channel_clean_115.out
+Error = output_files/error/single_channel_clean_115.err
+Queue
+Arguments = 116
+Log = output_files/logs/single_channel_clean_116.log
+Output = output_files/output/single_channel_clean_116.out
+Error = output_files/error/single_channel_clean_116.err
+Queue
+Arguments = 117
+Log = output_files/logs/single_channel_clean_117.log
+Output = output_files/output/single_channel_clean_117.out
+Error = output_files/error/single_channel_clean_117.err
+Queue
+Arguments = 118
+Log = output_files/logs/single_channel_clean_118.log
+Output = output_files/output/single_channel_clean_118.out
+Error = output_files/error/single_channel_clean_118.err
+Queue
+Arguments = 119
+Log = output_files/logs/single_channel_clean_119.log
+Output = output_files/output/single_channel_clean_119.out
+Error = output_files/error/single_channel_clean_119.err
+Queue
+Arguments = 120
+Log = output_files/logs/single_channel_clean_120.log
+Output = output_files/output/single_channel_clean_120.out
+Error = output_files/error/single_channel_clean_120.err
+Queue
+Arguments = 121
+Log = output_files/logs/single_channel_clean_121.log
+Output = output_files/output/single_channel_clean_121.out
+Error = output_files/error/single_channel_clean_121.err
+Queue
+Arguments = 122
+Log = output_files/logs/single_channel_clean_122.log
+Output = output_files/output/single_channel_clean_122.out
+Error = output_files/error/single_channel_clean_122.err
+Queue
+Arguments = 123
+Log = output_files/logs/single_channel_clean_123.log
+Output = output_files/output/single_channel_clean_123.out
+Error = output_files/error/single_channel_clean_123.err
+Queue
+Arguments = 124
+Log = output_files/logs/single_channel_clean_124.log
+Output = output_files/output/single_channel_clean_124.out
+Error = output_files/error/single_channel_clean_124.err
+Queue
+Arguments = 125
+Log = output_files/logs/single_channel_clean_125.log
+Output = output_files/output/single_channel_clean_125.out
+Error = output_files/error/single_channel_clean_125.err
+Queue
+Arguments = 126
+Log = output_files/logs/single_channel_clean_126.log
+Output = output_files/output/single_channel_clean_126.out
+Error = output_files/error/single_channel_clean_126.err
+Queue
+Arguments = 127
+Log = output_files/logs/single_channel_clean_127.log
+Output = output_files/output/single_channel_clean_127.out
+Error = output_files/error/single_channel_clean_127.err
+Queue
+Arguments = 128
+Log = output_files/logs/single_channel_clean_128.log
+Output = output_files/output/single_channel_clean_128.out
+Error = output_files/error/single_channel_clean_128.err
+Queue
+Arguments = 129
+Log = output_files/logs/single_channel_clean_129.log
+Output = output_files/output/single_channel_clean_129.out
+Error = output_files/error/single_channel_clean_129.err
+Queue
+Arguments = 130
+Log = output_files/logs/single_channel_clean_130.log
+Output = output_files/output/single_channel_clean_130.out
+Error = output_files/error/single_channel_clean_130.err
+Queue
+Arguments = 131
+Log = output_files/logs/single_channel_clean_131.log
+Output = output_files/output/single_channel_clean_131.out
+Error = output_files/error/single_channel_clean_131.err
+Queue
+Arguments = 132
+Log = output_files/logs/single_channel_clean_132.log
+Output = output_files/output/single_channel_clean_132.out
+Error = output_files/error/single_channel_clean_132.err
+Queue
+Arguments = 133
+Log = output_files/logs/single_channel_clean_133.log
+Output = output_files/output/single_channel_clean_133.out
+Error = output_files/error/single_channel_clean_133.err
+Queue
+Arguments = 134
+Log = output_files/logs/single_channel_clean_134.log
+Output = output_files/output/single_channel_clean_134.out
+Error = output_files/error/single_channel_clean_134.err
+Queue
+Arguments = 135
+Log = output_files/logs/single_channel_clean_135.log
+Output = output_files/output/single_channel_clean_135.out
+Error = output_files/error/single_channel_clean_135.err
+Queue
+Arguments = 136
+Log = output_files/logs/single_channel_clean_136.log
+Output = output_files/output/single_channel_clean_136.out
+Error = output_files/error/single_channel_clean_136.err
+Queue
+Arguments = 137
+Log = output_files/logs/single_channel_clean_137.log
+Output = output_files/output/single_channel_clean_137.out
+Error = output_files/error/single_channel_clean_137.err
+Queue
+Arguments = 138
+Log = output_files/logs/single_channel_clean_138.log
+Output = output_files/output/single_channel_clean_138.out
+Error = output_files/error/single_channel_clean_138.err
+Queue
+Arguments = 139
+Log = output_files/logs/single_channel_clean_139.log
+Output = output_files/output/single_channel_clean_139.out
+Error = output_files/error/single_channel_clean_139.err
+Queue
+Arguments = 140
+Log = output_files/logs/single_channel_clean_140.log
+Output = output_files/output/single_channel_clean_140.out
+Error = output_files/error/single_channel_clean_140.err
+Queue
+Arguments = 141
+Log = output_files/logs/single_channel_clean_141.log
+Output = output_files/output/single_channel_clean_141.out
+Error = output_files/error/single_channel_clean_141.err
+Queue
+Arguments = 142
+Log = output_files/logs/single_channel_clean_142.log
+Output = output_files/output/single_channel_clean_142.out
+Error = output_files/error/single_channel_clean_142.err
+Queue
+Arguments = 143
+Log = output_files/logs/single_channel_clean_143.log
+Output = output_files/output/single_channel_clean_143.out
+Error = output_files/error/single_channel_clean_143.err
+Queue
+Arguments = 144
+Log = output_files/logs/single_channel_clean_144.log
+Output = output_files/output/single_channel_clean_144.out
+Error = output_files/error/single_channel_clean_144.err
+Queue
+Arguments = 145
+Log = output_files/logs/single_channel_clean_145.log
+Output = output_files/output/single_channel_clean_145.out
+Error = output_files/error/single_channel_clean_145.err
+Queue
+Arguments = 146
+Log = output_files/logs/single_channel_clean_146.log
+Output = output_files/output/single_channel_clean_146.out
+Error = output_files/error/single_channel_clean_146.err
+Queue
+Arguments = 147
+Log = output_files/logs/single_channel_clean_147.log
+Output = output_files/output/single_channel_clean_147.out
+Error = output_files/error/single_channel_clean_147.err
+Queue
+Arguments = 148
+Log = output_files/logs/single_channel_clean_148.log
+Output = output_files/output/single_channel_clean_148.out
+Error = output_files/error/single_channel_clean_148.err
+Queue
+Arguments = 149
+Log = output_files/logs/single_channel_clean_149.log
+Output = output_files/output/single_channel_clean_149.out
+Error = output_files/error/single_channel_clean_149.err
+Queue
+Arguments = 150
+Log = output_files/logs/single_channel_clean_150.log
+Output = output_files/output/single_channel_clean_150.out
+Error = output_files/error/single_channel_clean_150.err
+Queue
+Arguments = 151
+Log = output_files/logs/single_channel_clean_151.log
+Output = output_files/output/single_channel_clean_151.out
+Error = output_files/error/single_channel_clean_151.err
+Queue
+Arguments = 152
+Log = output_files/logs/single_channel_clean_152.log
+Output = output_files/output/single_channel_clean_152.out
+Error = output_files/error/single_channel_clean_152.err
+Queue
+Arguments = 153
+Log = output_files/logs/single_channel_clean_153.log
+Output = output_files/output/single_channel_clean_153.out
+Error = output_files/error/single_channel_clean_153.err
+Queue
+Arguments = 154
+Log = output_files/logs/single_channel_clean_154.log
+Output = output_files/output/single_channel_clean_154.out
+Error = output_files/error/single_channel_clean_154.err
+Queue
+Arguments = 155
+Log = output_files/logs/single_channel_clean_155.log
+Output = output_files/output/single_channel_clean_155.out
+Error = output_files/error/single_channel_clean_155.err
+Queue
+Arguments = 156
+Log = output_files/logs/single_channel_clean_156.log
+Output = output_files/output/single_channel_clean_156.out
+Error = output_files/error/single_channel_clean_156.err
+Queue
+Arguments = 157
+Log = output_files/logs/single_channel_clean_157.log
+Output = output_files/output/single_channel_clean_157.out
+Error = output_files/error/single_channel_clean_157.err
+Queue
+Arguments = 158
+Log = output_files/logs/single_channel_clean_158.log
+Output = output_files/output/single_channel_clean_158.out
+Error = output_files/error/single_channel_clean_158.err
+Queue
+Arguments = 159
+Log = output_files/logs/single_channel_clean_159.log
+Output = output_files/output/single_channel_clean_159.out
+Error = output_files/error/single_channel_clean_159.err
+Queue
+Arguments = 160
+Log = output_files/logs/single_channel_clean_160.log
+Output = output_files/output/single_channel_clean_160.out
+Error = output_files/error/single_channel_clean_160.err
+Queue
+Arguments = 161
+Log = output_files/logs/single_channel_clean_161.log
+Output = output_files/output/single_channel_clean_161.out
+Error = output_files/error/single_channel_clean_161.err
+Queue
+Arguments = 162
+Log = output_files/logs/single_channel_clean_162.log
+Output = output_files/output/single_channel_clean_162.out
+Error = output_files/error/single_channel_clean_162.err
+Queue
+Arguments = 163
+Log = output_files/logs/single_channel_clean_163.log
+Output = output_files/output/single_channel_clean_163.out
+Error = output_files/error/single_channel_clean_163.err
+Queue
+Arguments = 164
+Log = output_files/logs/single_channel_clean_164.log
+Output = output_files/output/single_channel_clean_164.out
+Error = output_files/error/single_channel_clean_164.err
+Queue
+Arguments = 165
+Log = output_files/logs/single_channel_clean_165.log
+Output = output_files/output/single_channel_clean_165.out
+Error = output_files/error/single_channel_clean_165.err
+Queue
+Arguments = 166
+Log = output_files/logs/single_channel_clean_166.log
+Output = output_files/output/single_channel_clean_166.out
+Error = output_files/error/single_channel_clean_166.err
+Queue
+Arguments = 167
+Log = output_files/logs/single_channel_clean_167.log
+Output = output_files/output/single_channel_clean_167.out
+Error = output_files/error/single_channel_clean_167.err
+Queue
+Arguments = 168
+Log = output_files/logs/single_channel_clean_168.log
+Output = output_files/output/single_channel_clean_168.out
+Error = output_files/error/single_channel_clean_168.err
+Queue
+Arguments = 169
+Log = output_files/logs/single_channel_clean_169.log
+Output = output_files/output/single_channel_clean_169.out
+Error = output_files/error/single_channel_clean_169.err
+Queue
+Arguments = 170
+Log = output_files/logs/single_channel_clean_170.log
+Output = output_files/output/single_channel_clean_170.out
+Error = output_files/error/single_channel_clean_170.err
+Queue
+Arguments = 171
+Log = output_files/logs/single_channel_clean_171.log
+Output = output_files/output/single_channel_clean_171.out
+Error = output_files/error/single_channel_clean_171.err
+Queue
+Arguments = 172
+Log = output_files/logs/single_channel_clean_172.log
+Output = output_files/output/single_channel_clean_172.out
+Error = output_files/error/single_channel_clean_172.err
+Queue
+Arguments = 173
+Log = output_files/logs/single_channel_clean_173.log
+Output = output_files/output/single_channel_clean_173.out
+Error = output_files/error/single_channel_clean_173.err
+Queue
+Arguments = 174
+Log = output_files/logs/single_channel_clean_174.log
+Output = output_files/output/single_channel_clean_174.out
+Error = output_files/error/single_channel_clean_174.err
+Queue
+Arguments = 175
+Log = output_files/logs/single_channel_clean_175.log
+Output = output_files/output/single_channel_clean_175.out
+Error = output_files/error/single_channel_clean_175.err
+Queue
+Arguments = 176
+Log = output_files/logs/single_channel_clean_176.log
+Output = output_files/output/single_channel_clean_176.out
+Error = output_files/error/single_channel_clean_176.err
+Queue
+Arguments = 177
+Log = output_files/logs/single_channel_clean_177.log
+Output = output_files/output/single_channel_clean_177.out
+Error = output_files/error/single_channel_clean_177.err
+Queue
+Arguments = 178
+Log = output_files/logs/single_channel_clean_178.log
+Output = output_files/output/single_channel_clean_178.out
+Error = output_files/error/single_channel_clean_178.err
+Queue
+Arguments = 179
+Log = output_files/logs/single_channel_clean_179.log
+Output = output_files/output/single_channel_clean_179.out
+Error = output_files/error/single_channel_clean_179.err
+Queue
+Arguments = 180
+Log = output_files/logs/single_channel_clean_180.log
+Output = output_files/output/single_channel_clean_180.out
+Error = output_files/error/single_channel_clean_180.err
+Queue
+Arguments = 181
+Log = output_files/logs/single_channel_clean_181.log
+Output = output_files/output/single_channel_clean_181.out
+Error = output_files/error/single_channel_clean_181.err
+Queue
+Arguments = 182
+Log = output_files/logs/single_channel_clean_182.log
+Output = output_files/output/single_channel_clean_182.out
+Error = output_files/error/single_channel_clean_182.err
+Queue
+Arguments = 183
+Log = output_files/logs/single_channel_clean_183.log
+Output = output_files/output/single_channel_clean_183.out
+Error = output_files/error/single_channel_clean_183.err
+Queue
+Arguments = 184
+Log = output_files/logs/single_channel_clean_184.log
+Output = output_files/output/single_channel_clean_184.out
+Error = output_files/error/single_channel_clean_184.err
+Queue
+Arguments = 185
+Log = output_files/logs/single_channel_clean_185.log
+Output = output_files/output/single_channel_clean_185.out
+Error = output_files/error/single_channel_clean_185.err
+Queue
+Arguments = 186
+Log = output_files/logs/single_channel_clean_186.log
+Output = output_files/output/single_channel_clean_186.out
+Error = output_files/error/single_channel_clean_186.err
+Queue
+Arguments = 187
+Log = output_files/logs/single_channel_clean_187.log
+Output = output_files/output/single_channel_clean_187.out
+Error = output_files/error/single_channel_clean_187.err
+Queue
+Arguments = 188
+Log = output_files/logs/single_channel_clean_188.log
+Output = output_files/output/single_channel_clean_188.out
+Error = output_files/error/single_channel_clean_188.err
+Queue
+Arguments = 189
+Log = output_files/logs/single_channel_clean_189.log
+Output = output_files/output/single_channel_clean_189.out
+Error = output_files/error/single_channel_clean_189.err
+Queue
+Arguments = 190
+Log = output_files/logs/single_channel_clean_190.log
+Output = output_files/output/single_channel_clean_190.out
+Error = output_files/error/single_channel_clean_190.err
+Queue
+Arguments = 191
+Log = output_files/logs/single_channel_clean_191.log
+Output = output_files/output/single_channel_clean_191.out
+Error = output_files/error/single_channel_clean_191.err
+Queue
+Arguments = 192
+Log = output_files/logs/single_channel_clean_192.log
+Output = output_files/output/single_channel_clean_192.out
+Error = output_files/error/single_channel_clean_192.err
+Queue
+Arguments = 193
+Log = output_files/logs/single_channel_clean_193.log
+Output = output_files/output/single_channel_clean_193.out
+Error = output_files/error/single_channel_clean_193.err
+Queue
+Arguments = 194
+Log = output_files/logs/single_channel_clean_194.log
+Output = output_files/output/single_channel_clean_194.out
+Error = output_files/error/single_channel_clean_194.err
+Queue
+Arguments = 195
+Log = output_files/logs/single_channel_clean_195.log
+Output = output_files/output/single_channel_clean_195.out
+Error = output_files/error/single_channel_clean_195.err
+Queue
+Arguments = 196
+Log = output_files/logs/single_channel_clean_196.log
+Output = output_files/output/single_channel_clean_196.out
+Error = output_files/error/single_channel_clean_196.err
+Queue
+Arguments = 197
+Log = output_files/logs/single_channel_clean_197.log
+Output = output_files/output/single_channel_clean_197.out
+Error = output_files/error/single_channel_clean_197.err
+Queue
+Arguments = 198
+Log = output_files/logs/single_channel_clean_198.log
+Output = output_files/output/single_channel_clean_198.out
+Error = output_files/error/single_channel_clean_198.err
+Queue
+Arguments = 199
+Log = output_files/logs/single_channel_clean_199.log
+Output = output_files/output/single_channel_clean_199.out
+Error = output_files/error/single_channel_clean_199.err
+Queue
+Arguments = 200
+Log = output_files/logs/single_channel_clean_200.log
+Output = output_files/output/single_channel_clean_200.out
+Error = output_files/error/single_channel_clean_200.err
+Queue
+Arguments = 201
+Log = output_files/logs/single_channel_clean_201.log
+Output = output_files/output/single_channel_clean_201.out
+Error = output_files/error/single_channel_clean_201.err
+Queue
+Arguments = 202
+Log = output_files/logs/single_channel_clean_202.log
+Output = output_files/output/single_channel_clean_202.out
+Error = output_files/error/single_channel_clean_202.err
+Queue
+Arguments = 203
+Log = output_files/logs/single_channel_clean_203.log
+Output = output_files/output/single_channel_clean_203.out
+Error = output_files/error/single_channel_clean_203.err
+Queue
+Arguments = 204
+Log = output_files/logs/single_channel_clean_204.log
+Output = output_files/output/single_channel_clean_204.out
+Error = output_files/error/single_channel_clean_204.err
+Queue
+Arguments = 205
+Log = output_files/logs/single_channel_clean_205.log
+Output = output_files/output/single_channel_clean_205.out
+Error = output_files/error/single_channel_clean_205.err
+Queue
+Arguments = 206
+Log = output_files/logs/single_channel_clean_206.log
+Output = output_files/output/single_channel_clean_206.out
+Error = output_files/error/single_channel_clean_206.err
+Queue
+Arguments = 207
+Log = output_files/logs/single_channel_clean_207.log
+Output = output_files/output/single_channel_clean_207.out
+Error = output_files/error/single_channel_clean_207.err
+Queue
+Arguments = 208
+Log = output_files/logs/single_channel_clean_208.log
+Output = output_files/output/single_channel_clean_208.out
+Error = output_files/error/single_channel_clean_208.err
+Queue
+Arguments = 209
+Log = output_files/logs/single_channel_clean_209.log
+Output = output_files/output/single_channel_clean_209.out
+Error = output_files/error/single_channel_clean_209.err
+Queue
+Arguments = 210
+Log = output_files/logs/single_channel_clean_210.log
+Output = output_files/output/single_channel_clean_210.out
+Error = output_files/error/single_channel_clean_210.err
+Queue
+Arguments = 211
+Log = output_files/logs/single_channel_clean_211.log
+Output = output_files/output/single_channel_clean_211.out
+Error = output_files/error/single_channel_clean_211.err
+Queue
+Arguments = 212
+Log = output_files/logs/single_channel_clean_212.log
+Output = output_files/output/single_channel_clean_212.out
+Error = output_files/error/single_channel_clean_212.err
+Queue
+Arguments = 213
+Log = output_files/logs/single_channel_clean_213.log
+Output = output_files/output/single_channel_clean_213.out
+Error = output_files/error/single_channel_clean_213.err
+Queue
+Arguments = 214
+Log = output_files/logs/single_channel_clean_214.log
+Output = output_files/output/single_channel_clean_214.out
+Error = output_files/error/single_channel_clean_214.err
+Queue

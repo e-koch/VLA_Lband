@@ -1,0 +1,2 @@
+
+These scripts are somewhat incomplete, and rely on scripts in two other locations: [hi_reduction_scripts](https://github.com/e-koch/hi_reduction_scripts) and [canfar_scripts](https://github.com/e-koch/canfar_scripts).

@@ -67,7 +67,7 @@ def subtract_outlier(vis, outlier_coord, field='M33*', split_fields=True,
         uvsub(vis=fieldvis)
 
     # Now append the uvsub fields back together
-    individ_ms = ", ".join(glob.glob("temp_files/*.ms"))
+    individ_ms = glob.glob("temp_files/*.ms")
     concat(vis=individ_ms, concatvis=vis.rstrip(".ms")+"_outsub.ms",
            respectname=True)
 

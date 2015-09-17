@@ -1,0 +1,56 @@
+#content of outliers.txt
+# In order of how much they affect the imaging
+#
+#outlier field1 - closest to M33
+imagename=’outlier1’
+imsize=[64,64]
+phasecenter = ’J2000 1h32m22.769 30d44m07.482’
+mask=’circle[[32pix,32pix],8pix]’
+#
+#outlier field2 - double near bottom left of image
+imagenname=’outlier2’
+imsize=[128,128]
+mask=’circle[[64pix,64pix],10pix]’
+phasecenter = ’J2000 1h34m39.033 30d03m50.412’
+#
+#outlier field3 - north west of outlier 2
+imagenname=’outlier3’
+imsize=[128,128]
+mask=’circle[[64pix,64pix],8pix]’
+phasecenter = ’J2000 1h36m54.049 30d14m35.373’
+#
+#outlier field4 - brightest of cluster north of M33
+imagenname=’outlier4’
+imsize=[64,64]
+mask=’circle[[32pix,32pix],8pix]’
+phasecenter = ’J2000 1h34m29.570 31d03m12.081’
+#
+#outlier field5 - second brightest of cluster north of M33
+imagenname=’outlier5’
+imsize=[64,64]
+mask=’circle[[32pix,32pix],8pix]’
+phasecenter = ’J2000 1h35m13.195 31d10m33.247’
+#
+#outlier field6 - third brightest of cluster north of M33
+imagenname=’outlier6’
+imsize=[64,64]
+mask=’circle[[32pix,32pix],8pix]’
+phasecenter = ’J2000 1h35m16.252 30d54m51.118’
+#
+#outlier field7 - dimmest in cluster north of M33
+imagenname=’outlier7’
+imsize=[64,64]
+mask=’circle[[32pix,32pix],8pix]’
+phasecenter = ’J2000 1h35m08.286 31d05m35.170’
+#
+#outlier field8 - way north west of M33
+imagenname=’outlier8’
+imsize=[32,32]
+mask=’circle[[16pix,16pix],8pix]’
+phasecenter = ’J2000 1h36m17.153 31d24m34.212’
+#
+#outlier field9 - way north west of M33
+imagenname=’outlier9’
+imsize=[32,32]
+mask=’circle[[16pix,16pix],8pix]’
+phasecenter = ’J2000 1h37m08.449 31d22m46.636’

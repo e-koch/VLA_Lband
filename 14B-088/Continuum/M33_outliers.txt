@@ -1,4 +1,5 @@
-#content of outliers.txt
+
+# content of outliers.txt
 # In order of how much they affect the imaging
 #
 #outlier field1 - closest to M33

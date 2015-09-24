@@ -9,11 +9,12 @@ import os
 import warnings
 import re
 import glob
+from astropy.extern import six
 
 
-def subtract_outlier(vis, outlier_coord, field='M33*', split_fields=True,
+def subtract_outlier(vis, outlier_coords, field='M33*', split_fields=True,
                      stokes='I', interactive=True, weighting='natural',
-                     threshold='5mJy/beam', cleanup=False):
+                     threshold='5mJy/beam', cell='3arcsec', cleanup=False):
     '''
     Subtract an outlier at the given coordinates. Splits out each field,
     tries to image at that coordinate, then subracts of the model in the UV
@@ -29,6 +30,10 @@ def subtract_outlier(vis, outlier_coord, field='M33*', split_fields=True,
 
     regex = re.compile(field)
     fields = [f for f in all_fields if re.match(regex, f)]
+
+    # If only one position given, convert to list for iteration.
+    if isinstance(outlier_coords, six.string_types):
+        outlier_coords = [outlier_coords]
 
     try:
         os.mkdir('temp_files')
@@ -57,14 +62,23 @@ def subtract_outlier(vis, outlier_coord, field='M33*', split_fields=True,
             # NOT GENERALIZED!!
             mask = 'circle [ [ 32pix , 32pix] ,8pix ]'
 
-        clean(vis=fieldvis, imagename=fieldimg, mode='mfs',
-              phasecenter=outlier_coord, niter=10000, usescratch=True,
-              interactive=interactive, cell='3arcsec',
-              imsize=64, threshold=threshold, weighting=weighting,
-              minpb=0.0)
+        # Image each outlier at its phasecenter, then uvsub
+        for i, coords in enumerate(outlier_coords):
 
-        # Subtract out the model from the imaging
-        uvsub(vis=fieldvis)
+            outfield_img = fieldimg + "_" + str(i)
+
+            clean(vis=fieldvis, imagename=outfield_img, mode='mfs',
+                  phasecenter=outlier_coord, niter=10000, usescratch=True,
+                  interactive=interactive, cell='3arcsec',
+                  imsize=64, threshold=threshold, weighting=weighting,
+                  minpb=0.0)
+
+            # Subtract out the model from the imaging
+            uvsub(vis=fieldvis)
+
+            # Remove the individual images
+            if cleanup:
+                rmtables(outfield_img+"*")
 
     # Now append the uvsub fields back together
     individ_ms = glob.glob("temp_files/*.ms")

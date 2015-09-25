@@ -63,12 +63,12 @@ def subtract_outlier(vis, outlier_coords, field='M33*', split_fields=True,
             mask = 'circle [ [ 32pix , 32pix] ,8pix ]'
 
         # Image each outlier at its phasecenter, then uvsub
-        for i, coords in enumerate(outlier_coords):
+        for i, coord in enumerate(outlier_coords):
 
             outfield_img = fieldimg + "_" + str(i)
 
             clean(vis=fieldvis, imagename=outfield_img, mode='mfs',
-                  phasecenter=outlier_coord, niter=10000, usescratch=True,
+                  phasecenter=coord, niter=10000, usescratch=True,
                   interactive=interactive, cell='3arcsec',
                   imsize=64, threshold=threshold, weighting=weighting,
                   minpb=0.0)

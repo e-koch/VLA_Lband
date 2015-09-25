@@ -11,6 +11,8 @@ import re
 import glob
 from astropy.extern import six
 
+from .graceful_error_catch import catch_fail
+
 
 def subtract_outlier(vis, outlier_coords, field='M33*', split_fields=True,
                      stokes='I', interactive=True, weighting='natural',
@@ -50,8 +52,10 @@ def subtract_outlier(vis, outlier_coords, field='M33*', split_fields=True,
         fieldimg = os.path.join('temp_files', f)
 
         # Split the field off
-        out = split(vis=vis, outputvis=fieldvis, field=f,
+        split_out = split(vis=vis, outputvis=fieldvis, field=f,
                     datacolumn=datacolumn)
+
+
 
         # Now image the data, keeping the phasecenter at the outlier
 

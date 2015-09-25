@@ -14,7 +14,8 @@ from astropy.extern import six
 
 def subtract_outlier(vis, outlier_coords, field='M33*', split_fields=True,
                      stokes='I', interactive=True, weighting='natural',
-                     threshold='5mJy/beam', cell='3arcsec', cleanup=False):
+                     threshold='5mJy/beam', cell='3arcsec', cleanup=False,
+                     datacolumn="CORRECTED"):
     '''
     Subtract an outlier at the given coordinates. Splits out each field,
     tries to image at that coordinate, then subracts of the model in the UV
@@ -49,8 +50,8 @@ def subtract_outlier(vis, outlier_coords, field='M33*', split_fields=True,
         fieldimg = os.path.join('temp_files', f)
 
         # Split the field off
-        split(vis=vis, outputvis=fieldvis, field=f,
-              datacolumn="DATA")
+        out = split(vis=vis, outputvis=fieldvis, field=f,
+                    datacolumn=datacolumn)
 
         # Now image the data, keeping the phasecenter at the outlier
 

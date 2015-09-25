@@ -11,6 +11,8 @@ import re
 import glob
 from astropy.extern import six
 
+from taskinit import tb
+
 from .graceful_error_catch import catch_fail
 
 

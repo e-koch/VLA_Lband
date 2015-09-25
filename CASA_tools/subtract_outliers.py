@@ -43,7 +43,7 @@ def subtract_outlier(vis, outlier_coords, field='M33*', split_fields=True,
     except OSError:
         warnings.warn("temp_files already exists. "
                       "Going to remove all ms files from it.")
-        rmtables('temp_files/*')
+        catch_fail(rmtables, tablenames='temp_files/*')
 
     # Loop through the fields
     for f in fields:
@@ -52,10 +52,8 @@ def subtract_outlier(vis, outlier_coords, field='M33*', split_fields=True,
         fieldimg = os.path.join('temp_files', f)
 
         # Split the field off
-        split_out = split(vis=vis, outputvis=fieldvis, field=f,
-                    datacolumn=datacolumn)
-
-
+        catch_fail(split, vis=vis, outputvis=fieldvis, field=f,
+                   datacolumn=datacolumn)
 
         # Now image the data, keeping the phasecenter at the outlier
 
@@ -72,23 +70,24 @@ def subtract_outlier(vis, outlier_coords, field='M33*', split_fields=True,
 
             outfield_img = fieldimg + "_" + str(i)
 
-            clean(vis=fieldvis, imagename=outfield_img, mode='mfs',
-                  phasecenter=coord, niter=10000, usescratch=True,
-                  interactive=interactive, cell='3arcsec',
-                  imsize=64, threshold=threshold, weighting=weighting,
-                  minpb=0.0)
+            catch_fail(clean, vis=fieldvis, imagename=outfield_img, mode='mfs',
+                       phasecenter=coord, niter=10000, usescratch=True,
+                       interactive=interactive, cell='3arcsec',
+                       imsize=64, threshold=threshold, weighting=weighting,
+                       minpb=0.0)
 
             # Subtract out the model from the imaging
-            uvsub(vis=fieldvis)
+            catch_fail(uvsub, vis=fieldvis)
 
             # Remove the individual images
             if cleanup:
-                rmtables(outfield_img+"*")
+                catch_fail(rmtables, tablenames=outfield_img+"*")
 
     # Now append the uvsub fields back together
     individ_ms = glob.glob("temp_files/*.ms")
-    concat(vis=individ_ms, concatvis=vis.rstrip(".ms")+"_outsub.ms",
-           respectname=True)
+    catch_fail(concat, vis=individ_ms,
+               concatvis=vis.rstrip(".ms")+"_outsub.ms",
+               respectname=True)
 
     if cleanup:
-        rmtables('temp_files/*')
+        catch_fail(rmtables, tablenames='temp_files/*')

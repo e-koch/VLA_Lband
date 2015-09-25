@@ -12,6 +12,7 @@ import glob
 from astropy.extern import six
 
 from taskinit import tb
+from tasks import split, uvsub, concat, clean, rmtables
 
 from .graceful_error_catch import catch_fail
 

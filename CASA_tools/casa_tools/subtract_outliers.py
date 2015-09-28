@@ -20,7 +20,7 @@ from .graceful_error_catch import catch_fail
 def subtract_outlier(vis, outlier_coords, field='M33*', split_fields=True,
                      stokes='I', interactive=True, weighting='natural',
                      threshold='5mJy/beam', cell='3arcsec', cleanup=False,
-                     datacolumn="CORRECTED", imsize=64):
+                     datacolumn="CORRECTED", imsize=64, save_space=False):
     '''
     Subtract an outlier at the given coordinates. Splits out each field,
     tries to image at that coordinate, then subracts of the model in the UV
@@ -85,6 +85,16 @@ def subtract_outlier(vis, outlier_coords, field='M33*', split_fields=True,
             # Remove the individual images
             if cleanup:
                 catch_fail(rmtables, tablenames=outfield_img+"*")
+
+            if save_space:
+
+                fieldvis_corronly = \
+                    os.path.join('temp_files', f+"_corrected.ms")
+
+                catch_fail(split, vis=fieldvis, outputvis=fieldvis_corronly,
+                           field=f, datacolumn="CORRECTED")
+
+                catch_fail(rmtables, tablenames=fieldvis)
 
     # Now append the uvsub fields back together
     individ_ms = glob.glob("temp_files/*.ms")

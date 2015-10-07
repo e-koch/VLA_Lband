@@ -20,7 +20,8 @@ from .graceful_error_catch import catch_fail
 def subtract_outlier(vis, outlier_coords, field='M33*', split_fields=True,
                      stokes='I', interactive=True, weighting='natural',
                      threshold='5mJy/beam', cell='3arcsec', cleanup=False,
-                     datacolumn="CORRECTED", imsize=64, save_space=False):
+                     datacolumn="CORRECTED", imsize=64, save_space=False,
+                     masks=None):
     '''
     Subtract an outlier at the given coordinates. Splits out each field,
     tries to image at that coordinate, then subracts of the model in the UV
@@ -41,6 +42,9 @@ def subtract_outlier(vis, outlier_coords, field='M33*', split_fields=True,
     if isinstance(outlier_coords, six.string_types):
         outlier_coords = [outlier_coords]
 
+    if masks is not None:
+        assert len(masks) == len(outlier_coords)
+
     try:
         os.mkdir('temp_files')
     except OSError:
@@ -60,24 +64,21 @@ def subtract_outlier(vis, outlier_coords, field='M33*', split_fields=True,
 
         # Now image the data, keeping the phasecenter at the outlier
 
-        if interactive:
-            mask = None
-        else:
-            # Make a mask at the center with a radius
-            # slightly larger than the beam
-            # NOT GENERALIZED!!
-            mask = 'circle [ [ 32pix , 32pix] ,8pix ]'
-
         # Image each outlier at its phasecenter, then uvsub
         for i, coord in enumerate(outlier_coords):
 
             outfield_img = fieldimg + "_" + str(i)
 
+            if masks is not None:
+                mask = masks[i]
+            else:
+                mask = None
+
             catch_fail(clean, vis=fieldvis, imagename=outfield_img, mode='mfs',
                        phasecenter=coord, niter=10000, usescratch=True,
                        interactive=interactive, cell='3arcsec',
                        imsize=imsize, threshold=threshold, weighting=weighting,
-                       minpb=0.0)
+                       minpb=0.0, mask=mask)
 
             # Subtract out the model from the imaging
             catch_fail(uvsub, vis=fieldvis)

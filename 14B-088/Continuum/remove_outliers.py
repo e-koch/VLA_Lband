@@ -26,4 +26,4 @@ outlier_coords = ['J2000 1h32m22.618 +30d44m08.711',
 subtract_outliers('14B-088_continuum_I.ms', outlier_coords,
                   threshold='0.02mJy/beam', datacolumn='DATA',
                   field='M33_*', interactive=False, cleanup=True,
-                  save_space=True)
+                  save_space=True, masks=masks)

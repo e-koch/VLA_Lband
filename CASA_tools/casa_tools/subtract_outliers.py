@@ -17,11 +17,11 @@ from tasks import split, uvsub, concat, clean, rmtables
 from .graceful_error_catch import catch_fail
 
 
-def subtract_outlier(vis, outlier_coords, field='M33*', split_fields=True,
-                     stokes='I', interactive=True, weighting='natural',
-                     threshold='5mJy/beam', cell='3arcsec', cleanup=False,
-                     datacolumn="CORRECTED", imsize=64, save_space=False,
-                     masks=None):
+def subtract_outliers(vis, outlier_coords, field='M33*', split_fields=True,
+                      stokes='I', interactive=True, weighting='natural',
+                      threshold='5mJy/beam', cell='3arcsec', cleanup=False,
+                      datacolumn="CORRECTED", imsize=64, save_space=False,
+                      masks=None):
     '''
     Subtract an outlier at the given coordinates. Splits out each field,
     tries to image at that coordinate, then subracts of the model in the UV

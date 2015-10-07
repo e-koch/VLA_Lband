@@ -43,7 +43,9 @@ def subtract_outlier(vis, outlier_coords, field='M33*', split_fields=True,
         outlier_coords = [outlier_coords]
 
     if masks is not None:
-        assert len(masks) == len(outlier_coords)
+        if len(masks) != len(outlier_coords):
+            raise Warning("The number of specified masks must match the"
+                          " number of coordinates.")
 
     try:
         os.mkdir('temp_files')

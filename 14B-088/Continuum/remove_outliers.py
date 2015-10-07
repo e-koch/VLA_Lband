@@ -2,7 +2,7 @@
 # Remove continuum outliers around M33
 # Coordinates can be found in text file
 
-from CASA_tools import subtract_outliers
+from casa_tools import subtract_outliers
 
 import glob
 

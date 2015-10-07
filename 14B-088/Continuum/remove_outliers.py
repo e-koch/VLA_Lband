@@ -9,6 +9,7 @@ import glob
 
 # Grab the list of mask images
 masks = glob.glob("masks/*.mask")
+masks.sort()
 assert len(masks) == 9
 
 # Arranged roughly in decreasing brightness

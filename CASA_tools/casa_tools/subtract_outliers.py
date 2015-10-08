@@ -89,15 +89,15 @@ def subtract_outliers(vis, outlier_coords, field='M33*', split_fields=True,
             if cleanup:
                 catch_fail(rmtables, tablenames=outfield_img+"*")
 
-            if save_space:
+        if save_space:
 
-                fieldvis_corronly = \
-                    os.path.join('temp_files', f+"_corrected.ms")
+            fieldvis_corronly = \
+                os.path.join('temp_files', f+"_corrected.ms")
 
-                catch_fail(split, vis=fieldvis, outputvis=fieldvis_corronly,
-                           field=f, datacolumn="CORRECTED")
+            catch_fail(split, vis=fieldvis, outputvis=fieldvis_corronly,
+                       field=f, datacolumn="CORRECTED")
 
-                catch_fail(rmtables, tablenames=fieldvis)
+            catch_fail(rmtables, tablenames=fieldvis)
 
     # Now append the uvsub fields back together
     individ_ms = glob.glob("temp_files/*.ms")

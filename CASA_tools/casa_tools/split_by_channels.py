@@ -17,7 +17,7 @@ def split_by_channel(vis, nchan=-1, start=1, spw=0,
     '''
 
     # Get the total number of channels
-    tb.open(os.path.join(vis, '/SPECTRAL_WINDOW'))
+    tb.open(os.path.join(vis, 'SPECTRAL_WINDOW'))
     nchan_list = tb.getcol('NUM_CHAN')
     tb.close()
 

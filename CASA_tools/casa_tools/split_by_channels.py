@@ -4,14 +4,16 @@ Split MS into single spectral channels
 '''
 
 import os
+import numpy as np
+from copy import copy
 
-from taskinit import tb
+from taskinit import tb, ia, rg
 
 from .mytools import mymstransform
 
 
-def split_by_channel(vis, nchan=-1, start=1, spw='0',
-                     restfreq='1420.40575177MHz', **kwargs):
+def ms_split_by_channel(vis, nchan=-1, start=1, spw='0',
+                        restfreq='1420.40575177MHz', **kwargs):
     '''
     Splits a MS by its spectral channels, according to the given
     '''
@@ -41,6 +43,64 @@ def split_by_channel(vis, nchan=-1, start=1, spw='0',
         mymstransform(vis=vis, outputvis=channel_vis, spw=spw,
                       regridms=True, width=1, nchan=nchan, start=chan,
                       restfreq=restfreq, **kwargs)
+
+
+def image_split_by_channel(imagename, nchan=-1, start=1, output_dir=None,
+                           specaxis_name="Frequency", verbose=False):
+    '''
+    Split an image into the specified spectral channels.
+    '''
+
+    # Open image.
+    ia.open(imagename)
+
+    # Find the spectral axis
+    csys = ia.coordsys()
+    try:
+        spec_axis = np.where(np.asarray(csys.names()) == specaxis_name)[0][0]
+    except IndexError:
+        raise IndexError("Cannot find spectral axis" + specaxis_name + " in "
+                         + str(csys.names()))
+        ia.close()
+
+    # Check given number of channels
+    cube_shape = list(ia.shape())
+    ndims = len(cube_shape)
+    total_nchan = cube_shape[spec_axis]
+
+    if nchan == -1:
+        nchan = total_nchan
+    elif nchan > total_nchan:
+        raise ValueError("There are only "+str(total_nchan)+". Reduce"
+                         " nchan to at least this")
+        ia.close()
+    else:
+        pass
+
+    # Create the base imagename
+    output_dir = "" if output_dir is None else output_dir
+    base_image = imagename.rstrip("/").split("/")[-1].rstrip(".image")
+
+    outputimage = os.path.join(output_dir, base_image)
+
+    channel_list = range(start, start+nchan)
+
+    for chan in channel_list:
+        if verbose:
+            print("On channel "+str(chan+1)+" of "+str(start+nchan))
+        lower_corner = [0] * ndims
+        upper_corner = copy(cube_shape)
+
+        # Set the channel
+        lower_corner[spec_axis] = chan
+        upper_corner[spec_axis] = chan
+
+        box = rg.box(lower_corner, upper_corner)
+
+        # Now make sliced image
+        im_slice = ia.subimage(outputimage+"_channel_"+str(chan)+".image",
+                               box)
+        im_slice.done()
 
 
 def get_slice_obj(slicearg):

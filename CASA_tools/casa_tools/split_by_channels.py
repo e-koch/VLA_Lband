@@ -39,7 +39,7 @@ def split_by_channel(vis, nchan=-1, start=1, spw='0',
     for chan in channel_list:
         channel_vis = vis.rstrip(".ms")+"_channel_"+str(chan)+".ms"
         mymstransform(vis=vis, outputvis=channel_vis, spw=spw,
-                      regridms=True, width=1, nchan=1, start=chan,
+                      regridms=True, width=1, nchan=nchan, start=chan,
                       restfreq=restfreq, **kwargs)
 
 

@@ -21,7 +21,7 @@ def subtract_outliers(vis, outlier_coords, field='M33*', split_fields=True,
                       stokes='I', interactive=True, weighting='natural',
                       threshold='5mJy/beam', cell='3arcsec', cleanup=False,
                       datacolumn="CORRECTED", imsize=64, save_space=False,
-                      masks=None):
+                      masks=None, multiscale=[]):
     '''
     Subtract an outlier at the given coordinates. Splits out each field,
     tries to image at that coordinate, then subracts of the model in the UV
@@ -80,7 +80,7 @@ def subtract_outliers(vis, outlier_coords, field='M33*', split_fields=True,
                        phasecenter=coord, niter=10000, usescratch=True,
                        interactive=interactive, cell='3arcsec',
                        imsize=imsize, threshold=threshold, weighting=weighting,
-                       minpb=0.0, mask=mask)
+                       minpb=0.0, mask=mask, multiscale=multiscale)
 
             # Subtract out the model from the imaging
             catch_fail(uvsub, vis=fieldvis)

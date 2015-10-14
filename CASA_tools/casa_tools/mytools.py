@@ -3,7 +3,7 @@
 Define my own version of CASA tools that return python errors if they fail.
 '''
 
-from tasks import split, uvsub, concat, clean, rmtables
+from tasks import split, uvsub, concat, clean, rmtables, mstransform
 
 from .graceful_error_catch import catch_fail
 
@@ -26,3 +26,7 @@ def myclean(**kwargs):
 
 def myrmtables(**kwargs):
     return catch_fail(rmtables, **kwargs)
+
+def mymstransform(**kwargs):
+    return catch_fail(mstransform, **kwargs)
+

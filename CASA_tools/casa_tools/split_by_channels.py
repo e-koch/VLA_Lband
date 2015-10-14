@@ -5,7 +5,6 @@ Split MS into single spectral channels
 
 import os
 
-from tasks import split
 from taskinit import tb
 
 from .mytools import mymstransform

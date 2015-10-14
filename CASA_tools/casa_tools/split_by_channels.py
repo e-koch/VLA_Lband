@@ -11,7 +11,7 @@ from .mytools import mymstransform
 
 
 def split_by_channel(vis, nchan=-1, start=1, spw='0',
-                     restfreq='1420.40575177MHz'):
+                     restfreq='1420.40575177MHz', **kwargs):
     '''
     Splits a MS by its spectral channels, according to the given
     '''
@@ -40,7 +40,7 @@ def split_by_channel(vis, nchan=-1, start=1, spw='0',
         channel_vis = vis.rstrip(".ms")+"_channel_"+str(chan)+".ms"
         mymstransform(vis=vis, outputvis=channel_vis, spw=spw,
                       regridms=True, width=1, nchan=1, start=chan,
-                      restfreq=restfreq)
+                      restfreq=restfreq, **kwargs)
 
 
 def get_slice_obj(slicearg):

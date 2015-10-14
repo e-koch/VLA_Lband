@@ -10,7 +10,7 @@ from taskinit import tb
 from .mytools import mymstransform
 
 
-def split_by_channel(vis, nchan=-1, start=1, spw=0,
+def split_by_channel(vis, nchan=-1, start=1, spw='0',
                      restfreq='1420.40575177MHz'):
     '''
     Splits a MS by its spectral channels, according to the given

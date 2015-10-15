@@ -13,7 +13,8 @@ from .mytools import mymstransform
 
 
 def ms_split_by_channel(vis, nchan=-1, start=1, spw='0',
-                        restfreq='1420.40575177MHz', **kwargs):
+                        restfreq='1420.40575177MHz',
+                        output_dir=None, **kwargs):
     '''
     Splits a MS by its spectral channels, according to the given
     '''
@@ -40,6 +41,8 @@ def ms_split_by_channel(vis, nchan=-1, start=1, spw='0',
 
     for chan in channel_list:
         channel_vis = vis.rstrip(".ms")+"_channel_"+str(chan)+".ms"
+        if output_dir is not None:
+            channel_vis = os.path.join(output_dir, channel_vis)
         mymstransform(vis=vis, outputvis=channel_vis, spw=spw,
                       regridms=True, width=1, nchan=nchan, start=chan,
                       restfreq=restfreq, **kwargs)

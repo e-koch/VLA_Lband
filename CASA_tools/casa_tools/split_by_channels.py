@@ -9,12 +9,12 @@ from copy import copy
 
 from taskinit import tb, ia, rg
 
-from .mytools import mymstransform
+from .mytools import mymstransform, mysplit
 
 
 def ms_split_by_channel(vis, nchan=-1, start=1, spw='0',
                         restfreq='1420.40575177MHz',
-                        output_dir=None, **kwargs):
+                        output_dir=None, use_split=True, **kwargs):
     '''
     Splits a MS by its spectral channels, according to the given
     '''
@@ -43,9 +43,14 @@ def ms_split_by_channel(vis, nchan=-1, start=1, spw='0',
         channel_vis = vis.rstrip(".ms")+"_channel_"+str(chan)+".ms"
         if output_dir is not None:
             channel_vis = os.path.join(output_dir, channel_vis)
-        mymstransform(vis=vis, outputvis=channel_vis, spw=spw,
-                      regridms=True, width=1, nchan=nchan, start=chan,
-                      restfreq=restfreq, **kwargs)
+        if use_split:
+            spw_chan_select = spw + ":" + str(chan)
+            mysplit(vis=vis, outputvis=channel_vis, spw=spw_chan_select,
+                    **kwargs)
+        else:
+            mymstransform(vis=vis, outputvis=channel_vis, spw=spw,
+                          regridms=True, width=1, nchan=nchan, start=chan,
+                          restfreq=restfreq, **kwargs)
 
 
 def image_split_by_channel(imagename, nchan=-1, start=1, output_dir=None,

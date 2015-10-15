@@ -7,7 +7,7 @@ channels.
 from casa_tools import image_split_by_channel
 
 start_chan = 670
-nchan = 200
+nchan = 1231
 
 model = "/home/ekoch/m33/14B-088/M33_14B-088_HI_model.image"
 output_dir = "/home/ekoch/m33/14B-088/model_channels/"

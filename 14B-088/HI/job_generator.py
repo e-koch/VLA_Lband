@@ -9,7 +9,7 @@ import shutil
 import time
 
 
-def return_template(ms_name, model_name, mask_name):
+def return_template(output_direc, ms_name, model_name, mask_name):
 
     template = \
         '''
@@ -26,18 +26,19 @@ def return_template(ms_name, model_name, mask_name):
 
 source /home/ekoch/.bashrc
 
-cd /home/ekoch/m33/14B-088/
+cd /home/ekoch/m33/14B-088/single_channels/X1
 
 echo "Starting at: `date`"
-casa -c /home/ekoch/code_repos/VLA_Lband/14B-088/HI/HI_channel_clean.py X1 X2 X3
+casa -c /home/ekoch/code_repos/VLA_Lband/14B-088/HI/HI_channel_clean.py X2 X3 X4
 echo "Exited with code $? at: `date`"
         '''
 
     template = template.strip()
 
-    template = template.replace("X1", ms_name)
-    template = template.replace("X2", model_name)
-    template = template.replace("X3", mask_name)
+    template = template.replace("X1", output_direc)
+    template = template.replace("X2", ms_name)
+    template = template.replace("X3", model_name)
+    template = template.replace("X4", mask_name)
 
     return template
 
@@ -82,7 +83,8 @@ while True:
                                  "M33_14B-088_HI_mask_channel_"
                                  + str(chan_num) + ".image")
 
-        chan_template = return_template(chan_ms, model_name, mask_name)
+        chan_template = return_template(channel_direc, chan_ms,
+                                        model_name, mask_name)
 
         # Write to file
         sub_file = os.path.join(channel_direc, "channel_"+str(chan_num)+".sub")

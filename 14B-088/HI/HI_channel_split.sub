@@ -1,0 +1,18 @@
+#!/bin/bash
+
+#PBS -S /bin/bash
+#PBS -l pmem=2000m
+#PBS -l feature=X5675
+#PBS -l nodes=1:ppn=12
+#PBS -l walltime=18:00:00
+#PBS -m bea
+#PBS -M koch.eric.w@gmail.com
+#PBS -l epilogue=/home/ekoch/code_repos/simscript/epilogue.sh
+
+source /home/ekoch/.bashrc
+
+cd /home/ekoch/m33/14B-088/
+
+echo "Starting at: `date`"
+casa -c /home/ekoch/code_repos/VLA_Lband/14B-088/HI/HI_channel_split.py
+echo "Exited with code $? at: `date`"

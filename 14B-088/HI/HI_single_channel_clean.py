@@ -25,6 +25,6 @@ myclean(vis=vis, imagename=out_root+'.clean', field='M33*',
         cell='3arcsec', multiscale=[0, 4, 8, 20, 40, 80],
         threshold='5.0mJy/beam', imagermode='mosaic', gain=0.1,
         imsize=[2560, 2560], weighting='natural', robust=0.0, niter=50000,
-        pbcor=False, interpolation='linear', usescratch=True,
+        pbcor=False, interpolation='linear', usescratch=False,
         phasecenter='J2000 01h33m50.904 +30d39m35.79', veltype='radio',
         modelimage=model, mask=mask)

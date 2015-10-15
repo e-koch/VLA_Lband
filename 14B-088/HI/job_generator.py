@@ -13,25 +13,27 @@ def return_template(ms_name, model_name, mask_name):
 
     template = \
         '''
-        #!/bin/bash
+#!/bin/bash
 
-        #PBS -S /bin/bash
-        #PBS -l pmem=2000m
-        #PBS -l feature=X5675
-        #PBS -l nodes=1:ppn=12
-        #PBS -l walltime=72:00:00
-        #PBS -m bea
-        #PBS -M koch.eric.w@gmail.com
-        #PBS -l epilogue=/home/ekoch/code_repos/simscript/epilogue.sh
+#PBS -S /bin/bash
+#PBS -l pmem=2000m
+#PBS -l feature=X5675
+#PBS -l nodes=1:ppn=12
+#PBS -l walltime=72:00:00
+#PBS -m bea
+#PBS -M koch.eric.w@gmail.com
+#PBS -l epilogue=/home/ekoch/code_repos/simscript/epilogue.sh
 
-        source /home/ekoch/.bashrc
+source /home/ekoch/.bashrc
 
-        cd /home/ekoch/m33/14B-088/
+cd /home/ekoch/m33/14B-088/
 
-        echo "Starting at: `date`"
-        casa -c /home/ekoch/code_repos/VLA_Lband/14B-088/HI/HI_channel_clean.py X1 X2 X3
-        echo "Exited with code $? at: `date`"
+echo "Starting at: `date`"
+casa -c /home/ekoch/code_repos/VLA_Lband/14B-088/HI/HI_channel_clean.py X1 X2 X3
+echo "Exited with code $? at: `date`"
         '''
+
+    template = template.strip()
 
     template = template.replace("X1", ms_name)
     template = template.replace("X2", model_name)

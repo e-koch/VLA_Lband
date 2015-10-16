@@ -94,7 +94,10 @@ while True:
             f.write(chan_template)
 
         # Now submit!
+        old_direc = os.getcwd()
+        os.chdir(channel_direc)  # Switch to directory so log files are there
         os.system("qsub " + sub_file)
+        os.chdir(old_direc)
 
     # Wait an hour, then check again for new channel ms
     time.sleep(3600)

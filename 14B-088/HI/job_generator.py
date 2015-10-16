@@ -61,6 +61,8 @@ while True:
     # Now loop through the existing channel ms
     for chan in channel_ms:
         chan_num = int(chan.split("_")[-1][:-3])
+        # adjust for numbering offset
+        mod_mask_num = chan_num - 670
 
         channel_direc = os.path.join(output_direc, "channel_"+str(chan_num))
 
@@ -71,17 +73,17 @@ while True:
 
         os.mkdir(channel_direc)
         shutil.move(chan, channel_direc)
-        shutil.move(model_channels+str(chan_num)+".image", channel_direc)
-        shutil.move(mask_channels+str(chan_num)+".image", channel_direc)
+        shutil.move(model_channels+str(mod_mask_num)+".image", channel_direc)
+        shutil.move(mask_channels+str(mod_mask_num)+".image", channel_direc)
 
         chan_ms = os.path.join(channel_direc, chan.split("/")[-1])
 
         model_name = os.path.join(channel_direc,
                                   "M33_14B-088_HI_model_channel_"
-                                  + str(chan_num) + ".image")
+                                  + str(mod_mask_num) + ".image")
         mask_name = os.path.join(channel_direc,
                                  "M33_14B-088_HI_mask_channel_"
-                                 + str(chan_num) + ".image")
+                                 + str(mod_mask_num) + ".image")
 
         chan_template = return_template(channel_direc, chan_ms,
                                         model_name, mask_name)

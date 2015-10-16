@@ -46,13 +46,13 @@ echo "Exited with code $? at: `date`"
 ms_channel = "/home/ekoch/m33/14B-088/channel_ms/"
 model_channels = "/home/ekoch/m33/14B-088/model_channels/M33_14B-088_HI_model_channel_"
 mask_channels = "/home/ekoch/m33/14B-088/mask_channels/M33_14B-088_HI_mask_channel_"
-output_direc = "/home/ekoch/m33/14B-088/single_channels/"
+output_direc = "/home/ekoch/m33/14B-088/" # single_channels/"
 
 # Use mask and model? Disable when continuing to clean.
 use_mask_model = True
 
 while True:
-    channel_ms = glob.glob(os.path.join(ms_channel, "*.ms"))
+    channel_ms = glob.glob(os.path.join(ms_channel, "*channel*.ms"))
 
     # If there aren't any more split ms in the path, break and exit
     if len(channel_ms) == 0:

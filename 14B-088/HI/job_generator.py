@@ -43,7 +43,7 @@ echo "Exited with code $? at: `date`"
     return template
 
 # Set the directory to look in.
-ms_channel = "/home/ekoch/m33/14B-088/" # channel_ms/"
+ms_channel = "/home/ekoch/m33/14B-088/channel_ms/"
 model_channels = "/home/ekoch/m33/14B-088/model_channels/M33_14B-088_HI_model_channel_"
 mask_channels = "/home/ekoch/m33/14B-088/mask_channels/M33_14B-088_HI_mask_channel_"
 output_direc = "/home/ekoch/m33/14B-088/single_channels/"

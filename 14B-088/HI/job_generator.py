@@ -44,6 +44,22 @@ echo "Exited with code $? at: `date`"
 
     return template
 
+
+def drop_last(ms_list):
+    '''
+    CASA is generally writing to the final MS in the folder, so skip it.
+    '''
+
+    max_num = 0
+    for ms in ms_list:
+        if int(ms.split("_")[-1][:-3]) > max_num:
+            max_num_ms = ms
+            max_num = int(ms.split("_")[-1][:-3])
+
+    ms_list.remove(max_num_ms)
+
+    return ms_list
+
 # Set the directory to look in.
 ms_channel = "/home/ekoch/m33/14B-088/channel_ms/"
 model_channels = "/home/ekoch/m33/14B-088/model_channels/M33_14B-088_HI_model_channel_"
@@ -59,6 +75,8 @@ while True:
     # If there aren't any more split ms in the path, break and exit
     if len(channel_ms) == 0:
         break
+
+    channel_ms = drop_last(channel_ms)
 
     # Now loop through the existing channel ms
     for chan in channel_ms:

@@ -11,6 +11,10 @@ import time
 
 def return_template(output_direc, ms_name, model_name, mask_name):
 
+    # Emailing
+    #PBS -m bea
+    #PBS -M koch.eric.w@gmail.com
+
     template = \
         '''
 #!/bin/bash
@@ -20,8 +24,6 @@ def return_template(output_direc, ms_name, model_name, mask_name):
 #PBS -l feature=X5675
 #PBS -l nodes=1:ppn=12
 #PBS -l walltime=72:00:00
-#PBS -m bea
-#PBS -M koch.eric.w@gmail.com
 #PBS -l epilogue=/home/ekoch/code_repos/simscript/epilogue.sh
 
 source /home/ekoch/.bashrc

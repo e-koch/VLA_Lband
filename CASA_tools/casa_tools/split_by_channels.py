@@ -39,8 +39,10 @@ def ms_split_by_channel(vis, nchan=-1, start=1, spw='0',
 
     channel_list = range(start, start+nchan)
 
+    vis_name = vis.rstrip("/").split("/")[-1]
+
     for chan in channel_list:
-        channel_vis = vis.rstrip(".ms")+"_channel_"+str(chan)+".ms"
+        channel_vis = vis_name.rstrip(".ms")+"_channel_"+str(chan)+".ms"
         if output_dir is not None:
             channel_vis = os.path.join(output_dir, channel_vis)
         if use_split:

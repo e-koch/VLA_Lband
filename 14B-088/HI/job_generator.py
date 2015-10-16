@@ -26,7 +26,7 @@ def return_template(output_direc, ms_name, model_name, mask_name):
 
 source /home/ekoch/.bashrc
 
-cd /home/ekoch/m33/14B-088/single_channels/X1
+cd X1
 
 echo "Starting at: `date`"
 casa -c /home/ekoch/code_repos/VLA_Lband/14B-088/HI/HI_single_channel_clean.py X2 X3 X4

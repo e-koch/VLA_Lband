@@ -5,4 +5,9 @@ python ~/Dropbox/code_development/clean_masks/match_regrid_cubes.py /media/eric/
 
 python ~/Dropbox/code_development/clean_masks/match_regrid_cubes.py /media/eric/Data_3/M33/Arecibo/M33only_jy_stokes_vrad_mask.fits ~/MyRAID/M33/14B-088/HI/full_imaging/14B-088_HI.clean.image.fits /media/eric/Data_3/M33/Arecibo/M33_14B-088_HI_mask.fits True
 
-# Now swap the model and mask axes in the regridded cubes!
+# Now swap the model and mask axes in the regridded cubes! And reverse the spatial dimensions!
+# I should probably just fix my regridding function...
+
+python ~/Dropbox/code_development/VLA_Lband/14B-088/HI/HI_correct_mask_model.py /media/eric/Data_3/M33/Arecibo/M33_14B-088_HI_model.fits
+
+python ~/Dropbox/code_development/VLA_Lband/14B-088/HI/HI_correct_mask_model.py /media/eric/Data_3/M33/Arecibo/M33_14B-088_HI_mask.fits

@@ -11,7 +11,8 @@ hdu = fits.open(sys.argv[1], mode='update')
 
 hdu[0].data = hdu[0].data.swapaxes(0, 1)
 
-hdu[0].data = hdu[0].data[:, :, ::-1, ::-1]
+hdu[0].data = hdu[0].data[:, :, :, ::-1]
+hdu[0].data = hdu[0].data[:, :, ::-1, :]
 
 hdu.flush()
 

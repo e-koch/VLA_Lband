@@ -15,6 +15,7 @@ arecibo = \
 
 cleanmask = CleanMask(arecibo, 1, 5, iteraxis=1)
 
+# Need hard disable of slicewise std computation!!
 cleanmask.make_mask(verbose=True, smooth=True, kern_size=6)
 
 cleanmask.save_to_fits("M33only_jy_stokes_vrad_mask_1sigma_dilated.fits")

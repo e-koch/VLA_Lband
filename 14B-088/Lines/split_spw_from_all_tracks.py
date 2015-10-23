@@ -79,5 +79,5 @@ for i, track in enumerate(tracks):
 
     inputvis = os.path.join(track, ms_name)
 
-    mysplit(vis=inputvis, outputvis=full_name, spw=spw,
+    mysplit(vis=inputvis, outputvis=full_name, spw=str(spw),
             datacolumn="CORRECTED")

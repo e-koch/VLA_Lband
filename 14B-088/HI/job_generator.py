@@ -70,7 +70,15 @@ output_direc = "/home/ekoch/m33/14B-088/single_channels/"
 use_mask_model = True
 
 while True:
-    channel_ms = glob.glob(os.path.join(ms_channel, "*channel*.ms"))
+    # channel_ms = glob.glob(os.path.join(ms_channel, "*channel*.ms"))
+
+    # Temporary test on 100 channels
+    channel_ms = []
+    for chan in xrange(670, 771):
+        channel_path = \
+            os.path.join(ms_channel,
+                         "14B-088_HI_LSRK.ms.contsub_channel_"+str(chan)+".ms")
+        channel_ms.append(channel_path)
 
     # If there aren't any more split ms in the path, break and exit
     if len(channel_ms) == 0:
@@ -118,6 +126,9 @@ while True:
         os.chdir(channel_direc)  # Switch to directory so log files are there
         os.system("qsub " + sub_file)
         os.chdir(old_direc)
+
+    # Temporary stopper
+    break
 
     # Wait an hour, then check again for new channel ms
     time.sleep(3600)

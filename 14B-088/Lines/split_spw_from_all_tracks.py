@@ -71,7 +71,7 @@ for i, track in enumerate(tracks):
     while posn < len(track_contents):
         if track_contents[posn].startswith(proj_code):
             if track_contents[posn].endswith(".ms"):
-                ms_name = track_contents[i]
+                ms_name = track_contents[posn]
                 break
         posn += 1
     else:

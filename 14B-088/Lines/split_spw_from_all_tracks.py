@@ -73,6 +73,13 @@ for i, track in enumerate(tracks):
     # My folder structures are a bit different due to my custom pipeline
     track_contents = os.listdir(track)
 
+    # The tracks are too big to rewrite right now, so some still have
+    # the 'extra_flagging' directory with pipeline re-runs. Check if we
+    # should be looking for that.
+    if "extra_flagging" in track_contents:
+        track = os.path.join(track, "extra_flagging")
+        track_contents = os.listdir(track)
+
     # Pick out the ms that starts out with the project code.
     ms_name = None
     posn = 0

@@ -27,9 +27,17 @@ spw_dict = {2: ["HI", "1.420405752GHz"],
             4: ["H(164)alp", "1.47734GHz"]}
 
 # SPW
-spw = int(sys.argv[-3])
+spw = int(sys.argv[-4])
+intent = sys.argv[-3]
 input_dir = sys.argv[-2]
 output_dir = sys.argv[-1]
+
+if intent == "None":
+    intent = ""
+elif intent.lower() == "target":
+    intent = "[OBSERVE_TARGET#UNSPECIFIED]"
+else:
+    raise Warning("Only supporting intents of 'None' (ie. all) or 'target'")
 
 spw_outdir = os.path.join(output_dir, spw_dict[spw][0])
 
@@ -80,4 +88,4 @@ for i, track in enumerate(tracks):
     inputvis = os.path.join(track, ms_name)
 
     mysplit(vis=inputvis, outputvis=full_name, spw=str(spw),
-            datacolumn="CORRECTED", keepflags=False)
+            datacolumn="CORRECTED", keepflags=False, intent=intent)

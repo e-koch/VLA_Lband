@@ -4,6 +4,7 @@ Generate a pbs script for job submission, submit the job, be happy
 '''
 
 import glob
+import sys
 import os
 import shutil
 import time
@@ -69,22 +70,41 @@ output_direc = "/home/ekoch/m33/14B-088/single_channels/"
 # Use mask and model? Disable when continuing to clean.
 use_mask_model = True
 
-while True:
-    # channel_ms = glob.glob(os.path.join(ms_channel, "*channel*.ms"))
+# Set the mode to use. Continuously checking for new splits, or a set number.
+sub_mode = sys.argv[1]
+if sub_mode == "continuous":
+    pass
+elif sub_mode == "range":
+    try:
+        start = int(sys.argv[2])
+        stop = int(sys.argv[3])
+    except IndexError:
+        raise IndexError("Must provide a start and stop when using "
+                         "'range' mode.")
+else:
+    raise TypeError("sub_mode must be 'continuous' or 'range'.")
 
-    # Temporary test on 100 channels
-    channel_ms = []
-    for chan in xrange(670, 771):
-        channel_path = \
-            os.path.join(ms_channel,
-                         "14B-088_HI_LSRK.ms.contsub_channel_"+str(chan)+".ms")
-        channel_ms.append(channel_path)
+while True:
+
+    # Run channels in given range
+    if sub_mode == "range":
+        channel_ms = []
+        for chan in xrange(start, stop+1):
+            channel_path = \
+                os.path.join(ms_channel,
+                             "14B-088_HI_LSRK.ms.contsub_channel_" +
+                             str(chan)+".ms")
+            channel_ms.append(channel_path)
+
+    elif sub_mode == "continuous":
+        channel_ms = glob.glob(os.path.join(ms_channel, "*channel*.ms"))
+
+        channel_ms = drop_last(channel_ms)
 
     # If there aren't any more split ms in the path, break and exit
     if len(channel_ms) == 0:
+        print("No more MSs found in the directory. Exiting.")
         break
-
-    channel_ms = drop_last(channel_ms)
 
     # Now loop through the existing channel ms
     for chan in channel_ms:

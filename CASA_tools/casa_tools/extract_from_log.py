@@ -86,13 +86,46 @@ class CleanResults(object):
 
         finish_match = self.search_log(finish_re, view=view)
 
-        unfinish_re = all_time_date+info+"*MatrixCleaner::clean()\s*Reached*"
 
         if isinstance(finish_match, list):
             return [True] * len(finish_match)
         else:
             pass
 
+    @property
+    def line_ranges(self):
+        return self._line_ranges
+
+    def start_stop_range(self):
+        '''
+        Find the beginning and end of CLEAN.
+        '''
+
+        start_re = all_time_date+info+"*clean::::\s####.*End Task: clean.*"
+        stop_re = all_time_date+info+"*clean::::.\s####.*Begin Task: clean.*"
+
+        start_lines = self.search_log(start_re)[1]
+        stop_lines = self.search_log(stop_re)[1]
+
+        # If they aren't equal, there was an error (no end line)
+        # Must be the last clean call, since casa always crashes
+        # in my experience.
+        if len(start_lines) != len(stop_lines):
+            Warning("One of the CLEAN class failed.")
+            self._error = True
+            start_lines.pop(-1)
+
+        return zip(start_lines, stop_lines)
+
+    @property
+    def error(self):
+        return self._error
+
+    def max_residual(self):
+        pass
+
+    def time_elapsed():
+        pass
 
 def fill_in_slice(view, list_len):
     '''

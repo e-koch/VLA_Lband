@@ -66,7 +66,7 @@ class CleanResults(object):
 
         if len(matched_lines) == 1:
             if return_linenum:
-                return matched_lines[0], matched_line_nums[1]
+                return matched_lines[0], matched_line_nums[0]
             return matched_lines[0]
 
         if return_linenum:

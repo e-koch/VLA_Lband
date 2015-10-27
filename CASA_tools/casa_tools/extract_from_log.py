@@ -5,9 +5,11 @@ Extract info from the CASA logs.
 
 import re
 from itertools import izip
+from datetime import datetime
 
 # Define some strings for re
 all_time_date = r"^[0-9]{4}-[0-9]{2}-[0-9]{2}\s[0-9]{2}:[0-9]{2}:[0-9]{2}\s"
+casa_datetime_format = r'%Y-%m-%d %H:%M:%S'
 
 info = r"INFO\s"
 warn = r"WARN\s"
@@ -39,6 +41,8 @@ class CleanResults(object):
         self._line_ranges = None
 
         self._max_residuals = None
+
+        self._time_elapsed = None
 
     @property
     def lines(self):
@@ -147,6 +151,43 @@ class CleanResults(object):
         return self._error
 
     @property
+    def time_elapsed(self):
+        return self._time_elapsed
+
+    def get_time_elapsed(self, output='minutes'):
+        '''
+        Find the time needed for CLEAN to run.
+        '''
+
+        if not self.line_ranges:
+            self.get_line_ranges()
+
+        if isinstance(self.line_ranges[0], int):
+
+            start, stop = self.line_ranges
+
+            start_time = datetime.strptime(casa_time(self.lines[start]),
+                                           casa_datetime_format)
+            stop_time = datetime.strptime(casa_time(self.lines[stop]),
+                                          casa_datetime_format)
+
+            self._time_elapsed = \
+                time_difference(start_time, stop_time, output=output)
+
+        else:
+            for clean_range in self.line_ranges:
+                start, stop = clean_range
+
+                start_time = datetime.strptime(casa_time(self.lines[start]),
+                                               casa_datetime_format)
+                stop_time = datetime.strptime(casa_time(self.lines[stop]),
+                                              casa_datetime_format)
+
+                diff_time = \
+                    time_difference(start_time, stop_time, output=output)
+                self._time_elapsed.append(diff_time)
+
+    @property
     def max_residuals(self):
         return self._max_residuals
 
@@ -175,9 +216,6 @@ class CleanResults(object):
                 residual = float(re.findall(numbers, res_match)[-1])
                 self._max_residuals.append(residual)
 
-    def time_elapsed():
-        pass
-
 
 def fill_in_slice(view, list_len):
     '''
@@ -201,3 +239,24 @@ def fill_in_slice(view, list_len):
         step = view.step
 
     return slice(start, stop, step)
+
+
+def casa_time(line):
+    return line.split("\s")[0]
+
+
+def time_difference(time1, time2, output="seconds"):
+
+    diff = time2 - time1
+
+    if output == "seconds":
+        return diff.total_seconds()
+    elif output == "minutes":
+        return diff.total_seconds()/60.
+    elif output == "hours":
+        return diff.total_seconds()/3600.
+    elif output == "days":
+        return diff.total_seconds()/(3600.*24.)
+    else:
+        raise TypeError("output must be 'seconds', 'minutes',"
+                        " 'hours', or 'days'.")

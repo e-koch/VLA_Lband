@@ -6,6 +6,7 @@ Extract info from the CASA logs.
 import re
 from itertools import izip
 from datetime import datetime
+from astropy import units as u
 
 # Define some strings for re
 all_time_date = r"^[0-9]{4}-[0-9]{2}-[0-9]{2}\s[0-9]{2}:[0-9]{2}:[0-9]{2}\s"
@@ -204,7 +205,8 @@ class CleanResults(object):
             res_match = \
                 self.search_log(res_re, view=slice(start, stop))[0]
 
-            self._max_residuals = float(re.findall(numbers, res_match)[-1])
+            self._max_residuals = \
+                float(re.findall(numbers, res_match)[-1]) * u.Jy/u.beam
 
         else:
             self._max_residuals = []
@@ -213,7 +215,8 @@ class CleanResults(object):
                 res_match = \
                     self.search_log(res_re, view=slice(start, stop))
 
-                residual = float(re.findall(numbers, res_match)[-1])
+                residual = \
+                    float(re.findall(numbers, res_match)[-1]) * u.Jy/u.beam
                 self._max_residuals.append(residual)
 
 
@@ -242,7 +245,7 @@ def fill_in_slice(view, list_len):
 
 
 def casa_time(line):
-    return line.split("\s")[0]
+    return line.split("\t")[0]
 
 
 def time_difference(time1, time2, output="seconds"):
@@ -250,13 +253,13 @@ def time_difference(time1, time2, output="seconds"):
     diff = time2 - time1
 
     if output == "seconds":
-        return diff.total_seconds()
+        return diff.total_seconds() * u.s
     elif output == "minutes":
-        return diff.total_seconds()/60.
+        return diff.total_seconds()/60. * u.min
     elif output == "hours":
-        return diff.total_seconds()/3600.
+        return diff.total_seconds()/3600. * u.hour
     elif output == "days":
-        return diff.total_seconds()/(3600.*24.)
+        return diff.total_seconds()/(3600.*24.) * u.day
     else:
         raise TypeError("output must be 'seconds', 'minutes',"
                         " 'hours', or 'days'.")

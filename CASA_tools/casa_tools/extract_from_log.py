@@ -34,6 +34,8 @@ class CleanResults(object):
 
         self._lines = load_log(filename)
 
+        self._line_ranges = None
+
     @property
     def lines(self):
         return self._lines
@@ -83,6 +85,9 @@ class CleanResults(object):
     def get_finished(self):
 
         finish_re = all_time_date+info+"*MFMSCleanImageSkyModel::solve\s*Reached*"
+
+        if not self.line_ranges:
+            self.get_line_ranges()
 
         if isinstance(self.line_ranges[0], int):
 

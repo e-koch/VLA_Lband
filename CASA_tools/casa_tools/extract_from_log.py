@@ -84,21 +84,28 @@ class CleanResults(object):
 
         finish_re = all_time_date+info+"*MFMSCleanImageSkyModel::solve\s*Reached*"
 
-        finished_calls = []
+        if isinstance(self.line_ranges[0], int):
 
-        for clean_range in self.line_ranges:
-            start, stop = clean_range
-            finish_match = self.search_log(finish_re, view=slice(start, stop))
+            start, stop = self.line_ranges
+            finish_match = \
+                self.search_log(finish_re, view=slice(start, stop))
 
-            if not finish_match:
-                finished_calls.append(False)
-            else:
-                finished_calls.append(True)
+            self._finished_calls = False if not finish_match else True
 
-        if len(finished_calls) > 1:
-            self._finished_calls = finished_calls
         else:
-            self._finished_calls = finished_calls[0]
+            finished_calls = []
+
+            for clean_range in self.line_ranges:
+                start, stop = clean_range
+                finish_match = self.search_log(finish_re,
+                                               view=slice(start, stop))
+
+                if not finish_match:
+                    finished_calls.append(False)
+                else:
+                    finished_calls.append(True)
+
+            self._finished_calls = finished_calls
 
     @property
     def line_ranges(self):
@@ -109,8 +116,8 @@ class CleanResults(object):
         Find the beginning and end of CLEAN.
         '''
 
-        start_re = all_time_date+info+"*clean::::\s####.*End Task: clean.*"
-        stop_re = all_time_date+info+"*clean::::.\s####.*Begin Task: clean.*"
+        start_re = all_time_date+info+"*clean::::.\s####.*Begin Task: clean.*"
+        stop_re = all_time_date+info+"*clean::::\s####.*End Task: clean.*"
 
         start_lines = self.search_log(start_re)[1]
         stop_lines = self.search_log(stop_re)[1]
@@ -118,12 +125,14 @@ class CleanResults(object):
         # If they aren't equal, there was an error (no end line)
         # Must be the last clean call, since casa always crashes
         # in my experience.
-        if len(start_lines) != len(stop_lines):
-            Warning("One of the CLEAN class failed.")
-            self._error = True
-            start_lines.pop(-1)
-
-        self._line_ranges = zip(start_lines, stop_lines)
+        try:
+            if len(start_lines) != len(stop_lines):
+                Warning("One of the CLEAN class failed.")
+                self._error = True
+                start_lines.pop(-1)
+            self._line_ranges = zip(start_lines, stop_lines)
+        except TypeError:
+            self._line_ranges = [start_lines, stop_lines]
 
     @property
     def error(self):
@@ -134,6 +143,7 @@ class CleanResults(object):
 
     def time_elapsed():
         pass
+
 
 def fill_in_slice(view, list_len):
     '''

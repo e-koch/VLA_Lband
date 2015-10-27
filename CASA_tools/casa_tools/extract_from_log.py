@@ -219,6 +219,24 @@ class CleanResults(object):
                     float(re.findall(numbers, res_match)[-1]) * u.Jy/u.beam
                 self._max_residuals.append(residual)
 
+    def run_all(self, time_output="minutes"):
+
+        self.get_line_ranges()
+        self.get_finished()
+        self.get_max_residuals()
+        self.get_time_elapsed(output=time_output)
+
+    def __str__(self):
+        if isinstance(self.line_ranges[0], int):
+            print("Finished: "+str(self.finished)+" Max Residual: " +
+                  str(self.max_residuals)+" Time Elapsed: " +
+                  str(self.time_elapsed))
+        else:
+            for i in xrange(self.line_ranges[0]):
+                print("Finished: "+str(self.finished[i])+" Max Residual: " +
+                      str(self.max_residuals[i])+" Time Elapsed: " +
+                      str(self.time_elapsed[i]))
+
 
 def fill_in_slice(view, list_len):
     '''

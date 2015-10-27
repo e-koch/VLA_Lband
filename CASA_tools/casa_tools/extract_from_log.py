@@ -101,12 +101,8 @@ class CleanResults(object):
 
             self._finished_calls = False if not finish_match else True
 
-            if self.finished:
-                self._max_residuals = re.findall(numbers, finish_match)[-1]
-
         else:
             finished_calls = []
-            self._max_residuals = []
             for clean_range in self.line_ranges:
                 start, stop = clean_range
                 finish_match = self.search_log(finish_re,
@@ -153,6 +149,31 @@ class CleanResults(object):
     @property
     def max_residuals(self):
         return self._max_residuals
+
+    def get_max_residuals(self):
+
+        res_re = all_time_date+info+"*MFMSCleanImageSkyModel::solve\s*Final maximum*"
+
+        if not self.line_ranges:
+            self.get_line_ranges()
+
+        if isinstance(self.line_ranges[0], int):
+
+            start, stop = self.line_ranges
+            res_match = \
+                self.search_log(res_re, view=slice(start, stop))[0]
+
+            self._max_residuals = float(re.findall(numbers, res_match)[-1])
+
+        else:
+            self._max_residuals = []
+            for clean_range in self.line_ranges:
+                start, stop = clean_range
+                res_match = \
+                    self.search_log(res_re, view=slice(start, stop))
+
+                residual = float(re.findall(numbers, res_match)[-1])
+                self._max_residuals.append(residual)
 
     def time_elapsed():
         pass

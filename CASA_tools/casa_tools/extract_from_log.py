@@ -13,6 +13,7 @@ info = "INFO\s"
 warn = "WARN\s"
 err = "ERROR\s"
 
+
 def load_log(logfile):
     '''
     Load the lines of a log file in.
@@ -22,23 +23,6 @@ def load_log(logfile):
         lines = f.readlines()
 
     return lines
-
-
-# Extract results of clean
-
-def finished_clean(lines):
-    '''
-    Check if CLEAN reached the threshold given.
-    '''
-
-    finish_re = re.compile(all_time_date+info+"*MFMSCleanImageSkyModel::solve\s*Reached*")
-
-    for line in lines:
-        search = finish_re.search(line)
-        if search:
-            return True
-    else:
-        return False
 
 
 class CleanResults(object):

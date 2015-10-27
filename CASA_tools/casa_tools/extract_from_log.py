@@ -7,11 +7,13 @@ import re
 from itertools import izip
 
 # Define some strings for re
-all_time_date = "^[0-9]{4}-[0-9]{2}-[0-9]{2}\s[0-9]{2}:[0-9]{2}:[0-9]{2}\s"
+all_time_date = r"^[0-9]{4}-[0-9]{2}-[0-9]{2}\s[0-9]{2}:[0-9]{2}:[0-9]{2}\s"
 
-info = "INFO\s"
-warn = "WARN\s"
-err = "ERROR\s"
+info = r"INFO\s"
+warn = r"WARN\s"
+err = r"ERROR\s"
+
+numbers = r"[-+]?\d*\.\d+|\d+"
 
 
 def load_log(logfile):
@@ -35,6 +37,8 @@ class CleanResults(object):
         self._lines = load_log(filename)
 
         self._line_ranges = None
+
+        self._max_residuals = None
 
     @property
     def lines(self):
@@ -93,13 +97,16 @@ class CleanResults(object):
 
             start, stop = self.line_ranges
             finish_match = \
-                self.search_log(finish_re, view=slice(start, stop))
+                self.search_log(finish_re, view=slice(start, stop))[0]
 
             self._finished_calls = False if not finish_match else True
 
+            if self.finished:
+                self._max_residuals = re.findall(numbers, finish_match)[-1]
+
         else:
             finished_calls = []
-
+            self._max_residuals = []
             for clean_range in self.line_ranges:
                 start, stop = clean_range
                 finish_match = self.search_log(finish_re,
@@ -143,8 +150,9 @@ class CleanResults(object):
     def error(self):
         return self._error
 
-    def max_residual(self):
-        pass
+    @property
+    def max_residuals(self):
+        return self._max_residuals
 
     def time_elapsed():
         pass

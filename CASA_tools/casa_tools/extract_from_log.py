@@ -78,25 +78,33 @@ class CleanResults(object):
         '''
         Did CLEAN reach the given threshold?
         '''
-        return self._finished
+        return self._finished_calls
 
-    def _finished(self, view=None):
+    def get_finished(self):
 
         finish_re = all_time_date+info+"*MFMSCleanImageSkyModel::solve\s*Reached*"
 
-        finish_match = self.search_log(finish_re, view=view)
+        finished_calls = []
 
+        for clean_range in self.line_ranges:
+            start, stop = clean_range
+            finish_match = self.search_log(finish_re, view=slice(start, stop))
 
-        if isinstance(finish_match, list):
-            return [True] * len(finish_match)
+            if not finish_match:
+                finished_calls.append(False)
+            else:
+                finished_calls.append(True)
+
+        if len(finished_calls) > 1:
+            self._finished_calls = finished_calls
         else:
-            pass
+            self._finished_calls = finished_calls[0]
 
     @property
     def line_ranges(self):
         return self._line_ranges
 
-    def start_stop_range(self):
+    def get_line_ranges(self):
         '''
         Find the beginning and end of CLEAN.
         '''
@@ -115,7 +123,7 @@ class CleanResults(object):
             self._error = True
             start_lines.pop(-1)
 
-        return zip(start_lines, stop_lines)
+        self._line_ranges = zip(start_lines, stop_lines)
 
     @property
     def error(self):

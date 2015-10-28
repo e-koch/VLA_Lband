@@ -227,6 +227,20 @@ class CleanResults(object):
         self.get_max_residuals()
         self.get_time_elapsed(output=time_output)
 
+    def info_dict(self):
+        if isinstance(self.line_ranges[0], int):
+            return {"Finished": self.finished,
+                    "Max Residual": self.max_residuals,
+                    "Time Elapsed": self.time_elapsed}
+        else:
+            results_dicts = []
+            for i in xrange(len(self.line_ranges[0])):
+                results_dicts.append(
+                    {"Finished": self.finished[i],
+                     "Max Residual": self.max_residuals[i],
+                     "Time Elapsed": self.time_elapsed[i]})
+            return results_dicts
+
     def __repr__(self):
         if isinstance(self.line_ranges[0], int):
             return "Finished: "+str(self.finished)+"\n Max Residual: " + \

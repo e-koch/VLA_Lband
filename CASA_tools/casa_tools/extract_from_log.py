@@ -176,6 +176,7 @@ class CleanResults(object):
                 time_difference(start_time, stop_time, output=output)
 
         else:
+            self._time_elapsed = []
             for clean_range in self.line_ranges:
                 start, stop = clean_range
 

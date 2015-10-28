@@ -269,14 +269,14 @@ class CleanResults(object):
 
     def __repr__(self):
         if isinstance(self.line_ranges[0], int):
-            return "Finished: "+str(self.finished)+"\n Max Residual: " + \
-                  str(self.max_residuals)+"\n Time Elapsed: " + \
+            return "Finished: "+str(self.finished)+"\nMax Residual: " + \
+                  str(self.max_residuals)+"\nTime Elapsed: " + \
                   str(self.time_elapsed.round(3))
         else:
             for i in xrange(len(self.line_ranges[0])):
-                return "Clean "+str(i+1)+"Finished: " + \
-                    str(self.finished[i])+"\n Max Residual: " + \
-                    str(self.max_residuals[i])+"\n Time Elapsed: " + \
+                return "Clean "+str(i+1)+" Finished: " + \
+                    str(self.finished[i])+"\n  Max Residual: " + \
+                    str(self.max_residuals[i])+"\n  Time Elapsed: " + \
                     str(self.time_elapsed[i].round(3))
 
 

@@ -7,6 +7,7 @@ import re
 from itertools import izip
 from datetime import datetime
 from astropy import units as u
+import numpy as np
 
 # Define some strings for re
 all_time_date = r"^[0-9]{4}-[0-9]{2}-[0-9]{2}\s[0-9]{2}:[0-9]{2}:[0-9]{2}\s"
@@ -102,7 +103,7 @@ class CleanResults(object):
 
             start, stop = self.line_ranges
             finish_match = \
-                self.search_log(finish_re, view=slice(start, stop))[0]
+                self.search_log(finish_re, view=slice(start, stop))
 
             self._finished_calls = False if not finish_match else True
 
@@ -132,8 +133,24 @@ class CleanResults(object):
         start_re = all_time_date+info+"*clean::::.\s####.*Begin Task: clean.*"
         stop_re = all_time_date+info+"*clean::::\s####.*End Task: clean.*"
 
-        start_lines = self.search_log(start_re)[1]
-        stop_lines = self.search_log(stop_re)[1]
+        start_search = self.search_log(start_re)
+        if start_search:
+            start_lines = start_search[1]
+            self._error = False
+        else:
+            raise Warning("Could not find CASA clean call in log.")
+            self._error = True
+
+        stop_search = self.search_log(stop_re)
+        if stop_search:
+            stop_lines = stop_search[1]
+            self._error = False
+        else:
+            Warning("Could not find end to clean call. "
+                    "An error likely occurred in CASA. "
+                    "Setting the end to the final log line.")
+            stop_lines = len(self.lines)-1
+            self._error = True
 
         # If they aren't equal, there was an error (no end line)
         # Must be the last clean call, since casa always crashes
@@ -146,6 +163,7 @@ class CleanResults(object):
             self._line_ranges = zip(start_lines, stop_lines)
         except TypeError:
             self._line_ranges = [start_lines, stop_lines]
+            self._error = False
 
     @property
     def error(self):
@@ -204,10 +222,14 @@ class CleanResults(object):
 
             start, stop = self.line_ranges
             res_match = \
-                self.search_log(res_re, view=slice(start, stop))[0]
+                self.search_log(res_re, view=slice(start, stop))
 
-            self._max_residuals = \
-                float(re.findall(numbers, res_match)[-1]) * u.Jy/u.beam
+            if not res_match:
+                Warning("Could not find final residual value.")
+                self._max_residuals = np.NaN
+            else:
+                self._max_residuals = \
+                    float(re.findall(numbers, res_match[0])[-1]) * u.Jy/u.beam
 
         else:
             self._max_residuals = []
@@ -216,9 +238,13 @@ class CleanResults(object):
                 res_match = \
                     self.search_log(res_re, view=slice(start, stop))
 
-                residual = \
-                    float(re.findall(numbers, res_match)[-1]) * u.Jy/u.beam
-                self._max_residuals.append(residual)
+                if not res_match:
+                    Warning("Could not find final residual value.")
+                    self._max_residuals.append(np.NaN)
+                else:
+                    residual = \
+                        float(re.findall(numbers, res_match)[-1]) * u.Jy/u.beam
+                    self._max_residuals.append(residual)
 
     def run_all(self, time_output="minutes"):
 

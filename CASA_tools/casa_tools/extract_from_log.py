@@ -246,37 +246,94 @@ class CleanResults(object):
                         float(re.findall(numbers, res_match)[-1]) * u.Jy/u.beam
                     self._max_residuals.append(residual)
 
+    @property
+    def niters(self):
+        return self._niters
+
+    def get_niters(self):
+
+        iter_re = all_time_date+info+"*MFMSCleanImageSkyModel::solve\s*Clean used*"
+
+        if not self.line_ranges:
+            self.get_line_ranges()
+
+        if isinstance(self.line_ranges[0], int):
+
+            start, stop = self.line_ranges
+            iter_match = \
+                self.search_log(iter_re, view=slice(start, stop),
+                                return_linenum=False)
+
+            if not iter_match:
+                Warning("Could not find number of iterations used.")
+                self._niters = np.NaN
+            else:
+                # Take the last one, since it is printed out for each
+                # major cycle.
+                if isinstance(iter_match, list):
+                    last_match = iter_match[-1]
+                else:
+                    last_match = iter_match
+                self._niters = \
+                    int(re.findall(numbers, last_match)[-1])
+
+        else:
+            self._niters = []
+            for clean_range in self.line_ranges:
+                start, stop = clean_range
+                iter_match = \
+                    self.search_log(iter_re, view=slice(start, stop),
+                                    return_linenum=False)
+
+                if not iter_match:
+                    Warning("Could not find number of iterations used.")
+                    self._niters.append(np.NaN)
+                else:
+                    if isinstance(iter_match, list):
+                        last_match = iter_match[-1]
+                    else:
+                        last_match = iter_match
+
+                    iters = \
+                        int(re.findall(numbers, last_match)[-1])
+                    self._max_residuals.append(iters)
+
     def run_all(self, time_output="minutes"):
 
         self.get_line_ranges()
         self.get_finished()
         self.get_max_residuals()
         self.get_time_elapsed(output=time_output)
+        self.get_niters()
 
     def info_dict(self):
         if isinstance(self.line_ranges[0], int):
             return {"Finished": self.finished,
                     "Max Residual": self.max_residuals,
-                    "Time Elapsed": self.time_elapsed}
+                    "Time Elapsed": self.time_elapsed,
+                    "Iterations": self.niters}
         else:
             results_dicts = []
             for i in xrange(len(self.line_ranges[0])):
                 results_dicts.append(
                     {"Finished": self.finished[i],
                      "Max Residual": self.max_residuals[i],
-                     "Time Elapsed": self.time_elapsed[i]})
+                     "Time Elapsed": self.time_elapsed[i],
+                     "Iterations": self.niters[i]})
             return results_dicts
 
     def __repr__(self):
         if isinstance(self.line_ranges[0], int):
             return "Finished: "+str(self.finished)+"\nMax Residual: " + \
-                  str(self.max_residuals)+"\nTime Elapsed: " + \
+                  str(self.max_residuals)+"\nIterations: " + \
+                  str(self.niters)+"\nTime Elapsed: " + \
                   str(self.time_elapsed.round(3))
         else:
             for i in xrange(len(self.line_ranges[0])):
                 return "Clean "+str(i+1)+" Finished: " + \
                     str(self.finished[i])+"\n  Max Residual: " + \
-                    str(self.max_residuals[i])+"\n  Time Elapsed: " + \
+                    str(self.max_residuals[i])+"\n  Iterations: " + \
+                    str(self.niters[i])+"\n  Time Elapsed: " + \
                     str(self.time_elapsed[i].round(3))
 
 

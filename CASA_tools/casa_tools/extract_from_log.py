@@ -227,16 +227,17 @@ class CleanResults(object):
         self.get_max_residuals()
         self.get_time_elapsed(output=time_output)
 
-    def __str__(self):
+    def __repr__(self):
         if isinstance(self.line_ranges[0], int):
-            print("Finished: "+str(self.finished)+" Max Residual: " +
-                  str(self.max_residuals)+" Time Elapsed: " +
-                  str(self.time_elapsed))
+            return "Finished: "+str(self.finished)+"\n Max Residual: " + \
+                  str(self.max_residuals)+"\n Time Elapsed: " + \
+                  str(self.time_elapsed)
         else:
-            for i in xrange(self.line_ranges[0]):
-                print("Finished: "+str(self.finished[i])+" Max Residual: " +
-                      str(self.max_residuals[i])+" Time Elapsed: " +
-                      str(self.time_elapsed[i]))
+            for i in xrange(len(self.line_ranges[0])):
+                return "Clean "+str(i+1)+"Finished: " + \
+                    str(self.finished[i])+"\n Max Residual: " + \
+                    str(self.max_residuals[i])+"\n Time Elapsed: " + \
+                    str(self.time_elapsed[i])
 
 
 def fill_in_slice(view, list_len):

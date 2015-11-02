@@ -37,20 +37,25 @@ def collect_clean_results(log_files, filename=None, format='ascii.csv',
         results = CleanResults(log)
         try:
             results.run_all()
+            # Extract units
+            bright_unit = results.max_residuals.unit
+            time_unit = results.time_elapsed.unit
+
+            results_dict["Name"].append(log.rstrip(".log"))
+            results_dict["Reached Threshold"].append(results.finished)
+            results_dict["Max Residual"].append(results.max_residuals.value)
+            results_dict["Iterations"].append(results.niters)
+            results_dict["Time Elapsed"].append(results.time_elapsed.value)
+
         except Warning as e:
             print("Failed for log: "+log)
             print(e)
-            continue
 
-        # Extract units
-        bright_unit = results.max_residuals.unit
-        time_unit = results.time_elapsed.unit
-
-        results_dict["Name"].append(log.rstrip(".log"))
-        results_dict["Reached Threshold"].append(results.finished)
-        results_dict["Max Residual"].append(results.max_residuals.value)
-        results_dict["Iterations"].append(results.niters)
-        results_dict["Time Elapsed"].append(results.time_elapsed.value)
+            results_dict["Name"].append(log.rstrip(".log"))
+            results_dict["Reached Threshold"].append(False)
+            results_dict["Max Residual"].append(np.NaN)
+            results_dict["Iterations"].append(0)
+            results_dict["Time Elapsed"].append(np.NaN)
 
     # Add units back on
     results_dict["Max Residual"] *= bright_unit

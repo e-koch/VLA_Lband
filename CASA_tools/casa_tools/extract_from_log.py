@@ -43,9 +43,8 @@ def collect_clean_results(log_files, filename=None, format='ascii.csv',
             continue
 
         # Extract units
-        if i == 0:
-            bright_unit = results.max_residuals.unit
-            time_unit = results.time_elapsed.unit
+        bright_unit = results.max_residuals.unit
+        time_unit = results.time_elapsed.unit
 
         results_dict["Name"].append(log.rstrip(".log"))
         results_dict["Reached Threshold"].append(results.finished)

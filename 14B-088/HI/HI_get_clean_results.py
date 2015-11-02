@@ -42,6 +42,8 @@ for chan in xrange(min_chan, max_chan+1):
             ordered_chans.append(channel_direcs[i])
             break
         i += 1
+    else:
+        print("No log found for channel "+str(chan))
 
 channel_direcs = ordered_chans
 

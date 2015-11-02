@@ -5,37 +5,32 @@ Extracts info from the CLEAN logs in separate channels.
 
 import sys
 import glob
-from astropy.table import Table
+import os
 
-from casa_tools import CleanResults
+from casa_tools import collect_clean_results
 
-def collect_clean_results(log_files, filename=None, format='ascii.csv',
-                          show_in_browser=False):
-    '''
-    Loop through the list of given log files, extract results from the clean
-    calls, and save as a csv file.
-    '''
-    results_dict = {"Name": [],
-                    "Reached Threshold": [],
-                    "Max Residual": [],
-                    "Iterations": [],
-                    "Time Elapsed": []}
 
-    for log in log_files:
-        results = CleanResults(log)
-        results.run_all()
+path_to_results = sys.argv[1]
+output_filename = sys.argv[2] if sys.argv[2] != "None" else None
+show_in_browser = True if sys.argv[3] == "True" else False
 
-        results_dict["Name"].append(log.rstrip(".log"))
-        results_dict["Reached Threshold"].append(results.finished)
-        results_dict["Max Residual"].append(results.max_residuals)
-        results_dict["Iterations"].append(results.niters)
-        results_dict["Time Elapsed"].append(results.time_elapsed)
+# In this case, each results is within it's own directory
+# ie. path_to_results/channel_$i/
+channel_direcs = glob.glob(os.path.join(path_to_results, "channel_*"))
 
-    # Now gather into a table.
-    t = Table(results_dict.values(), names=results_dict.keys())
+# Now grab the logs
+log_files = []
+for channel in channel_direcs:
+    log_file = glob.glob(os.path.join(channel, "casa*.log"))
 
-    if filename is not None:
-        t.write(filename, format=format)
+    if not log_files:
+        print("Cannot find log file in "+channel)
+        continue
 
-    if show_in_browser:
-        t.show_in_browser()
+    # I'm going to assume that there should only be one logfile.
+    # This should be guaranteed when using my automated setup.
+    log_files.append(log_file[0])
+
+# Now feed it into the results extractor
+collect_clean_results(log_files, filename=output_filename,
+                      show_in_browser=show_in_browser)

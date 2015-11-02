@@ -8,6 +8,7 @@ from itertools import izip
 from datetime import datetime
 from astropy import units as u
 import numpy as np
+from astropy.table import Table
 
 # Define some strings for re
 all_time_date = r"^[0-9]{4}-[0-9]{2}-[0-9]{2}\s[0-9]{2}:[0-9]{2}:[0-9]{2}\s"

@@ -33,7 +33,7 @@ def collect_clean_results(log_files, filename=None, format='ascii.csv',
                     "Iterations": [],
                     "Time Elapsed": []}
 
-    for log in log_files:
+    for i, log in enumerate(log_files):
         results = CleanResults(log)
         try:
             results.run_all()
@@ -42,11 +42,20 @@ def collect_clean_results(log_files, filename=None, format='ascii.csv',
             print(e)
             continue
 
+        # Extract units
+        if i == 0:
+            bright_unit = results.max_residuals.unit
+            time_unit = results.time_elapsed.unit
+
         results_dict["Name"].append(log.rstrip(".log"))
         results_dict["Reached Threshold"].append(results.finished)
-        results_dict["Max Residual"].append(results.max_residuals)
+        results_dict["Max Residual"].append(results.max_residuals.value)
         results_dict["Iterations"].append(results.niters)
-        results_dict["Time Elapsed"].append(results.time_elapsed)
+        results_dict["Time Elapsed"].append(results.time_elapsed.value)
+
+    # Add units back on
+    results_dict["Max Residual"] *= bright_unit
+    results_dict["Time Elapsed"] *= time_unit
 
     # Now gather into a table.
     t = Table(results_dict.values(), names=results_dict.keys())

@@ -35,7 +35,12 @@ def collect_clean_results(log_files, filename=None, format='ascii.csv',
 
     for log in log_files:
         results = CleanResults(log)
-        results.run_all()
+        try:
+            results.run_all()
+        except Warning as e:
+            print("Failed for log: "+log)
+            print(e)
+            continue
 
         results_dict["Name"].append(log.rstrip(".log"))
         results_dict["Reached Threshold"].append(results.finished)

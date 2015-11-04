@@ -2,11 +2,16 @@
 import numpy as np
 import re
 import os
+import sys
 
-
-ms_active = raw_input("MS? : ")
-field_str = raw_input("Field? : ")
-spw_str = raw_input("SPW? : ")
+if len(sys.argv) > 3:
+    ms_active = sys.argv[-3]
+    field_str = sys.argv[-2]
+    spw_str = sys.argv[-1]
+else:
+    ms_active = raw_input("MS? : ")
+    field_str = raw_input("Field? : ")
+    spw_str = raw_input("SPW? : ")
 
 
 tb.open(ms_active+"/FIELD")

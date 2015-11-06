@@ -14,5 +14,10 @@ source /home/ekoch/.bashrc
 cd /home/ekoch/m33/14B-088/
 
 echo "Starting at: `date`"
-casa -c /home/ekoch/code_repos/VLA_Lband/14B-088/HI/HI_create_cube.py
+echo "Making cleaned cube"
+casa -c /home/ekoch/code_repos/VLA_Lband/14B-088/HI/HI_create_cube.py image
+echo "Making residual cube"
+casa -c /home/ekoch/code_repos/VLA_Lband/14B-088/HI/HI_create_cube.py image
+echo "Making model cube"
+casa -c /home/ekoch/code_repos/VLA_Lband/14B-088/HI/HI_create_cube.py image
 echo "Exited with code $? at: `date`"

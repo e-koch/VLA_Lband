@@ -5,11 +5,27 @@ Create final data cubes
 
 import glob
 import os
+import sys
 
 from taskinit import ia
 
+output_type = sys.argv[-1]
+
 path = "/home/ekoch/m33/14B-088/single_channels/"
-out_name = "/home/ekoch/m33/14B-088/cube_images/M33_14B-088_HI.clean.image"
+
+if output_type == "image":
+    out_name = "/home/ekoch/m33/14B-088/cube_images/M33_14B-088_HI.clean.image"
+    search_string = "*.clean.image"
+elif output_type == "residual":
+    out_name = \
+        "/home/ekoch/m33/14B-088/cube_images/M33_14B-088_HI.clean.residual"
+    search_string = "*.clean.residual"
+elif output_type == "model":
+    out_name = \
+        "/home/ekoch/m33/14B-088/cube_images/M33_14B-088_HI.clean.model"
+    search_string = "*.clean.model"
+else:
+    raise TypeError("Must provide 'image', 'residual', or 'model' as argument.")
 
 channel_direcs = glob.glob(os.path.join(path, "channel_*"))
 
@@ -42,7 +58,7 @@ channel_direcs = ordered_chans
 
 images = []
 for channel in channel_direcs:
-    image = glob.glob(os.path.join(channel, "*.clean.image"))
+    image = glob.glob(os.path.join(channel, search_string))
     if not image:
         print("Cannot find log file in "+channel)
         continue

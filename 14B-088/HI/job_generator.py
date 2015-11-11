@@ -32,7 +32,7 @@ source /home/ekoch/.bashrc
 cd X1
 
 echo "Starting at: `date`"
-casa -c /home/ekoch/code_repos/VLA_Lband/14B-088/HI/HI_single_channel_clean.py X2 X3 X4
+casa --logfile X5 -c /home/ekoch/code_repos/VLA_Lband/14B-088/HI/HI_single_channel_clean.py X2 X3 X4
 echo "Exited with code $? at: `date`"
         '''
 
@@ -42,6 +42,11 @@ echo "Exited with code $? at: `date`"
     template = template.replace("X2", ms_name)
     template = template.replace("X3", model_name)
     template = template.replace("X4", mask_name)
+
+    # Create log file name
+    logfile = ms_name.rstrip(".ms") + ".log"
+
+    template = template.replace("X5", logfile)
 
     return template
 

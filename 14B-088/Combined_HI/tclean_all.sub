@@ -9,4 +9,6 @@
 
 source /home/ekoch/.bashrc
 
+cd /home/ekoch/scratch/combined/
+
 /home/ekoch/casa-release-4.5.0-el6/mpicasa -hostfile $PBS_NODEFILE /home/ekoch/casa-release-4.5.0-el6/casa -nogui -c /home/ekoch/VLA_Lband/14B-088/Combined_HI/tclean_all.py

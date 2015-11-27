@@ -6,11 +6,11 @@ together.
 
 from tasks import tclean
 
-vis = ["/home/ekoch/scratch/combined/14B-088_HI_LSRK_AT0206_regrid.ms.contsub",
-       "/home/ekoch/scratch/combined/M33_b_c_LSRK.ms"]
-imagename = "/home/ekoch/scratch/combined/M33_AT0206_14B-088_HI.clean"
-model = "/home/ekoch/scratch/combined/M33_model.image"
-mask = "/home/ekoch/scratch/combined/M33_newmask.image"
+vis = ["14B-088_HI_LSRK_AT0206_regrid.ms.contsub",
+       "M33_b_c_LSRK.ms"]
+imagename = "M33_AT0206_14B-088_HI.clean"
+model = "M33_model.image"
+mask = "M33_newmask.image"
 
 tclean(vis=vis, imagename=imagename, field="M33*", imsize=[4096, 4096],
        cell="1.5arcsec", phasecenter="J2000 01h33m50.904 +30d39m35.79",

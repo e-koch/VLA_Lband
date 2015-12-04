@@ -8,18 +8,22 @@ from casa_tools import myclean
 Cleans an MS with a single channel given a mask and a model
 '''
 
-vis = sys.argv[-3]
-model = sys.argv[-2]
-mask = sys.argv[-1]
+vis_1 = sys.argv[-5]
+vis_2 = sys.argv[-4]
+model = sys.argv[-3]
+mask = sys.argv[-2]
+out_root = sys.argv[-1]
 
 if model == "None":
     model = None
+else:
+    model = [model] * 2
 if mask == "None":
     mask = None
+else:
+    mask = [mask] * 2
 
-out_root = vis[:-3]
-
-myclean(vis=vis, imagename=out_root+'.clean', field='M33*',
+myclean(vis=[vis_1, vis_2], imagename=out_root+'.clean', field='M33*',
         restfreq='1420.40575177MHz',
         mode='channel', width=1, nchan=1, start=1,
         cell='1.5arcsec', multiscale=[0, 4, 8, 20, 40, 80],

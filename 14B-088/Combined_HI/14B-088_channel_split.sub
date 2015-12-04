@@ -1,0 +1,16 @@
+#!/bin/bash
+
+#PBS -S /bin/bash
+#PBS -l pmem=2000m
+#PBS -l procs=5
+#PBS -l walltime=60:00:00
+#PBS -m bea
+#PBS -M koch.eric.w@gmail.com
+
+source /home/ekoch/.bashrc
+
+cd /home/ekoch/scratch/combined/
+
+echo "Starting at: `date`"
+casa -c /home/ekoch/VLA_Lband/14B-088/Combined_HI/14B-088_channel_split.py
+echo "Exited with code $? at: `date`"

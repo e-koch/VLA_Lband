@@ -9,7 +9,7 @@
 
 source /home/ekoch/.bashrc
 
-cd /home/ekoch/scratch/combined/
+cd /home/ekoch/scratch/combined/14B-088_channel_ms/
 
 echo "Starting at: `date`"
 casa -c /home/ekoch/VLA_Lband/14B-088/Combined_HI/14B-088_channel_split.py

@@ -5,7 +5,7 @@
 #PBS -l procs=60
 #PBS -l walltime=96:00:00
 #PBS -m bea
-#PBS 0M koch.eric.w@gmail.com
+#PBS -M koch.eric.w@gmail.com
 
 source /home/ekoch/.bashrc
 

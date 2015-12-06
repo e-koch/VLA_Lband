@@ -26,7 +26,7 @@ else:
 myclean(vis=[vis_1, vis_2], imagename=out_root+'.clean', field='M33*',
         restfreq='1420.40575177MHz',
         mode='channel', width=1, nchan=1, start=1,
-        cell='1.5arcsec', multiscale=[0, 4, 8, 20, 40, 80],
+        cell='1.5arcsec', multiscale=[0, 4, 8, 20, 40, 80, 160],
         threshold='2mJy/beam', imagermode='mosaic', gain=0.1,
         imsize=[4096, 4096], weighting='natural', robust=0.0, niter=200000,
         pbcor=True, minpb=0.2, interpolation='linear', usescratch=False,

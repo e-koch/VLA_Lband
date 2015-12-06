@@ -50,7 +50,7 @@ def myclean(**kwargs):
 
             for mask in masks:
                 # Check if there's anything in the mask before cleaning
-                ia.open(kwargs["mask"])
+                ia.open(mask)
                 stats_dict = ia.statistics()
                 ia.close()
                 # If there's nothing there, max == min

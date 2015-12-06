@@ -68,8 +68,8 @@ def drop_last(ms_list):
     return ms_list
 
 # Set the directory to look in.
-ms_channel_1 = "/global/scratch/ekoch/combined/AT0206_channel_ms/"
-ms_channel_2 = "/global/scratch/ekoch/combined/14B-088_channel_ms/"
+ms_channel_1 = "/global/scratch/ekoch/combined/14B-088_channel_ms/"
+ms_channel_2 = "/global/scratch/ekoch/combined/AT0206_channel_ms/"
 model_channels = "/global/scratch/ekoch/combined/model_channels/M33_model_channel_"
 mask_channels = "/global/scratch/ekoch/combined/mask_channels/M33_newmask_channel_"
 output_direc = "/global/scratch/ekoch/combined/single_channels/"

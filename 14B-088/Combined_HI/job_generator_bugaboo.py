@@ -98,7 +98,7 @@ while True:
 
         channel_path = \
             os.path.join(ms_channel_2,
-                         "M33_b_c_LSRK.ms_channel_" +
+                         "M33_b_c_LSRK_channel_" +
                          str(chan)+".ms")
         channel_ms_2.append(channel_path)
 

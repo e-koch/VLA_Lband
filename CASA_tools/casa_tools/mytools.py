@@ -10,6 +10,7 @@ from taskinit import ia
 
 from astropy.io import fits
 import astropy.units as u
+from astropy.extern import six
 
 from .graceful_error_catch import catch_fail
 
@@ -40,16 +41,24 @@ def myclean(**kwargs):
         # Since masks can be given in other forms, try to open it, and if it
         # fails, assume it just isn't an image.
         try:
-            # Check if there's anything in the mask before cleaning
-            ia.open(kwargs["mask"])
-            stats_dict = ia.statistics()
-            ia.close()
-            # If there's nothing there, max == min
-            max_val = stats_dict["max"]
-            if max_val == 0:
-                Warning("The mask image contains no regions to clean in."
-                        " Exiting.")
-                return None
+            if isinstance(kwargs['mask'], six.string_types):
+                masks = [kwargs['mask']]
+            elif isinstance(kwargs['mask'], list):
+                masks = kwargs['mask']
+            else:
+                raise RuntimeError
+
+            for mask in masks:
+                # Check if there's anything in the mask before cleaning
+                ia.open(kwargs["mask"])
+                stats_dict = ia.statistics()
+                ia.close()
+                # If there's nothing there, max == min
+                max_val = stats_dict["max"]
+                if max_val == 0:
+                    Warning("The mask image contains no regions to clean in."
+                            " Exiting.")
+                    return None
         except RuntimeError:
             pass
 

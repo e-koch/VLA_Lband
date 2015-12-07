@@ -266,7 +266,7 @@ class CleanResults(object):
 
             if not res_match:
                 Warning("Could not find final residual value.")
-                self._max_residuals = np.NaN
+                self._max_residuals = np.NaN * u.Jy/u.beam
             else:
                 self._max_residuals = \
                     float(re.findall(numbers, res_match[0])[-1]) * u.Jy/u.beam
@@ -280,7 +280,7 @@ class CleanResults(object):
 
                 if not res_match:
                     Warning("Could not find final residual value.")
-                    self._max_residuals.append(np.NaN)
+                    self._max_residuals.append(np.NaN * u.Jy/u.beam)
                 else:
                     residual = \
                         float(re.findall(numbers, res_match)[-1]) * u.Jy/u.beam

@@ -25,8 +25,11 @@ def ms_split_by_channel(vis, nchan=-1, start=1, spw='0',
     tb.close()
 
     # Pick out the spw specified
-    spw_slicer = get_slice_obj(spw)
-    total_nchan = nchan_list[spw_slicer]
+    if spw == "*":
+        total_nchan = nchan_list
+    else:
+        spw_slicer = get_slice_obj(spw)
+        total_nchan = nchan_list[spw_slicer]
 
     # Now create a list of the channels to use
     if nchan == -1:

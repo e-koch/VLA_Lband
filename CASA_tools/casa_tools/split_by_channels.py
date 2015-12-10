@@ -26,7 +26,7 @@ def ms_split_by_channel(vis, nchan=-1, start=1, spw='0',
 
     # Pick out the spw specified
     if spw == "*":
-        total_nchan = nchan_list
+        total_nchan = min(nchan_list)  # This isn't general at all...
     else:
         spw_slicer = get_slice_obj(spw)
         total_nchan = nchan_list[spw_slicer]
@@ -72,8 +72,8 @@ def image_split_by_channel(imagename, nchan=-1, start=1, output_dir=None,
     try:
         spec_axis = np.where(np.asarray(csys.names()) == specaxis_name)[0][0]
     except IndexError:
-        raise IndexError("Cannot find spectral axis" + specaxis_name + " in "
-                         + str(csys.names()))
+        raise IndexError("Cannot find spectral axis" + specaxis_name + " in " +
+                         str(csys.names()))
         ia.close()
 
     # Check given number of channels

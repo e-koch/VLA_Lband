@@ -12,4 +12,4 @@ start_chan = 10
 nchan = 205
 
 ms_split_by_channel(vis, nchan=nchan, start=start_chan,
-                    output_dir=output_dir, datacolumn='DATA')
+                    output_dir=output_dir, datacolumn='DATA', spw='*')

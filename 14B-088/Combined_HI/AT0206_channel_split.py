@@ -8,7 +8,7 @@ from casa_tools import ms_split_by_channel
 vis = "/global/scratch/ekoch/combined/M33_b_c_LSRK.ms"
 output_dir = "/global/scratch/ekoch/combined/AT0206_channel_ms/"
 
-start_chan = 10
+start_chan = 11
 nchan = 205
 
 ms_split_by_channel(vis, nchan=nchan, start=start_chan,

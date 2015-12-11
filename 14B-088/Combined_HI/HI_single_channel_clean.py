@@ -19,7 +19,7 @@ if model == "None":
 if mask == "None":
     mask = None
 
-myconcat(vis=[vis_1, vis_2], output_vis=out_root+".ms")
+myconcat(vis=[vis_1, vis_2], concatvis=out_root+".ms")
 
 myclean(vis=out_root+".ms", imagename=out_root+'.clean', field='M33*',
         restfreq='1420.40575177MHz',

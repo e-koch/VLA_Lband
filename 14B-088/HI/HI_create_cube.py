@@ -24,8 +24,12 @@ elif output_type == "model":
     out_name = \
         "/home/ekoch/m33/14B-088/cube_images/M33_14B-088_HI.clean.model"
     search_string = "*.clean.model"
+elif output_type == "mask":
+    out_name = \
+        "/home/ekoch/m33/14B-088/cube_images/M33_14B-088_HI.clean.mask"
+    search_string = "*.clean.mask"
 else:
-    raise TypeError("Must provide 'image', 'residual', or 'model' as argument.")
+    raise TypeError("Must provide 'image', 'residual', 'mask' or 'model' as argument.")
 
 channel_direcs = glob.glob(os.path.join(path, "channel_*"))
 

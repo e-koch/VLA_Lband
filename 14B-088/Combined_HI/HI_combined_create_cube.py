@@ -70,6 +70,4 @@ for channel in channel_direcs:
 
     images.append(image[0])
 
-print images
-
-ia.imageconcat(outfile=out_name, infiles=images)
+ia.imageconcat(outfile=out_name, infiles=images, relax=True)

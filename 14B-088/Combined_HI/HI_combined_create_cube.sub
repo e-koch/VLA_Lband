@@ -13,11 +13,11 @@ cd /global/scratch/ekoch/combined/cube_images/
 
 echo "Starting at: `date`"
 echo "Making cleaned cube"
-casa -c /home/ekoch/code_repos/VLA_Lband/14B-088/HI/HI_create_cube.py image
+casa -c /home/ekoch/VLA_Lband/14B-088/Combined_HI/HI_combined_create_cube.py image
 echo "Making residual cube"
-casa -c /home/ekoch/code_repos/VLA_Lband/14B-088/HI/HI_create_cube.py residual
+casa -c /home/ekoch/VLA_Lband/14B-088/Combined_HI/HI_combined_create_cube.py residual
 echo "Making model cube"
-casa -c /home/ekoch/code_repos/VLA_Lband/14B-088/HI/HI_create_cube.py model
+casa -c /home/ekoch/VLA_Lband/14B-088/Combined_HI/HI_combined_create_cube.py model
 echo "Making mask cube"
-casa -c /home/ekoch/code_repos/VLA_Lband/14B-088/HI/HI_create_cube.py mask
+casa -c /home/ekoch/VLA_Lband/14B-088/Combined_HI/HI_combined_create_cube.py mask
 echo "Exited with code $? at: `date`"

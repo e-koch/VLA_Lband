@@ -1,0 +1,23 @@
+#!/bin/bash
+
+#PBS -S /bin/bash
+#PBS -l pmem=4000m
+#PBS -l procs=12
+#PBS -l walltime=8:00:00
+#PBS -m bea
+#PBS -M koch.eric.w@gmail.com
+
+source /home/ekoch/.bashrc
+
+cd /global/scratch/ekoch/combined/cube_images/
+
+echo "Starting at: `date`"
+echo "Making cleaned cube"
+casa -c /home/ekoch/code_repos/VLA_Lband/14B-088/HI/HI_create_cube.py image
+echo "Making residual cube"
+casa -c /home/ekoch/code_repos/VLA_Lband/14B-088/HI/HI_create_cube.py residual
+echo "Making model cube"
+casa -c /home/ekoch/code_repos/VLA_Lband/14B-088/HI/HI_create_cube.py model
+echo "Making mask cube"
+casa -c /home/ekoch/code_repos/VLA_Lband/14B-088/HI/HI_create_cube.py mask
+echo "Exited with code $? at: `date`"

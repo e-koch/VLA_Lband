@@ -9,7 +9,7 @@ import astropy.units as u
 import matplotlib.pyplot as p
 import seaborn as sn
 sn.set_context('poster')
-sn.set_style("dark")
+sn.set_style("ticks")
 
 path = "/srv/astro/erickoch/M33/"
 
@@ -35,3 +35,4 @@ for posn in posns:
                      posn[0].replace(" ", "_").lower()+"_" +
                      str(posn[1])+"_"+str(posn[2])+".pdf")
     cube[:, posn[1], posn[2]].quicklook(filename=filename)
+    p.clf()

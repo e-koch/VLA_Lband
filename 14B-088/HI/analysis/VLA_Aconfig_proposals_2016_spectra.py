@@ -13,7 +13,8 @@ sn.set_style("dark")
 
 path = "/srv/astro/erickoch/M33/"
 
-cube = SpectralCube.read(os.path.join(path, "M33_14B-088_HI.clean.image.fits"))
+cube = SpectralCube.read(os.path.join(path, "M33_14B-088_HI.clean.image.fits"),
+                         mode='denywrite')
 
 # Interesting positions by-eye
 posns = [["South Arm 1", 1383, 1129],

@@ -33,5 +33,5 @@ for posn in posns:
         os.path.join(path,
                      "M33_14B-088_HI.clean.image." +
                      posn[0].replace(" ", "_").lower()+"_" +
-                     str(posn[1])+"_"+str(posn[2]))
+                     str(posn[1])+"_"+str(posn[2])+".pdf")
     cube[:, posn[1], posn[2]].quicklook(filename=filename)

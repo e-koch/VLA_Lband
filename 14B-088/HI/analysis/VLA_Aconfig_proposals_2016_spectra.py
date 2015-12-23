@@ -11,10 +11,19 @@ import seaborn as sn
 sn.set_context('poster')
 sn.set_style("ticks")
 
-path = "/srv/astro/erickoch/M33/"
+# path = "/srv/astro/erickoch/M33/"
+path = "/media/eric/MyRAID/M33/14B-088/HI/full_imaging/"
 
 cube = SpectralCube.read(os.path.join(path, "M33_14B-088_HI.clean.image.fits"),
                          mode='denywrite')
+
+arec_cube = "/media/eric/Data_3/M33/Arecibo/14B-088_items/M33_14B-088_HI_model.fits"
+# arec_cube = "/srv/astro/surveys/m33/hi/M33only.fits"
+
+arecibo = SpectralCube.read(arec_cube, mode='denywrite')
+# arecibo = arecibo[24:1202]
+
+# arec_spec = arecibo[:, 170, 132]
 
 # Interesting positions by-eye
 posns = [["South Arm 1", 1383, 1129, -210000, -75000],
@@ -34,8 +43,20 @@ for posn in posns:
                      "M33_14B-088_HI.clean.image." +
                      posn[0].replace(" ", "_").lower()+"_" +
                      str(posn[1])+"_"+str(posn[2])+".pdf")
-    cube[:, posn[2], posn[1]].quicklook()
+    spec = cube[:, posn[2], posn[1]]
+    spec_conv = spec.to(u.K, equivalencies=cube.beam.jtok_equiv(1420.40575177*u.MHz))
+    # Temp fix for WCS not being kept after unit conversion
+    spec_conv._wcs = spec.wcs
+    spec_conv.quicklook(label="VLA + Arecibo")
+    arec_spec = arecibo[:, -posn[2], -posn[1]]
+    arec_spec_conv = arec_spec.to(u.K, equivalencies=arecibo.beam.jtok_equiv(1420.40575177*u.MHz))
+    arec_spec_conv._wcs = arec_spec.wcs
+    arec_spec_conv.quicklook(label="Arecibo")
+    # p.plot(arec_spec_conv.spectral_axis[::-1], arec_spec_conv.value,
+    #        drawstyle='steps-mid')
     p.plot([posn[3], posn[4]], [0.0]*2, 'k--')
-    p.xlim([posn[3], posn[4]])
-    p.savefig(filename)
+    # p.xlim([posn[3], posn[4]])
+    p.legend(loc='best')
+    # p.savefig(filename)
+    p.show()
     p.clf()

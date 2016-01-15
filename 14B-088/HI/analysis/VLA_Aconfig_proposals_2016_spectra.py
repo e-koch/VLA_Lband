@@ -51,22 +51,22 @@ for posn in posns:
     spec = cube[:, posn[2], posn[1]]
     spec_conv = spec.to(u.K, equivalencies=cube.beam.jtok_equiv(1420.40575177*u.MHz))
     # Temp fix for WCS not being kept after unit conversion
-    spec_conv._wcs = spec.wcs
+    # spec_conv._wcs = spec.wcs
     spec_conv.quicklook(label="VLA + Arecibo", c='b')
     arec_spec = arecibo[:, -posn[2], -posn[1]]
-    arec_spec_conv = arec_spec.to(u.K, equivalencies=arecibo.beam.jtok_equiv(1420.40575177*u.MHz))
-    arec_spec_conv._wcs = arec_spec.wcs
-    arec_spec_conv.quicklook(label="Arecibo", c='c')
+    # arec_spec_conv = arec_spec.to(u.K, equivalencies=arecibo.beam.jtok_equiv(1420.40575177*u.MHz))
+    # arec_spec_conv._wcs = arec_spec.wcs
+    # arec_spec_conv.quicklook(label="Arecibo", c='c')
     # p.plot(arec_spec_conv.spectral_axis[::-1], arec_spec_conv.value,
     #        drawstyle='steps-mid')
     if "South" in posn[0]:
         vla_spec = sarm_vla[:, posn[2], posn[1]]
         vla_spec_conv = vla_spec.to(u.K, equivalencies=sarm_vla.beam.jtok_equiv(1420.40575177*u.MHz))
-        vla_spec_conv._wcs = vla_spec.wcs
+        # vla_spec_conv._wcs = vla_spec.wcs
         vla_spec_conv.quicklook(label="VLA", c='r')
     p.plot([posn[3], posn[4]], [0.0]*2, 'k--')
     p.xlim([posn[3], posn[4]])
     p.legend(loc='best')
-    p.savefig(filename)
+    # p.savefig(filename)
     p.show()
     p.clf()

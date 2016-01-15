@@ -4,7 +4,7 @@ Define my own version of CASA tools that return python errors if they fail.
 '''
 
 from tasks import split, uvsub, concat, clean, rmtables, mstransform, \
-    exportfits
+    exportfits, uvcontsub
 
 from taskinit import ia
 
@@ -20,6 +20,10 @@ def mysplit(**kwargs):
 
 
 def myuvsub(**kwargs):
+    return catch_fail(uvsub, **kwargs)
+
+
+def myuvcontsub(**kwargs):
     return catch_fail(uvsub, **kwargs)
 
 

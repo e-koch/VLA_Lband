@@ -30,14 +30,14 @@ rest_freq = str(line_dict[line_name])
 
 # Toggle on/off different operations
 do_concat = False
-dirty_cube_nosub = True
-contsub = False
-dirty_cube = False
-clean_cube = False
+dirty_cube_nosub = False
+contsub = True
+dirty_cube = True
+clean_cube = True
 
 # Parameters needed for multiple parts
 concat_ms = os.path.join(line_direc, line_name+"_"+project_name+".ms")
-contsub_ms = os.path.join(line_direc, line_name+"_"+project_name+".contsub")
+contsub_ms = concat_ms+".contsub"
 dirty_image_direc = os.path.join(line_direc, "dirty_images")
 clean_image_direc = os.path.join(line_direc, "clean_images")
 
@@ -48,17 +48,17 @@ fitspw = "0:50~100;400~450"
 excludechans = False
 
 # General clean parameters
-imsize = [2560, 2560]
+imsize = [500, 500]  # [2560, 2560]
 cell = '3arcsec'
 mode = 'velocity'
 nchan = 11
 width = "20.0km/s"
-start = "-70.0km/s"
+start = "-290.0km/s"
 thresh = "1.0mJy"
-field = "M33*"
-phasecenter = 'J2000 01h33m50.904 +30d39m35.79'
+field = "M33_3"  # "M33*"
+phasecenter = ''  # 'J2000 01h33m50.904 +30d39m35.79'
 spw = ""
-imagermode = "mosaic"
+imagermode = "csclean"  # "mosaic"
 multiscale = []
 outframe = "LSRK"
 veltype = "radio"
@@ -109,8 +109,8 @@ if contsub:
     if os.path.exists(contsub_ms) and delete_old:
             rmtables(contsub_ms)
 
-    myuvcontsub(vis=contsub_ms, fitspw=fitspw, excludechans=excludechans,
-                fitorder=0)
+    myuvcontsub(vis=concat_ms, fitspw=fitspw, excludechans=excludechans,
+                fitorder=0, want_cont=True)
 
 if dirty_cube:
     # Check that the contsub MS exists

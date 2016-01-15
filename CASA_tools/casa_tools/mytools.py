@@ -24,7 +24,7 @@ def myuvsub(**kwargs):
 
 
 def myuvcontsub(**kwargs):
-    return catch_fail(uvsub, **kwargs)
+    return catch_fail(uvcontsub, **kwargs)
 
 
 def myconcat(**kwargs):

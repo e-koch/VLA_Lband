@@ -31,13 +31,15 @@ rest_freq = str(line_dict[line_name])
 # Toggle on/off different operations
 do_concat = False
 dirty_cube_nosub = False
-contsub = True
-dirty_cube = True
-clean_cube = True
+contsub = False
+dirty_cube = False
+cont_cube = True
+clean_cube = False
 
 # Parameters needed for multiple parts
 concat_ms = os.path.join(line_direc, line_name+"_"+project_name+".ms")
 contsub_ms = concat_ms+".contsub"
+cont_ms = concat_ms+".cont"
 dirty_image_direc = os.path.join(line_direc, "dirty_images")
 clean_image_direc = os.path.join(line_direc, "clean_images")
 
@@ -51,8 +53,8 @@ excludechans = False
 imsize = [500, 500]  # [2560, 2560]
 cell = '3arcsec'
 mode = 'velocity'
-nchan = 11
-width = "20.0km/s"
+nchan = 50
+width = "5.0km/s"
 start = "-290.0km/s"
 thresh = "1.0mJy"
 field = "M33_3"  # "M33*"
@@ -63,7 +65,7 @@ multiscale = []
 outframe = "LSRK"
 veltype = "radio"
 minpb = 0.3
-weighting = 'briggs'
+weighting = 'natural'
 robust = 0.0
 restfreq = rest_freq
 usescratch = False
@@ -133,6 +135,27 @@ if dirty_cube:
             restfreq=restfreq, usescratch=usescratch,
             interpolation=interpolation, pbcor=False)
 
+if cont_cube:
+    # Check that the contsub MS exists
+    if not os.path.exists(concat_ms):
+        raise IOError("Concatenated MS does not exist in the given directory.")
+
+    if not os.path.exists(dirty_image_direc):
+        os.mkdir(dirty_image_direc)
+
+    out_image = os.path.join(dirty_image_direc,
+                             line_name+"_"+project_name+"_contonly_dirty")
+
+    rmtables(out_image+".*")
+
+    myclean(vis=cont_ms, imagename=out_image, niter=0, imsize=imsize,
+            cell=cell, mode=mode, nchan=nchan, width=width, start=start,
+            thresh=thresh, field=field, phasecenter=phasecenter, spw=spw,
+            imagermode=imagermode, multiscale=multiscale, outframe=outframe,
+            veltype=veltype, minpb=0.3, weighting=weighting, robust=robust,
+            restfreq=restfreq, usescratch=usescratch,
+            interpolation=interpolation, pbcor=False)
+
 if clean_cube:
     # Check that the contsub MS exists
     if not os.path.exists(concat_ms):
@@ -146,7 +169,7 @@ if clean_cube:
 
     rmtables(out_image+".*")
 
-    myclean(vis=contsub_ms, imagename=out_image, niter=1e5, interactive=True,
+    myclean(vis=contsub_ms, imagename=out_image, niter=10000, interactive=True,
             pbcor=True, imsize=imsize,
             cell=cell, mode=mode, nchan=nchan, width=width, start=start,
             thresh=thresh, field=field, phasecenter=phasecenter, spw=spw,

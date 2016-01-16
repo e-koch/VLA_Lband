@@ -30,7 +30,7 @@ bad_scan_dict = {}
 ms_names = []
 
 if find_bad_scans:
-    for f in os.listdir(line_direc):
+    for f in listdir_fullpath(line_direc):
         if f.endswith(".ms"):
             print("Found MS!: " + f.split("/")[-1])
             # Check if the scan plots directory exists

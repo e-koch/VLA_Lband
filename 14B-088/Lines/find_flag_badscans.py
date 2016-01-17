@@ -30,7 +30,7 @@ bad_scan_dict = {}
 ms_names = []
 
 if find_bad_scans:
-    for f in listdir_fullpath(line_direc):
+    for f in os.listdir(line_direc):
         if f.endswith(".ms"):
             print("Found MS!: " + f.split("/")[-1])
             # Check if the scan plots directory exists
@@ -39,7 +39,7 @@ if find_bad_scans:
             if not os.path.exists(plot_direc):
                 raise Exception("Create the scan plots directory first!")
 
-            ms_names.append(f)
+            ms_names.append(os.path.join(line_direc, f))
             scan_plots = listdir_fullpath(plot_direc)
 
             bad_scans = ""

@@ -197,7 +197,7 @@ elif whichplot == 5:
 
     halp_kp_proj.quicklook()
     halp_kp_proj.FITSFigure.show_contour(continuum, colors='w', alpha=0.8)
-    halp_kp_proj.FITSFigure.show_contour(co21, cmap='autumn', alpha=0.8)
+    halp_kp_proj.FITSFigure.show_contour(co21, colors='r', alpha=0.8)
 
 # HI, IRAC 8, CO21
 elif whichplot == 6:

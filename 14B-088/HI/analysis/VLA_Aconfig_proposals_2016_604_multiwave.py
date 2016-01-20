@@ -126,7 +126,7 @@ def load_spitzer_8um():
 def load_spitzer_24um():
 
     spit_24 = fits.open("/media/eric/Data_3/M33/Spitzer/"
-                        "mips1/mips24.fits")[0]
+                        "mips1/mips24.fits")[1]
 
     spit_24_proj = Projection(spit_24.data, unit=u.count,
                               wcs=WCS(spit_24.header))

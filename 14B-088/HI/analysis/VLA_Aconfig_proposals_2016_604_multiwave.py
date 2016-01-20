@@ -112,6 +112,27 @@ def load_continuum_L():
     return continuum, continuum_proj
 
 
+def load_spitzer_8um():
+
+    spit_8 = fits.open("/media/eric/Data_3/M33/Spitzer/"
+                       "irac4_8um/ch4_122_bgsub.fits")[0]
+
+    spit_8_proj = Projection(spit_8.data, unit=u.count,
+                             wcs=WCS(spit_8.header))
+
+    return spit_8, spit_8_proj
+
+
+def load_spitzer_24um():
+
+    spit_24 = fits.open("/media/eric/Data_3/M33/Spitzer/"
+                        "mips1/mips24.fits")[0]
+
+    spit_24_proj = Projection(spit_24.data, unit=u.count,
+                              wcs=WCS(spit_24.header))
+
+    return spit_24, spit_24_proj
+
 # HI, Halpha, 2-10 keV
 if whichplot == 0:
 
@@ -145,7 +166,7 @@ elif whichplot == 2:
     sii_halp_proj.FITSFigure.show_contour(co21, colors='r', alpha=0.8)
     sii_halp_proj.FITSFigure.show_contour(chandra, colors='b', alpha=0.8, )
 
-# HI, Halpha SD, CO21
+# HI, Halpha KP, CO21
 elif whichplot == 3:
 
     hi_mom0, hi_proj = load_hi()
@@ -177,3 +198,25 @@ elif whichplot == 5:
     halp_kp_proj.quicklook()
     halp_kp_proj.FITSFigure.show_contour(continuum, colors='w', alpha=0.8)
     halp_kp_proj.FITSFigure.show_contour(co21, cmap='autumn', alpha=0.8)
+
+# HI, IRAC 8, CO21
+elif whichplot == 6:
+
+    hi_mom0, hi_proj = load_hi()
+    spit_8, spit_8_proj = load_spitzer_8um()
+    co21, co21_proj = load_co21_IRAM()
+
+    spit_8_proj.quicklook()
+    spit_8_proj.FITSFigure.show_contour(hi_mom0, colors='g', alpha=0.8)
+    spit_8_proj.FITSFigure.show_contour(co21, colors='r', alpha=0.8)
+
+# HI, MIPS 24, CO21
+elif whichplot == 7:
+
+    hi_mom0, hi_proj = load_hi()
+    spit_24, spit_24_proj = load_spitzer_24um()
+    co21, co21_proj = load_co21_IRAM()
+
+    spit_24_proj.quicklook()
+    spit_24_proj.FITSFigure.show_contour(hi_mom0, colors='g', alpha=0.8)
+    spit_24_proj.FITSFigure.show_contour(co21, colors='r', alpha=0.8)

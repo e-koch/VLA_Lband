@@ -132,6 +132,11 @@ co21_spectrum = co21_cube[:, co21_posn[0], co21_posn[1]]
 
 # hi_spectrum.quicklook(label='HI', color='r')
 # co21_spectrum.quicklook(label='CO (2-1)', color='b')
-plot_overlay_spectra(hi_spectrum, hi_old_spectrum,
+
+# plot_overlay_spectra(hi_spectrum, hi_old_spectrum,
+#                      label1="HI Surface Brightness",
+#                      label2="Historical VLA")
+
+plot_overlay_spectra(hi_spectrum, co21_spectrum,
                      label1="HI Surface Brightness",
-                     label2="Historical VLA")
+                     label2="CO(2-1) Surface Brightness")

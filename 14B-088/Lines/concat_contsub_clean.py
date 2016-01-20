@@ -29,10 +29,10 @@ with open(line_file, 'r') as f:
 rest_freq = str(line_dict[line_name])
 
 # Toggle on/off different operations
-do_concat = False
-dirty_cube_nosub = False
-contsub = False
-dirty_cube = False
+do_concat = True
+dirty_cube_nosub = True
+contsub = True
+dirty_cube = True
 cont_cube = True
 clean_cube = False
 
@@ -53,9 +53,9 @@ excludechans = False
 imsize = [500, 500]  # [2560, 2560]
 cell = '3arcsec'
 mode = 'velocity'
-nchan = 50
-width = "5.0km/s"
-start = "-290.0km/s"
+nchan = 28
+width = "10.0km/s"
+start = "-320.0km/s"
 thresh = "1.0mJy"
 field = "M33_3"  # "M33*"
 phasecenter = ''  # 'J2000 01h33m50.904 +30d39m35.79'

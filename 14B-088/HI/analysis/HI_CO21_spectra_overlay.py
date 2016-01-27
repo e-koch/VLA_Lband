@@ -14,9 +14,14 @@ hi_cube = SpectralCube.read(
     '/media/eric/MyRAID/M33/14B-088/HI/full_imaging/M33_14B-088_HI.clean.image.fits',
     mode='denywrite')
 
+# hi_old_cube = SpectralCube.read(
+#     '/media/eric/Data_3/M33/VLA_Data/AT0206/imaging/M33_206_b_c_HI.fits',
+#     mode='denywrite')
+
 hi_old_cube = SpectralCube.read(
-    '/media/eric/Data_3/M33/VLA_Data/AT0206/imaging/M33_206_b_c_HI.fits',
+    '/media/eric/Data_3/M33/VLA_Data/AT0206/old_imaging/m33_hi.fits',
     mode='denywrite')
+
 
 # arec_cube = "/media/eric/Data_3/M33/Arecibo/14B-088_items/M33_14B-088_HI_model.fits"
 # arec_cube = "/media/eric/Data_3/M33/Arecibo/M33only.fits"
@@ -107,7 +112,6 @@ def plot_overlay_spectra(spectrum1, spectrum2, figsize=(12, 4),
         diff = np.abs(spectrum1.spectral_axis[1] -
                       spectrum1.spectral_axis[0]).to(spec_unit).value
 
-        print diff
         ax.fill_between(np.arange(vline[1], vline[2]+diff, diff),
                         ymin, ymax, facecolor='r', alpha=0.25)
 
@@ -168,9 +172,9 @@ co21_spectrum = co21_cube[:, co21_posn[0], co21_posn[1]]
 plot_overlay_spectra(hi_spectrum, hi_old_spectrum,
                      label1="EVLA",
                      label2="Historical VLA", second_axis=False,
-                     vline=(-226, -238, -214))
+                     xlim=[-300, -180])
 
 plot_overlay_spectra(hi_spectrum, co21_spectrum,
-                     label1="HI Brightness",
-                     label2="CO(2-1) Brightness",
-                     vline=(-226, -238, -214))
+                     label1="HI Surf. Brightness",
+                     label2="CO(2-1) Surf. Brightness",
+                     vline=(-226, -238, -214), xlim=[-300, -180])

@@ -182,3 +182,5 @@ for path, pnum in zip(paths[4:7], [4, 5, 6]):
         if pnum != 4:
             pv_fig.hide_yaxis_label()
             pv_fig.hide_ytick_labels()
+
+p.tight_layout()

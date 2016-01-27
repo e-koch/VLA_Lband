@@ -39,7 +39,8 @@ hi_cube = hi_cube.subcube(xlo=long_extrema[1],
 
 # posn = SkyCoord("01h33m21.287", "+30d32m16.110", frame='icrs')
 # posn = SkyCoord("01h34m31.492", "+30d46m32.248", frame='icrs')
-posn = SkyCoord("01h34m31.87", "+30d46m56.5", frame='icrs')
+# posn = SkyCoord("01h34m31.87", "+30d46m56.5", frame='icrs')
+posn = SkyCoord("01h34m34.65", "+30d46m33.73", frame='icrs')
 
 
 def get_closest_posn(posn, spatial_footprint):
@@ -59,29 +60,60 @@ def get_closest_posn(posn, spatial_footprint):
 
 def plot_overlay_spectra(spectrum1, spectrum2, figsize=(12, 4),
                          spec_unit=u.km/u.s, label1="HI", label2="CO (2-1)",
-                         style='steps-mid', xlim=None):#[-180, -75]):
+                         style='steps-mid', xlim=None, second_axis=True,
+                         ylabel="HI Surface Brightness", vline=None,
+                         hline=None):
     '''
     Overlay 2 spectra with individual y-axes.
+
+    Parameters
+    ----------
+    vline : float or 3-element tuple.
+        If a tuple is given, the 2nd and 3rd values for the lower and upper
+        bounds.
     '''
 
     p.figure(figsize=figsize)
     ax = p.subplot(111)
-    ax.plot(spectrum1.spectral_axis/1.e3, spectrum1.value,
-            drawstyle=style)
+    ax.plot(spectrum1.spectral_axis.to(spec_unit), spectrum1.value,
+            drawstyle=style, label=label1)
     ax.set_xlabel('Velocity ('+str(spec_unit)+')')
-    ax.set_ylabel(label1+' ('+str(spectrum1.unit)+')')
+    if second_axis:
+        ax.set_ylabel(label1+' ('+str(spectrum1.unit)+')')
+    else:
+        ax.set_ylabel(ylabel+' ('+str(spectrum1.unit)+')')
     for tick in ax.get_xticklabels():
         tick.set_rotation(45)
 
-    ax_2 = ax.twinx()
-    ax_2.plot(spectrum2.spectral_axis/1.e3, spectrum2.value, 'g',
-              drawstyle=style)
-    ax_2.set_ylabel(label2+' ('+str(spectrum2.unit)+')')
-
-    align_yaxis(ax, 0, ax_2, 0)
+    if second_axis:
+        ax_2 = ax.twinx()
+        ax_2.plot(spectrum2.spectral_axis.to(spec_unit), spectrum2.value, 'g',
+                  drawstyle=style)
+        ax_2.set_ylabel(label2+' ('+str(spectrum2.unit)+')')
+        align_yaxis(ax, 0, ax_2, 0)
+    else:
+        ax.plot(spectrum2.spectral_axis.to(spec_unit), spectrum2.value, 'g',
+                drawstyle=style, label=label2)
+        ax.legend()
 
     if xlim is not None:
         ax.set_xlim(xlim)
+
+    if vline is not None:
+        ymin, ymax = ax.get_ylim()
+        ax.vlines(vline[0], ymin, ymax, colors='r',
+                  linestyles="--")
+
+        diff = np.abs(spectrum1.spectral_axis[1] -
+                      spectrum1.spectral_axis[0]).to(spec_unit).value
+
+        print diff
+        ax.fill_between(np.arange(vline[1], vline[2]+diff, diff),
+                        ymin, ymax, facecolor='r', alpha=0.25)
+
+    if hline is not None:
+        ax.hlines(hline, ax.get_ylim()[0], ax.get_ylim()[1], colors='b',
+                  linestyles="--")
 
     p.tight_layout()
 
@@ -133,10 +165,12 @@ co21_spectrum = co21_cube[:, co21_posn[0], co21_posn[1]]
 # hi_spectrum.quicklook(label='HI', color='r')
 # co21_spectrum.quicklook(label='CO (2-1)', color='b')
 
-# plot_overlay_spectra(hi_spectrum, hi_old_spectrum,
-#                      label1="HI Surface Brightness",
-#                      label2="Historical VLA")
+plot_overlay_spectra(hi_spectrum, hi_old_spectrum,
+                     label1="EVLA",
+                     label2="Historical VLA", second_axis=False,
+                     vline=(-226, -238, -214))
 
 plot_overlay_spectra(hi_spectrum, co21_spectrum,
-                     label1="HI Surface Brightness",
-                     label2="CO(2-1) Surface Brightness")
+                     label1="HI Brightness",
+                     label2="CO(2-1) Brightness",
+                     vline=(-226, -238, -214))

@@ -37,6 +37,20 @@ def load_hi():
     return hi_mom0, hi_proj
 
 
+def load_historical_hi():
+    # hi_mom0 = \
+    #     fits.open("/media/eric/Data_3/M33/VLA_Data/AT0206/imaging/"
+    #               "M33_206_b_c_HI.mom0.fits")[0]
+
+    hi_mom0 = \
+        fits.open("/media/eric/MyRAID/M33/14B-088/HI/combined_HI/"
+                  "M33_14B-088_AT0206_HI.clean.image.mom0_1sigmask.fits")[0]
+
+    hi_proj = Projection(hi_mom0.data, unit=u.Jy, wcs=WCS(hi_mom0.header))
+
+    return hi_mom0, hi_proj
+
+
 def load_halp_hubble():
 
     halpha = fits.open("/media/eric/Data_3/M33/Hubble/hst_05773_03_wfpc2_f656n_wf"
@@ -136,23 +150,25 @@ def load_spitzer_24um():
 # HI, Halpha, 2-10 keV
 if whichplot == 0:
 
-    hi_mom0, hi_proj = load_hi()
+    # hi_mom0, hi_proj = load_hi()
+    hi_mom0, hi_proj = load_historical_hi()
     halpha, halpha_proj = load_halp_hubble()
     chandra, chandra_proj = load_chandra()
 
     halpha_proj.quicklook()
-    halpha_proj.FITSFigure.show_contour(hi_mom0, colors='w', alpha=0.8)
-    halpha_proj.FITSFigure.show_contour(chandra, colors='r', alpha=0.8)
+    halpha_proj.FITSFigure.show_contour(hi_mom0, colors='g', alpha=0.8)
+    halpha_proj.FITSFigure.show_contour(chandra, colors='b', alpha=0.8)
 
 # HI, [SII], 2-10 keV
 elif whichplot == 1:
 
-    hi_mom0, hi_proj = load_hi()
+    # hi_mom0, hi_proj = load_hi()
+    hi_mom0, hi_proj = load_historical_hi()
     sii, sii_proj = load_sii_hubble()
     chandra, chandra_proj = load_chandra()
 
     sii_proj.quicklook()
-    sii_proj.FITSFigure.show_contour(hi_mom0, colors='w', alpha=0.8)
+    sii_proj.FITSFigure.show_contour(hi_mom0, colors='g', alpha=0.8)
     sii_proj.FITSFigure.show_contour(chandra, colors='r', alpha=0.8, )
 
 # [SII]/Halp, 2-10 keV, CO21
@@ -169,7 +185,8 @@ elif whichplot == 2:
 # HI, Halpha KP, CO21
 elif whichplot == 3:
 
-    hi_mom0, hi_proj = load_hi()
+    # hi_mom0, hi_proj = load_hi()
+    hi_mom0, hi_proj = load_historical_hi()
     halp_kp, halp_kp_proj = load_halp_kp()
     co21, co21_proj = load_co21_IRAM()
 
@@ -181,7 +198,8 @@ elif whichplot == 3:
 elif whichplot == 4:
 
     halpha, halpha_proj = load_halp_hubble()
-    hi_mom0, hi_proj = load_hi()
+    # hi_mom0, hi_proj = load_hi()
+    hi_mom0, hi_proj = load_historical_hi()
     co21, co21_proj = load_co21_IRAM()
 
     halpha_proj.quicklook()

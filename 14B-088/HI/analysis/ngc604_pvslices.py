@@ -143,7 +143,7 @@ fig = p.figure()
 
 # Halpha
 halp_fig = FITSFigure(halp_proj.hdu, subplot=(2, 3, 1), figure=fig)
-halp_fig.show_grayscale()
+halp_fig.show_grayscale(stretch="log", vmin=0.01)
 halp_fig.hide_xaxis_label()
 halp_fig.hide_yaxis_label()
 halp_fig.hide_tick_labels()

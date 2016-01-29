@@ -42,10 +42,10 @@ hi_cube = hi_cube.subcube(xlo=long_extrema[1],
 # Now find the position in each cube corresponding to a given
 # coordinate
 
-# posn = SkyCoord("01h33m21.287", "+30d32m16.110", frame='icrs')
+posn = SkyCoord("01h33m21.287", "+30d32m16.110", frame='icrs')
 # posn = SkyCoord("01h34m31.492", "+30d46m32.248", frame='icrs')
 # posn = SkyCoord("01h34m31.87", "+30d46m56.5", frame='icrs')
-posn = SkyCoord("01h34m34.65", "+30d46m33.73", frame='icrs')
+# posn = SkyCoord("01h34m34.65", "+30d46m33.73", frame='icrs')
 
 
 def get_closest_posn(posn, spatial_footprint):
@@ -67,7 +67,7 @@ def plot_overlay_spectra(spectrum1, spectrum2, figsize=(12, 4),
                          spec_unit=u.km/u.s, label1="HI", label2="CO (2-1)",
                          style='steps-mid', xlim=None, second_axis=True,
                          ylabel="HI Surface Brightness", vline=None,
-                         hline=None):
+                         hline=None, linecolor='r'):
     '''
     Overlay 2 spectra with individual y-axes.
 
@@ -113,7 +113,7 @@ def plot_overlay_spectra(spectrum1, spectrum2, figsize=(12, 4),
                       spectrum1.spectral_axis[0]).to(spec_unit).value
 
         ax.fill_between(np.arange(vline[1], vline[2]+diff, diff),
-                        ymin, ymax, facecolor='r', alpha=0.25)
+                        ymin, ymax, facecolor=linecolor, alpha=0.25)
 
     if hline is not None:
         ax.hlines(hline, ax.get_ylim()[0], ax.get_ylim()[1], colors='b',
@@ -174,7 +174,16 @@ plot_overlay_spectra(hi_spectrum, hi_old_spectrum,
                      label2="Historical VLA", second_axis=False,
                      xlim=[-300, -180])
 
+# 604
+
+# plot_overlay_spectra(hi_spectrum, co21_spectrum,
+#                      label1="HI Surf. Brightness",
+#                      label2="CO(2-1) Surf. Brightness",
+#                      vline=(-226, -238, -214), xlim=[-300, -180])
+
+# S Arm
 plot_overlay_spectra(hi_spectrum, co21_spectrum,
                      label1="HI Surf. Brightness",
                      label2="CO(2-1) Surf. Brightness",
-                     vline=(-226, -238, -214), xlim=[-300, -180])
+                     xlim=[-170, -90], vline=(-220, -122, -117),
+                     linecolor='k')

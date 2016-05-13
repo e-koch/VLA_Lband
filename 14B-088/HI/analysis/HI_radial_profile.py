@@ -82,8 +82,6 @@ if __name__ == "__main__":
     g = Galaxy("M33")
 
     cube = cube.with_mask(cube > 1.8e-3 * u.Jy)
-    # Testing with a subcube to make things quicker
-    # cube = cube[400:600]
 
     # Create a radial profile of HI
     rs, sd, sd_sigma = radial_profile(g, cube)

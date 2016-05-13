@@ -1,0 +1,82 @@
+// This is a template input file for the Galfit utility.
+// Lines beginning with the double-slash or hash and blank
+// lines are not read by the program.
+
+// Name of the fitsfile to be modeled.
+FITSFILE    /media/eric/Data_3/M33/VLA_Data/AT0206/imaging/M33_206_b_c_HI.with_source_mask.fits
+
+// Using the Galfit utility? Must be true!!
+GALFIT      true
+
+// Number of radii to be modeled.
+NRADII      88
+
+// Separation between radii in arcsec. Let this be ~4 x beam size.
+RADSEP      24
+
+// Systemic velocity of the galaxy (in km/s). From 2012MNRAS.426.1808T
+VSYS        -179
+
+// X-Y coordinates of the galaxy center (in pixel). Estimated by-eye (but leaving as free parameters anyways)
+XPOS        969
+YPOS        1454
+
+// Initial global values for parameters:
+// Rotation and dispersion velocities (in km/s),
+// inclination and position angles [measured
+// anti-clockwise from north] (in degrees),
+// height scale of the disk (in arcsec).
+// I'm estimating these values from 2014A&A...572A..23C (Corbelli+14)
+VROT        100
+VDISP       10
+INC         56
+PA          220
+Z0          25
+
+// Free parameters for the minimization.
+FREE        VROT VDISP ZO PA
+// Extra parameters
+// INC PA X Y
+
+// OPTIONAL: Function to be minimized (default is 2):
+// = 1: chi-squared.
+// = 2: |mod-obs|.
+// = 3: |mod-obs|/|mod+obs|.
+// = 4: (mod-obs)^2.
+FTYPE       2
+
+// OPTIONAL: Weighting function (default is 1):
+// = 0: uniform weight.
+// = 1: |cos(θ)|.
+// = 2: cos(θ)^2.
+// θ is the azimuthal angle.
+WFUNC       1
+
+// OPTIONAL: Layer type along z (default is gaussian):
+// = 1: gaussian layer.
+// = 2: sech2 layer.
+// = 3: exponential layer.
+// = 4: Lorentzian layer.
+// = 5: box layer.;
+LTYPE       1
+
+// OPTIONAL: Tolerance for the minimization (default is 0.001).
+TOL         1E-03
+
+// OPTIONAL: Using a mask for the minimization (default=SMOOTH).
+MASK        NONE
+
+// OPTIONAL: Side of the galaxy to be fitted (default=both):.
+// = A: Approaching.
+// = R: Receding.
+// = B: Both.
+SIDE        B
+
+// OPTIONAL: Using a two stages minimization (default=true).
+TWOSTAGE    true
+
+// OPTIONAL: Degree of polynomial fitting angles (default=2).
+POLYN       3
+
+// Distance
+DISTANCE    0.84

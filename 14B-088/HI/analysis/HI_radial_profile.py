@@ -40,7 +40,7 @@ def radial_profile(gal, cube, dr=100 * u.pc, mom0=None,
     # Re-apply some units
     radprof = radprof * u.kpc
     sdprof = sdprof * mom0.unit
-    sdprof = sdprof_sigma * mom0.unit
+    sdprof_sigma = sdprof_sigma * mom0.unit
 
     # Correct for the los inclinations
     sdprof *= np.cos(gal.inclination)

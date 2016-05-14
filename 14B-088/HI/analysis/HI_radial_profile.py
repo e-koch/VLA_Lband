@@ -60,6 +60,9 @@ def radial_profile(gal, cube, dr=100 * u.pc, mom0=None,
             sdprof_sigma = sdprof_sigma * \
                 mom0.meta["beam"].jtok(mom0.header["RESTFREQ"])
 
+        sdprof = sdprof / u.Jy
+        sdprof_sigma = sdprof_sigma / u.Jy
+
     if mass_conversion is not None:
         sdprof = sdprof * mass_conversion
         sdprof_sigma = sdprof_sigma * mass_conversion
@@ -89,6 +92,6 @@ if __name__ == "__main__":
     # Add in creating a radial profile of the archival and the Arecibo
     # Also CO? I guess these should be on the same grid/resolution...
 
-    p.errorbar(rs, sd, "bD-", yerr=sd_sigma)
+    p.errorbar(rs, sd, yerr=sd_sigma, fmt="D-", color="b")
     p.ylabel(r"$\Sigma$ (M$_{\odot}$ K$^{-1}$km$^{-1}$s)")
     p.xlabel(r"R (kpc)")

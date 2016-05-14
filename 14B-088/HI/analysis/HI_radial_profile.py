@@ -3,10 +3,12 @@ import numpy as np
 from spectral_cube import SpectralCube
 from astropy import units as u
 
+hi_mass_conversion = 0.019 * (u.M_sun / u.pc**2) / (u.K * u.km / u.s)
+
 
 def radial_profile(gal, cube, dr=100 * u.pc, mom0=None,
                    max_rad=10 * u.kpc,
-                   mass_conversion=0.019 * u.M_sun / (u.K * u.km / u.s),
+                   mass_conversion=hi_mass_conversion,
                    restfreq=1.414 * u.GHz):
     if mom0 is None:
         mom0 = cube.moment0()
@@ -92,6 +94,6 @@ if __name__ == "__main__":
     # Add in creating a radial profile of the archival and the Arecibo
     # Also CO? I guess these should be on the same grid/resolution...
 
-    p.errorbar(rs, sd, yerr=sd_sigma, fmt="D-", color="b")
-    p.ylabel(r"$\Sigma$ (M$_{\odot}$ K$^{-1}$km$^{-1}$s)")
+    p.errorbar(rs.value, sd.value, yerr=sd_sigma.value, fmt="D-", color="b")
+    p.ylabel(r"$\Sigma$ (M$_{\odot}$ pc$^{-2}$)")
     p.xlabel(r"R (kpc)")

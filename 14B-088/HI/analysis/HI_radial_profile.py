@@ -56,12 +56,15 @@ def radial_profile(gal, cube, dr=100 * u.pc, mom0=None,
     sdprof = np.zeros(nbins)
     sdprof_sigma = np.zeros(nbins)
     radprof = np.zeros(nbins)
+
+    if pa_bounds is not None:
+        pa_idx = np.logical_and(pas >= pa_bounds[0], pas < pa_bounds[1])
+
     for ctr, (r0, r1) in enumerate(zip(inneredge,
                                        outeredge)):
 
         idx = np.logical_and(radius >= r0, radius < r1)
         if pa_bounds is not None:
-            pa_idx = np.logical_and(pas >= pa_bounds[0], pas < pa_bounds[1])
             idx = np.logical_and(idx, pa_idx)
         sdprof[ctr] = np.nansum(mom0[idx].value) / \
             np.sum(np.isfinite(mom0[idx].value))

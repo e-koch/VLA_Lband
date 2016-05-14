@@ -31,8 +31,16 @@ def radial_profile(gal, cube, dr=100 * u.pc, mom0=None,
             raise IndexError("pa_bounds must contain 2 angles.")
         if not isinstance(pa_bounds, Angle):
             raise TypeError("pa_bounds must be an Angle.")
+
         # Return the array of PAs in the galaxy frame
         pas = gal.position_angles(header=cube.header)
+
+        # If the start angle is greater than the end, we need to wrap about
+        # the discontinuity
+        if pa_bounds[0] > pa_bounds[1]:
+            initial_start = pa_bounds[0].copy()
+            pa_bounds = pa_bounds.wrap_at(initial_start)
+            pas = pas.wrap_at(initial_start)
 
     if max_rad is not None:
         max_rad = max_rad.to(u.kpc).value
@@ -115,6 +123,14 @@ if __name__ == "__main__":
 
     # Create a radial profile of HI
     rs, sd, sd_sigma = radial_profile(g, cube, mom0=mom0)
+    rs_1, sd_1, sd_sigma_1 = \
+        radial_profile(g, cube, mom0=mom0,
+                       pa_bounds=Angle([0.5 * np.pi * u.rad,
+                                        -0.5 * np.pi * u.rad]))
+    rs_2, sd_2, sd_sigma_2 = \
+        radial_profile(g, cube, mom0=mom0,
+                       pa_bounds=Angle([-0.5 * np.pi * u.rad,
+                                        0.5 * np.pi * u.rad]))
 
     # Add in creating a radial profile of the archival and the Arecibo
     # Also CO? I guess these should be on the same grid/resolution...

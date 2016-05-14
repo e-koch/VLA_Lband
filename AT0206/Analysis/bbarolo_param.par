@@ -34,7 +34,7 @@ PA          220
 Z0          25
 
 // Free parameters for the minimization.
-FREE        VROT VDISP ZO PA
+FREE        VROT VDISP ZO
 // Extra parameters
 // INC PA X Y
 
@@ -61,7 +61,7 @@ WFUNC       1
 LTYPE       1
 
 // OPTIONAL: Tolerance for the minimization (default is 0.001).
-TOL         1E-03
+TOL         3E-03
 
 // OPTIONAL: Using a mask for the minimization (default=SMOOTH).
 MASK        NONE

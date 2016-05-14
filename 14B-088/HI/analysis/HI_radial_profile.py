@@ -2,6 +2,7 @@
 import numpy as np
 from spectral_cube import SpectralCube
 from astropy import units as u
+from astropy.coordinates import Angle
 
 hi_mass_conversion = 0.019 * (u.M_sun / u.pc**2) / (u.K * u.km / u.s)
 
@@ -9,10 +10,29 @@ hi_mass_conversion = 0.019 * (u.M_sun / u.pc**2) / (u.K * u.km / u.s)
 def radial_profile(gal, cube, dr=100 * u.pc, mom0=None,
                    max_rad=10 * u.kpc,
                    mass_conversion=hi_mass_conversion,
-                   restfreq=1.414 * u.GHz):
+                   restfreq=1.414 * u.GHz,
+                   pa_bounds=None):
+    '''
+    Create a radial profile, optionally with limits on the angles used.
+
+    Parameters
+    ----------
+    pa_bounds : list of 2 Angles, optional
+        When specified, limits the angles used when calculating the profile.
+        e.g. pa_bounds=Angle([0.0*u.rad, np.pi*u.rad]))
+    '''
+
     if mom0 is None:
         mom0 = cube.moment0()
     radius = gal.radius(header=cube.header).to(u.kpc).value
+    if pa_bounds is not None:
+        # Check if they are angles
+        if len(pa_bounds) != 2:
+            raise IndexError("pa_bounds must contain 2 angles.")
+        if not isinstance(pa_bounds, Angle):
+            raise TypeError("pa_bounds must be an Angle.")
+        # Return the array of PAs in the galaxy frame
+        pas = gal.position_angles(header=cube.header)
 
     if max_rad is not None:
         max_rad = max_rad.to(u.kpc).value
@@ -32,10 +52,13 @@ def radial_profile(gal, cube, dr=100 * u.pc, mom0=None,
                                        outeredge)):
 
         idx = np.logical_and(radius >= r0, radius < r1)
+        if pa_bounds is not None:
+            pa_idx = np.logical_and(pas >= pa_bounds[0], pas < pa_bounds[1])
+            idx = np.logical_and(idx, pa_idx)
         sdprof[ctr] = np.nansum(mom0[idx].value) / \
             np.sum(np.isfinite(mom0[idx].value))
         sdprof_sigma[ctr] = \
-            np.sqrt(np.nansum((mom0[idx].value - sdprof[ctr])**2.) / \
+            np.sqrt(np.nansum((mom0[idx].value - sdprof[ctr])**2.) /
                     np.sum(np.isfinite(mom0[idx].value)))
         radprof[ctr] = np.nanmean(radius[idx])
 
@@ -88,8 +111,10 @@ if __name__ == "__main__":
 
     cube = cube.with_mask(cube > 1.8e-3 * u.Jy)
 
+    mom0 = cube.moment0()
+
     # Create a radial profile of HI
-    rs, sd, sd_sigma = radial_profile(g, cube)
+    rs, sd, sd_sigma = radial_profile(g, cube, mom0=mom0)
 
     # Add in creating a radial profile of the archival and the Arecibo
     # Also CO? I guess these should be on the same grid/resolution...

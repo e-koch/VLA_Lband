@@ -18,7 +18,7 @@ RADSEP      24
 VSYS        -179
 
 // X-Y coordinates of the galaxy center (in pixel). Estimated by-eye (but leaving as free parameters anyways)
-XPOS        969
+XPOS        984
 YPOS        1454
 
 // Initial global values for parameters:

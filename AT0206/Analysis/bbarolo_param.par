@@ -9,10 +9,10 @@ FITSFILE    /media/eric/Data_3/M33/VLA_Data/AT0206/imaging/M33_206_b_c_HI.with_s
 GALFIT      true
 
 // Number of radii to be modeled.
-NRADII      88
+NRADII      200
 
-// Separation between radii in arcsec. Let this be ~4 x beam size.
-RADSEP      24
+// Separation between radii in arcsec. Let this be ~2 x beam size.
+RADSEP      12
 
 // Systemic velocity of the galaxy (in km/s). From 2012MNRAS.426.1808T
 VSYS        -179
@@ -35,6 +35,11 @@ Z0          25
 
 // Free parameters for the minimization.
 FREE        VROT VDISP Z0
+// While it would be nice to free up more parameters, the fitter tends to get
+// stuck in the ~6 kpc rings and I can't find where in the source code the
+// skip setting is.
+// However, the disk isn't warped significantly within the inner 10 kpc (see Corbelli+14), so
+// it shouldn't matter too much.
 // Extra parameters
 // INC PA X Y
 

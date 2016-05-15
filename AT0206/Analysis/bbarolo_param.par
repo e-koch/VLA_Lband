@@ -34,7 +34,7 @@ PA          220
 Z0          25
 
 // Free parameters for the minimization.
-FREE        VROT VDISP ZO
+FREE        VROT VDISP Z0
 // Extra parameters
 // INC PA X Y
 

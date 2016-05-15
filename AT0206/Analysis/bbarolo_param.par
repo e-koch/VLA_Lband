@@ -80,3 +80,6 @@ POLYN       3
 
 // Distance
 DISTANCE    0.84
+
+// Calculate errors
+FLAGERRORS  false

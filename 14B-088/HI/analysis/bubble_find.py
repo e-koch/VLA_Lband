@@ -3,7 +3,7 @@ import os
 from spectral_cube import SpectralCube
 import astropy.units as u
 
-from basics import BubbleFinder
+from basics.bubble_segment3D import BubbleFinder
 
 '''
 Create the bubble catalogue of M33 with the 14B-088 map
@@ -19,7 +19,7 @@ cube = \
 # partially galactic HI. So estimate the noise level from the last channel
 # which is pretty much noise only. It gives 1.8 mJy/bm, which is right on.
 bub_find = BubbleFinder(cube, keep_threshold_mask=True,
-                        empty_channel=cube.shape[0])
+                        empty_channel=cube.shape[0] - 1)
 
 bub_find.get_bubbles(verbose=True, overlap_frac=0.5, multiprocess=True,
                      refit=False, nsig=2.0, cut_val=0.5, min_channels=5,

@@ -3,8 +3,8 @@
 // lines are not read by the program.
 
 // Name of the fitsfile to be modeled.
-FITSFILE    /media/eric/MyRAID/M33/14B-088/HI/full_imaging/M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.chan_500_600.fits
-// FITSFILE    /media/eric/MyRAID/M33/14B-088/HI/combined_HI/M33_14B-088_AT0206_HI.clean.image.fits
+// FITSFILE    /media/eric/MyRAID/M33/14B-088/HI/full_imaging/M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.chan_500_600.fits
+FITSFILE    /media/eric/MyRAID/M33/14B-088/HI/combined_HI/M33_14B-088_AT0206_HI.clean.image.fits
 
 // Using the Galfit utility? Must be true!!
 GALFIT      true
@@ -20,8 +20,8 @@ VSYS        -179
 
 // X-Y coordinates of the galaxy center (in pixel). Estimated by-eye (but leaving as free parameters anyways)
 // First two are for the big, 14B-088 cube
-XPOS        647
-YPOS        796
+// XPOS        647
+// YPOS        796
 // These are for the combined cube with AT0206 and 14B-088
 // XPOS 2053
 // YPOS 2050
@@ -34,14 +34,14 @@ YPOS        796
 // I'm estimating these values from 2014A&A...572A..23C (Corbelli+14)
 VROT        100
 VDISP       10
-INC         55
-PA          0
-Z0          1
+INC         56
+PA          220
+Z0          25
 
 // Free parameters for the minimization.
-FREE        VROT VDISP INC PA
+FREE        VROT VDISP
 // Extra parameters
-// X Y Z0
+// X Y Z0 INC PA
 
 // OPTIONAL: Function to be minimized (default is 2):
 // = 1: chi-squared.
@@ -82,3 +82,6 @@ TWOSTAGE    true
 
 // OPTIONAL: Degree of polynomial fitting angles (default=2).
 POLYN       3
+
+// DISTANCE
+DISTANCE    0.84

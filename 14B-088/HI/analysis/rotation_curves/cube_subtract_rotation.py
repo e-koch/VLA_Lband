@@ -5,6 +5,7 @@ import astropy.units as u
 import numpy as np
 import os
 from astropy.utils.console import ProgressBar
+import pyregion
 
 '''
 Subtract a rotation model from a cube.
@@ -28,6 +29,9 @@ data_path = "/media/eric/MyRAID/M33/14B-088/HI/full_imaging/"
 
 cube = SpectralCube.read(os.path.join(data_path,
                          "M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.fits"))
+region = pyregion.open(os.path.expanduser("~/Dropbox/code_development/VLA_Lband"
+                                          "/14B-088/HI/analysis/mom1_rotcurve_mask.reg"))
+cube = cube.subcube_from_ds9region(region)
 
 # Where's the center?
 center_pixel = find_nearest(cube.spectral_axis, vsys)
@@ -59,9 +63,10 @@ new_fits = fits.open(new_fitsname, mode='update')
 write_every = 1000
 
 for num, (i, j) in enumerate(ProgressBar(zip(*posns))):
-    shift = find_nearest(cube.spectral_axis,
-                         model[0].data[i, j] * u.m / u.s) - center_pixel
-    new_fits[0].data[:, i, j] = np.roll(cube.filled_data[:, i, j].astype(np.float32), shift)
+    shift = center_pixel - \
+        find_nearest(cube.spectral_axis,
+                     model[0].data[i, j] * u.m / u.s)
+    new_fits[0].data[:, i, j] = np.roll(cube.filled_data[:, i, j], shift)
 
     if num % write_every == 0:
         new_fits.flush()

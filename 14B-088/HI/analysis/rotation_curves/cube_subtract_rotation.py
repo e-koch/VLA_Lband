@@ -29,16 +29,17 @@ data_path = "/media/eric/MyRAID/M33/14B-088/HI/full_imaging/"
 
 cube = SpectralCube.read(os.path.join(data_path,
                          "M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.fits"))
-region = pyregion.open(os.path.expanduser("~/Dropbox/code_development/VLA_Lband"
-                                          "/14B-088/HI/analysis/mom1_rotcurve_mask.reg"))
-cube = cube.subcube_from_ds9region(region)
+# region = pyregion.open(os.path.expanduser("~/Dropbox/code_development/VLA_Lband"
+#                                           "/14B-088/HI/analysis/rotation_curves/mom1_rotcurve_mask.reg"))
+# print("Applying region as mask")
+# cube = cube.subcube_from_ds9region(region)
 
 # Where's the center?
 center_pixel = find_nearest(cube.spectral_axis, vsys)
 # In this case, the remaining difference is a minuscule 3 m/s.
 
 model = fits.open(os.path.join(data_path,
-                  "diskfit_noasymm_nowarp_output/rad.mod.fits"))
+                  "diskfit_noasymm_nowarp_output/rad.fitmod.fits"))
 
 # Now calculate the spectral shifts needed for each pixel
 # Assuming that the array shapes for the same (which they are here)
@@ -53,6 +54,7 @@ new_header["CRPIX3"] = center_pixel + 1
 new_header["CRVAL3"] = (cube.spectral_axis[center_pixel] - vsys).value
 
 # Create the FITS file so we can write 1 spectrum in at a time
+print("Making the empty FITS file")
 new_fitsname = os.path.join(data_path,
                             "M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.rotsub.fits")
 
@@ -60,8 +62,9 @@ create_huge_fits(cube.shape, new_fitsname, header=new_header)
 
 new_fits = fits.open(new_fitsname, mode='update')
 
-write_every = 1000
+write_every = 8000
 
+print("And here we go!")
 for num, (i, j) in enumerate(ProgressBar(zip(*posns))):
     shift = center_pixel - \
         find_nearest(cube.spectral_axis,

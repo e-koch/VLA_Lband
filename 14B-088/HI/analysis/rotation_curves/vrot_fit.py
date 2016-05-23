@@ -73,7 +73,7 @@ if make_rotmodel:
 
     # Put into m/s.
     smooth_model = (vcirc(radii, *mod_pars) * 1000.) * np.cos(pas) * \
-        np.sin(gal.inclination)
+        np.sin(gal.inclination).value
 
     # Shift by Vsys (m / s)
     vsys = -180610.

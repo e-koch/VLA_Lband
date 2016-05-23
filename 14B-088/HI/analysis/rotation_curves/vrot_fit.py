@@ -82,9 +82,12 @@ if make_rotmodel:
     # Save the smooth model.
     new_header = mom1[0].header.copy()
     new_header["COMMENT"] = "Smooth rotation model of DISKFIT output. " \
-        "Uses Eq.5 from Meidt et al. 2008."
+        "Uses Eq.5 from Meidt et al. 2008. n={0:.2f}+/-{1:.2f}, " \
+        "Vmax={2:.2f}+/-{3:.2f} km/s, {4:.2f}+/-{5:.2f} pix".\
+        format(pars[0], np.sqrt(pcov[0, 0]), pars[1], np.sqrt(pcov[1, 1]),
+               pars[2], np.sqrt(pcov[2, 2]))
     new_header["BUNIT"] = "m / s"
     new_hdu = fits.PrimaryHDU(smooth_model, header=new_header)
     new_hdu.writeto(os.path.join(data_path,
-                               "diskfit_noasymm_nowarp_output/rad.fitmod.fits"),
+                                 "diskfit_noasymm_nowarp_output/rad.fitmod.fits"),
                     clobber=True)

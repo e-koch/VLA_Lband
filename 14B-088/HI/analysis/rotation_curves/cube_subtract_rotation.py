@@ -66,6 +66,9 @@ write_every = 10000
 
 print("And here we go!")
 for num, (i, j) in enumerate(ProgressBar(zip(*posns))):
+    # Don't bother rolling if there's nothing there
+    if not np.isfinite(cube.filled_data[:, i, j]).any():
+        continue
     shift = center_pixel - \
         find_nearest(cube.spectral_axis,
                      model[0].data[i, j] * u.m / u.s)

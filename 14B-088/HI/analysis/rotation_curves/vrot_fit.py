@@ -37,7 +37,7 @@ print("n: {0} +/- {1}".format(pars[0], np.sqrt(pcov[0, 0])))
 print("vmax: {0} +/- {1}".format(pars[1], np.sqrt(pcov[1, 1])))
 print("rmax: {0} +/- {1}".format(pars[2], np.sqrt(pcov[2, 2])))
 
-mom1_name = "M33_14B-088_HI.clean.image.pbcov_gt_0.3.ellip_mask.mom1.fits"
+mom1_name = "M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.mom1.fits"
 mom1 = \
     fits.open(os.path.join(data_path, mom1_name))
 

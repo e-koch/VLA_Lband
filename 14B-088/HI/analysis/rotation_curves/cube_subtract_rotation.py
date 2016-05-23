@@ -62,7 +62,7 @@ create_huge_fits(cube.shape, new_fitsname, header=new_header)
 
 new_fits = fits.open(new_fitsname, mode='update')
 
-write_every = 8000
+write_every = 10000
 
 print("And here we go!")
 for num, (i, j) in enumerate(ProgressBar(zip(*posns))):
@@ -73,6 +73,9 @@ for num, (i, j) in enumerate(ProgressBar(zip(*posns))):
 
     if num % write_every == 0:
         new_fits.flush()
+
+# Set the new header
+new_fits[0].header = new_header
 
 new_fits.flush()
 new_fits.close()

@@ -67,10 +67,10 @@ def radial_profile(gal, cube, dr=100 * u.pc, mom0=None,
         if pa_bounds is not None:
             idx = np.logical_and(idx, pa_idx)
         sdprof[ctr] = np.nansum(mom0[idx].value) / \
-            np.sum(np.isfinite(mom0[idx].value))
+            np.sum(np.isfinite(radius[idx]))
         sdprof_sigma[ctr] = \
             np.sqrt(np.nansum((mom0[idx].value - sdprof[ctr])**2.) /
-                    np.sum(np.isfinite(mom0[idx].value)))
+                    np.sum(np.isfinite(radius[idx])))
         radprof[ctr] = np.nanmean(radius[idx])
 
     # Re-apply some units
@@ -138,6 +138,27 @@ if __name__ == "__main__":
     # Add in creating a radial profile of the archival and the Arecibo
     # Also CO? I guess these should be on the same grid/resolution...
 
-    p.errorbar(rs.value, sd.value, yerr=sd_sigma.value, fmt="D-", color="b")
+    # Arecibo
+    arecibo_path = "/media/eric/Data_3//M33/Arecibo/14B-088_items/"
+    arecibo_cube = \
+        SpectralCube.read(os.path.join(arecibo_path,
+                                       "M33_14B-088_HI_model.fits"))
+    # Cut down to extents of the other cube
+    arecibo_cube = \
+        arecibo_cube.subcube(xlo=cube.longitude_extrema[0],
+                             xhi=cube.longitude_extrema[1],
+                             yhi=cube.latitude_extrema[0],
+                             ylo=cube.latitude_extrema[1])
+    arecibo_mom0 = arecibo_cube.moment0()
+    rs_arec, sd_arec, sd_sigma_arec = \
+        radial_profile(g, arecibo_cube, mom0=arecibo_mom0)
+
+
+    p.errorbar(rs.value, sd.value, yerr=sd_sigma.value, fmt="D-", color="b",
+               label="VLA + Arecibo")
+    p.errorbar(rs_arec.value, sd_arec.value, yerr=sd_sigma_arec.value,
+               fmt="o--", color="g", label="Arecibo")
     p.ylabel(r"$\Sigma$ (M$_{\odot}$ pc$^{-2}$)")
     p.xlabel(r"R (kpc)")
+    p.legend(loc='best')
+

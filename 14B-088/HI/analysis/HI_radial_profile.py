@@ -4,7 +4,7 @@ from spectral_cube import SpectralCube
 from astropy import units as u
 from astropy.coordinates import Angle
 
-hi_mass_conversion = 0.019 * (u.M_sun / u.pc**2) / (u.K * u.km / u.s)
+hi_mass_conversion = 0.019 * u.M_sun / (u.K * u.km / u.s)
 
 
 def radial_profile(gal, cube, dr=100 * u.pc, mom0=None,
@@ -75,8 +75,8 @@ def radial_profile(gal, cube, dr=100 * u.pc, mom0=None,
 
     # Re-apply some units
     radprof = radprof * u.kpc
-    sdprof = sdprof * mom0.unit
-    sdprof_sigma = sdprof_sigma * mom0.unit
+    sdprof = sdprof * mom0.unit / u.pc ** 2
+    sdprof_sigma = sdprof_sigma * mom0.unit / u.pc ** 2
 
     # Correct for the los inclinations
     sdprof *= np.cos(gal.inclination)

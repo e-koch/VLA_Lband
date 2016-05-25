@@ -158,6 +158,7 @@ if __name__ == "__main__":
 
 
     p.ioff()
+
     # Show the total radial profile VLA and Arecibo
     p.errorbar(rs.value, sd.value, yerr=sd_sigma.value, fmt="D-", color="b",
                label="VLA + Arecibo")

@@ -166,17 +166,21 @@ if __name__ == "__main__":
     p.ylabel(r"$\Sigma$ (M$_{\odot}$ pc$^{-2}$)")
     p.xlabel(r"R (kpc)")
     p.legend(loc='best')
+    p.grid("on")
     p.show()
 
     # Show the north vs south profiles
-    p.plot(rs.value, sd.value, "b--")
-    p.errorbar(rs_n.value, sd_n.value, yerr=sd_sigma_n.value, fmt="D-", color="b",
-               label="North")
-    p.errorbar(rs_s.value, sd_s.value, yerr=sd_sigma_s.value, fmt="o-", color="g",
-               label="South")
+    p.plot(rs.value, sd.value, "k--")
+    p.plot(rs_n.value, sd_n.value, "bD-", label="North")
+    p.plot(rs_s.value, sd_s.value, "go-", label="South")
+    # p.errorbar(rs_n.value, sd_n.value, yerr=sd_sigma_n.value, fmt="D-", color="b",
+    #            label="North")
+    # p.errorbar(rs_s.value, sd_s.value, yerr=sd_sigma_s.value, fmt="o-", color="g",
+    #            label="South")
     p.ylabel(r"$\Sigma$ (M$_{\odot}$ pc$^{-2}$)")
     p.xlabel(r"R (kpc)")
     p.legend(loc='best')
+    p.grid("on")
     p.show()
 
     p.ion()

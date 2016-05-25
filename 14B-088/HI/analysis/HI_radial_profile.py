@@ -111,9 +111,12 @@ if __name__ == "__main__":
     import os
 
     direc = "/home/eric/MyRAID/M33/14B-088/HI/full_imaging/"
+    # direc = "/home/eric/MyRAID/M33/14B-088/HI/combined_HI/"
 
     cube_file = os.path.join(direc,
                              "M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.fits")
+    # cube_file = os.path.join(direc,
+    #                          "M33_14B-088_AT0206_HI.clean.image.pbcov_gt_0.3_masked.fits")
 
     cube = \
         SpectralCube.read(cube_file)
@@ -126,11 +129,11 @@ if __name__ == "__main__":
 
     # Create a radial profile of HI
     rs, sd, sd_sigma = radial_profile(g, cube, mom0=mom0)
-    rs_1, sd_1, sd_sigma_1 = \
+    rs_n, sd_n, sd_sigma_n = \
         radial_profile(g, cube, mom0=mom0,
                        pa_bounds=Angle([0.5 * np.pi * u.rad,
                                         -0.5 * np.pi * u.rad]))
-    rs_2, sd_2, sd_sigma_2 = \
+    rs_s, sd_s, sd_sigma_s = \
         radial_profile(g, cube, mom0=mom0,
                        pa_bounds=Angle([-0.5 * np.pi * u.rad,
                                         0.5 * np.pi * u.rad]))
@@ -154,6 +157,8 @@ if __name__ == "__main__":
         radial_profile(g, arecibo_cube, mom0=arecibo_mom0)
 
 
+    p.ioff()
+    # Show the total radial profile VLA and Arecibo
     p.errorbar(rs.value, sd.value, yerr=sd_sigma.value, fmt="D-", color="b",
                label="VLA + Arecibo")
     p.errorbar(rs_arec.value, sd_arec.value, yerr=sd_sigma_arec.value,
@@ -161,4 +166,17 @@ if __name__ == "__main__":
     p.ylabel(r"$\Sigma$ (M$_{\odot}$ pc$^{-2}$)")
     p.xlabel(r"R (kpc)")
     p.legend(loc='best')
+    p.show()
 
+    # Show the north vs south profiles
+    p.plot(rs.value, sd.value, "b--")
+    p.errorbar(rs_n.value, sd_n.value, yerr=sd_sigma_n.value, fmt="D-", color="b",
+               label="North")
+    p.errorbar(rs_s.value, sd_s.value, yerr=sd_sigma_s.value, fmt="o-", color="g",
+               label="South")
+    p.ylabel(r"$\Sigma$ (M$_{\odot}$ pc$^{-2}$)")
+    p.xlabel(r"R (kpc)")
+    p.legend(loc='best')
+    p.show()
+
+    p.ion()

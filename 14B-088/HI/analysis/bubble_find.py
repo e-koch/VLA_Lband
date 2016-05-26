@@ -6,6 +6,7 @@ from astropy.coordinates import SkyCoord
 import numpy as np
 
 from basics.bubble_segment3D import BubbleFinder
+from basics.utils import sig_clip
 
 '''
 Create the bubble catalogue of M33 with the 14B-088 map
@@ -17,6 +18,8 @@ cube = \
     SpectralCube.read(os.path.join(data_path,
                                     "M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.fits"))
 
+sigma = sig_clip(cube[-1].value, nsig=10)
+
 galaxy_props = {"center_coord":
                 SkyCoord(23.461667, 30.660194,
                          unit=(u.deg, u.deg), frame='fk5'),
@@ -27,20 +30,23 @@ galaxy_props = {"center_coord":
 
 scales = 3. * np.arange(1, 15, np.sqrt(2))
 
+cube = cube[300:400]
+
 # The first few channels have some emission in them. It's partially M33,
 # partially galactic HI. So estimate the noise level from the last channel
 # which is pretty much noise only. It gives 1.8 mJy/bm, which is right on.
 bub_find = BubbleFinder(cube, keep_threshold_mask=True,
                         empty_channel=cube.shape[0] - 1,
+                        sigma=sigma,
                         galaxy_props=galaxy_props,
                         distance=0.84 * u.Mpc)
 
 bub_find.get_bubbles(verbose=True, overlap_frac=0.5, multiprocess=True,
-                     refit=False, nsig=1.0, min_corr=0.7, min_overlap=0.8,
+                     refit=False, nsig=1.5, min_corr=0.7, min_overlap=0.8,
                      min_channels=15, nprocesses=None, scales=scales)
 
 bub_find.visualize_bubbles()
 
 catalog = bub_find.to_catalog()
 
-catalog.write_table(os.path.expanduser("~/MyRAID/M33/14B-088/full_imaging/bubble_catalog.ecsv"))
+catalog.write_table(os.path.expanduser("~/MyRAID/M33/14B-088/full_imaging/bubble_catalog_chan_300_400.ecsv"))

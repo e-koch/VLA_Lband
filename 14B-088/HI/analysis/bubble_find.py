@@ -22,7 +22,7 @@ sigma = sig_clip(cube[-1].value, nsig=10)
 
 # Create a cruddy linewidth map. This will need to be improved, but that can
 # be done with just the saved bubble objects
-lwidth = cube.with_mask(cube > 2 * sigma * u.Jy).linewidth()
+lwidth = cube.with_mask(cube > 2 * sigma * u.Jy).linewidth_sigma()
 
 galaxy_props = {"center_coord":
                 SkyCoord(23.461667, 30.660194,

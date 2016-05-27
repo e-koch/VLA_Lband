@@ -4,6 +4,8 @@ from spectral_cube import SpectralCube
 import astropy.units as u
 from astropy.coordinates import SkyCoord
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as p
 
 from basics.bubble_segment3D import BubbleFinder

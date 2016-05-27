@@ -4,6 +4,7 @@ from spectral_cube import SpectralCube
 import astropy.units as u
 from astropy.coordinates import SkyCoord
 import numpy as np
+import matplotlib.pyplot as p
 
 from basics.bubble_segment3D import BubbleFinder
 from basics.utils import sig_clip
@@ -12,7 +13,8 @@ from basics.utils import sig_clip
 Create the bubble catalogue of M33 with the 14B-088 map
 '''
 
-data_path = "/media/eric/MyRAID/M33/14B-088/HI/full_imaging/"
+# data_path = "/media/eric/MyRAID/M33/14B-088/HI/full_imaging/"
+data_path = "/lustre/home/ekoch/m33/"
 
 cube = \
     SpectralCube.read(os.path.join(data_path,
@@ -51,16 +53,37 @@ bub_find.get_bubbles(verbose=True, overlap_frac=0.5, multiprocess=True,
                      cube_linewidth=lwidth)
 
 # Save all of the bubbles
-folder = os.path.expanduser("~/MyRAID/M33/14B-088/HI/full_imaging/bubbles/")
+# folder = os.path.expanduser("~/MyRAID/M33/14B-088/HI/full_imaging/bubbles/")
+folder = os.path.join(data_path, "bubbles/")
 try:
     os.mkdir(folder)
 except OSError:
     pass
-bub_find.save_bubbles(folder=folder, name="M33_14B-088")
+
+name = "M33_14B-088"
+
+bub_find.save_bubbles(folder=folder, name=name)
 
 catalog = bub_find.to_catalog()
 
 catalog.write_table(os.path.join(folder, "bubble_catalog.ecsv"))
 
+# Save the mask
+np.save(os.path.join(folder, "{}_bubble_mask.npy".format(name)))
+
+
 # Show the outlines of the bubbles
-bub_find.visualize_bubbles()
+fig = p.figure()
+ax = fig.add_subplot(111)
+ax = bub_find.visualize_bubbles(show=False, ax=ax,
+                                plot_twoD_shapes=False)
+fig.savefig(os.path.join(folder, "{}_mom0_bubbles.pdf".format(name)))
+p.close()
+# With the 2D regions
+fig = p.figure()
+ax = fig.add_subplot(111)
+ax = bub_find.visualize_bubbles(show=False, ax=ax,
+                                plot_twoD_shapes=True)
+fig.savefig(os.path.join(folder,
+                         "{}_mom0_bubbles_w_twoD.pdf".format(name)))
+p.close()

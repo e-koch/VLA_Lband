@@ -69,7 +69,8 @@ catalog = bub_find.to_catalog()
 catalog.write_table(os.path.join(folder, "bubble_catalog.ecsv"))
 
 # Save the mask
-np.save(os.path.join(folder, "{}_bubble_mask.npy".format(name)))
+np.save(os.path.join(folder, "{}_bubble_mask.npy".format(name)),
+        bub_find.mask)
 
 
 # Show the outlines of the bubbles

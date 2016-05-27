@@ -50,9 +50,6 @@ bub_find.get_bubbles(verbose=True, overlap_frac=0.5, multiprocess=True,
                      min_channels=15, nprocesses=None, scales=scales,
                      cube_linewidth=lwidth)
 
-# Show the outlines of the bubbles
-bub_find.visualize_bubbles()
-
 # Save all of the bubbles
 folder = os.path.expanduser("~/MyRAID/M33/14B-088/HI/full_imaging/bubbles/")
 try:
@@ -64,3 +61,6 @@ bub_find.save_bubbles(folder=folder, name="M33_14B-088")
 catalog = bub_find.to_catalog()
 
 catalog.write_table(os.path.join(folder, "bubble_catalog.ecsv"))
+
+# Show the outlines of the bubbles
+bub_find.visualize_bubbles()

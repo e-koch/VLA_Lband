@@ -107,4 +107,5 @@ std_scale_factor = np.nanstd(vla_sums[arec_zeros][slicer] / arec_sums[arec_zeros
 print("Scale Factor is: {0}+/-{1}".format(avg_scale_factor, std_scale_factor))
 # New cube : 1.451 +/- 0.036
 # Combined cube : 1.16695609064+/-0.239566349339
-# Archival cube :
+# Archival cube : 1.71537328973+/-1.38680301954  Eew. Largely driven by a
+# couple of weird channels, which honestly should probably be reimaged.

@@ -51,7 +51,7 @@ bub_find = BubbleFinder(cube, keep_threshold_mask=True,
 # THINGS (15 * 0.2 km/s = 3 km/s; 3 * 1.2 km/s = 3.6 km/s)
 bub_find.get_bubbles(verbose=True, overlap_frac=0.5, multiprocess=True,
                      refit=False, nsig=1.5, min_corr=0.7, min_overlap=0.8,
-                     min_channels=15, nprocesses=None, scales=scales,
+                     min_channels=15, nprocesses=8, scales=scales,
                      cube_linewidth=lwidth)
 
 # Save all of the bubbles

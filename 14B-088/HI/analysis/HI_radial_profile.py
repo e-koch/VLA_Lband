@@ -4,7 +4,7 @@ from spectral_cube import SpectralCube
 from astropy import units as u
 from astropy.coordinates import Angle
 
-hi_mass_conversion = 0.019 * u.M_sun / (u.K * u.km / u.s)
+hi_mass_conversion = 0.019 * (u.M_sun / u.pc **2) / (u.K * u.km / u.s)
 
 
 def radial_profile(gal, cube, dr=100 * u.pc, mom0=None,
@@ -75,8 +75,8 @@ def radial_profile(gal, cube, dr=100 * u.pc, mom0=None,
 
     # Re-apply some units
     radprof = radprof * u.kpc
-    sdprof = sdprof * mom0.unit / u.pc ** 2
-    sdprof_sigma = sdprof_sigma * mom0.unit / u.pc ** 2
+    sdprof = sdprof * mom0.unit  # / u.pc ** 2
+    sdprof_sigma = sdprof_sigma * mom0.unit  # / u.pc ** 2
 
     # Correct for the los inclinations
     sdprof *= np.cos(gal.inclination)
@@ -138,6 +138,9 @@ if __name__ == "__main__":
                        pa_bounds=Angle([-0.5 * np.pi * u.rad,
                                         0.5 * np.pi * u.rad]))
 
+    # There is a ~1.5 global scaling factor b/w Arecibo and VLA + Arecibo
+    scale_factor = 1.451
+
     # Add in creating a radial profile of the archival and the Arecibo
     # Also CO? I guess these should be on the same grid/resolution...
 
@@ -160,7 +163,8 @@ if __name__ == "__main__":
     p.ioff()
 
     # Show the total radial profile VLA and Arecibo
-    p.errorbar(rs.value, sd.value, yerr=sd_sigma.value, fmt="D-", color="b",
+    p.errorbar(rs.value, sd.value / scale_factor,
+               yerr=sd_sigma.value / scale_factor, fmt="D-", color="b",
                label="VLA + Arecibo")
     p.errorbar(rs_arec.value, sd_arec.value, yerr=sd_sigma_arec.value,
                fmt="o--", color="g", label="Arecibo")
@@ -171,9 +175,9 @@ if __name__ == "__main__":
     p.show()
 
     # Show the north vs south profiles
-    p.plot(rs.value, sd.value, "k--")
-    p.plot(rs_n.value, sd_n.value, "bD-", label="North")
-    p.plot(rs_s.value, sd_s.value, "go-", label="South")
+    p.plot(rs.value, sd.value / scale_factor, "k--")
+    p.plot(rs_n.value, sd_n.value / scale_factor, "bD-", label="North")
+    p.plot(rs_s.value, sd_s.value / scale_factor, "go-", label="South")
     # p.errorbar(rs_n.value, sd_n.value, yerr=sd_sigma_n.value, fmt="D-", color="b",
     #            label="North")
     # p.errorbar(rs_s.value, sd_s.value, yerr=sd_sigma_s.value, fmt="o-", color="g",

@@ -85,8 +85,8 @@ for i in ProgressBar(xrange(cube.shape[0])):
 
 # Now let's plot the channel sums
 chans = np.arange(cube.shape[0])
-p.plot(chans, arec_sums, 'b-', label='Arecibo', drawstyle='steps-mid')
-p.plot(chans, vla_sums, 'g--', label='Arecibo + VLA', drawstyle='steps-mid')
+p.plot(chans, arec_sums, 'g--', label='Arecibo', drawstyle='steps-mid')
+p.plot(chans, vla_sums, 'b-', label='Arecibo + VLA', drawstyle='steps-mid')
 # p.plot(chans, vla_conv_sums, 'k-.', label='Convolved VLA')
 p.legend()
 p.xlabel("Channel")
@@ -95,8 +95,8 @@ p.show()
 
 # raw_input("Next plot?")
 
-# p.plot(chans, arec_sums, 'b-', label='Arecibo')
-# p.plot(chans, vla_sums / 1.451, 'g--', label='Arecibo + VLA', drawstyle='steps-mid')
+# p.plot(chans, arec_sums, 'g--', label='Arecibo')
+# p.plot(chans, vla_sums / 1.451, 'b-', label='Arecibo + VLA', drawstyle='steps-mid')
 # # p.plot(chans, vla_conv_sums, 'k-.', label='Convolved VLA', drawstyle='steps-mid')
 # p.legend()
 # p.xlabel("Channel")

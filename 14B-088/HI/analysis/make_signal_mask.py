@@ -16,6 +16,7 @@ Create a signal mask for the 14B-088 cube
 '''
 
 
+# cube = SpectralCube.read("/media/eric/MyRAID/M33/14B-088/HI/full_imaging/M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.fits")
 cube = SpectralCube.read("/media/eric/MyRAID/M33/14B-088/HI/full_imaging/M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.fits")
 
 # noise = Noise(cube)
@@ -41,4 +42,5 @@ new_header["BUNIT"] = ""
 new_header["BITPIX"] = 8
 
 mask_hdu = fits.PrimaryHDU(mask.astype('>i2'), header=new_header)
-mask_hdu.writeto("/media/eric/MyRAID/M33/14B-088/HI/full_imaging/M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked_source_mask.fits")
+mask_hdu.writeto("/media/eric/MyRAID/M33/14B-088/HI/full_imaging/M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked_source_mask.fits",
+                 clobber=True)

@@ -90,3 +90,13 @@ ax = bub_find.visualize_bubbles(show=False, ax=ax,
 fig.savefig(os.path.join(folder,
                          "{}_mom0_bubbles_w_twoD.pdf".format(name)))
 p.close()
+
+# Individual channel maps
+output_folder_chans = os.path.join(folder, "channel_maps")
+try:
+    os.mkdir(output_folder_chans)
+except OSError:
+    pass
+bub_find.visualize_channel_maps(show_mask_contours=True, plot_unclustered=True,
+                                save=True, save_path=output_folder_chans,
+                                save_name=name)

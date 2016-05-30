@@ -16,7 +16,7 @@ model during cleaning.
 '''
 
 verbose = False
-which_cube = "archival"
+which_cube = "new"
 
 if which_cube not in ["new", "combined", "archival"]:
     raise ValueError("Bad which_cube: {}".format(which_cube))
@@ -92,6 +92,14 @@ p.legend()
 p.xlabel("Channel")
 p.ylabel("Total Intensity (Jy)")
 p.show()
+
+# p.plot(chans, arec_sums, 'b-', label='Arecibo')
+# p.plot(chans, vla_sums / 1.451, 'g--', label='Arecibo + VLA')
+# # p.plot(chans, vla_conv_sums, 'k-.', label='Convolved VLA')
+# p.legend()
+# p.xlabel("Channel")
+# p.ylabel("Total Intensity (Jy)")
+# p.show()
 
 # Up to 973, where Arecibo seems to have more emission coming from the HI cloud
 # that is not as well recovered in the VLA cube.

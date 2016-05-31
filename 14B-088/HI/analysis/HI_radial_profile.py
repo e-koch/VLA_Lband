@@ -97,7 +97,7 @@ def radial_profile(gal, header=None, cube=None,
         if pa_bounds is not None:
             idx = np.logical_and(idx, pa_idx)
 
-        if weight_type  == "area":
+        if weight_type == "area":
             sdprof[ctr] = np.nansum(mom0[idx].value) / \
                 np.sum(np.isfinite(radius[idx]))
             sdprof_sigma[ctr] = \

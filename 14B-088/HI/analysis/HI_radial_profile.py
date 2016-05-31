@@ -12,7 +12,7 @@ def radial_profile(gal, header=None, cube=None,
                    max_rad=10 * u.kpc,
                    mass_conversion=hi_mass_conversion,
                    restfreq=1.414 * u.GHz,
-                   pa_bounds=None):
+                   pa_bounds=None, beam=None):
     '''
     Create a radial profile, optionally with limits on the angles used.
 
@@ -38,6 +38,13 @@ def radial_profile(gal, header=None, cube=None,
 
     if header is None:
         header = cube.header
+
+    if beam is None:
+        if cube is not None:
+            beam = cube.beam
+
+    if beam is not None:
+        beam_pix =  beam.sr.to(u.deg**2) / (header["CDELT2"] * u.deg)**2
 
     radius = gal.radius(header=header).to(u.kpc).value
     if pa_bounds is not None:
@@ -86,6 +93,10 @@ def radial_profile(gal, header=None, cube=None,
         sdprof_sigma[ctr] = \
             np.sqrt(np.nansum((mom0[idx].value - sdprof[ctr])**2.) /
                     np.sum(np.isfinite(radius[idx])))
+        # Rescale the sigma based on the number of independent samples
+        if beam is not None:
+            sdprof_sigma[ctr] /= \
+                np.sqrt(np.sum(np.isfinite(radius[idx])) / beam_pix)
         radprof[ctr] = np.nanmean(radius[idx])
 
     # Re-apply some units
@@ -184,10 +195,10 @@ if __name__ == "__main__":
 
     # Show the total radial profile VLA and Arecibo
     p.errorbar(rs.value, sd.value / scale_factor,
-               yerr=sd_sigma.value / scale_factor, fmt="D-", color="b",
-               label="VLA + Arecibo")
+               yerr=resc_sd_sigma.value / scale_factor, fmt="D-", color="b",
+               label="VLA + Arecibo", drawstyle='steps-mid')
     p.errorbar(rs_arec.value, sd_arec.value, yerr=sd_sigma_arec.value,
-               fmt="o--", color="g", label="Arecibo")
+               fmt="o--", color="g", label="Arecibo", drawstyle='steps-mid')
     p.ylabel(r"$\Sigma$ (M$_{\odot}$ pc$^{-2}$)")
     p.xlabel(r"R (kpc)")
     p.legend(loc='best')

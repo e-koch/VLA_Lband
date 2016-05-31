@@ -4,10 +4,11 @@ from spectral_cube import SpectralCube
 from astropy import units as u
 from astropy.coordinates import Angle
 
-hi_mass_conversion = 0.019 * (u.M_sun / u.pc **2) / (u.K * u.km / u.s)
+hi_mass_conversion = 0.019 * (u.M_sun / u.pc ** 2) / (u.K * u.km / u.s)
 
 
-def radial_profile(gal, cube, dr=100 * u.pc, mom0=None,
+def radial_profile(gal, header=None, cube=None,
+                   dr=100 * u.pc, mom0=None,
                    max_rad=10 * u.kpc,
                    mass_conversion=hi_mass_conversion,
                    restfreq=1.414 * u.GHz,
@@ -22,9 +23,23 @@ def radial_profile(gal, cube, dr=100 * u.pc, mom0=None,
         e.g. pa_bounds=Angle([0.0*u.rad, np.pi*u.rad]))
     '''
 
+    mom0 = mom0.squeeze()
+
+    if mom0.ndim != 2:
+        raise ValueError("mom0 must be 2 dimensional.")
+
     if mom0 is None:
+        if cube is None:
+            raise ValueError("Must give cube when not given mom0")
         mom0 = cube.moment0()
-    radius = gal.radius(header=cube.header).to(u.kpc).value
+
+    if header is None and cube is None:
+        raise TypeError("Either a header or cube must be given.")
+
+    if header is None:
+        header = cube.header
+
+    radius = gal.radius(header=header).to(u.kpc).value
     if pa_bounds is not None:
         # Check if they are angles
         if len(pa_bounds) != 2:
@@ -33,7 +48,7 @@ def radial_profile(gal, cube, dr=100 * u.pc, mom0=None,
             raise TypeError("pa_bounds must be an Angle.")
 
         # Return the array of PAs in the galaxy frame
-        pas = gal.position_angles(header=cube.header)
+        pas = gal.position_angles(header=header)
 
         # If the start angle is greater than the end, we need to wrap about
         # the discontinuity
@@ -83,7 +98,13 @@ def radial_profile(gal, cube, dr=100 * u.pc, mom0=None,
     sdprof_sigma *= np.cos(gal.inclination)
 
     # If in Jy/bm, convert to K.
-    if cube.unit.is_equivalent(u.Jy):
+    if cube is not None:
+        unit = cube.unit
+
+    if mom0 is not None:
+        unit = mom0.unit
+
+    if unit.is_equivalent(u.Jy):
         # The beam units are sort of implied
         sdprof = sdprof.to(u.Jy * u.km / u.s)
         sdprof_sigma = sdprof_sigma.to(u.Jy * u.km / u.s)
@@ -128,13 +149,13 @@ if __name__ == "__main__":
     mom0 = cube.moment0()
 
     # Create a radial profile of HI
-    rs, sd, sd_sigma = radial_profile(g, cube, mom0=mom0)
+    rs, sd, sd_sigma = radial_profile(g, cube=cube, mom0=mom0)
     rs_n, sd_n, sd_sigma_n = \
-        radial_profile(g, cube, mom0=mom0,
+        radial_profile(g, cube=cube, mom0=mom0,
                        pa_bounds=Angle([0.5 * np.pi * u.rad,
                                         -0.5 * np.pi * u.rad]))
     rs_s, sd_s, sd_sigma_s = \
-        radial_profile(g, cube, mom0=mom0,
+        radial_profile(g, cube=cube, mom0=mom0,
                        pa_bounds=Angle([-0.5 * np.pi * u.rad,
                                         0.5 * np.pi * u.rad]))
 
@@ -157,8 +178,7 @@ if __name__ == "__main__":
                              ylo=cube.latitude_extrema[1])
     arecibo_mom0 = arecibo_cube.moment0()
     rs_arec, sd_arec, sd_sigma_arec = \
-        radial_profile(g, arecibo_cube, mom0=arecibo_mom0)
-
+        radial_profile(g, cube=arecibo_cube, mom0=arecibo_mom0)
 
     p.ioff()
 

@@ -112,8 +112,8 @@ def radial_profile(gal, header=None, cube=None,
     if cube is not None:
         unit = cube.unit
 
-    if mom0 is not None:
-        unit = mom0.unit
+    # if mom0 is not None:
+    #     unit = mom0.unit
 
     if unit.is_equivalent(u.Jy):
         # The beam units are sort of implied
@@ -195,10 +195,12 @@ if __name__ == "__main__":
 
     # Show the total radial profile VLA and Arecibo
     p.errorbar(rs.value, sd.value / scale_factor,
-               yerr=resc_sd_sigma.value / scale_factor, fmt="D-", color="b",
+               yerr=sd_sigma.value / scale_factor, fmt="-", color="b",
                label="VLA + Arecibo", drawstyle='steps-mid')
-    p.errorbar(rs_arec.value, sd_arec.value, yerr=sd_sigma_arec.value,
-               fmt="o--", color="g", label="Arecibo", drawstyle='steps-mid')
+    p.plot(rs_arec.value, sd_arec.value, "g--", drawstyle='steps-mid',
+           label="Arecibo")
+    # p.errorbar(rs_arec.value, sd_arec.value, yerr=sd_sigma_arec.value,
+    #            fmt="o--", color="g", label="Arecibo", drawstyle='steps-mid')
     p.ylabel(r"$\Sigma$ (M$_{\odot}$ pc$^{-2}$)")
     p.xlabel(r"R (kpc)")
     p.legend(loc='best')
@@ -206,9 +208,12 @@ if __name__ == "__main__":
     p.show()
 
     # Show the north vs south profiles
-    p.plot(rs.value, sd.value / scale_factor, "k--")
-    p.plot(rs_n.value, sd_n.value / scale_factor, "bD-", label="North")
-    p.plot(rs_s.value, sd_s.value / scale_factor, "go-", label="South")
+    p.plot(rs.value, sd.value / scale_factor, "k-.",
+           drawstyle='steps-mid', label="Total")
+    p.plot(rs_n.value, sd_n.value / scale_factor, "b-", label="North",
+           drawstyle='steps-mid')
+    p.plot(rs_s.value, sd_s.value / scale_factor, "g--", label="South",
+           drawstyle='steps-mid')
     # p.errorbar(rs_n.value, sd_n.value, yerr=sd_sigma_n.value, fmt="D-", color="b",
     #            label="North")
     # p.errorbar(rs_s.value, sd_s.value, yerr=sd_sigma_s.value, fmt="o-", color="g",

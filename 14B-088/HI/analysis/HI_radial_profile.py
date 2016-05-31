@@ -10,6 +10,7 @@ hi_mass_conversion = 0.019 * (u.M_sun / u.pc ** 2) / (u.K * u.km / u.s)
 def radial_profile(gal, header=None, cube=None,
                    dr=100 * u.pc, mom0=None,
                    max_rad=10 * u.kpc,
+                   weight_type="area",
                    mass_conversion=hi_mass_conversion,
                    restfreq=1.414 * u.GHz,
                    pa_bounds=None, beam=None):
@@ -18,12 +19,19 @@ def radial_profile(gal, header=None, cube=None,
 
     Parameters
     ----------
+    weight_type : "area" or "mass"
+        Return either the area weighted profile (Sum Sigma * dA / Sum dA) or
+        the mass weighted profile (Sum Sigma^2 dA / Sum Sigma dA). See
+        Leroy et al. (2013) for a thorough description.
     pa_bounds : list of 2 Angles, optional
         When specified, limits the angles used when calculating the profile.
         e.g. pa_bounds=Angle([0.0*u.rad, np.pi*u.rad]))
     '''
 
     mom0 = mom0.squeeze()
+
+    if weight_type not in ["area", "mass"]:
+        raise ValueError("weight_type must be 'area' or 'mass'.")
 
     if mom0.ndim != 2:
         raise ValueError("mom0 must be 2 dimensional.")
@@ -88,11 +96,25 @@ def radial_profile(gal, header=None, cube=None,
         idx = np.logical_and(radius >= r0, radius < r1)
         if pa_bounds is not None:
             idx = np.logical_and(idx, pa_idx)
-        sdprof[ctr] = np.nansum(mom0[idx].value) / \
-            np.sum(np.isfinite(radius[idx]))
-        sdprof_sigma[ctr] = \
-            np.sqrt(np.nansum((mom0[idx].value - sdprof[ctr])**2.) /
-                    np.sum(np.isfinite(radius[idx])))
+
+        if weight_type  == "area":
+            sdprof[ctr] = np.nansum(mom0[idx].value) / \
+                np.sum(np.isfinite(radius[idx]))
+            sdprof_sigma[ctr] = \
+                np.sqrt(np.nansum((mom0[idx].value - sdprof[ctr])**2.) /
+                        np.sum(np.isfinite(radius[idx])))
+        else:
+            # Has to be 'mass' since this is checked at the beginning
+            sdprof[ctr] = np.nansum(np.power(mom0[idx].value, 2)) / \
+                np.nansum(mom0[idx].value)
+
+            # Now the std has weights of Sigma * dA, which should be
+            # normalized
+            weights = mom0[idx].value / np.nansum(mom0[idx].value)
+
+            # No denominator, since the weights were normalize to unity.
+            sdprof_sigma[ctr] = np.sqrt(np.nansum(weights * (mom0[idx].value - sdprof[ctr])**2))
+
         # Rescale the sigma based on the number of independent samples
         if beam is not None:
             sdprof_sigma[ctr] /= \

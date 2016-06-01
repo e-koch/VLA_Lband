@@ -14,7 +14,7 @@ from astropy.wcs import WCS
 parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.sys.path.insert(0,parentdir)
 
-from HI_radial_profile import radial_profile
+from HI_radial_profile import surfdens_radial_profile
 
 '''
 Create the surface density profile in CO(2-1), assuming a factor to convert
@@ -54,25 +54,25 @@ cube = cube.with_mask(radii < 6. * u.kpc)
 # mom0_data = mom0.data.squeeze() * (mom0.data.squeeze() > 1.0) * u.K
 mom0 = cube.moment0()
 
-rs, sd, sd_sigma = radial_profile(g, cube=cube, mom0=mom0,
-                                  max_rad=6 * u.kpc, dr=dr)
+rs, sd, sd_sigma = surfdens_radial_profile(g, cube=cube, mom0=mom0,
+                                           max_rad=6 * u.kpc, dr=dr)
 # Correct for beam efficiency
 sd /= beam_eff
 sd_sigma /= beam_eff
 
 rs_n, sd_n, sd_sigma_n = \
-    radial_profile(g, cube=cube, mom0=mom0,
-                   pa_bounds=Angle([0.5 * np.pi * u.rad,
-                                    -0.5 * np.pi * u.rad]),
-                   max_rad=6 * u.kpc, dr=dr)
+    surfdens_radial_profile(g, cube=cube, mom0=mom0,
+                            pa_bounds=Angle([0.5 * np.pi * u.rad,
+                                             -0.5 * np.pi * u.rad]),
+                            max_rad=6 * u.kpc, dr=dr)
 sd_n /= beam_eff
 sd_sigma_n /= beam_eff
 
 rs_s, sd_s, sd_sigma_s = \
-    radial_profile(g, cube=cube, mom0=mom0,
-                   pa_bounds=Angle([-0.5 * np.pi * u.rad,
-                                    0.5 * np.pi * u.rad]),
-                   max_rad=6 * u.kpc, dr=dr)
+    surfdens_radial_profile(g, cube=cube, mom0=mom0,
+                            pa_bounds=Angle([-0.5 * np.pi * u.rad,
+                                             0.5 * np.pi * u.rad]),
+                            max_rad=6 * u.kpc, dr=dr)
 sd_n /= beam_eff
 sd_sigma_n /= beam_eff
 
@@ -107,9 +107,9 @@ p.show()
 # Now get the HI profile on the same scales
 proj = Projection(mom0_hi.data * u.Jy * u.m / u.s, meta={'beam': hi_cube.beam},
                   wcs=WCS(cube[0].header))
-rs_hi, sd_hi, sd_sigma_hi = radial_profile(g, cube=hi_cube,
-                                           mom0=proj,
-                                           max_rad=6 * u.kpc, dr=dr)
+rs_hi, sd_hi, sd_sigma_hi = surfdens_radial_profile(g, cube=hi_cube,
+                                                    mom0=proj,
+                                                    max_rad=6 * u.kpc, dr=dr)
 # Apply scaling factor
 sd_hi /= 1.45
 sd_sigma_hi /= 1.45
@@ -153,17 +153,18 @@ p.grid()
 p.show()
 
 # Finally, let's calculate some clumping factors a la Leroy+13
-rs_m, sd_m, sd_sigma_m = radial_profile(g, cube=cube, mom0=mom0,
-                                        max_rad=6 * u.kpc, dr=dr,
-                                        weight_type='mass')
+rs_m, sd_m, sd_sigma_m = surfdens_radial_profile(g, cube=cube, mom0=mom0,
+                                                 max_rad=6 * u.kpc, dr=dr,
+                                                 weight_type='mass')
 # Correct for beam efficiency
 sd_m /= beam_eff
 sd_sigma_m /= beam_eff
 
-rs_hi_m, sd_hi_m, sd_sigma_hi_m = radial_profile(g, cube=hi_cube,
-                                                 mom0=proj,
-                                                 max_rad=6 * u.kpc, dr=dr,
-                                                  weight_type='mass')
+rs_hi_m, sd_hi_m, sd_sigma_hi_m = \
+    surfdens_radial_profile(g, cube=hi_cube,
+                            mom0=proj,
+                            max_rad=6 * u.kpc, dr=dr,
+                            weight_type='mass')
 # Apply scaling factor
 sd_hi_m /= 1.45
 sd_sigma_hi_m /= 1.45

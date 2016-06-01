@@ -7,13 +7,13 @@ from astropy.coordinates import Angle
 hi_mass_conversion = 0.019 * (u.M_sun / u.pc ** 2) / (u.K * u.km / u.s)
 
 
-def radial_profile(gal, header=None, cube=None,
-                   dr=100 * u.pc, mom0=None,
-                   max_rad=10 * u.kpc,
-                   weight_type="area",
-                   mass_conversion=hi_mass_conversion,
-                   restfreq=1.414 * u.GHz,
-                   pa_bounds=None, beam=None):
+def surfdens_radial_profile(gal, header=None, cube=None,
+                            dr=100 * u.pc, mom0=None,
+                            max_rad=10 * u.kpc,
+                            weight_type="area",
+                            mass_conversion=hi_mass_conversion,
+                            restfreq=1.414 * u.GHz,
+                            pa_bounds=None, beam=None):
     '''
     Create a radial profile, optionally with limits on the angles used.
 
@@ -52,7 +52,7 @@ def radial_profile(gal, header=None, cube=None,
             beam = cube.beam
 
     if beam is not None:
-        beam_pix =  beam.sr.to(u.deg**2) / (header["CDELT2"] * u.deg)**2
+        beam_pix = beam.sr.to(u.deg**2) / (header["CDELT2"] * u.deg)**2
 
     radius = gal.radius(header=header).to(u.kpc).value
     if pa_bounds is not None:
@@ -182,13 +182,13 @@ if __name__ == "__main__":
     mom0 = cube.moment0()
 
     # Create a radial profile of HI
-    rs, sd, sd_sigma = radial_profile(g, cube=cube, mom0=mom0)
+    rs, sd, sd_sigma = surfdens_radial_profile(g, cube=cube, mom0=mom0)
     rs_n, sd_n, sd_sigma_n = \
-        radial_profile(g, cube=cube, mom0=mom0,
+        surfdens_radial_profile(g, cube=cube, mom0=mom0,
                        pa_bounds=Angle([0.5 * np.pi * u.rad,
                                         -0.5 * np.pi * u.rad]))
     rs_s, sd_s, sd_sigma_s = \
-        radial_profile(g, cube=cube, mom0=mom0,
+        surfdens_radial_profile(g, cube=cube, mom0=mom0,
                        pa_bounds=Angle([-0.5 * np.pi * u.rad,
                                         0.5 * np.pi * u.rad]))
 

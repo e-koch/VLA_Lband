@@ -26,12 +26,6 @@ def radial_profile(gal, moment, header=None, dr=100 * u.pc,
     if header is None:
         header = moment.header
 
-    if beam is None:
-        beam = moment.meta['beam']
-
-    if beam is not None:
-        beam_pix = beam.sr.to(u.deg**2) / (header["CDELT2"] * u.deg)**2
-
     radius = gal.radius(header=header).to(u.kpc).value
     if pa_bounds is not None:
         # Check if they are angles
@@ -125,7 +119,6 @@ if __name__ == "__main__":
     sd = sd.to(u.km / u.s)
     sd_sigma = sd_sigma.to(u.km / u.s)
 
-    # Switch to using seaborn.tsplot at some point.
     p.errorbar(rs.value, sd.value,
                yerr=sd_sigma.value, fmt="-", color="b",
                drawstyle='steps-mid')

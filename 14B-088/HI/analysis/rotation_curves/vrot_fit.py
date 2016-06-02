@@ -65,7 +65,7 @@ def return_smooth_model(header):
     return smooth_model
 
 if __name__ == "__main__":
-    make_plot = False
+    make_plot = True
     make_rotmodel = False
 
 
@@ -84,16 +84,41 @@ if __name__ == "__main__":
     dist_scale = (np.pi / 180.) * 840.
 
     if make_plot:
+
+        data = \
+            Table.read(os.path.join(data_path,
+                                    'diskfit_noasymm_nowarp_output/rad.out.csv'))
+
         phys_radius = data["r"] * scale * dist_scale
         plot_pars = pars.copy()
         plot_pars[2] *= scale * dist_scale
-        p.ioff()
         p.errorbar(phys_radius, data["Vt"], yerr=data['eVt'],
-                   fmt='D', color='b')
+                   fmt='-', color='b', label="This work", drawstyle='steps-mid')
         p.plot(phys_radius, vcirc(phys_radius, *plot_pars), 'r-')
         p.ylabel(r"V$_{\mathrm{circ}}$ (km / s)")
         p.xlabel(r"Radius (kpc)")
-        p.show()
+        p.grid()
+        p.draw()
+
+        raw_input("Next plot?")
+        p.clf()
+
+        # load in the Corbelli curve for comparison
+        corbelli = Table.read(os.path.expanduser("~/Dropbox/code_development/VLA_Lband/14B-088/HI/analysis/rotation_curves/corbelli_rotation_curve.csv"))
+
+        p.errorbar(phys_radius, data["Vt"], yerr=data['eVt'],
+                   fmt='-', color='b', label="This work", drawstyle='steps-mid')
+        p.errorbar(corbelli["R"][corbelli["R"] <= 8.0],
+                   corbelli["Vr"][corbelli["R"] <= 8.0],
+                   yerr=corbelli["dVr"][corbelli["R"] <= 8.0],
+                   fmt='--', color='r', label="Corbelli et al. (2014)",
+                   drawstyle='steps-mid')
+        p.ylabel(r"V$_{\mathrm{circ}}$ (km / s)")
+        p.xlabel(r"Radius (kpc)")
+        p.legend(loc='lower right')
+        p.grid()
+        p.draw()
+
         p.ion()
 
     if make_rotmodel:

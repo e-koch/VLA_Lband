@@ -211,7 +211,7 @@ if __name__ == "__main__":
                              ylo=cube.latitude_extrema[1])
     arecibo_mom0 = arecibo_cube.moment0()
     rs_arec, sd_arec, sd_sigma_arec = \
-        radial_profile(g, cube=arecibo_cube, mom0=arecibo_mom0)
+        surfdens_radial_profile(g, cube=arecibo_cube, mom0=arecibo_mom0)
 
     p.ioff()
 
@@ -244,6 +244,21 @@ if __name__ == "__main__":
     p.xlabel(r"R (kpc)")
     p.legend(loc='best')
     p.grid("on")
+    p.show()
+
+    # Compare to the surface density profile in Corbelli
+    corbelli = Table.read(os.path.expanduser("~/Dropbox/code_development/VLA_Lband/14B-088/HI/analysis/rotation_curves/corbelli_rotation_curve.csv"))
+
+    p.plot(rs.value, sd.value / scale_factor,
+           linestyle="-", color="b",
+           label="This work", drawstyle='steps-mid')
+    p.plot(corbelli["R"][corbelli["R"] <= 10.0],
+           corbelli["SigmaHI"][corbelli["R"] <= 10.0], "g--", drawstyle='steps-mid',
+           label="Corbelli et al. (2014)")
+    p.ylabel(r"$\Sigma$ (M$_{\odot}$ pc$^{-2}$)")
+    p.xlabel(r"R (kpc)")
+    p.legend(loc='best')
+    p.grid()
     p.show()
 
     p.ion()

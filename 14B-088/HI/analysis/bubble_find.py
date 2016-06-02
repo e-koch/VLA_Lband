@@ -5,6 +5,7 @@ from spectral_cube.lower_dimensional_structures import Projection
 import astropy.units as u
 from astropy.coordinates import SkyCoord
 import numpy as np
+from astropy.io import fits
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as p
@@ -23,11 +24,15 @@ cube = \
     SpectralCube.read(os.path.join(data_path,
                                     "M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.fits"))
 
+mom2 = fits.getdata(os.path.join(data_path,
+    "M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.rotsub.lwidth.fits"))
+
 sigma = sig_clip(cube[-1].value, nsig=10)
 
 # Create a cruddy linewidth map. This will need to be improved, but that can
 # be done with just the saved bubble objects
-lwidth = cube.with_mask(cube > 2 * sigma * u.Jy).linewidth_sigma()
+# lwidth = cube.with_mask(cube > 2 * sigma * u.Jy).linewidth_sigma()
+lwidth = np.sqrt(mom2) * u.m / u.s
 
 galaxy_props = {"center_coord":
                 SkyCoord(23.461667, 30.660194,

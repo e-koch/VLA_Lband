@@ -152,4 +152,35 @@ for i, (slices, posns) in enumerate(zip(slicer, spec_posns)):
     raw_input("Next plot?")
     p.clf()
 
+# Zoom in on the interesting portion of the spectrum
+spectral_cuts = np.array([[-72, -180], [-200, -280], [-220, -315]]) * u.km / u.s
+
 # Now save spectra going through the interesting regions:
+for posns, cuts in zip(spec_posns, spectral_cuts):
+
+    num_posns = len(posns)
+    fig, axes = p.subplots(num_posns, 1, sharey=True, sharex=False, figsize=(6, 10))
+    for i, (posn, ax) in enumerate(zip(posns, axes)):
+        spec = cube.spectral_slab(cuts[0], cuts[1])[:, posn[0], posn[1]].to(u.K, equivalencies=cube.beam.jtok_equiv(1.414 * u.GHz))
+        velocities = cube.spectral_slab(cuts[0], cuts[1]).spectral_axis.to(u.km / u.s).value
+        ax.plot(velocities, spec.value, 'b-', drawstyle='steps-mid')
+        if i < num_posns - 1:
+            ax.set_xticklabels([])
+        else:
+            ax.set_xlabel("Velocity (km/s)")
+            for label in ax.get_xticklabels()[1::2]:
+                label.set_visible(False)
+
+    for i, ax in enumerate(axes):
+        if i == 0:
+            for label in ax.get_yticklabels()[1::2]:
+                label.set_visible(False)
+        else:
+            for label in ax.get_yticklabels():
+                label.set_visible(False)
+
+    fig.text(0.04, 0.5, 'Intensity (K)', va='center', rotation='vertical')
+    p.draw()
+
+    raw_input("Next plot?")
+    p.close()

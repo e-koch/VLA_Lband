@@ -1,6 +1,7 @@
 
 import os
 from spectral_cube import SpectralCube
+from spectral_cube.lower_dimensional_structures import Projection
 import astropy.units as u
 from astropy.coordinates import SkyCoord
 import numpy as np
@@ -15,8 +16,8 @@ from basics.utils import sig_clip
 Create the bubble catalogue of M33 with the 14B-088 map
 '''
 
-# data_path = "/media/eric/MyRAID/M33/14B-088/HI/full_imaging/"
-data_path = "/lustre/home/ekoch/m33/"
+data_path = "/media/eric/MyRAID/M33/14B-088/HI/full_imaging/"
+# data_path = "/lustre/home/ekoch/m33/"
 
 cube = \
     SpectralCube.read(os.path.join(data_path,
@@ -47,12 +48,20 @@ bub_find = BubbleFinder(cube, keep_threshold_mask=True,
                         galaxy_props=galaxy_props,
                         distance=0.84 * u.Mpc)
 
+# Setup folder for saving the 2D regions
+folder = os.path.join(data_path, "bubbles_2D")
+try:
+    os.mkdir(folder)
+except OSError:
+    pass
+
 # Requiring minimum of 15 channels, similar to the 3 channel requirement with
 # THINGS (15 * 0.2 km/s = 3 km/s; 3 * 1.2 km/s = 3.6 km/s)
 bub_find.get_bubbles(verbose=True, overlap_frac=0.5, multiprocess=True,
-                     refit=False, nsig=1.5, min_corr=0.7, min_overlap=0.8,
-                     min_channels=15, nprocesses=8, scales=scales,
-                     cube_linewidth=lwidth)
+                     refit=False, nsig=1.5, min_corr=0.7, min_overlap=0.7,
+                     global_corr=0.5, min_channels=15, nprocesses=None,
+                     scales=scales, cube_linewidth=lwidth, save_regions=True,
+                     save_region_path=os.path.join(data_path, "bubbles_2D"))
 
 # Save all of the bubbles
 # folder = os.path.expanduser("~/MyRAID/M33/14B-088/HI/full_imaging/bubbles/")

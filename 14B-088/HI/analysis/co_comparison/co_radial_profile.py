@@ -9,6 +9,7 @@ import numpy as np
 from spectral_cube import SpectralCube
 from spectral_cube.lower_dimensional_structures import Projection
 from astropy.wcs import WCS
+from astropy.table import Table
 
 # Import from above.
 parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -27,8 +28,8 @@ co21_mass_conversion = 6.7 * (u.M_sun / u.pc ** 2) / (u.K * u.km / u.s)
 beam_eff = 0.75
 
 # Set the radial disk widths to bin over
-dr = 500 * u.pc
-# dr = 100 * u.pc
+# dr = 500 * u.pc
+dr = 100 * u.pc
 # dr = 300 * u.pc
 
 # Load the moment 0
@@ -149,6 +150,22 @@ p.ylabel("H$_2$-to-HI Ratio $\Sigma_{\mathrm{H2}} / \Sigma_{\mathrm{HI}}$")
 p.xlim([2, 22])
 p.ylim([1e-4, 10])
 p.legend(loc='upper left')
+p.grid()
+p.show()
+
+# Also plot the total gas surface density against the stellar surface density
+# from Corbelli
+corbelli = Table.read(os.path.expanduser("~/Dropbox/code_development/VLA_Lband/14B-088/HI/analysis/rotation_curves/corbelli_rotation_curve.csv"))
+
+p.semilogy(rs.value, total_sd,
+       linestyle="-", color="b",
+       label="Gas", drawstyle='steps-mid')
+p.semilogy(corbelli["R"][corbelli["R"] <= 6.5],
+       corbelli["SigmaStellar"][corbelli["R"] <= 6.5], "g--", drawstyle='steps-mid',
+       label="Stars")
+p.ylabel(r"log $\Sigma$ / (M$_{\odot}$ pc$^{-2}$)")
+p.xlabel(r"R (kpc)")
+p.legend(loc='best')
 p.grid()
 p.show()
 

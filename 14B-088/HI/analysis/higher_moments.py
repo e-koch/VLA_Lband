@@ -43,6 +43,9 @@ else:
     mom3_hdu = fits.open(os.path.join(data_path, "M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.mom3.fits"))[0]
     mom3 = Projection(mom3_hdu.data, wcs=WCS(mom3_hdu.header), unit=(u.km / u.s)**3)
 
+# Normalize third moment by the linewidth to get the skewness
+skew = mom3 / lwidth ** 3
+
 # Kurtosis: Subtract 3 to center on 0 (assuming a Gaussian)
 if save_moments:
     mom4 = cube.moment(order=4)
@@ -53,16 +56,19 @@ else:
     mom4 = Projection(mom4_hdu.data, wcs=WCS(mom4_hdu.header), unit=(u.km / u.s)**4)
 # mom4_resc = (mom4.value - 3) ** 0.25 / 1000.
 
+# Normalize third moment by the linewidth to get the skewness
+kurt = mom4 / lwidth ** 4
+
 # Make a nice 2 panel figure
 ax = p.subplot(121, projection=mom3.wcs)
-ax.imshow(np.arctan(mom3.value / np.nanpercentile(mom3.value, 85)),
-          origin='lower',
+ax.imshow(skew.value,
+          origin='lower', vmin=-3, vmax=3,
           interpolation='nearest', cmap='seismic')
 ax.set_title("Skewness")
 ax.set_ylabel("DEC (J2000)")
 ax.set_xlabel("RA (J2000)")
 ax2 = p.subplot(122, projection=mom4.wcs)
-ax2.imshow(np.arctan(mom4.value / np.nanpercentile(mom4.value, 85)),
+ax2.imshow(kurt.value, vmin=0, vmax=20,
            origin='lower', interpolation='nearest', cmap='binary')
 ax2.set_title("Kurtosis")
 ax2.set_xlabel("RA (J2000)")
@@ -130,7 +136,7 @@ for i, (slices, posns) in enumerate(zip(slicer, spec_posns)):
     ax3.plot(posns[:, 1] - slices[1].start, posns[:, 0] - slices[0].start, color="chartreuse",
              marker="D", linestyle="None",
              markersize=6)
-    ax3.imshow(np.arctan(mom3[slices].value / np.nanpercentile(mom3.value, 85)),
+    ax3.imshow(skew.value[slices], vmin=-3, vmax=3,
                origin='lower',
                interpolation='nearest', cmap='seismic')
     ax3.set_ylabel("DEC (J2000)")
@@ -141,7 +147,7 @@ for i, (slices, posns) in enumerate(zip(slicer, spec_posns)):
     ax4.plot(posns[:, 1] - slices[1].start, posns[:, 0] - slices[0].start, color="chartreuse",
              marker="D", linestyle="None",
              markersize=6)
-    ax4.imshow(np.arctan(mom4[slices].value / np.nanpercentile(mom4.value, 85)),
+    ax4.imshow(kurt.value[slices], vmin=0, vmax=20,
                origin='lower', interpolation='nearest', cmap='binary')
     ax4.set_xlabel("RA (J2000)")
     lat = ax4.coords[1]

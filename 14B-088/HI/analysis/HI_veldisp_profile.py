@@ -1,8 +1,11 @@
 
 from spectral_cube import SpectralCube
+from spectral_cube.lower_dimensional_structures import Projection
 import numpy as np
 import astropy.units as u
 from astropy.coordinates import Angle
+from astropy.io import fits
+from astropy.wcs import WCS
 
 
 def radial_profile(gal, moment, header=None, dr=100 * u.pc,
@@ -124,8 +127,8 @@ if __name__ == "__main__":
             "M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.rotsub.lwidth.fits"))
     else:
         load = fits.open(os.path.join(direc,
-            "M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.rotsub.lwidth.fits")[0]
-        lwidth = Projection(load.data, wcs=WCS(load.header))
+            "M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.rotsub.lwidth.fits"))[0]
+        lwidth = Projection(load.data, wcs=WCS(load.header), unit=u.m / u.s)
         lwidth.meta["beam"] = cube.beam
 
     g = Galaxy("M33")
@@ -174,3 +177,18 @@ if __name__ == "__main__":
     p.grid()
     p.legend()
     p.draw()
+
+    raw_input("Next plot?")
+    p.clf()
+
+    # There are interesting drops at 1 and ~4.2 kpc. Plot these on the moment 0
+    mom0 = fits.getdata("/home/eric/MyRAID/M33/14B-088/HI/full_imaging/M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.mom0.fits")
+
+    ax = p.subplot(111, projection=cube[0].wcs)
+    p.imshow(mom0, origin='lower')
+    radii = g.radius(header=cube.header)
+    p.contour(radii <= 1 * u.kpc, colors='b')
+    p.contour(radii <= 4.2 * u.kpc, colors='g')
+    p.xlabel("")
+    p.draw()
+

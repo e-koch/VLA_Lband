@@ -6,7 +6,7 @@ from astropy.coordinates import Angle
 
 
 def radial_profile(gal, moment, header=None, dr=100 * u.pc,
-                   max_rad=10 * u.kpc, pa_bounds=None):
+                   max_rad=10 * u.kpc, pa_bounds=None, beam=None):
     '''
     Create a radial profile of a moment 2 array, optionally with limits on
     the angles used.
@@ -25,6 +25,17 @@ def radial_profile(gal, moment, header=None, dr=100 * u.pc,
 
     if header is None:
         header = moment.header
+
+
+    if beam is None:
+        # See if its in the projection
+        if "beam" in moment.meta:
+            beam = moment.meta["beam"]
+        else:
+            print("No beam attached to the Projection.")
+
+    if beam is not None:
+        beam_pix = beam.sr.to(u.deg**2) / (header["CDELT2"] * u.deg)**2
 
     radius = gal.radius(header=header).to(u.kpc).value
     if pa_bounds is not None:
@@ -76,6 +87,9 @@ def radial_profile(gal, moment, header=None, dr=100 * u.pc,
         sdprof_sigma[ctr] = \
             np.sqrt(np.nansum((moment[idx].value - sdprof[ctr])**2.) /
                     np.sum(np.isfinite(radius[idx])))
+        if beam is not None:
+            sdprof_sigma[ctr] /= \
+                np.sqrt(np.sum(np.isfinite(radius[idx])) / beam_pix)
 
     # Re-apply some units
     radprof = radprof * u.kpc
@@ -90,7 +104,7 @@ if __name__ == "__main__":
     import os
     from astropy.io.fits import getdata
 
-    save_lwidth = True
+    save_lwidth = False
 
     direc = "/home/eric/MyRAID/M33/14B-088/HI/full_imaging/"
 
@@ -104,10 +118,15 @@ if __name__ == "__main__":
     cube = cube.with_mask(getdata(os.path.join(direc,
         "M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.rotsub_source_mask.fits")).astype(bool))
 
-    lwidth = cube.linewidth_sigma()
     if save_lwidth:
+        lwidth = cube.linewidth_sigma()
         lwidth.write(os.path.join(direc,
             "M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.rotsub.lwidth.fits"))
+    else:
+        load = fits.open(os.path.join(direc,
+            "M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.rotsub.lwidth.fits")[0]
+        lwidth = Projection(load.data, wcs=WCS(load.header))
+        lwidth.meta["beam"] = cube.beam
 
     g = Galaxy("M33")
 

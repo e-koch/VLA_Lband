@@ -147,6 +147,7 @@ if __name__ == "__main__":
     p.draw()
 
     raw_input("Next plot?")
+    p.clf()
 
     # Create the North and South portions.
     rs_n, sd_n, sd_sigma_n = \

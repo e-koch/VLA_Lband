@@ -88,129 +88,130 @@ def fit_skeleton_width(skel_array, intensity_array, pixscale, beam_width,
 
     return fit, err, model, profile
 
+if __name__ == "__main__":
 
-mom0_fits = fits.open("/home/eric/MyRAID/M33/14B-088/HI/full_imaging/M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.mom0.fits")[0]
-beam = Beam.from_fits_header(mom0_fits.header)
-mom0 = Projection(mom0_fits.data * beam.jtok(1.414 * u.GHz) / 1000. * u.km / u.s,
-                  wcs=WCS(mom0_fits.header))
-mom0.meta['beam'] = beam
+    mom0_fits = fits.open("/home/eric/MyRAID/M33/14B-088/HI/full_imaging/M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.mom0.fits")[0]
+    beam = Beam.from_fits_header(mom0_fits.header)
+    mom0 = Projection(mom0_fits.data * beam.jtok(1.414 * u.GHz) / 1000. * u.km / u.s,
+                      wcs=WCS(mom0_fits.header))
+    mom0.meta['beam'] = beam
 
-# Create the bubble mask instead of letting FilFinder to do it.
-bub = BubbleFinder2D(mom0, sigma=80. * beam.jtok(1.414 * u.GHz) / 1000.)
+    # Create the bubble mask instead of letting FilFinder to do it.
+    bub = BubbleFinder2D(mom0, sigma=80. * beam.jtok(1.414 * u.GHz) / 1000.)
 
-# fils = fil_finder_2D(mom0.value, mom0.header, 10, distance=0.84e6)
-# fils.mask = ~(bub.mask.copy())
-# fils.medskel()
-# fils.analyze_skeletons()
-# # So at least on of the radial profiles fails. BUT the second fit is to a
-# # skeleton that is essentially the entire disk, so plot without interactivity
-# # and save the plot and the parameters shown in verbose mode.
-# p.ioff()
-# fils.find_widths(verbose=True, max_distance=500, auto_cut=False, try_nonparam=False)
+    # fils = fil_finder_2D(mom0.value, mom0.header, 10, distance=0.84e6)
+    # fils.mask = ~(bub.mask.copy())
+    # fils.medskel()
+    # fils.analyze_skeletons()
+    # # So at least on of the radial profiles fails. BUT the second fit is to a
+    # # skeleton that is essentially the entire disk, so plot without interactivity
+    # # and save the plot and the parameters shown in verbose mode.
+    # p.ioff()
+    # fils.find_widths(verbose=True, max_distance=500, auto_cut=False, try_nonparam=False)
 
-# Fit Parameters: [ 541.31726502  129.85351117  180.0710914   304.01262168
-# Fit Errors: [ 0.89151974  0.48394493  0.27313627  1.1462345 ]
+    # Fit Parameters: [ 541.31726502  129.85351117  180.0710914   304.01262168
+    # Fit Errors: [ 0.89151974  0.48394493  0.27313627  1.1462345 ]
 
-skeleton = medial_axis(~bub.mask)
+    skeleton = medial_axis(~bub.mask)
 
-# Overplot the skeleton on the moment0
-ax = p.subplot(111, projection=mom0.wcs)
-ax.imshow(mom0.value, origin='lower')
-ax.contour(skeleton, colors='r')
-p.draw()
+    # Overplot the skeleton on the moment0
+    ax = p.subplot(111, projection=mom0.wcs)
+    ax.imshow(mom0.value, origin='lower')
+    ax.contour(skeleton, colors='r')
+    p.draw()
 
-raw_input("Next plot?")
-p.clf()
+    raw_input("Next plot?")
+    p.clf()
 
-pixscale = \
-    mom0.header['CDELT2'] * (np.pi / 180.) * 0.84e6  # * u.pc
-beam_width = \
-    mom0.meta['beam'].major.to(u.deg).value * (np.pi / 180.) * 0.84e6  # * u.pc
+    pixscale = \
+        mom0.header['CDELT2'] * (np.pi / 180.) * 0.84e6  # * u.pc
+    beam_width = \
+        mom0.meta['beam'].major.to(u.deg).value * (np.pi / 180.) * 0.84e6  # * u.pc
 
-# HI profile and fit
-fit, err, model, profile = \
-    fit_skeleton_width(skeleton, mom0.value, pixscale, beam_width)
+    # HI profile and fit
+    fit, err, model, profile = \
+        fit_skeleton_width(skeleton, mom0.value, pixscale, beam_width)
 
-rads = np.linspace(0, profile[0].max(), 100)
+    rads = np.linspace(0, profile[0].max(), 100)
 
-p.plot(profile[0], profile[1], 'bD')
-# p.errorbar(profile[0], profile[1], yerr=profile[2], fmt="D",
-#            color="b")
-p.plot(rads, model(rads, *fit), 'r-')
-p.xlabel("Radial Distance (pc)")
-p.ylabel("Integrated Intensity (K km/s)")
-p.grid()
-p.draw()
+    p.plot(profile[0], profile[1], 'bD')
+    # p.errorbar(profile[0], profile[1], yerr=profile[2], fmt="D",
+    #            color="b")
+    p.plot(rads, model(rads, *fit), 'r-')
+    p.xlabel("Radial Distance (pc)")
+    p.ylabel("Integrated Intensity (K km/s)")
+    p.grid()
+    p.draw()
 
-raw_input("Next plot?")
-p.clf()
+    raw_input("Next plot?")
+    p.clf()
 
 
-# Now use the regridded integrated CO map with the same skeleton
-# Created with co_comparison/co_reproject.py
-mom0_co_fits = fits.open("/media/eric/Data_3/M33/co21/m33.ico.hireprojection.fits")[0]
-# Correction for beam efficiency added in.
-mom0_co = Projection(mom0_co_fits.data / 0.75, wcs=WCS(mom0_co_fits.header))
-mom0_co.meta['beam'] = Beam.from_fits_header(mom0_co_fits.header)
+    # Now use the regridded integrated CO map with the same skeleton
+    # Created with co_comparison/co_reproject.py
+    mom0_co_fits = fits.open("/media/eric/Data_3/M33/co21/m33.ico.hireprojection.fits")[0]
+    # Correction for beam efficiency added in.
+    mom0_co = Projection(mom0_co_fits.data / 0.75, wcs=WCS(mom0_co_fits.header))
+    mom0_co.meta['beam'] = Beam.from_fits_header(mom0_co_fits.header)
 
-# On the same grid, so pixscales are the same
-beam_width_co = \
-    mom0_co.meta['beam'].major.to(u.deg).value * (np.pi / 180.) * 0.84e6  # * u.pc
+    # On the same grid, so pixscales are the same
+    beam_width_co = \
+        mom0_co.meta['beam'].major.to(u.deg).value * (np.pi / 180.) * 0.84e6  # * u.pc
 
-fit_co, err_co, model_co, profile_co = \
-    fit_skeleton_width(skeleton, mom0_co.value, pixscale, beam_width_co)
+    fit_co, err_co, model_co, profile_co = \
+        fit_skeleton_width(skeleton, mom0_co.value, pixscale, beam_width_co)
 
-# p.errorbar(profile_co[0], profile_co[1], yerr=profile_co[2], fmt="D",
-#            color="b")
-p.plot(profile_co[0], profile_co[1], "bD")
-p.plot(rads, model(rads, *fit_co), 'r-')
-p.xlabel("Radial Distance (pc)")
-p.ylabel("Integrated Intensity (K km/s)")
-p.grid()
-p.draw()
+    # p.errorbar(profile_co[0], profile_co[1], yerr=profile_co[2], fmt="D",
+    #            color="b")
+    p.plot(profile_co[0], profile_co[1], "bD")
+    p.plot(rads, model(rads, *fit_co), 'r-')
+    p.xlabel("Radial Distance (pc)")
+    p.ylabel("Integrated Intensity (K km/s)")
+    p.grid()
+    p.draw()
 
-raw_input("Next plot?")
-p.clf()
+    raw_input("Next plot?")
+    p.clf()
 
-# fils = fil_finder_2D(mom0_co.value, mom0.header, 10, distance=0.84e6)
-# fils.mask = ~(bub.mask.copy())
-# fils.medskel()
-# fils.analyze_skeletons()
-# fils.find_widths(verbose=True, max_distance=500, auto_cut=False, try_nonparam=False)
+    # fils = fil_finder_2D(mom0_co.value, mom0.header, 10, distance=0.84e6)
+    # fils.mask = ~(bub.mask.copy())
+    # fils.medskel()
+    # fils.analyze_skeletons()
+    # fils.find_widths(verbose=True, max_distance=500, auto_cut=False, try_nonparam=False)
 
-# Now scale the HI and CO to have the same amplitude and ignore the HI bkg
+    # Now scale the HI and CO to have the same amplitude and ignore the HI bkg
 
-p.plot(profile[0], model(profile[0], *[1, fit[1], 0]), 'b-', label="HI Model")
-p.plot(profile[0], model(profile[0], *[1, fit_co[1], 0]), 'g--',
-       label='CO Model')
-p.legend()
-p.grid()
-p.draw()
+    p.plot(profile[0], model(profile[0], *[1, fit[1], 0]), 'b-', label="HI Model")
+    p.plot(profile[0], model(profile[0], *[1, fit_co[1], 0]), 'g--',
+           label='CO Model')
+    p.legend()
+    p.grid()
+    p.draw()
 
-raw_input("Next plot?")
-p.clf()
+    raw_input("Next plot?")
+    p.clf()
 
-# Now create a radial profile of the distance between filaments
-g = Galaxy("M33")
+    # Now create a radial profile of the distance between filaments
+    g = Galaxy("M33")
 
-# Create a radial profile of the HI vel disp out to 8 kpc.
-dist_arr = Projection(nd.distance_transform_edt(~skeleton) * pixscale,
-                      unit=u.pc, wcs=mom0.wcs)
-dist_arr.meta['beam'] = beam
+    # Create a radial profile of the HI vel disp out to 8 kpc.
+    dist_arr = Projection(nd.distance_transform_edt(~skeleton) * pixscale,
+                          unit=u.pc, wcs=mom0.wcs)
+    dist_arr.meta['beam'] = beam
 
-rs, sd, sd_sigma = radial_profile(g, dist_arr, max_rad=10 * u.kpc,
-                                  dr=100 * u.pc)
+    rs, sd, sd_sigma = radial_profile(g, dist_arr, max_rad=10 * u.kpc,
+                                      dr=100 * u.pc)
 
-# Multiply 2 to get the average distance instead of radius
-sd = 2 * sd
-sd_sigma = 2 * sd_sigma
+    # Multiply 2 to get the average distance instead of radius
+    sd = 2 * sd
+    sd_sigma = 2 * sd_sigma
 
-p.errorbar(rs.value, sd.value,
-           yerr=sd_sigma.value, fmt="-", color="b",
-           drawstyle='steps-mid')
-p.xlabel("R (kpc)")
-p.ylabel("Average Distance between Filaments (pc)")
-p.grid()
-p.xlim([0, 8])
-p.ylim([80, 300])
-p.draw()
+    p.errorbar(rs.value, sd.value,
+               yerr=sd_sigma.value, fmt="-", color="b",
+               drawstyle='steps-mid')
+    p.xlabel("R (kpc)")
+    p.ylabel("Average Distance between Filaments (pc)")
+    p.grid()
+    p.xlim([0, 8])
+    p.ylim([80, 300])
+    p.draw()

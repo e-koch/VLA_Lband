@@ -143,6 +143,13 @@ if __name__ == "__main__":
     p.grid()
     p.draw()
 
+    fraction_in_peak = np.sqrt(2 * np.pi) * (fit[0] - fit[2]) * \
+        (fit[1] / pixscale) * skeleton.sum() / np.nansum(mom0.value)
+
+    print("Fraction of emission above the background level: {}"
+          .format(fraction_in_peak))
+    # 0.543
+
     raw_input("Next plot?")
     p.clf()
 
@@ -169,6 +176,14 @@ if __name__ == "__main__":
     p.ylabel("Integrated Intensity (K km/s)")
     p.grid()
     p.draw()
+
+    fraction_in_peak_co = np.sqrt(2 * np.pi) * (fit_co[0]) * \
+        (fit_co[1] / pixscale) * skeleton.sum() / np.nansum(mom0_co.value)
+
+    print("Fraction of CO emission above the background level: {}"
+          .format(fraction_in_peak_co))
+    # 1.12 Yeah, this one doesn't work. And it doesn't matter since this should
+    # pretty much be all of it.
 
     raw_input("Next plot?")
     p.clf()

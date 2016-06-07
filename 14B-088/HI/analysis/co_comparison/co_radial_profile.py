@@ -142,9 +142,9 @@ from krumholz_2009_model import krumholz_ratio_model
 sds = np.arange(1, 40, 0.2)
 
 p.semilogy(total_sd, gas_ratio, 'bD')
-p.plot(sds, krumholz_ratio_model(sds, c=2), "r--", label="c=2")
-p.plot(sds, krumholz_ratio_model(sds, c=4), "g-.", label="c=4")
-p.plot(sds, krumholz_ratio_model(sds, c=6), "m.", label="c=6")
+p.plot(sds, krumholz_ratio_model(sds, c=2, Z=0.5), "r--", label="c=2")
+p.plot(sds, krumholz_ratio_model(sds, c=4, Z=0.5), "g-.", label="c=4")
+p.plot(sds, krumholz_ratio_model(sds, c=6, Z=0.5), "m.", label="c=6")
 p.xlabel("$\Sigma_{\mathrm{Gas}}$ (M$_{\odot}$ pc$^{-2}$)")
 p.ylabel("H$_2$-to-HI Ratio $\Sigma_{\mathrm{H2}} / \Sigma_{\mathrm{HI}}$")
 p.xlim([2, 22])

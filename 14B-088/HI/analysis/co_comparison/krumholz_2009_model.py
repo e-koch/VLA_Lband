@@ -30,7 +30,7 @@ def krumholz_ratio_model(Sigma, Z=0.5, c=1):
 
     s = np.log(1 + 0.6 * chi) / (0.04 * Sigma_comp * Z)
 
-    delta = 0.0712 * np.power(1 + s ** -1 + 0.675, -2.8)
+    delta = 0.0712 * np.power((0.1 / s) + 0.675, -2.8)
 
     frac = 1 - np.power(1 + np.power(0.75 * (s / (1 + delta)), -5.), -0.2)
 

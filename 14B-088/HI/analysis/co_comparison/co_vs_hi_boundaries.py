@@ -51,7 +51,7 @@ skeletons = []
 
 # Estimate the noise level in an equivalent slab
 hi_mom0 = hi_cube.spectral_slab(-180 * u.km / u.s, -183 * u.km / u.s).moment0()
-sigma = sig_clip(hi_mom0.value, nsig=10)
+sigma = sig_clip(hi_mom0.value, nsig=10) * hi_cube.beam.jtok(1.414 * u.GHz).value
 
 for i, (end, start) in enumerate(ProgressBar(zip(vels[1:], vels[:-1]))):
 
@@ -71,30 +71,46 @@ for i, (end, start) in enumerate(ProgressBar(zip(vels[1:], vels[:-1]))):
     bub = BubbleFinder2D(hi_mom0, auto_cut=False, sigma=sigma)
     bub.create_mask(bkg_nsig=30, region_min_nsig=60, mask_clear_border=False)
 
-    skeleton = medial_axis(~bub.mask)
-    skeletons.append(skeleton)
+    # skeleton = medial_axis(~bub.mask)
+    # skeletons.append(skeleton)
 
-    edge_mask = find_boundaries(bub.mask, connectivity=2)
+    edge_mask = find_boundaries(bub.mask, connectivity=2, mode='outer')
+    hole_mask = bub.mask.copy()
     # Now apply a radial boundary to the edge mask where the CO data is valid
     # This is the same cut-off used to define the valid clouds
     radial_cut = radii <= 6.6 * u.kpc
     edge_mask *= radial_cut
     edge_masks.append(edge_mask)
 
-    all_dists.extend(list(nd.distance_transform_edt(~edge_mask)[radial_cut]))
-    all_vals_hi.extend(list(hi_mom0.value[radial_cut]))
-    all_vals_co.extend(list(co_mom0.value[radial_cut]))
+    dist_trans = nd.distance_transform_edt(~edge_mask)
+    # Assign negative values to regions within holes.
+    dist_trans[hole_mask] = -dist_trans[hole_mask]
+
+    # hist = p.hist(co_mom0.value[np.isfinite(co_mom0.value)], bins=100)
+    # p.draw()
+    # raw_input("?")
+    # p.clf()
+
+    # print(np.nanmin(co_mom0.value))
+
+    # print(np.nanmax(co_mom0.value[radial_cut]))
+    # print(np.nanmin(co_mom0.value[radial_cut]))
+
+    all_dists.extend(list(dist_trans[radial_cut]))
+    all_vals_hi.extend(list(hi_mom0.value[radial_cut] / 1000.))
+    all_vals_co.extend(list(co_mom0.value[radial_cut] / 1000.))
 
     if verbose:
         print("Velocities: {} to {}".format(start, end))
         p.subplot(121)
-        p.imshow(hi_mom0.value, origin='lower')
-        p.contour(skeleton, colors='b')
+        p.imshow(np.arctan(hi_mom0.value / np.nanpercentile(hi_mom0.value, 85)), origin='lower')
+        # p.contour(skeleton, colors='b')
         p.contour(edge_mask, colors='g')
 
         p.subplot(122)
-        p.imshow(co_mom0.value, origin='lower')
-        p.contour(skeleton, colors='b')
+        p.imshow(hole_mask, origin='lower')
+        # p.imshow(co_mom0.value, origin='lower')
+        # p.contour(skeleton, colors='b')
         p.contour(edge_mask, colors='g')
         p.draw()
 
@@ -106,13 +122,13 @@ all_vals_hi = np.array(all_vals_hi)
 all_vals_co = np.array(all_vals_co)
 
 # Now bin all of the distances against the HI and CO intensities.
-bins = np.arange(0, 100, 1)
+bins = np.arange(-30, 30, 1)
 hi_vals, bin_edges, bin_num = \
     binned_statistic(all_dists, all_vals_hi,
                      bins=bins,
                      statistic=np.nanmean)
 
-hi_stds= \
+hi_stds = \
     binned_statistic(all_dists, all_vals_hi,
                      bins=bins,
                      statistic=np.nanstd)[0]
@@ -122,10 +138,14 @@ co_vals, bin_edges, bin_num = \
                      bins=bins,
                      statistic=np.nanmean)
 
-co_stds= \
+co_stds = \
     binned_statistic(all_dists, all_vals_hi,
                      bins=bins,
                      statistic=np.nanstd)[0]
+
+binned_elements = \
+    binned_statistic(all_dists, np.ones_like(all_dists), bins=bins,
+                     statistic=np.sum)[0]
 
 bin_width = (bin_edges[1] - bin_edges[0])
 bin_centers = bin_edges[1:] - bin_width / 2
@@ -143,14 +163,54 @@ bin_centers *= pixscale
 #            yerr=co_stds / np.nanmax(co_vals), fmt="o",
 #            color="g")
 
-p.plot(bin_centers, hi_vals / np.nanmax(hi_vals[bin_centers < 200]), 'bD-',
+p.plot(bin_centers, hi_vals / np.nanmax(hi_vals), 'bD-',
        label="HI")
-p.plot(bin_centers, co_vals / np.nanmax(co_vals[bin_centers < 200]), 'ro-',
+p.plot(bin_centers, co_vals / np.nanmax(co_vals), 'ro-',
        label="CO(2-1)")
-p.xlim([0.0, 200])
+# p.xlim([0.0, 200])
 p.ylim([0.0, 1.1])
 p.xlabel("Distance from mask edge (pc)")
 p.ylabel("Normalized Intensity")
 p.legend()
+p.grid()
+p.draw()
+
+raw_input("Next plot?")
+p.clf()
+
+# Show the total number of elements in each distance bin
+
+p.semilogy(bin_centers, binned_elements, 'bD-')
+p.xlabel("Distance from mask edge (pc)")
+p.ylabel("Number of pixels")
+p.grid()
+
+raw_input("Next plot?")
+p.clf()
+
+# Now investigate the significance of the distance correlations.
+# Randomize the order of the CO and HI intensities.
+
+np.random.seed(34678953)
+
+hi_rand_vals = \
+    binned_statistic(all_dists, np.random.permutation(all_vals_hi),
+                     bins=bins,
+                     statistic=np.nanmean)[0]
+
+co_rand_vals = \
+    binned_statistic(all_dists, np.random.permutation(all_vals_co),
+                     bins=bins,
+                     statistic=np.nanmean)[0]
+
+p.plot(bin_centers, hi_rand_vals / np.nanmax(hi_rand_vals), 'bD-',
+       label="HI")
+p.plot(bin_centers, co_rand_vals / np.nanmax(co_rand_vals), 'ro-',
+       label="CO(2-1)")
+# p.xlim([0.0, 200])
+p.ylim([0.0, 1.1])
+p.xlabel("Distance from mask edge (pc)")
+p.ylabel("Normalized Intensity")
+p.legend(loc='upper left')
 p.grid()
 p.draw()

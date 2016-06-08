@@ -22,8 +22,12 @@ zeroth moments from spectral slabs.
 
 '''
 
+np.random.seed(34678953)
+
 # Plot a bunch
 verbose = False
+slicer = (slice(825, 1033), slice(360, 692))
+
 
 gal = Galaxy("M33")
 
@@ -51,7 +55,8 @@ skeletons = []
 
 # Estimate the noise level in an equivalent slab
 hi_mom0 = hi_cube.spectral_slab(-180 * u.km / u.s, -183 * u.km / u.s).moment0()
-sigma = sig_clip(hi_mom0.value, nsig=10) * hi_cube.beam.jtok(1.414 * u.GHz).value
+sigma = sig_clip(hi_mom0.value, nsig=10) * \
+    hi_cube.beam.jtok(1.414 * u.GHz).value
 
 for i, (end, start) in enumerate(ProgressBar(zip(vels[1:], vels[:-1]))):
 
@@ -102,17 +107,24 @@ for i, (end, start) in enumerate(ProgressBar(zip(vels[1:], vels[:-1]))):
 
     if verbose:
         print("Velocities: {} to {}".format(start, end))
-        p.subplot(121)
-        p.imshow(np.arctan(hi_mom0.value / np.nanpercentile(hi_mom0.value, 85)), origin='lower')
+        ax = p.subplot(121, projection=hi_mom0.wcs)
+        p.imshow(np.arctan(hi_mom0[slicer].value /
+                           np.nanpercentile(hi_mom0.value, 85)),
+                 origin='lower')
         # p.contour(skeleton, colors='b')
-        p.contour(edge_mask, colors='g')
+        p.contour(edge_mask[slicer], colors='g')
 
-        p.subplot(122)
-        p.imshow(hole_mask, origin='lower')
+        ax2 = p.subplot(122, projection=hi_mom0.wcs)
+        # p.imshow(hole_mask, origin='lower')
+        p.imshow(np.arctan(co_mom0.value[slicer] /
+                           np.nanpercentile(co_mom0.value, 95)),
+                 origin='lower')
         # p.imshow(co_mom0.value, origin='lower')
         # p.contour(skeleton, colors='b')
-        p.contour(edge_mask, colors='g')
+        p.contour(edge_mask[slicer], colors='g')
         p.draw()
+        lat = ax2.coords[1]
+        lat.set_ticklabel_visible(False)
 
         raw_input("Next plot?")
         p.clf()
@@ -128,20 +140,10 @@ hi_vals, bin_edges, bin_num = \
                      bins=bins,
                      statistic=np.nanmean)
 
-hi_stds = \
-    binned_statistic(all_dists, all_vals_hi,
-                     bins=bins,
-                     statistic=np.nanstd)[0]
-
 co_vals, bin_edges, bin_num = \
     binned_statistic(all_dists, all_vals_co,
                      bins=bins,
                      statistic=np.nanmean)
-
-co_stds = \
-    binned_statistic(all_dists, all_vals_hi,
-                     bins=bins,
-                     statistic=np.nanstd)[0]
 
 binned_elements = \
     binned_statistic(all_dists, np.ones_like(all_dists), bins=bins,
@@ -150,28 +152,50 @@ binned_elements = \
 bin_width = (bin_edges[1] - bin_edges[0])
 bin_centers = bin_edges[1:] - bin_width / 2
 
+
+# Let's bootstrap to get errors in the distance bins
+niters = 100
+hi_samps = np.zeros((niters, len(bin_centers)))
+co_samps = np.zeros((niters, len(bin_centers)))
+print("Bootstrapping")
+for i in ProgressBar(niters):
+    hi_samps[i] = \
+        binned_statistic(all_dists, np.random.permutation(all_vals_hi),
+                         bins=bins,
+                         statistic=np.nanmean)[0]
+
+    co_samps[i] = \
+        binned_statistic(all_dists, np.random.permutation(all_vals_co),
+                         bins=bins,
+                         statistic=np.nanmean)[0]
+
+# Take the stds in the distribution for each bin
+hi_errs = np.nanstd(hi_samps, axis=0)
+co_errs = np.nanstd(co_samps, axis=0)
+
 # Convert the bin_centers to pc
 pixscale = \
     hi_mom0.header['CDELT2'] * (np.pi / 180.) * 0.84e6  # * u.pc
 
 bin_centers *= pixscale
 
-# p.errorbar(bin_centers, hi_vals / np.nanmax(hi_vals),
-#            yerr=hi_stds / np.nanmax(hi_vals), fmt="D",
-#            color="b")
-# p.errorbar(bin_centers, co_vals / np.nanmax(co_vals),
-#            yerr=co_stds / np.nanmax(co_vals), fmt="o",
-#            color="g")
+p.errorbar(bin_centers, hi_vals / np.nanmax(hi_vals),
+           yerr=hi_errs / np.nanmax(hi_vals), fmt="D-",
+           color="b", label="HI")
+p.errorbar(bin_centers, co_vals / np.nanmax(co_vals),
+           yerr=co_errs / np.nanmax(co_vals), fmt="o-",
+           color="r", label="CO(2-1)")
 
-p.plot(bin_centers, hi_vals / np.nanmax(hi_vals), 'bD-',
-       label="HI")
-p.plot(bin_centers, co_vals / np.nanmax(co_vals), 'ro-',
-       label="CO(2-1)")
+# p.plot(bin_centers, hi_vals / np.nanmax(hi_vals), 'bD-',
+#        label="HI")
+# p.plot(bin_centers, co_vals / np.nanmax(co_vals), 'ro-',
+#        label="CO(2-1)")
 # p.xlim([0.0, 200])
 p.ylim([0.0, 1.1])
 p.xlabel("Distance from mask edge (pc)")
 p.ylabel("Normalized Intensity")
-p.legend()
+p.vlines(0.0, 0.0, 1.1, 'k')
+p.legend(loc='upper left')
 p.grid()
 p.draw()
 
@@ -190,8 +214,6 @@ p.clf()
 
 # Now investigate the significance of the distance correlations.
 # Randomize the order of the CO and HI intensities.
-
-np.random.seed(34678953)
 
 hi_rand_vals = \
     binned_statistic(all_dists, np.random.permutation(all_vals_hi),

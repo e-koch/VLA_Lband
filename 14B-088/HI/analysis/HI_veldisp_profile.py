@@ -184,11 +184,19 @@ if __name__ == "__main__":
     # There are interesting drops at 1 and ~4.2 kpc. Plot these on the moment 0
     mom0 = fits.getdata("/home/eric/MyRAID/M33/14B-088/HI/full_imaging/M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.mom0.fits")
 
-    ax = p.subplot(111, projection=cube[0].wcs)
+    ax = p.subplot(121, projection=cube[0].wcs)
     p.imshow(mom0, origin='lower')
     radii = g.radius(header=cube.header)
     p.contour(radii <= 1 * u.kpc, colors='b')
     p.contour(radii <= 4.2 * u.kpc, colors='g')
     p.xlabel("")
+    ax.set_title("Zeroth Moment")
+    ax2 = p.subplot(122, projection=cube[0].wcs)
+    p.imshow(lwidth.value, origin='lower')
+    p.contour(radii <= 1 * u.kpc, colors='b')
+    p.contour(radii <= 4.2 * u.kpc, colors='g')
+    p.xlabel("")
+    ax2.set_title("Line Width")
+    lat = ax2.coords[1]
+    lat.set_ticklabel_visible(False)
     p.draw()
-

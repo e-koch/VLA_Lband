@@ -236,3 +236,24 @@ p.ylabel("Normalized Intensity")
 p.legend(loc='upper left')
 p.grid()
 p.draw()
+
+raw_input("Next plot?")
+p.clf()
+
+# Compare the CDFs of the intensities within the masks to demonstrate CO
+# is not colocated with all of the HI
+
+pos_hi = all_vals_hi[all_dists > 0]
+pos_co = all_vals_co[all_dists > 0]
+
+# Using argsort since
+p.plot(np.sort(pos_hi), np.cumsum(np.sort(pos_hi)) / np.sum(pos_hi), "b-",
+       label="HI")
+p.plot(np.sort(pos_hi), np.cumsum(pos_co[np.argsort(pos_hi)]) / np.sum(pos_co),
+       "g--", label="CO")
+p.legend(loc='upper left')
+p.grid()
+p.ylim([-0.05, 1.05])
+p.ylabel("CDF")
+p.xlabel("HI Integrated Intensity (K km/s)")
+p.draw()

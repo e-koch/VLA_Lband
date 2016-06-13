@@ -89,8 +89,10 @@ total_line_flux_arecibo = \
 
 # Distance is 0.84 Mpc
 mass_conversion = 2.36e5 * (0.84 ** 2)
+# These estimates are low by a factor of ~0.85. Not entirely sure why, but
+# the estimate from the moment 0 is correct (comparing to Putman+09)
 
-total_mass = total_line_flux * mass_conversion
-total_mass_arecibo = total_line_flux_arecibo * mass_conversion
-print("VLA HI Total Mass: {} Msun".format(total_mass.value))
-print("Arecibo HI Total Mass: {} Msun".format(total_mass_arecibo.value))
+# total_mass = total_line_flux * mass_conversion
+# total_mass_arecibo = total_line_flux_arecibo * mass_conversion
+# print("VLA HI Total Mass: {} Msun".format(total_mass.value))
+# print("Arecibo HI Total Mass: {} Msun".format(total_mass_arecibo.value))

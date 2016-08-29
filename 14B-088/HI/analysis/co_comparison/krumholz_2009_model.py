@@ -35,3 +35,27 @@ def krumholz_ratio_model(Sigma, Z=0.5, c=1):
     frac = 1 - np.power(1 + np.power(0.75 * (s / (1 + delta)), -5.), -0.2)
 
     return frac / (1 - frac)
+
+
+def alternate_krumholz_ratio_model(Sigma, psi=1.0, c=1, Z=0.1):
+    '''
+
+    Parameters
+    ----------
+    sigma : float or np.ndarray
+        Surface Density in Msol/pc^2
+    psi : float
+        Dust-adjusted radiation field (unitless). Related to metallicity
+        (among other things). At Z=1, psi=1.6, and at Z=0.1, psi=1.0
+    c : float
+        Clumping fraction. Expected to be near unity with a resolution of
+        100 pc. c>=1.
+    '''
+
+    Sigma_comp = c * Sigma
+
+    s = Sigma_comp * Z / float(psi)
+
+    term1 = (s / 11.) ** 3 * ((125 + s) / (96 + s)) ** 3
+
+    return np.power(1 + term1, 1 / 3.) - 1

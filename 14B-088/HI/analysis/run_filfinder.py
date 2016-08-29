@@ -199,6 +199,8 @@ if __name__ == "__main__":
     p.plot(profile[0], model(profile[0], *[1, fit[1], 0]), 'b-', label="HI Model")
     p.plot(profile[0], model(profile[0], *[1, fit_co[1], 0]), 'g--',
            label='CO Model')
+    p.xlabel("Radial Distance (pc)")
+    p.ylabel("Normalized Intensity")
     p.legend()
     p.grid()
     p.draw()

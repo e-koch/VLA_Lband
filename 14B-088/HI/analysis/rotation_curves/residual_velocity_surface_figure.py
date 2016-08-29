@@ -12,7 +12,7 @@ Plot the residual velocities from disk fit, and from subtracting the smoothed ve
 direc = "/home/eric/MyRAID/M33/14B-088/HI/full_imaging/diskfit_noasymm_nowarp_output/"
 
 # res = fits.open(os.path.join(direc, "rad.res.fits"))[0]
-res_fit = fits.open(os.path.join(direc, "rad.fitres.fits"))[0]
+res_fit = fits.open(os.path.join(direc, "rad.res.fits"))[0]
 
 data = res_fit.data
 

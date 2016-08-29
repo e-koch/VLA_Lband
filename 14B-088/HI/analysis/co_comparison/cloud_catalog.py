@@ -51,15 +51,19 @@ cleantab = tab[conds]
 
 ax = p.subplot(111, projection=cube[0].wcs)
 
-ax.imshow(ico.data.squeeze(), origin='lower', cmap='gray', vmin=0)
+ax.imshow(ico.data.squeeze(), origin='lower', cmap='gray', vmin=0, vmax=np.nanpercentile(ico.data, 99))
 # p.colorbar()
 # ax.contour((cloud_mask.data * (radii < 6500 * u.pc)).sum(0) > 0, colors='b')
 ax.contour(radii < 6.5 * u.kpc, colors='b')
 ax.scatter(cleantab["XPOS"], cleantab["YPOS"], transform=ax.get_transform('fk5'), edgecolor='r',
            facecolor='none')
 
+p.draw()
+raw_input("Next plot?")
+p.clf()
+
 # Save the clean sample
-save = True
+save = False
 if save:
     cleantab.write(os.path.join(data_path, "m33.co21_new_props_clfind_cleansample.fits"))
 
@@ -82,3 +86,7 @@ ax.contour(hi_radii < 6.5 * u.kpc, colors='b')
 ax.scatter(cleantab["XPOS"], cleantab["YPOS"], transform=ax.get_transform('fk5'),
            edgecolor='r',
            facecolor='none')
+
+p.draw()
+raw_input("Next plot?")
+p.clf()

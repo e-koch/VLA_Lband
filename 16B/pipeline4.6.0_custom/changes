@@ -1,0 +1,14 @@
+EVLA_pipeline.py
+updated casa version number, pipeline version number, revision date
+
+CASA renamed split2 as split. Updated the following scripts accordingly:
+EVLA_pipeline.py      
+EVLA_pipe_solint.py
+EVLA_pipe_finalcals.py
+
+EVLA_pipe_hanning.py
+Using the new mstransform based hanningsmooth. This requires creating a new MS, and replacing the old MS accordingly.
+Also, needed to copy the xml files to the hanning smoothed MS for flagcmd to apply the online flags accordingly.
+
+
+

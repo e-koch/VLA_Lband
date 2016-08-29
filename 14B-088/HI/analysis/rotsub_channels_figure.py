@@ -56,7 +56,8 @@ for n in range(4):
 
     # Convert to K km/s, but beam equivalency doesn't allow it. Doing it ad hoc
     layers = \
-        [cube[start:end].moment0().value * cube.beam.jtok(1.414*u.GHz) / 1000. * u.km / u.s
+        [cube[start:end].moment0().value *
+         cube.beam.jtok(1.414*u.GHz) / 1000. * u.km / u.s
          for start, end in zip(vchans[:-1], vchans[1:])]
     # Determine the maximum value to display
     mx = np.max([np.nanmax(x).value for x in layers])
@@ -71,11 +72,12 @@ for n in range(4):
                                                  vmax=mx,
                                                  stretch=AsinhStretch()),
                              cmap=p.cm.gray_r)
-        vel1 = cube.spectral_axis.to(u.km/u.s)[v1].value
-        vel2 = cube.spectral_axis.to(u.km/u.s)[v2].value
-        ax[y, x].annotate("${0:.0f}<v<{1:.0f}$".format(vel2, vel1), (0.53, 0.9),
-                                    xycoords='axes fraction', color='k',
-                                    fontsize=15.5)
+        vel1 = cube.spectral_axis.to(u.km / u.s)[v1].value
+        vel2 = cube.spectral_axis.to(u.km / u.s)[v2].value
+        ax[y, x].annotate("${0:.0f}<v<{1:.0f}$".format(vel2, vel1),
+                          (0.53, 0.9),
+                          xycoords='axes fraction', color='k',
+                          fontsize=15.5)
 
     # fig.subplots_adjust(right=0.8)
     cbar_ax = fig.add_axes([1.00, 0.05, 0.04, 0.9])

@@ -167,7 +167,7 @@ try:
 
     # Split into continuum and lines
 
-    execfile(pipepath + 'EVLA_mixed_setup_split.py')
+    execfile(pipepath + 'EVLA_pipe_mixed_setup_split.py')
 
     current_path = os.getcwd()
 
@@ -178,7 +178,7 @@ try:
         os.chdir(line_path)
 
         # Change the SDM name and other needed settings
-        SDM_name = line_settings['SDM_name']
+        SDM_name = line_settings['SDM_Name']
         myHanning = line_settings['myHanning']
         scratch = line_settings['scratch']
 
@@ -191,7 +191,7 @@ try:
         os.chdir(cont_path)
 
         # Change the SDM name and other needed settings
-        SDM_name = cont_settings['SDM_name']
+        SDM_name = cont_settings['SDM_Name']
         myHanning = cont_settings['myHanning']
         scratch = cont_settings['scratch']
 

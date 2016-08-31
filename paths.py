@@ -13,14 +13,15 @@ if socket.gethostname() == 'ewk':
 c_path = os.path.join(root, '14B-088')
 archival_path = os.path.join(root, 'AT0206')
 a_path = os.path.join(root, '16B')
+archival_12_path = os.path.join(root, '12A-403')
 
 c_hi_analysispath = os.path.join(c_path, 'HI/analysis')
 archival_hi_analysispath = os.path.join(archival_path, 'AT0206/Analysis')
 
 # Pipeline paths
-fourteenB_pipe_path = os.path.join(c_path, "Cal_Scripts/EVLA_pipeline1.3.0")
-sixteenB_pipe_path = os.path.join(a_path, "pipeline4.6.0_custom")
-
+fourteenB_pipe_path = os.path.join(c_path, "Cal_Scripts/EVLA_pipeline1.3.0") + "/"
+sixteenB_pipe_path = os.path.join(a_path, "pipeline4.6.0_custom") + "/"
+twelveA_pipe_path = os.path.join(archival_12_path, "pipeline4.6.0") + "/"
 
 def path(x, basepath):
     return os.path.join(basepath, x)

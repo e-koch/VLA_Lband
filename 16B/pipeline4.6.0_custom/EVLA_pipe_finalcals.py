@@ -309,7 +309,7 @@ AllCalTables.append('finalBPcal.b')
 
 #Derive an average phase solution for the bandpass calibrator to apply
 #to all data to make QA plots easier to interpret.
-    
+
 default('gaincal')
 vis=ms_active
 caltable='averagephasegain.g'
@@ -549,7 +549,7 @@ try:
 except:
     logprint("WARNING: No bootstrapped flux density available for gain calibrator, using model already present in measurement set.", logfileout='logs/finalcals.log')
 
-# Derive gain tables.  Note that gaincurves, opacity corrections and 
+# Derive gain tables.  Note that gaincurves, opacity corrections and
 # antenna position corrections have already been applied during applycal
 # and split in above.
 
@@ -584,7 +584,7 @@ gaincal()
 
 default('gaincal')
 vis='calibrators.ms'
-caltable='finalampgaincal.g' 
+caltable='finalampgaincal.g'
 field=''
 spw=''
 intent=''
@@ -800,6 +800,72 @@ for ii in range(nplots):
     figfile=filename
     plotcal()
 
+# Plot the bandpasses per SPW as well
+
+tb.open(ms_active+"/SPECTRAL_WINDOW")
+nspws = tb.getcol("NAME").shape[0]
+tb.close()
+
+for ii in range(nspws):
+    filename='finalBPcal_amp_spw_'+str(ii)+'.png'
+    syscommand='rm -rf '+filename
+    os.system(syscommand)
+
+    default('plotcal')
+    caltable='finalBPcal.b'
+    xaxis='freq'
+    yaxis='amp'
+    poln=''
+    field=''
+    antenna=''
+    spw=str(ii)
+    timerange=''
+    subplot=111
+    overplot=False
+    clearpanel='Auto'
+    iteration=''
+    # plotrange=[0,0,0,ampplotmax]
+    showflags=False
+    plotsymbol='o'
+    plotcolor='blue'
+    markersize=5.0
+    fontsize=10.0
+    showgui=False
+    figfile=filename
+    async=False
+    plotcal()
+
+for ii in range(nspws):
+    filename='finalBPcal_phase_spw_'+str(ii)+'.png'
+    syscommand='rm -rf '+filename
+    os.system(syscommand)
+
+    antPlot=str(ii*3)+'~'+str(ii*3+2)
+
+    default('plotcal')
+    caltable='finalBPcal.b'
+    xaxis='freq'
+    yaxis='phase'
+    poln=''
+    field=''
+    antenna=''
+    spw=str(ii)
+    timerange=''
+    subplot=111
+    overplot=False
+    clearpanel='Auto'
+    iteration=''
+    # plotrange=[0,0,-phaseplotmax,phaseplotmax]
+    showflags=False
+    plotsymbol='o'
+    plotcolor='blue'
+    markersize=5.0
+    fontsize=10.0
+    showgui=False
+    figfile=filename
+    async=False
+    plotcal()
+
 for ii in range(nplots):
     filename='phaseshortgaincal'+str(ii)+'.png'
     syscommand='rm -rf '+filename
@@ -945,7 +1011,7 @@ if (flaggedDelaySolns['all']['total'] > 0):
 else:
     QA2_delay='Fail'
 
-if (flaggedBPSolns['all']['total'] > 0): 
+if (flaggedBPSolns['all']['total'] > 0):
     if (flaggedBPSolns['antmedian']['fraction'] > 0.2):
         QA2_BP='Partial'
     else:

@@ -47,7 +47,8 @@ if len(line_spws) == 0:
     logprint("No line SPWs found.",
              logfileout='logs/mixed_setup_split.log')
 else:
-    os.mkdir('speclines')
+    if not os.path.exists('speclines'):
+        os.mkdir('speclines')
 
     split(vis=ms_active, outputvis="speclines/" + SDM_name + ".speclines.ms",
           spw=",".join(line_spws), datacolumn='DATA', field=",".join(fields))
@@ -62,7 +63,8 @@ if len(cont_spws) == 0:
     logprint("No continuum SPWs found.",
              logfileout='logs/mixed_setup_split.log')
 else:
-    os.mkdir('continuum')
+    if not os.path.exists('continuum'):
+        os.mkdir('continuum')
 
     split(vis=ms_active, outputvis="continuum/" + SDM_name + ".continuum.ms",
           spw=",".join(cont_spws), datacolumn='DATA', field=",".join(fields))

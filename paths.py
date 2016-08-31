@@ -5,8 +5,9 @@ if socket.gethostname() == 'ewk':
     root = os.path.expanduser('~/Dropbox/code_development/VLA_Lband/')
     data_path = "/media/eric/MyRAID/"
 # Add in path for NRAO and cloud instances
-# elif socket.gethostname() == 'orion':
-#     root = '/diskb//aginsbur/w51/merge/'
+elif socket.gethostname() == 'caterwauler':
+    root = os.path.expanduser('~/Dropbox/code_development/VLA_Lband/')
+    data_path = os.path.expanduser("~/volume/data/")
 # else:
 #     root = os.path.expanduser('~/work/w51/alma/')
 

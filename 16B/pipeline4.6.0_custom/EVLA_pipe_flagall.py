@@ -68,46 +68,44 @@ start_total = myinitialflags['total']
 start_flagged = myinitialflags['flagged']
 logprint ("Initial flagged fraction = "+str(start_flagged/start_total), logfileout='logs/flagall.log')
 
-# This flagging has been moved to EVLA_mixed_setup_split.py
+default('flagcmd')
+vis=ms_active
+inpmode='xml'
+tbuff=1.5*int_time
+ants=''
+reason='ANTENNA_NOT_ON_SOURCE'
+action='apply'
+flagbackup=True
+savepars=True
+outfile=outputflagfile
+flagcmd()
+logprint ("ANTENNA_NOT_ON_SOURCE flags carried out", logfileout='logs/flagall.log')
 
-# default('flagcmd')
-# vis=ms_active
-# inpmode='xml'
-# tbuff=1.5*int_time
-# ants=''
-# reason='ANTENNA_NOT_ON_SOURCE'
-# action='apply'
-# flagbackup=True
-# savepars=True
-# outfile=outputflagfile
-# flagcmd()
-# logprint ("ANTENNA_NOT_ON_SOURCE flags carried out", logfileout='logs/flagall.log')
+# Now shadow flagging
+default('flagdata')
+vis=ms_active
+mode='shadow'
+tolerance=0.0
+action='apply'
+flagbackup=False
+savepars=False
+flagdata()
+#clearstat()
 
-# # Now shadow flagging
-# default('flagdata')
-# vis=ms_active
-# mode='shadow'
-# tolerance=0.0
-# action='apply'
-# flagbackup=False
-# savepars=False
-# flagdata()
-# #clearstat()
+# report new statistics
+default('flagdata')
+vis=ms_active
+mode='summary'
+spwchan=True
+spwcorr=True
+basecnt=True
+action='calculate'
+savepars=False
+slewshadowflags=flagdata()
 
-# # report new statistics
-# default('flagdata')
-# vis=ms_active
-# mode='summary'
-# spwchan=True
-# spwcorr=True
-# basecnt=True
-# action='calculate'
-# savepars=False
-# slewshadowflags=flagdata()
+init_on_source_vis = start_total-slewshadowflags['flagged']
 
-# init_on_source_vis = start_total-slewshadowflags['flagged']
-
-# logprint ("Initial on-source fraction = "+str(init_on_source_vis/start_total), logfileout='logs/flagall.log')
+logprint ("Initial on-source fraction = "+str(init_on_source_vis/start_total), logfileout='logs/flagall.log')
 
 # Restore original flags
 

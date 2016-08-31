@@ -263,13 +263,13 @@ try:
 
     # NOW RUN ALL CALIBRATED DATA (INCLUDING TARGET) THROUGH rflag
 
-    execfile(pipepath + 'EVLA_pipe_targetflag.py')
+    execfile(pipepath + 'EVLA_pipe_targetflag_lines.py')
 
     ######################################################################
 
     # CALCULATE DATA WEIGHTS BASED ON ST. DEV. WITHIN EACH SPW
 
-    execfile(pipepath + 'EVLA_pipe_statwt.py')
+    execfile(pipepath + 'EVLA_pipe_statwt_lines.py')
 
     ######################################################################
 

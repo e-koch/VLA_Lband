@@ -1,6 +1,7 @@
 
 import numpy as np
 import os
+from copy import copy
 from taskinit import tb
 from tasks import split
 
@@ -49,6 +50,10 @@ if len(line_spws) == 0:
 else:
     if not os.path.exists('speclines'):
         os.mkdir('speclines')
+
+    line_fields = copy(fields)
+    line_fields.remove("0521+166=3C138")
+    # line_fields.remove("0316+413=3C84")
 
     split(vis=ms_active, outputvis="speclines/" + SDM_name + ".speclines.ms",
           spw=",".join(line_spws), datacolumn='DATA', field=",".join(fields))

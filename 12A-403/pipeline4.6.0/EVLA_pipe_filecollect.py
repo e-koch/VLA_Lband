@@ -27,7 +27,7 @@
 #
 ######################################################################
 '''
-Script utility for moving relevant plots and tables after calibration 
+Script utility for moving relevant plots and tables after calibration
     is complete
 VLA pipeline
 August 2012, B. Kent, NRAO
@@ -71,7 +71,7 @@ for file in listobs_output:
         shutil.move(file, weblog_dir+'/.')
     except:
         logprint('Unable to move ' + file, logfileout='logs/filecollect.log')
-  
+
 #Move calibration tables into caltables_dir
 cal_files=copy.copy(priorcals)
 cal_files.append('switched_power.g')
@@ -87,7 +87,7 @@ for file in cal_files:
         shutil.move(file, caltables_dir+'/.')
     except:
         logprint('Unable to move '+file,logfileout='logs/filecollect.log')
-  
+
 logprint('Final calibration tables moved to ' + caltables_dir, logfileout='logs/filecollect.log')
 
 ######################################################################
@@ -95,7 +95,7 @@ logprint('Final calibration tables moved to ' + caltables_dir, logfileout='logs/
 try:
     gmt_time = strftime("%a, %d %b %Y %H:%M:%S +0000", gmtime())
     file_time = strftime("%d%b%Y_%H%M%Sgmt", gmtime())
-    
+
     #compute size of ms directory
     ms_size = 0
     try:
@@ -104,22 +104,22 @@ try:
                 filename = os.path.join(path, file)
                 ms_size += os.path.getsize(filename)
         #Size of the ms in Gigabytes
-        ms_size = ms_size / (1024.0*1024.0*1024.0) 
+        ms_size = ms_size / (1024.0*1024.0*1024.0)
     except:
         logprint('Unable to determine size of ms on disk')
-    
-    pipeprofile = {'SDM_name':SDM_name, 
-               'time_list':time_list, 
+
+    pipeprofile = {'SDM_name':SDM_name,
+               'time_list':time_list,
                'gmt_time':gmt_time,
                'version':version,
                'svnrevision':svnrevision,
                'ms_size':ms_size}
-               
+
     if os.path.exists('logs'):
         logprint('logs directory exists')
     else:
         logprint('logs directory does not exist / not in path')
-    
+
 #
 # if SDM_name is a full path (as it is for automatic pipeline
 # executions, it will have '/'s in it.  search for the right-most one,
@@ -129,7 +129,7 @@ try:
     right_index = SDM_name.rfind('/')
     pickle_filename = 'logs/profile_' + SDM_name[right_index+1:] + '_' + file_time + '.p'
     logprint ('writing pickle file: ' + pickle_filename, logfileout='logs/completion.log')
-    try:         
+    try:
         istat = pickle.dump(pipeprofile, open(pickle_filename, 'wb'))
         logprint('Pickle dump of profile successful')
     except:
@@ -138,57 +138,57 @@ try:
 
     logprint ('Timing profile written to logs/timing.log', logfileout='logs/completion.log')
     logprint ('Completed on ' + gmt_time + ' with pipeline SVN revision ' + svnrevision, logfileout='logs/timing.log')
-    
+
 except:
     logprint ('Problem writing timing profile')
-    
-    
+
+
 ######################################################################
 #Attempt to copy files to /lustre/aoc/cluster/pipeline/stats
-stats_dir = '/lustre/aoc/cluster/pipeline/stats'
+# stats_dir = '/lustre/aoc/cluster/pipeline/stats'
 
-if os.path.exists(stats_dir):
-    log_filename = stats_dir + '/profile_' + SDM_name[right_index+1:] + '_' + file_time + '.log'
-    try:
-        shutil.copyfile('logs/timing.log', log_filename)
-        logprint ('Copied timing log to ' + stats_dir)
-    except:
-        logprint('Unable to copy timing log to ' + stats_dir)
+# if os.path.exists(stats_dir):
+#     log_filename = stats_dir + '/profile_' + SDM_name[right_index+1:] + '_' + file_time + '.log'
+#     try:
+#         shutil.copyfile('logs/timing.log', log_filename)
+#         logprint ('Copied timing log to ' + stats_dir)
+#     except:
+#         logprint('Unable to copy timing log to ' + stats_dir)
 
-    profile_filename = stats_dir + '/profile_' + SDM_name[right_index+1:] + '_' + file_time+ '.p'
-    try:
-        shutil.copyfile(pickle_filename, profile_filename)
-        logprint ('Copied profile to ' + stats_dir)
-    except:
-        logprint('Unable to copy profile to ' + stats_dir)
-else:
-    logprint (stats_dir + ' does not exist or not accessible')
+#     profile_filename = stats_dir + '/profile_' + SDM_name[right_index+1:] + '_' + file_time+ '.p'
+#     try:
+#         shutil.copyfile(pickle_filename, profile_filename)
+#         logprint ('Copied profile to ' + stats_dir)
+#     except:
+#         logprint('Unable to copy profile to ' + stats_dir)
+# else:
+#     logprint (stats_dir + ' does not exist or not accessible')
 
 #
-# if this is an automatic execution, try to fix file permissions, so 
+# if this is an automatic execution, try to fix file permissions, so
 # folks in the vlapipe group can clean up after things are moved into
 # the Trash folder...
 #
 
-if SDM_name_already_defined:
-#
-# if it turns out things in the rawdata or results directories are
-# improperly permissioned, uncomment the getcwd() and chdir() foo
-#
-#   cwd = os.getcwd()
-#   os.chdir('..')
-    for path, dirs, files in os.walk('.'):
-        for dir in dirs:
-            full_dir_name = os.path.join(path, dir)
-            st = os.stat(full_dir_name)
-            if not (bool(st.st_mode & stat.S_IRGRP) and bool(st.st_mode & stat.S_IWGRP) and bool(st.st_mode & stat.S_IXGRP)):
-                os.system("chmod -f g+rwx %s" % full_dir_name)
-        for file in files:
-            if file != 'epilogue.sh':
-                full_file_name = os.path.join(path, file)
-                st = os.stat(full_file_name)
-                if not (bool(st.st_mode & stat.S_IRGRP) and bool(st.st_mode & stat.S_IWGRP) and bool(st.st_mode & stat.S_IXGRP)):
-                    os.system("chmod -f g+rwx %s" % full_file_name)
+# if SDM_name_already_defined:
+# #
+# # if it turns out things in the rawdata or results directories are
+# # improperly permissioned, uncomment the getcwd() and chdir() foo
+# #
+# #   cwd = os.getcwd()
+# #   os.chdir('..')
+#     for path, dirs, files in os.walk('.'):
+#         for dir in dirs:
+#             full_dir_name = os.path.join(path, dir)
+#             st = os.stat(full_dir_name)
+#             if not (bool(st.st_mode & stat.S_IRGRP) and bool(st.st_mode & stat.S_IWGRP) and bool(st.st_mode & stat.S_IXGRP)):
+#                 os.system("chmod -f g+rwx %s" % full_dir_name)
+#         for file in files:
+#             if file != 'epilogue.sh':
+#                 full_file_name = os.path.join(path, file)
+#                 st = os.stat(full_file_name)
+#                 if not (bool(st.st_mode & stat.S_IRGRP) and bool(st.st_mode & stat.S_IWGRP) and bool(st.st_mode & stat.S_IXGRP)):
+#                     os.system("chmod -f g+rwx %s" % full_file_name)
 #   os.chdir(cwd)
 
 logprint ('Finished EVLA_pipe_filecollect.py', logfileout='logs/filecollect.log')

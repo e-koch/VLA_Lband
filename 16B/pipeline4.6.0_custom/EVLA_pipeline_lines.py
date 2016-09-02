@@ -292,9 +292,9 @@ try:
     ######################################################################
 
     # OPTIONALLY MAKE TEST DIRTY IMAGES
-        # Set in startup
-        if test_imaging:
-            execfile(pipepath + 'EVLA_pipe_testimage_cont.py')
+    # Set in startup
+    if test_imaging:
+        execfile(pipepath + 'EVLA_pipe_testimage_cont.py')
 
     # Quit if there have been any exceptions caught:
 

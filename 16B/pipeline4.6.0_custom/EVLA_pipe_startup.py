@@ -168,7 +168,7 @@ except NameError:
 
 try:
     test_imaging
-    imaging
+    sources
 except NameError:
     test_imaging = \
         True if raw_input("Perform test imaging (y/n): ") == 'y' else False

@@ -2,6 +2,7 @@ Custom Pipeline Changes
 =======================
 
 * `EVLA_pipeline.py` - only runs startup and deterministic flagging. The MS is then split into continuum and line SPWs, and custom pipelines for each are then completed.
+* `EVLA_pipe_startup.py` - extra prompts for enabling test imaging.
 * `EVLA_pipe_mixed_setup_split.py` - splits an MS into continuum and line spectral windows.
 * `EVLA_pipeline_continuum.py` - runs the standard pipeline on the continuum MS
 * `EVLA_pipeline_lines.py` - runs a modified pipeline on the line MS. `rflag` is not run on the target fields and `statwt` uses only a portion of the channels to calculate weights, making the assumption that the line is confined to the center third of the SPW.

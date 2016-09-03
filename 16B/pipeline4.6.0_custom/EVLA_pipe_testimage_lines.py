@@ -3,6 +3,8 @@
 Create per SPW test images of a pipeline-calibrated MS.
 
 This version is intended for line SPWs.
+
+Run EVLA_pipe_restore.py before this script.
 '''
 
 logprint("Starting EVLA_pipe_testimage_lines.py",
@@ -14,6 +16,19 @@ from warnings import warn
 
 from CASA_functions import (set_imagermode, set_imagesize, set_cellsize,
                             has_field)
+
+# This script should still be usable if the user didn't enable imaging at the
+# beginning. In this case, sources will be empty. Prompt the user at this
+# point.
+if len(sources) == 0:
+    print("No sources given. Input which field(s) should be imaged (mosaics"
+          " can be created by giving a common name for the set; i.e., 'M33'"
+          " for 'M33LP1', 'M33LP2', etc)")
+    print("Multiple images can be created by separating the list w/ commas"
+          " (i.e., '3C48, M33')")
+    sources = raw_input("Input fields to be imaged: ")
+    # Remove whitespaces then split by commas
+    sources = sources.replace(" ", "").split(",")
 
 # Make directory for images to go.
 if not os.path.exists('test_images'):
@@ -72,3 +87,5 @@ for source in sources:
 
 logprint("Finished EVLA_pipe_testimage_lines.py",
          logfileout='logs/testimage_lines.log')
+
+pipeline_save()

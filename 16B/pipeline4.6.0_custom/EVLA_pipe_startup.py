@@ -174,9 +174,11 @@ except NameError:
         True if raw_input("Perform test imaging (y/n): ") == 'y' else False
     if test_imaging:
         sources = raw_input("Field name(s) to image (will image all "
-                            "containing that name).")
+                            "containing that name): ")
         # Remove whitespaces then split by commas
         sources = sources.replace(" ", "").split(",")
+    else:
+        sources = ""
 
 # if myHanning=="y":
 #    ms_active=mshsmooth

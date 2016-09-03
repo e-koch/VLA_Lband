@@ -172,7 +172,7 @@ try:
     current_path = os.getcwd()
 
     if line_run:
-        line_path = os.path.join(current_path, 'speclines')
+        line_path = line_settings["folder_name"]
         if not os.path.exists(line_path):
             raise Warning("speclines path was not created.")
         os.chdir(line_path)
@@ -185,7 +185,7 @@ try:
         execfile(pipepath + 'EVLA_pipeline_lines.py')
 
     if cont_run:
-        cont_path = os.path.join(current_path, 'continuum')
+        cont_path = cont_settings["folder_name"]
         if not os.path.exists(cont_path):
             raise Warning("continuum path was not created.")
         os.chdir(cont_path)

@@ -33,15 +33,15 @@ EVLA_pipe_restore.py needs to be run before hand
 
 '''
 
-pipeline_scripts = ['startup', 'import', 'hanning', 'msinfo', 'flagall',
+pipeline_scripts = ['startup', 'import', 'msinfo', 'flagall',
                     'calprep', 'priorcals', 'testBPdcals',
                     'flag_baddeformatters', 'flag_baddeformattersphase',
                     'checkflag', 'semiFinalBPdcals1',
                     'checkflag_semiFinal', 'semiFinalBPdcals2',
                     'solint', 'testgains', 'fluxgains', 'fluxboot',
-                    'finalcals', 'applycals', 'targetflag',
-                    'statwt', 'plotsummary', 'filecollect', 'weblog',
-                    'testimage_cont']
+                    'finalcals', 'applycals', 'targetflag_lines',
+                    'statwt_lines', 'plotsummary', 'filecollect', 'weblog',
+                    'testimage_lines']
 
 # last script that was started
 last_state = time_list[-1]['pipestate']
@@ -60,7 +60,7 @@ if (last_status == 'start'):
 
 for i in range(script_index, len(pipeline_scripts)):
     # Skip test imaging if not enabled
-    if pipeline_scripts[i] == 'testimage_cont':
+    if pipeline_scripts[i] == 'testimage_lines':
         if not test_imaging:
             continue
     try:

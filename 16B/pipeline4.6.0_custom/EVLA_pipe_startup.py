@@ -176,9 +176,9 @@ except NameError:
         sources = raw_input("Field name(s) to image (will image all "
                             "containing that name): ")
         # Remove whitespaces then split by commas
-        image_sources = sources.replace(" ", "").split(",")
+        imaging_sources = sources.replace(" ", "").split(",")
     else:
-        image_sources = ""
+        imaging_sources = ""
 
 # if myHanning=="y":
 #    ms_active=mshsmooth

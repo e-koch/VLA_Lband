@@ -66,11 +66,10 @@ try:
                                 baseline_percentile=baseline_percentile)
 
         # Setting CLEANing parameters
-        sel_cell_value = round((syn_beam / sample_factor) * 2) / 2
+        sel_cell_value = round((syn_beam / sample_factor) * 10) / 10
 
         if return_type == "str":
-            return str(round((syn_beam / sample_factor) * 2) / 2) + \
-                'arcsec'
+            return str(sel_cell_value) + 'arcsec'
         else:
             return sel_cell_value
 

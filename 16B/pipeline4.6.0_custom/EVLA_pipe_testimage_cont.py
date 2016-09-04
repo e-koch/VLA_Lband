@@ -20,15 +20,15 @@ from CASA_functions import (set_imagermode, set_imagesize, set_cellsize,
 # This script should still be usable if the user didn't enable imaging at the
 # beginning. In this case, sources will be empty. Prompt the user at this
 # point.
-if len(sources) == 0:
+if len(imaging_sources) == 0:
     print("No sources given. Input which field(s) should be imaged (mosaics"
           " can be created by giving a common name for the set; i.e., 'M33'"
           " for 'M33LP1', 'M33LP2', etc)")
     print("Multiple images can be created by separating the list w/ commas"
           " (i.e., '3C48, M33')")
-    sources = raw_input("Input fields to be imaged: ")
+    imaging_sources = raw_input("Input fields to be imaged: ")
     # Remove whitespaces then split by commas
-    sources = sources.replace(" ", "").split(",")
+    imaging_sources = imaging_sources.replace(" ", "").split(",")
 
 # Make directory for images to go.
 if not os.path.exists('test_images'):
@@ -36,8 +36,8 @@ if not os.path.exists('test_images'):
 
 # Check list of given sources against the field list
 valid_sources = []
-for source in sources:
-    if has_field(vis, source):
+for source in imaging_sources:
+    if has_field(ms_active, source):
         valid_sources.append(source)
     else:
         warn('No field contains the given source: {}'.format(source))
@@ -50,9 +50,9 @@ if len(valid_sources) == 0:
              logfileout='logs/testimage_cont.log')
     sys.exit()
 
-sources = valid_sources
+imaging_sources = valid_sources
 
-for source in sources:
+for source in imaging_sources:
     for idx, spw_num in enumerate(spws):
         logprint("Imaging SPW {0} of {1}".format(idx, len(spws)),
                  logfileout='logs/testimage_cont.log')

@@ -57,8 +57,6 @@ for source in imaging_sources:
         logprint("Imaging SPW {0} of {1}".format(idx, len(spws)),
                  logfileout='logs/testimage_cont.log')
 
-        print("Imaging SPW {0} of {1}".format(idx, len(spws)))
-
         default("clean")
 
         weighting = 'natural'

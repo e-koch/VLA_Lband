@@ -8,6 +8,7 @@ from warnings import warn
 import os
 
 from taskinit import tb
+from cleanhelper import cleanhelper
 
 
 def set_imagermode(vis, source):
@@ -57,17 +58,24 @@ def has_field(vis, source):
 try:
     import analysisUtils as au
 
-    def set_cellsize(vis, spw, sample_factor=6.):
+    def set_cellsize(vis, spw, sample_factor=6., baseline_percentile=95,
+                     return_type="str"):
 
-        syn_beam, prim_beam = find_expected_beams(vis, spw)
+        syn_beam, prim_beam = \
+            find_expected_beams(vis, spw,
+                                baseline_percentile=baseline_percentile)
 
         # Setting CLEANing parameters
-        sel_cell = str(round((syn_beam / sample_factor) * 2) / 2) + \
-            'arcsec'
+        sel_cell_value = round((syn_beam / sample_factor) * 2) / 2
 
-        return sel_cell
+        if return_type == "str":
+            return str(round((syn_beam / sample_factor) * 2) / 2) + \
+                'arcsec'
+        else:
+            return sel_cell_value
 
-    def set_imagesize(vis, spw, sample_factor=6.):
+    def set_imagesize(vis, spw, source, sample_factor=6., pblevel=0.1,
+                      **kwargs):
         '''
         Set the image size for CLEAN to be a multiple of 2, 3, 5
         based on the maximum baseline in the MS.
@@ -75,29 +83,26 @@ try:
 
         syn_beam, prim_beam = find_expected_beams(vis, spw)
 
-        sel_imsize = int(round(prim_beam / (syn_beam / sample_factor)))
+        cellsize = set_cellsize(vis, spw, sample_factor=sample_factor,
+                                return_type='value', **kwargs)
 
-        # Increase the sel_imsize by a couple of beams
-        # to be sure
-        dx = int(round(syn_beam / prim_beam * sel_imsize))
-        sel_imsize = sel_imsize + 1 * dx
+        if set_imagermode(vis, source) == "mosaic":
+            mosaic_props = get_mosaic_info(vis, spw, sourceid=source,
+                                           pblevel=pblevel)
 
-        # The image size should be a multiplier of
-        # 2, 3 and 5 to work well with clean so:
+            sel_imsize = [int(np.ceil(mosaic_props["Size_RA"] / cellsize)),
+                          int(np.ceil(mosaic_props["Size_Dec"] / cellsize))]
+        else:
+            sel_imsize = [int(round(prim_beam / cellsize))] * 2
 
-        rounded_sizes = []
-        for base in [2, 5, 10]:
-            rounded_sizes.append(round_to_base(sel_imsize, base=base))
-        rounded_sizes = np.array(rounded_sizes)
-        nearest_idx = np.abs(rounded_sizes - sel_imsize).argmin()
+        # The image size should be factorizable into some combo of
+        # 2, 3, 5 and 7 to work with clean so:
+        sel_imsize = [cleanhelper.getOptimumSize(size) for size in sel_imsize]
 
         # Return the rounded value nearest to the original image size chosen.
-        return rounded_sizes[nearest_idx]
+        return sel_imsize
 
-    def round_to_base(x, base=5):
-        return int(base * round(float(x) / base))
-
-    def find_expected_beams(vis, spw):
+    def find_expected_beams(vis, spw, baseline_percentile=95):
         '''
         Return the expected synthesized beam (approximately) and the primary
         beam size based on the baselines.
@@ -108,6 +113,9 @@ try:
             Name of MS.
         spw : int
             Which SPW in the MS to consider.
+        baseline_percentile : int or float between 0 and 100
+            The percentile of the longest baseline to estimate the synthesized
+            beam with.
 
         Returns
         -------
@@ -118,8 +126,8 @@ try:
 
         '''
 
-        # Get max baseline and dish size
-        bline_max = au.getBaselineExtrema(vis)[0]
+        # Get percentile of max baseline and dish size
+        bline_max = getBaselinePercentile(vis, baseline_percentile)
 
         tb.open(os.path.join(vis, 'ANTENNA'))
         dishs = tb.getcol('DISH_DIAMETER')
@@ -139,12 +147,184 @@ try:
         # XXX
         # When astropy is easier to install (CASA 4.7??), switch to using the
         # defined constants.
-        centre_lambda = 299792458.0 / (freq)
-        # min_lambda = 299792458.0 / (min(ref_freqs))
+        centre_lambda = 299792458.0 / freq
+
         syn_beam = (centre_lambda / bline_max) * 180 / np.pi * 3600
         prim_beam = (centre_lambda / dish_min) * 180 / np.pi * 3600
 
         return syn_beam, prim_beam
+
+    def getBaselinePercentile(msFile, percentile):
+        """
+        Based on getBaselineExtrema from analysisUtils
+        """
+        tb.open(msFile + '/ANTENNA')
+        positions = np.transpose(tb.getcol('POSITION'))
+        tb.close()
+
+        all_lengths = []
+        for i in range(len(positions)):
+            for j in range(i + 1, len(positions)):
+                length = au.computeBaselineLength(positions[i],
+                                                  positions[j])
+                if length != 0.0:
+                    all_lengths.append(length)
+
+        all_lengths = np.array(all_lengths)
+
+        return np.percentile(all_lengths, percentile)
+
+    def get_mosaic_info(vis, spw, sourceid=None, intent='TARGET', pblevel=0.1):
+        '''
+        Return image size based on mosaic fields
+
+        Parameters
+        ----------
+        vis : str
+            MS Name
+        spw : str or int
+            If str, searches for an exact match with the names in the MS. If
+            int, is the index of SPW in the MS.
+        sourceid : str, optional
+            The field names used will contain sourceid.
+        intent : str, optional
+            Use every field with the given intent (wildcards used by default).
+        pblevel : float between 0 and 1
+            PB level that defines the edges of the mosaic.
+        '''
+
+        mytb = au.createCasaTool(au.tbtool)
+
+        # Check SPWs to make sure given choice is valid
+        mytb.open(vis + '/SPECTRAL_WINDOW')
+
+        spwNames = mytb.getcol('NAME')
+        if isinstance(spw, str):
+            match = False
+            for spw_name in spwNames:
+                if spw == spw_name:
+                    match = True
+
+            if not match:
+                raise ValueError("The given SPW ({0}) is not in the MS SPW"
+                                 " names ({1})".format(spw, spwNames))
+        elif isinstance(spw, int):
+            try:
+                spwNames[spw]
+            except IndexError:
+                raise IndexError("The given SPW index {0} is not in the range"
+                                 " of SPWs in the MS ({1})."
+                                 .format(spw, len(spwNames)))
+        else:
+            raise TypeError("spw must be a str or int.")
+
+        refFreq = mytb.getcol("REF_FREQUENCY")[spw]
+        lambdaMeters = au.c_mks / refFreq
+
+        mytb.close()
+
+        # Get field info
+        mytb.open(vis + '/FIELD')
+
+        delayDir = mytb.getcol('DELAY_DIR')
+        ra = delayDir[0, :][0] * 12 / np.pi
+        for i in range(len(ra)):
+            if ra[i] < 0:
+                ra[i] += 24
+        ra *= 15
+        dec = np.degrees(delayDir[1, :][0])
+
+        # First choose fields by given sourceid
+        if sourceid is not None:
+
+            names = mytb.getcol('NAME')
+            fields = mytb.getcol("SOURCE_ID")
+
+            good_names = []
+            good_fields = []
+            for name, field in zip(names, fields):
+                # Check if it has sourceid
+                if name.find(sourceid) != -1:
+                    good_names.append(name)
+                    good_fields.append(field)
+            names = good_names
+            fields = good_fields
+
+        # Then try choosing all fields based on the given intent.
+        elif intent is not None:
+            # Ensure a string
+            intent = str(intent)
+
+            mymsmd = au.createCasaTool(au.msmdtool)
+            mymsmd.open(vis)
+            intentsToSearch = '*' + intent + '*'
+            fields = mymsmd.fieldsforintent(intentsToSearch)
+            names = mymsmd.namesforfields(fields)
+            mymsmd.close()
+        # On or the other must be given
+        else:
+            raise ValueError("Either sourceid or intent must be given.")
+
+        mytb.close()
+
+        ra = ra[fields]
+        dec = dec[fields]
+
+        raAverageDegrees = np.mean(ra)
+        decAverageDegrees = np.mean(dec)
+
+        raRelativeArcsec = 3600 * (ra - raAverageDegrees) * \
+            np.cos(np.deg2rad(decAverageDegrees))
+        decRelativeArcsec = 3600 * (dec - decAverageDegrees)
+
+        centralField = au.findNearestField(ra, dec,
+                                           raAverageDegrees,
+                                           decAverageDegrees)[0]
+
+        # This next step is crucial, as it converts from the field number
+        # determined from a subset list back to the full list.
+        centralField = fields[centralField]
+        centralFieldName = names[centralField]
+
+        # Find which antenna have data
+        mytb.open(vis)
+        antennasWithData = np.sort(np.unique(mytb.getcol('ANTENNA1')))
+        mytb.close()
+
+        if antennasWithData.size == 0:
+            raise Warning("No antennas with data found.")
+
+        # Now we need the dish diameters
+        mytb.open(vis + "/ANTENNA")
+        # These are in m
+        dish_diameters = \
+            np.unique(mytb.getcol("DISH_DIAMETER")[antennasWithData])
+        mytb.close()
+
+        # Find maxradius
+        maxradius = 0
+        for diam in dish_diameters:
+            arcsec = 0.5 * \
+                au.primaryBeamArcsec(wavelength=lambdaMeters * 1000,
+                                     diameter=diam, showEquation=False)
+            radius = arcsec / 3600.0
+            if radius > maxradius:
+                maxradius = radius
+
+        # Border about each point, down to the given pblevel
+        border = 2 * maxradius * au.gaussianBeamOffset(pblevel)
+
+        size_ra = np.ptp(raRelativeArcsec) + 2 * border
+        size_dec = np.ptp(decRelativeArcsec) + 2 * border
+
+        mosaicInfo = {"Central_Field_ID": centralField,
+                      "Central_Field_Name": centralFieldName,
+                      "Center_RA": ra,
+                      "Center_Dec": dec,
+                      "Size_RA": size_ra,
+                      "Size_Dec": size_dec}
+
+        return mosaicInfo
 
 except ImportError:
     warn("Could not import analysisUtils.")

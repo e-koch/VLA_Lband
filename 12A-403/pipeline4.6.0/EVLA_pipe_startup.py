@@ -163,15 +163,15 @@ except NameError:
 
 try:
     test_imaging
-    sources
+    imaging_sources
 except NameError:
     test_imaging = \
         True if raw_input("Perform test imaging (y/n): ") == 'y' else False
     if test_imaging:
-        sources = raw_input("Field name(s) to image (will image all "
-                            "containing that name).")
+        imaging_sources = raw_input("Field name(s) to image (will image all "
+                                    "containing that name).")
         # Remove whitespaces then split by commas
-        sources = sources.replace(" ", "").split(",")
+        imaging_sources = imaging_sources.replace(" ", "").split(",")
 
 #if myHanning=="y":
 #    ms_active=mshsmooth

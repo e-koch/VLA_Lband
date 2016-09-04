@@ -63,8 +63,6 @@ for source in imaging_sources:
         default("clean")
 
         weighting = 'natural'
-        # XXX Set this to centre of M33 for now.
-        phasecenter = 'J2000 01h33m50.904 +30d39m35.79'
         minpb = 0.1
 
         # Determine imagermode, cell size, and image size
@@ -72,6 +70,12 @@ for source in imaging_sources:
         cellsize = set_cellsize(ms_active, spw_num, sample_factor=6.)
         imagesize = set_imagesize(ms_active, spw_num, source, sample_factor=6.,
                                   pblevel=minpb)
+
+        if imagermode == "mosaic":
+            # XXX Set this to centre of M33 for now.
+            phasecenter = 'J2000 01h33m50.904 +30d39m35.79'
+        else:
+            phasecenter = ''
 
         # Instead of trying to image a cube, just use one large channel
         # at the center (where large = 10 channels).

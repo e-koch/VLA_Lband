@@ -27,8 +27,9 @@ if len(sources) == 0:
     print("Multiple images can be created by separating the list w/ commas"
           " (i.e., '3C48, M33')")
     sources = raw_input("Input fields to be imaged: ")
-    # Remove whitespaces then split by commas
-    sources = sources.replace(" ", "").split(",")
+
+# Remove whitespaces then split by commas
+sources = sources.replace(" ", "").split(",")
 
 # Make directory for images to go.
 if not os.path.exists('test_images'):
@@ -37,7 +38,7 @@ if not os.path.exists('test_images'):
 # Check list of given sources against the field list
 valid_sources = []
 for source in sources:
-    if has_field(vis, source):
+    if has_field(ms_active, source):
         valid_sources.append(source)
     else:
         warn('No field contains the given source: {}'.format(source))
@@ -60,26 +61,31 @@ for source in sources:
         print("Imaging SPW {0} of {1}".format(idx, len(spws)))
 
         default("clean")
-        # Determine imagermode
-        imagermode = set_imagermode(vis, source)
-        cellsize = set_cellsize(vis, spw_num, sample_factor=6.)
-        imagesize = set_imagesize(vis, spw_num, sample_factor=6.)
 
         weighting = 'natural'
         # XXX Set this to centre of M33 for now.
         phasecenter = 'J2000 01h33m50.904 +30d39m35.79'
+        minpb = 0.1
+
+        # Determine imagermode, cell size, and image size
+        imagermode = set_imagermode(ms_active, source)
+        cellsize = set_cellsize(ms_active, spw_num, sample_factor=6.)
+        imagesize = set_imagesize(ms_active, spw_num, source, sample_factor=6.,
+                                  pblevel=minpb)
 
         # Instead of trying to image a cube, just use one large channel
         # at the center (where large = 10 channels).
         center_chan = channels[idx] // 2
         width = 10
-        start_chan = center_chan - width // 2
+        start_chan = int(center_chan - width // 2)
 
-        clean(vis=vis,
-              imagename='test_images/{0}.{1}.spw_{2}'.format(vis[:-3], source,
-                                                             spw_num),
-              field=source + '*', spw=str(spw_num), mode='channel', niter=0,
-              imagermode=imagermode, cell=cellsize, imagesize=imagesize,
+        clean(vis=ms_active,
+              imagename='test_images/{0}.{1}.spw_{2}'.\
+                        format(ms_active[:-3], source, spw_num),
+              field='*' + source + '*', spw=str(spw_num),
+              mode='channel', niter=0,
+              imagermode=imagermode, cell=cellsize,
+              imsize=imagesize,
               start=start_chan, width=width, nchan=1,
               weighting=weighting, pbcor=False, minpb=0.1,
               phasecenter=phasecenter)

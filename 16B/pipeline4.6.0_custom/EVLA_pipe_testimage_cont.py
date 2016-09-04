@@ -60,16 +60,21 @@ for source in sources:
         print("Imaging SPW {0} of {1}".format(idx, len(spws)))
 
         default("clean")
-        # Determine imagermode
-        imagermode = set_imagermode(vis, source)
-        cellsize = set_cellsize(vis, spw_num, sample_factor=6.)
-        imagesize = set_imagesize(vis, spw_num, sample_factor=6.)
 
         weighting = 'natural'
+        # XXX Set this to centre of M33 for now.
         phasecenter = 'J2000 01h33m50.904 +30d39m35.79'
+        minpb = 0.1
 
-        clean(vis=vis,
-              imagename='test_images/{0}.{1}.spw_{2}'.format(vis[:-3], source,
+        # Determine imagermode, cell size, and image size
+        imagermode = set_imagermode(ms_active, source)
+        cellsize = set_cellsize(ms_active, spw_num, sample_factor=6.)
+        imagesize = set_imagesize(ms_active, spw_num, source, sample_factor=6.,
+                                  pblevel=minpb)
+
+        clean(vis=ms_active,
+              imagename='test_images/{0}.{1}.spw_{2}'.format(ms_active[:-3],
+                                                             source,
                                                              spw_num),
               field=source + '*', spw=str(spw_num), mode='mfs', niter=0,
               imagermode=imagermode, cell=cellsize, imagesize=imagesize,

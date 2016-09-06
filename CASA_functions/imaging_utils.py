@@ -290,8 +290,8 @@ try:
 
         # This next step is crucial, as it converts from the field number
         # determined from a subset list back to the full list.
-        centralField = fields[centralField]
         centralFieldName = names[centralField]
+        centralField = fields[centralField]
 
         # Find which antenna have data
         mytb.open(vis)

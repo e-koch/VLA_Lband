@@ -65,8 +65,16 @@ try:
             find_expected_beams(vis, spw,
                                 baseline_percentile=baseline_percentile)
 
-        # Setting CLEANing parameters
-        sel_cell_value = round((syn_beam / sample_factor) * 10) / 10
+        # Round the cell size to some fraction, which becomes finer if it was
+        # previously rounded to 0
+        round_factor = 10
+        while True:
+            sel_cell_value = \
+                round((syn_beam / sample_factor) * round_factor) / round_factor
+            if sel_cell_value == 0:
+                round_factor += 5
+            else:
+                break
 
         if return_type == "str":
             return str(sel_cell_value) + 'arcsec'

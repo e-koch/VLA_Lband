@@ -184,6 +184,8 @@ try:
 
         execfile(pipepath + 'EVLA_pipeline_lines.py')
 
+    os.chdir(current_path)
+
     if cont_run:
         cont_path = cont_settings["folder_name"]
         if not os.path.exists(cont_path):

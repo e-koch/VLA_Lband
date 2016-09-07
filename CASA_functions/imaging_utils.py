@@ -319,7 +319,7 @@ try:
                 maxradius = radius
 
         # Border about each point, down to the given pblevel
-        border = 2 * maxradius * au.gaussianBeamOffset(pblevel)
+        border = 2 * maxradius * au.gaussianBeamOffset(pblevel) * 3600.
 
         size_ra = np.ptp(raRelativeArcsec) + 2 * border
         size_dec = np.ptp(decRelativeArcsec) + 2 * border

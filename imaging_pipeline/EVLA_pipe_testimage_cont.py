@@ -14,8 +14,14 @@ import os
 import sys
 from warnings import warn
 
+from tasks import clean
+
 from CASA_functions import (set_imagermode, set_imagesize, set_cellsize,
                             has_field)
+
+from paths import image_script_path, path
+execfile(path("imaging_cleanup.py", image_script_path))
+
 
 # This script should still be usable if the user didn't enable imaging at the
 # beginning. In this case, sources will be empty. Prompt the user at this
@@ -78,15 +84,19 @@ for source in imaging_sources:
         else:
             phasecenter = ''
 
+        imagename = \
+            'test_images/{0}.{1}.spw_{2}'.format(ms_active[:-3],
+                                                 source,
+                                                 spw_num)
+
         clean(vis=ms_active,
-              imagename='test_images/{0}.{1}.spw_{2}'.format(ms_active[:-3],
-                                                             source,
-                                                             spw_num),
+              imagename=imagename,
               field= '*' + source + '*', spw=str(spw_num), mode='mfs', niter=0,
               imagermode=imagermode, cell=cellsize, imsize=imagesize,
               weighting=weighting, pbcor=False, minpb=0.1,
               phasecenter=phasecenter)
 
+        remove_products(imagename)
 
 logprint("Finished EVLA_pipe_testimage_cont.py",
          logfileout='logs/testimage_cont.log')

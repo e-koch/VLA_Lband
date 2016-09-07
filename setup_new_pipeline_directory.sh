@@ -6,6 +6,10 @@
 
 echo "Run this script in the new pipeline directory"
 
-ln -s $HOME/Dropbox/code_development/VLA_Lband/paths.py
-ln -s $HOME/Dropbox/code_development/VLA_Lband/CASA_functions
-ln -s $HOME/Dropbox/code_development/VLA_Lband/imaging_pipeline
+# ln -s $HOME/Dropbox/code_development/VLA_Lband/paths.py
+# ln -s $HOME/Dropbox/code_development/VLA_Lband/CASA_functions
+# ln -s $HOME/Dropbox/code_development/VLA_Lband/imaging_pipeline
+
+ln -s ../../paths.py
+ln -s ../../CASA_functions
+ln -s ../../imaging_pipeline

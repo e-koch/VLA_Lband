@@ -215,7 +215,7 @@ try:
             if not match:
                 raise ValueError("The given SPW ({0}) is not in the MS SPW"
                                  " names ({1})".format(spw, spwNames))
-        elif isinstance(spw, int):
+        elif isinstance(spw, (int, np.integer)):
             try:
                 spwNames[spw]
             except IndexError:

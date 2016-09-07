@@ -82,7 +82,7 @@ for source in imaging_sources:
               imagename='test_images/{0}.{1}.spw_{2}'.format(ms_active[:-3],
                                                              source,
                                                              spw_num),
-              field=source + '*', spw=str(spw_num), mode='mfs', niter=0,
+              field= '*' + source + '*', spw=str(spw_num), mode='mfs', niter=0,
               imagermode=imagermode, cell=cellsize, imsize=imagesize,
               weighting=weighting, pbcor=False, minpb=0.1,
               phasecenter=phasecenter)

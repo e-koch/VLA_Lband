@@ -52,6 +52,10 @@ if len(valid_sources) == 0:
 
 imaging_sources = valid_sources
 
+# Most common setups are going to have the same SPW coverage for each field
+# So set spws to be the first one from field_spws
+spws = field_spws[0]
+
 for source in imaging_sources:
     for idx, spw_num in enumerate(spws):
         logprint("Imaging SPW {0} of {1}".format(idx, len(spws)),

@@ -82,11 +82,17 @@ try:
             return sel_cell_value
 
     def set_imagesize(vis, spw, source, sample_factor=6., pblevel=0.1,
-                      **kwargs):
+                      max_size=15000, **kwargs):
         '''
         Set the image size for CLEAN to be a multiple of 2, 3, 5
         based on the maximum baseline in the MS.
+
+        Parameters
+        ----------
         '''
+
+        if isinstance(max_size, (int, np.integer)):
+            max_size = [max_size] * 2
 
         syn_beam, prim_beam = find_expected_beams(vis, spw)
 
@@ -101,6 +107,17 @@ try:
                           int(np.ceil(mosaic_props["Size_Dec"] / cellsize))]
         else:
             sel_imsize = [int(round(prim_beam / cellsize))] * 2
+
+        # Check if this falls into the maximum allowed size. Otherwise, just
+        # use the max.
+        if sel_imsize[0] > max_size[0]:
+            warn("Shape in first dimension exceeds maximum. Using maximum"
+                 " given.")
+            sel_imsize[0] = max_size[0]
+        if sel_imsize[1] > max_size[1]:
+            warn("Shape in second dimension exceeds maximum. Using maximum"
+                 " given.")
+            sel_imsize[1] = max_size[1]
 
         # The image size should be factorizable into some combo of
         # 2, 3, 5 and 7 to work with clean so:

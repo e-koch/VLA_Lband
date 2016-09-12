@@ -72,11 +72,13 @@ for source in imaging_sources:
         weighting = 'natural'
         minpb = 0.1
 
+        max_size = 15000
+
         # Determine imagermode, cell size, and image size
         imagermode = set_imagermode(ms_active, source)
         cellsize = set_cellsize(ms_active, spw_num, sample_factor=6.)
         imagesize = set_imagesize(ms_active, spw_num, source, sample_factor=6.,
-                                  pblevel=minpb)
+                                  pblevel=minpb, max_size=max_size)
 
         if imagermode == "mosaic":
             # XXX Set this to centre of M33 for now.

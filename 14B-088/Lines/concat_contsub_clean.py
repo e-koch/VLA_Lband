@@ -30,7 +30,7 @@ with open(line_file, 'r') as f:
 rest_freq = str(line_dict[line_name])
 
 # Toggle on/off different operations
-do_concat = True
+do_concat = False
 dirty_cube_nosub = False
 contsub = True
 dirty_cube = True
@@ -102,7 +102,7 @@ if dirty_cube_nosub:
           imagermode=imagermode, multiscale=multiscale, outframe=outframe,
           veltype=veltype, minpb=0.3, weighting=weighting, robust=robust,
           restfreq=restfreq, usescratch=usescratch,
-          interpolation=interpolation, pbcor=False)
+          interpolation=interpolation, pbcor=True)
 
 if contsub:
     # Check that the concatenated MS exists
@@ -134,7 +134,7 @@ if dirty_cube:
           imagermode=imagermode, multiscale=multiscale, outframe=outframe,
           veltype=veltype, minpb=0.3, weighting=weighting, robust=robust,
           restfreq=restfreq, usescratch=usescratch,
-          interpolation=interpolation, pbcor=False)
+          interpolation=interpolation, pbcor=True)
 
 if cont_cube:
     # Check that the contsub MS exists
@@ -155,7 +155,7 @@ if cont_cube:
           imagermode=imagermode, multiscale=multiscale, outframe=outframe,
           veltype=veltype, minpb=0.3, weighting=weighting, robust=robust,
           restfreq=restfreq, usescratch=usescratch,
-          interpolation=interpolation, pbcor=False)
+          interpolation=interpolation, pbcor=True)
 
 if clean_cube:
     # Check that the contsub MS exists

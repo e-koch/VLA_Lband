@@ -7,7 +7,8 @@ import os
 import sys
 import json
 
-from casa_tools import myconcat, myclean, myuvcontsub
+# from casa_tools import myconcat, myclean, myuvcontsub
+from tasks import concat, clean, uvcontsub
 from tasks import rmtables
 
 
@@ -22,24 +23,24 @@ project_name = "14B-088"
 
 # Read in rest frequency from reference saved in this repo
 line_file = \
-    os.path.join(os.path.expanduser("~"),
-                 "Dropbox/code_development/VLA_Lband/14B-088/Lines/spw_dict.txt")
+    os.path.expanduser(
+        "~/Dropbox/code_development/VLA_Lband/14B-088/Lines/spw_dict.txt")
 with open(line_file, 'r') as f:
     line_dict = json.load(f)
 rest_freq = str(line_dict[line_name])
 
 # Toggle on/off different operations
 do_concat = True
-dirty_cube_nosub = True
+dirty_cube_nosub = False
 contsub = True
 dirty_cube = True
-cont_cube = True
+cont_cube = False
 clean_cube = False
 
 # Parameters needed for multiple parts
-concat_ms = os.path.join(line_direc, line_name+"_"+project_name+".ms")
-contsub_ms = concat_ms+".contsub"
-cont_ms = concat_ms+".cont"
+concat_ms = os.path.join(line_direc, line_name + "_" + project_name + ".ms")
+contsub_ms = concat_ms + ".contsub"
+cont_ms = concat_ms + ".cont"
 dirty_image_direc = os.path.join(line_direc, "dirty_images")
 clean_image_direc = os.path.join(line_direc, "clean_images")
 
@@ -50,17 +51,17 @@ fitspw = "0:50~100;400~450"
 excludechans = False
 
 # General clean parameters
-imsize = [500, 500]  # [2560, 2560]
+imsize = [2560, 2560]
 cell = '3arcsec'
 mode = 'velocity'
 nchan = 28
 width = "10.0km/s"
 start = "-320.0km/s"
-thresh = "1.0mJy"
-field = "M33_3"  # "M33*"
-phasecenter = ''  # 'J2000 01h33m50.904 +30d39m35.79'
+threshold = "1.0mJy"
+field = "M33*"
+phasecenter = 'J2000 01h33m50.904 +30d39m35.79'
 spw = ""
-imagermode = "csclean"  # "mosaic"
+imagermode = "mosaic"
 multiscale = []
 outframe = "LSRK"
 veltype = "radio"
@@ -79,7 +80,7 @@ if do_concat:
 
     rmtables(concat_ms)
 
-    myconcat(vis=ms_names, concatvis=concat_ms)
+    concat(vis=ms_names, concatvis=concat_ms)
 
 if dirty_cube_nosub:
 
@@ -91,17 +92,17 @@ if dirty_cube_nosub:
         os.mkdir(dirty_image_direc)
 
     out_image = os.path.join(dirty_image_direc,
-                             line_name+"_"+project_name+"_dirty_nocontsub")
+                             line_name + "_" + project_name + "_dirty_nocontsub")
 
-    rmtables(out_image+".*")
+    rmtables(out_image + ".*")
 
-    myclean(vis=concat_ms, imagename=out_image, niter=0, imsize=imsize,
-            cell=cell, mode=mode, nchan=nchan, width=width, start=start,
-            thresh=thresh, field=field, phasecenter=phasecenter, spw=spw,
-            imagermode=imagermode, multiscale=multiscale, outframe=outframe,
-            veltype=veltype, minpb=0.3, weighting=weighting, robust=robust,
-            restfreq=restfreq, usescratch=usescratch,
-            interpolation=interpolation, pbcor=False)
+    clean(vis=concat_ms, imagename=out_image, niter=0, imsize=imsize,
+          cell=cell, mode=mode, nchan=nchan, width=width, start=start,
+          threshold=threshold, field=field, phasecenter=phasecenter, spw=spw,
+          imagermode=imagermode, multiscale=multiscale, outframe=outframe,
+          veltype=veltype, minpb=0.3, weighting=weighting, robust=robust,
+          restfreq=restfreq, usescratch=usescratch,
+          interpolation=interpolation, pbcor=False)
 
 if contsub:
     # Check that the concatenated MS exists
@@ -109,10 +110,10 @@ if contsub:
         raise IOError("Concatenated MS does not exist in the given directory.")
 
     if os.path.exists(contsub_ms) and delete_old:
-            rmtables(contsub_ms)
+        rmtables(contsub_ms)
 
-    myuvcontsub(vis=concat_ms, fitspw=fitspw, excludechans=excludechans,
-                fitorder=0, want_cont=True)
+    uvcontsub(vis=concat_ms, fitspw=fitspw, excludechans=excludechans,
+              fitorder=0, want_cont=False)
 
 if dirty_cube:
     # Check that the contsub MS exists
@@ -123,17 +124,17 @@ if dirty_cube:
         os.mkdir(dirty_image_direc)
 
     out_image = os.path.join(dirty_image_direc,
-                             line_name+"_"+project_name+"_dirty")
+                             line_name + "_" + project_name + "_dirty")
 
-    rmtables(out_image+".*")
+    rmtables(out_image + ".*")
 
-    myclean(vis=contsub_ms, imagename=out_image, niter=0, imsize=imsize,
-            cell=cell, mode=mode, nchan=nchan, width=width, start=start,
-            thresh=thresh, field=field, phasecenter=phasecenter, spw=spw,
-            imagermode=imagermode, multiscale=multiscale, outframe=outframe,
-            veltype=veltype, minpb=0.3, weighting=weighting, robust=robust,
-            restfreq=restfreq, usescratch=usescratch,
-            interpolation=interpolation, pbcor=False)
+    clean(vis=contsub_ms, imagename=out_image, niter=0, imsize=imsize,
+          cell=cell, mode=mode, nchan=nchan, width=width, start=start,
+          threshold=threshold, field=field, phasecenter=phasecenter, spw=spw,
+          imagermode=imagermode, multiscale=multiscale, outframe=outframe,
+          veltype=veltype, minpb=0.3, weighting=weighting, robust=robust,
+          restfreq=restfreq, usescratch=usescratch,
+          interpolation=interpolation, pbcor=False)
 
 if cont_cube:
     # Check that the contsub MS exists
@@ -144,17 +145,17 @@ if cont_cube:
         os.mkdir(dirty_image_direc)
 
     out_image = os.path.join(dirty_image_direc,
-                             line_name+"_"+project_name+"_contonly_dirty")
+                             line_name + "_" + project_name + "_contonly_dirty")
 
-    rmtables(out_image+".*")
+    rmtables(out_image + ".*")
 
-    myclean(vis=cont_ms, imagename=out_image, niter=0, imsize=imsize,
-            cell=cell, mode=mode, nchan=nchan, width=width, start=start,
-            thresh=thresh, field=field, phasecenter=phasecenter, spw=spw,
-            imagermode=imagermode, multiscale=multiscale, outframe=outframe,
-            veltype=veltype, minpb=0.3, weighting=weighting, robust=robust,
-            restfreq=restfreq, usescratch=usescratch,
-            interpolation=interpolation, pbcor=False)
+    clean(vis=cont_ms, imagename=out_image, niter=0, imsize=imsize,
+          cell=cell, mode=mode, nchan=nchan, width=width, start=start,
+          threshold=threshold, field=field, phasecenter=phasecenter, spw=spw,
+          imagermode=imagermode, multiscale=multiscale, outframe=outframe,
+          veltype=veltype, minpb=0.3, weighting=weighting, robust=robust,
+          restfreq=restfreq, usescratch=usescratch,
+          interpolation=interpolation, pbcor=False)
 
 if clean_cube:
     # Check that the contsub MS exists
@@ -165,15 +166,15 @@ if clean_cube:
         os.mkdir(clean_image_direc)
 
     out_image = os.path.join(clean_image_direc,
-                             line_name+"_"+project_name)
+                             line_name + "_" + project_name)
 
-    rmtables(out_image+".*")
+    rmtables(out_image + ".*")
 
-    myclean(vis=contsub_ms, imagename=out_image, niter=10000, interactive=True,
-            pbcor=True, imsize=imsize,
-            cell=cell, mode=mode, nchan=nchan, width=width, start=start,
-            thresh=thresh, field=field, phasecenter=phasecenter, spw=spw,
-            imagermode=imagermode, multiscale=multiscale, outframe=outframe,
-            veltype=veltype, minpb=0.3, weighting=weighting, robust=robust,
-            restfreq=restfreq, usescratch=usescratch,
-            interpolation=interpolation)
+    clean(vis=contsub_ms, imagename=out_image, niter=10000, interactive=True,
+          pbcor=True, imsize=imsize,
+          cell=cell, mode=mode, nchan=nchan, width=width, start=start,
+          threshold=threshold, field=field, phasecenter=phasecenter, spw=spw,
+          imagermode=imagermode, multiscale=multiscale, outframe=outframe,
+          veltype=veltype, minpb=0.3, weighting=weighting, robust=robust,
+          restfreq=restfreq, usescratch=usescratch,
+          interpolation=interpolation)

@@ -32,7 +32,7 @@ rest_freq = str(line_dict[line_name])
 # Toggle on/off different operations
 do_concat = False
 dirty_cube_nosub = False
-contsub = True
+contsub = False
 dirty_cube = True
 cont_cube = False
 clean_cube = False
@@ -117,8 +117,8 @@ if contsub:
 
 if dirty_cube:
     # Check that the contsub MS exists
-    if not os.path.exists(concat_ms):
-        raise IOError("Concatenated MS does not exist in the given directory.")
+    if not os.path.exists(contsub_ms):
+        raise IOError("Contsub MS does not exist in the given directory.")
 
     if not os.path.exists(dirty_image_direc):
         os.mkdir(dirty_image_direc)
@@ -138,8 +138,8 @@ if dirty_cube:
 
 if cont_cube:
     # Check that the contsub MS exists
-    if not os.path.exists(concat_ms):
-        raise IOError("Concatenated MS does not exist in the given directory.")
+    if not os.path.exists(cont_ms):
+        raise IOError("Continuum MS does not exist in the given directory.")
 
     if not os.path.exists(dirty_image_direc):
         os.mkdir(dirty_image_direc)

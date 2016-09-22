@@ -79,19 +79,24 @@ for version in versions:
                         new_call = new_call.replace("MSCALE", mscale)
 
                         job_folder = os.path.join(output_path, JOB_NAME)
+                        # Assume that the data are already copied if the folder
+                        # exists.
                         if not os.path.exists(job_folder):
                             os.mkdir(job_folder)
 
-                        # Copy the ms, and the model and mask, if needed.
-                        copytree(ms_name, os.path.join(job_folder, ms_name))
-                        if model is not None:
-                            copytree(model, os.path.join(job_folder, model))
-                        if mask is not None:
-                            copytree(mask, os.path.join(job_folder, mask))
+                            # Copy the ms, and the model and mask, if needed.
+                            copytree(ms_name, os.path.join(job_folder,
+                                                           ms_name))
+                            if model is not None:
+                                copytree(model, os.path.join(job_folder,
+                                                             model))
+                            if mask is not None:
+                                copytree(mask, os.path.join(job_folder, mask))
 
                         os.chdir(job_folder)
 
-                        sp = subprocess.Popen(["/bin/bash", "-i", "-c", call])
+                        sp = subprocess.Popen(["/bin/bash", "-i", "-c",
+                                               new_call])
                         sp.communicate()
 
                         os.chdir(output_path)

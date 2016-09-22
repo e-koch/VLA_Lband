@@ -96,7 +96,7 @@ for version in versions:
                         os.chdir(job_folder)
 
                         sp = subprocess.Popen(["/bin/bash", "-i", "-c",
-                                               new_call])
+                                               "source ~/.bashrc; " + new_call])
                         sp.communicate()
 
                         os.chdir(output_path)

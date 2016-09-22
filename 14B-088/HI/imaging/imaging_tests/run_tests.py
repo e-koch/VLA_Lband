@@ -29,7 +29,7 @@ maskname = "M33_14B-088_HI_mask_modified_channel_330.image"
 versions = ["casa-4.2.2", "casa-4.3.1", "casa-4.4", "casa-4.5.3", "casa-4.6"]
 
 call = 'qsub -N JOB_NAME -l nodes=NODE:ppn=PROCS,pmem=PMEM,' \
-    'walltime=HOUR:00:00 -d . <<< "VERSION --logfile JOB_NAME.log -c' \
+    'walltime=HOURS:00:00 -d . <<< "VERSION --logfile JOB_NAME.log -c' \
     ' FILENAME MS_NAME MODEL MASK FIELD MSCALE TCLEAN"'
 
 # Set job parameters. Name is done in the loop.

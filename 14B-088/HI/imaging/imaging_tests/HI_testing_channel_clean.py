@@ -46,7 +46,7 @@ if use_multiscale:
 else:
     multiscale = []
 
-out_root = "{0}.CASAVer_{1}.Model_{2}.Mask_{3}.AllFields_{4}.MScale_{5}"
+out_root = "{0}.CASAVer_{1}.Model_{2}.Mask_{3}.AllFields_{4}.MScale_{5}" \
            ".Tclean_{6}".format(vis[:-3],
                                 "T" if model is not None else "F",
                                 "T" if mask is not None else "F",

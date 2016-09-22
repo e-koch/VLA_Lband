@@ -5,6 +5,8 @@ Generate jobs on Jasper to run HI channel imaging tests.
 
 import os
 from shutil import copytree
+from copy import copy
+import subprocess
 
 # Job parameters
 NODE = "1"
@@ -62,12 +64,12 @@ for version in versions:
                                                         mscale,
                                                         tclean)
 
-                        new_call = call.copy()
+                        new_call = copy(call)
                         new_call = new_call.replace("JOB_NAME", JOB_NAME)
                         new_call = new_call.replace("VERSION", version)
                         new_call = new_call.replace("TCLEAN", tclean)
-                        new_call = new_call.replace("MODEL", model)
-                        new_call = new_call.replace("MASK", mask)
+                        new_call = new_call.replace("MODEL", str(model))
+                        new_call = new_call.replace("MASK", str(mask))
                         new_call = new_call.replace("FIELD", fields)
                         new_call = new_call.replace("MSCALE", mscale)
 
@@ -84,7 +86,7 @@ for version in versions:
 
                         os.chdir(job_folder)
 
-                        os.system("'source .bashrc; shopt -s"
-                                  " expand_aliases;" + call)
+                        sp = subprocess.Popen(["/bin/bash", "-i", "-c", call])
+                        sp.communicate()
 
                         os.chdir(output_path)

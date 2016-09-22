@@ -13,7 +13,7 @@ PMEM = "4000mb"
 HOURS = "72"
 
 # Run imaging tests w/ different parameters/CASA versions
-output_path = os.expanduser("~/m33/14B-088/testing")
+output_path = os.path.expanduser("~/m33/14B-088/testing")
 
 os.chdir(output_path)
 
@@ -39,11 +39,12 @@ call = call.replace("HOURS", HOURS)
 # Now loop through all combinations
 for version in versions:
     for tclean in ["T", "F"]:
+        major, minor, revision = casadef.casa_version.split('.')
+        casa_version = 100 * int(major) + 10 * int(minor) + int(revision)
+
         # Skip if on a version w/o tclean
-        if tclean == "T":
-            num_ver = version.split("-")[1]
-            if int(num_ver[2]) < 5:
-                continue
+        if tclean == "T" and int(minor) < 5:
+            continue
 
         for model in [None, modelname]:
             for mask in [None, maskname]:
@@ -52,6 +53,7 @@ for version in versions:
                         JOB_NAME = "{0}.CASAVer_{1}.Model_{2}.Mask_{3}." \
                                    "AllFields_{4}.MScale_{5}" \
                                    ".Tclean_{6}".format(ms_name[:-3],
+                                                        casa_version,
                                                         "T" if model is
                                                         not None else "F",
                                                         "T" if mask is

@@ -26,7 +26,11 @@ ms_name = "14B-088_HI_LSRK.ms.contsub_channel_1000.ms"
 modelname = "M33_14B-088_HI_model_channel_330.image"
 maskname = "M33_14B-088_HI_mask_modified_channel_330.image"
 
-versions = ["casa-4.2.2", "casa-4.3.1", "casa-4.4", "casa-4.5.3", "casa-4.6"]
+versions = [os.path.expanduser("~/casapy-42.2.30986-pipe-1-64b/bin/casa-4.2.2"),
+            os.path.expanduser("~/casa-release-4.3.1-el6/bin/casa-4.3.1"),
+            os.path.expanduser("~/casa-release-4.4.0-el6/bin/casa-4.4"),
+            os.path.expanduser("~/casa-release-4.5.3-el6/bin/casa-4.5.3"),
+            os.path.expanduser("~/casa-release-4.6.0-el6/bin/casa-4.6")]
 
 call = 'qsub -N JOB_NAME -l nodes=NODE:ppn=PROCS,pmem=PMEM,' \
     'walltime=HOURS:00:00 -d . <<< "VERSION --logfile JOB_NAME.log -c' \
@@ -96,7 +100,7 @@ for version in versions:
                         os.chdir(job_folder)
 
                         sp = subprocess.Popen(["/bin/bash", "-i", "-c",
-                                               "source ~/.bashrc; " + new_call])
+                                               new_call])
                         sp.communicate()
 
                         os.chdir(output_path)

@@ -46,9 +46,10 @@ call = call.replace("HOURS", HOURS)
 for version in versions:
     for tclean in ["T", "F"]:
         try:
-            major, minor, revision = version.split("-")[1].split('.')
+            major, minor, revision = \
+                os.path.basename(version).split("-")[1].split('.')
         except ValueError:
-            major, minor = version.split("-")[1].split('.')
+            major, minor = os.path.basename(version).split("-")[1].split('.')
             revision = 0
 
         casa_version = 100 * int(major) + 10 * int(minor) + int(revision)

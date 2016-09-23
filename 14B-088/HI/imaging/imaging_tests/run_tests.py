@@ -30,7 +30,7 @@ versions = [os.path.expanduser("~/casapy-42.2.30986-pipe-1-64b/bin/casa-4.2.2"),
             os.path.expanduser("~/casa-release-4.3.1-el6/bin/casa-4.3.1"),
             os.path.expanduser("~/casa-release-4.4.0-el6/bin/casa-4.4"),
             os.path.expanduser("~/casa-release-4.5.3-el6/bin/casa-4.5.3"),
-            os.path.expanduser("~/casa-release-4.6.0-el6/bin/casa-4.6")]
+            os.path.expanduser("~/casa-release-4.6.0-el6/bin/casa")]
 
 call = 'qsub -N JOB_NAME -l nodes=NODE:ppn=PROCS,pmem=PMEM,' \
     'walltime=HOURS:00:00 -d . <<< "VERSION --logfile JOB_NAME.log -c' \

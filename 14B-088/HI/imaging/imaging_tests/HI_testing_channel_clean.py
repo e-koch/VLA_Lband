@@ -15,11 +15,11 @@ major, minor, revision = casadef.casa_version.split('.')
 casa_version = 100 * int(major) + 10 * int(minor) + int(revision)
 
 
-vis = sys.argv[-3]
-model = sys.argv[-2]
-mask = sys.argv[-1]
-use_all_fields = True if sys.argv[-1] == "T" else False
-use_multiscale = True if sys.argv[-1] == "T" else False
+vis = sys.argv[-6]
+model = sys.argv[-5]
+mask = sys.argv[-4]
+use_all_fields = True if sys.argv[-3] == "T" else False
+use_multiscale = True if sys.argv[-2] == "T" else False
 use_tclean = True if sys.argv[-1] == "T" else False
 
 if model == "None":

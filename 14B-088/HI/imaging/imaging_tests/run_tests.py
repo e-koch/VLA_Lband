@@ -43,6 +43,7 @@ call = call.replace("PMEM", PMEM)
 call = call.replace("HOURS", HOURS)
 
 call = call.replace("FILENAME", filename)
+call = call.replace("MS_NAME", ms_name)
 
 # Now loop through all combinations
 for version in versions:

@@ -42,6 +42,8 @@ call = call.replace("PROCS", PROCS)
 call = call.replace("PMEM", PMEM)
 call = call.replace("HOURS", HOURS)
 
+call = call.replace("FILENAME", filename)
+
 # Now loop through all combinations
 for version in versions:
     for tclean in ["T", "F"]:

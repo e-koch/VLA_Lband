@@ -14,7 +14,6 @@ default("clean")
 major, minor, revision = casadef.casa_version.split('.')
 casa_version = 100 * int(major) + 10 * int(minor) + int(revision)
 
-
 vis = sys.argv[-6]
 model = sys.argv[-5]
 mask = sys.argv[-4]
@@ -48,6 +47,7 @@ else:
 
 out_root = "{0}.CASAVer_{1}.Model_{2}.Mask_{3}.AllFields_{4}.MScale_{5}" \
            ".Tclean_{6}".format(vis[:-3],
+                                casa_version,
                                 "T" if model is not None else "F",
                                 "T" if mask is not None else "F",
                                 "T" if use_all_fields else "F",

@@ -48,12 +48,17 @@ call = call.replace("MS_NAME", ms_name)
 # Now loop through all combinations
 for version in versions:
     for tclean in ["T", "F"]:
-        try:
-            major, minor, revision = \
-                os.path.basename(version).split("-")[1].split('.')
-        except ValueError:
-            major, minor = os.path.basename(version).split("-")[1].split('.')
-            revision = 0
+
+        if os.path.basename(version) == "casa":
+            major, minor, revision = 4, 6, 0
+        else:
+            try:
+                major, minor, revision = \
+                    os.path.basename(version).split("-")[1].split('.')
+            except ValueError:
+                major, minor = \
+                    os.path.basename(version).split("-")[1].split('.')
+                revision = 0
 
         casa_version = 100 * int(major) + 10 * int(minor) + int(revision)
 

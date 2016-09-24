@@ -26,6 +26,10 @@ ms_name = "14B-088_HI_LSRK.ms.contsub_channel_1000.ms"
 modelname = "M33_14B-088_HI_model_channel_330.image"
 maskname = "M33_14B-088_HI_mask_modified_channel_330.image"
 
+# Note that "fixspwbackport" must be run on the channel ms to work in 4.2.2
+# https://safe.nrao.edu/wiki/bin/view/Software/CASAUserTestingMinutes20141021
+# I did this by hand, not in the script
+
 versions = [os.path.expanduser("~/casapy-42.2.30986-pipe-1-64b/bin/casa-4.2.2"),
             os.path.expanduser("~/casa-release-4.3.1-el6/bin/casa-4.3.1"),
             os.path.expanduser("~/casa-release-4.4.0-el6/bin/casa-4.4"),

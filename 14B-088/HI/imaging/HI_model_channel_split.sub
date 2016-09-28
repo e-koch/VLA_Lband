@@ -14,5 +14,5 @@ source /home/ekoch/.bashrc
 cd /home/ekoch/m33/14B-088/
 
 echo "Starting at: `date`"
-casa -c /home/ekoch/code_repos/VLA_Lband/14B-088/HI/HI_model_channel_split.py
+casa-4.4 -c /home/ekoch/code_repos/VLA_Lband/14B-088/HI/HI_model_channel_split.py
 echo "Exited with code $? at: `date`"

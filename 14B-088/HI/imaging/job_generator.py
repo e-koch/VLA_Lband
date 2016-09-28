@@ -66,10 +66,13 @@ def drop_last(ms_list):
 
     return ms_list
 
+
 # Set the directory to look in.
 ms_channel = "/home/ekoch/m33/14B-088/channel_ms/"
-model_channels = "/home/ekoch/m33/14B-088/model_channels/M33_14B-088_HI_model_channel_"
-mask_channels = "/home/ekoch/m33/14B-088/mask_channels/M33_14B-088_HI_mask_channel_"
+model_channel_name = "/home/ekoch/m33/14B-088/model_channels/M33_14B-088_HI_" \
+    "model_channel_{}.image"
+mask_channel_name = "/home/ekoch/m33/14B-088/mask_channels/M33_14B-088_HI_" \
+    "mask_channel_{}.image"
 output_direc = "/home/ekoch/m33/14B-088/single_channels/"
 
 # Use mask and model? Disable when continuing to clean.
@@ -94,11 +97,11 @@ while True:
     # Run channels in given range
     if sub_mode == "range":
         channel_ms = []
-        for chan in xrange(start, stop+1):
+        for chan in xrange(start, stop + 1):
             channel_path = \
                 os.path.join(ms_channel,
                              "14B-088_HI_LSRK.ms.contsub_channel_" +
-                             str(chan)+".ms")
+                             str(chan) + ".ms")
             channel_ms.append(channel_path)
 
     elif sub_mode == "continuous":
@@ -117,32 +120,44 @@ while True:
         # adjust for numbering offset
         mod_mask_num = chan_num - 670
 
-        channel_direc = os.path.join(output_direc, "channel_"+str(chan_num))
+        channel_direc = os.path.join(output_direc,
+                                     "channel_{}".format(chan_num))
 
         # Check if that channel has been imaged already
-        if os.path.isdir(channel_direc):
-            print("Already imaged "+str(chan_num)+". Skipping")
-            continue
+        # if os.path.isdir(channel_direc):
+        #     print("Already imaged "+str(chan_num)+". Skipping")
+        #     continue
 
-        os.mkdir(channel_direc)
-        shutil.move(chan, channel_direc)
-        shutil.move(model_channels+str(mod_mask_num)+".image", channel_direc)
-        shutil.move(mask_channels+str(mod_mask_num)+".image", channel_direc)
+        if not os.path.exists(channel_direc):
+            os.mkdir(channel_direc)
 
-        chan_ms = os.path.join(channel_direc, chan.split("/")[-1])
+        # Names of the clean inputs in the channel_ms folder. Defined here to
+        # check if they exist before moving.
+        base_ms_name = os.path.basename(chan.rstrip("/"))
+        chan_ms = os.path.join(channel_direc, base_ms_name)
 
-        model_name = os.path.join(channel_direc,
-                                  "M33_14B-088_HI_model_channel_"
-                                  + str(mod_mask_num) + ".image")
-        mask_name = os.path.join(channel_direc,
-                                 "M33_14B-088_HI_mask_channel_"
-                                 + str(mod_mask_num) + ".image")
+        base_model_name = \
+            os.path.basename(model_channel_name.format(mod_mask_num))
+        model_name = os.path.join(channel_direc, base_model_name)
+        base_mask_name = \
+            os.path.basename(mask_channel_name.format(mod_mask_num))
+        mask_name = os.path.join(channel_direc, base_mask_name)
+
+        # Now move the mask, model, and channel ms into the folder, if they
+        # aren't there already
+        if not os.path.exists(chan_ms):
+            shutil.move(chan, channel_direc)
+        if not os.path.exists(model_name):
+            shutil.move(model_channel_name.format(mod_mask_num), channel_direc)
+        if not os.path.exists(mask_name):
+            shutil.move(mask_channel_name.format(mod_mask_num), channel_direc)
 
         chan_template = return_template(channel_direc, chan_ms,
                                         model_name, mask_name)
 
         # Write to file
-        sub_file = os.path.join(channel_direc, "channel_"+str(chan_num)+".sub")
+        sub_file = os.path.join(channel_direc,
+                                "channel_{}.sub".format(chan_num))
         with open(sub_file, 'w') as f:
             f.write(chan_template)
 

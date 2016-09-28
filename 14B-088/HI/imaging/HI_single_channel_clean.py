@@ -10,20 +10,14 @@ from tasks import clean, feather, rmtables
 Cleans an MS with a single channel given a mask and a model
 '''
 
-vis = sys.argv[-4]
-model = sys.argv[-3]
-mask = sys.argv[-2]
-use_feather = True if sys.argv[-1] == "T" else False
+vis = sys.argv[-3]
+model = sys.argv[-2]
+mask = sys.argv[-1]
 
 if model == "None":
     model = None
 if mask == "None":
     mask = None
-
-if use_feather and model is not None:
-    modelimage = None
-else:
-    modelimage = model
 
 out_root = vis[:-3]
 
@@ -44,7 +38,7 @@ if mask is not None:
         casalog.post("Mask contains valid region. Proceeding with clean.")
 
 if valid_mask:
-    clean(vis=vis, imagename=out_root+'.clean', field='M33*',
+    clean(vis=vis, imagename=out_root + '.clean', field='M33*',
           restfreq='1420.40575177MHz',
           mode='channel', width=1, nchan=1, start=1,
           cell='3arcsec', multiscale=[0, 4, 8, 20, 40, 80],
@@ -52,16 +46,15 @@ if valid_mask:
           imsize=[2560, 2560], weighting='natural', robust=0.0, niter=200000,
           pbcor=True, minpb=0.2, interpolation='linear', usescratch=False,
           phasecenter='J2000 01h33m50.904 +30d39m35.79', veltype='radio',
-          modelimage=modelimage, mask=mask)
+          modelimage=model, mask=mask)
 
-    if use_feather and model is not None:
-        # Only run if the image was actually produces
-        if os.path.exists(out_root+"clean.image"):
-            feather(imagename=out_root+".clean.image.feathered",
-                    highres=out_root+".clean.image",
-                    lowres=model)
+    # Only run if the image was actually produces
+    if os.path.exists(out_root + "clean.image"):
+        feather(imagename=out_root + ".clean.image.feathered",
+                highres=out_root + ".clean.image",
+                lowres=model)
 
     # If something went awry, and the image wasn't produced, remove the
     # remnants.
-    if not os.path.exists(out_root+"clean.image"):
-        rmtables(out_root+"clean.*")
+    if not os.path.exists(out_root + "clean.image"):
+        rmtables(out_root + "clean.*")

@@ -100,8 +100,7 @@ while True:
         for chan in xrange(start, stop + 1):
             channel_path = \
                 os.path.join(ms_channel,
-                             "14B-088_HI_LSRK.ms.contsub_channel_" +
-                             str(chan) + ".ms")
+                             "14B-088_HI_LSRK.ms.contsub_channel_{}.ms".format(chan))
             channel_ms.append(channel_path)
 
     elif sub_mode == "continuous":

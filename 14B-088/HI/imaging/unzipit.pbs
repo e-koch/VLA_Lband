@@ -1,0 +1,22 @@
+#!/bin/bash
+
+#PBS -S /bin/bash
+#PBS -l pmem=2000mb
+#PBS -l procs=1
+#PBS -l walltime=48:00:00
+#PBS -m bea
+#PBS -M koch.eric.w@gmail.com
+
+source /home/ekoch/.bashrc
+
+cd /home/ekoch/m33/14B-088/14B-088_channel_ms/
+
+for ms in *.ms.tar.gz; do
+    tar -zxf ${ms}
+    rm -rf ${ms}
+    # gcp ${ms}.tar.gz ekoch@silo:/data/ekoch/
+    echo "Moved $ms at: `date`"
+    done
+
+echo "Finished at: `date`"
+

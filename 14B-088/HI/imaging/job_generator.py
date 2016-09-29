@@ -157,8 +157,9 @@ while True:
         # Write to file
         sub_file = os.path.join(channel_direc,
                                 "channel_{}.sub".format(chan_num))
-        with open(sub_file, 'w') as f:
-            f.write(chan_template)
+        if not os.path.exists(sub_file):
+            with open(sub_file, 'w') as f:
+                f.write(chan_template)
 
         # Now submit!
         old_direc = os.getcwd()

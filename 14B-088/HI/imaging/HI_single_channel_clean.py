@@ -49,12 +49,12 @@ if valid_mask:
           modelimage=model, mask=mask)
 
     # Only run if the image was actually produces
-    if os.path.exists(out_root + "clean.image"):
+    if os.path.exists(out_root + ".clean.image"):
         feather(imagename=out_root + ".clean.image.feathered",
                 highres=out_root + ".clean.image",
                 lowres=model)
 
     # If something went awry, and the image wasn't produced, remove the
     # remnants.
-    if not os.path.exists(out_root + "clean.image"):
+    if not os.path.exists(out_root + ".clean.image"):
         rmtables(out_root + "clean.*")

@@ -21,10 +21,9 @@ def return_template(output_direc, ms_name, model_name, mask_name):
 #!/bin/bash
 
 #PBS -S /bin/bash
-#PBS -l pmem=2000m
-#PBS -l feature=X5675
+#PBS -l pmem=1000m
 #PBS -l nodes=1:ppn=12
-#PBS -l walltime=72:00:00
+#PBS -l walltime=24:00:00
 #PBS -l epilogue=/home/ekoch/code_repos/simscript/epilogue.sh
 
 source /home/ekoch/.bashrc

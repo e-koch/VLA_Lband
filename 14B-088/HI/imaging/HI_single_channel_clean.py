@@ -57,4 +57,4 @@ if valid_mask:
     # If something went awry, and the image wasn't produced, remove the
     # remnants.
     if not os.path.exists(out_root + ".clean.image"):
-        rmtables(out_root + "clean.*")
+        rmtables(out_root + ".clean.*")

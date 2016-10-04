@@ -14,7 +14,8 @@ execfile("/home/eric/Dropbox/code_development/VLA_Lband/CASA_tools/casa_tools/ex
 
 path_to_results = sys.argv[1]
 output_filename = sys.argv[2] if sys.argv[2] != "None" else None
-show_in_browser = True if sys.argv[3] == "True" else False
+log_prefix = sys.argv[3]  # The common log file starting string
+show_in_browser = True if sys.argv[4] == "True" else False
 
 # In this case, each results is within it's own directory
 # ie. path_to_results/channel_$i/
@@ -50,7 +51,7 @@ channel_direcs = ordered_chans
 # Now grab the logs
 log_files = []
 for channel in channel_direcs:
-    log_file = glob.glob(os.path.join(channel, "casa*.log"))
+    log_file = glob.glob(os.path.join(channel, "{}*.log".format(log_prefix)))
     if not log_file:
         print("Cannot find log file in "+channel)
         continue

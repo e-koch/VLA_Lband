@@ -6,7 +6,6 @@ Extracts info from the CLEAN logs in separate channels.
 import sys
 import glob
 import os
-import numpy as np
 
 # from casa_tools import collect_clean_results
 execfile("/home/eric/Dropbox/code_development/VLA_Lband/CASA_tools/casa_tools/extract_from_log.py")
@@ -35,7 +34,7 @@ for channel in channel_direcs:
         max_chan = chan_num
 
 ordered_chans = []
-for chan in xrange(min_chan, max_chan+1):
+for chan in xrange(min_chan, max_chan + 1):
     i = 0
     while True:
         chan_num = int(channel_direcs[i].split("_")[-1])
@@ -44,7 +43,7 @@ for chan in xrange(min_chan, max_chan+1):
             break
         i += 1
     else:
-        print("No log found for channel "+str(chan))
+        print("No log found for channel " + str(chan))
 
 channel_direcs = ordered_chans
 
@@ -53,7 +52,7 @@ log_files = []
 for channel in channel_direcs:
     log_file = glob.glob(os.path.join(channel, "{}*.log".format(log_prefix)))
     if not log_file:
-        print("Cannot find log file in "+channel)
+        print("Cannot find log file in " + channel)
         continue
 
     # I'm going to assume that there should only be one logfile.

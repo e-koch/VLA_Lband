@@ -23,7 +23,7 @@ def return_template(output_direc, ms_name, model_name, mask_name):
 #PBS -S /bin/bash
 #PBS -l pmem=1000m
 #PBS -l nodes=1:ppn=12
-#PBS -l walltime=24:00:00
+#PBS -l walltime=7:00:00
 #PBS -l epilogue=/home/ekoch/code_repos/simscript/epilogue.sh
 
 source /home/ekoch/.bashrc
@@ -31,7 +31,7 @@ source /home/ekoch/.bashrc
 cd X1
 
 echo "Starting at: `date`"
-casa --nologger --logfile X5 -c /home/ekoch/code_repos/VLA_Lband/14B-088/HI/imaging/HI_single_channel_clean.py X2 X3 X4
+casa-4.4 --nologger --logfile X5 -c /home/ekoch/code_repos/VLA_Lband/14B-088/HI/imaging/HI_single_channel_clean.py X2 X3 X4
 echo "Exited with code $? at: `date`"
         '''
 

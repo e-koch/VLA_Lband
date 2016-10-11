@@ -14,8 +14,9 @@ output_type = sys.argv[-1]
 path = "/home/ekoch/m33/14B-088/single_channels/"
 
 if output_type == "image":
-    out_name = "/home/ekoch/m33/14B-088/cube_images/M33_14B-088_HI.clean.image"
-    search_string = "*.clean.image"
+    out_name = "/home/ekoch/m33/14B-088/cube_images/" \
+        "M33_14B-088_HI.clean.image.feathered"
+    search_string = "*.clean.image.feathered"
 elif output_type == "residual":
     out_name = \
         "/home/ekoch/m33/14B-088/cube_images/M33_14B-088_HI.clean.residual"
@@ -29,7 +30,8 @@ elif output_type == "mask":
         "/home/ekoch/m33/14B-088/cube_images/M33_14B-088_HI.clean.mask"
     search_string = "*.clean.mask"
 else:
-    raise TypeError("Must provide 'image', 'residual', 'mask' or 'model' as argument.")
+    raise TypeError("Must provide 'image', 'residual', 'mask' or 'model' as "
+                    "argument.")
 
 channel_direcs = glob.glob(os.path.join(path, "channel_*"))
 
@@ -47,7 +49,7 @@ for channel in channel_direcs:
         max_chan = chan_num
 
 ordered_chans = []
-for chan in xrange(min_chan, max_chan+1):
+for chan in xrange(min_chan, max_chan + 1):
     i = 0
     while True:
         chan_num = int(channel_direcs[i].split("_")[-1])
@@ -56,7 +58,7 @@ for chan in xrange(min_chan, max_chan+1):
             break
         i += 1
     else:
-        print("No log found for channel "+str(chan))
+        print("No log found for channel " + str(chan))
 
 channel_direcs = ordered_chans
 
@@ -64,7 +66,7 @@ images = []
 for channel in channel_direcs:
     image = glob.glob(os.path.join(channel, search_string))
     if not image:
-        print("Cannot find log file in "+channel)
+        print("Cannot find log file in " + channel)
         continue
 
     images.append(image[0])

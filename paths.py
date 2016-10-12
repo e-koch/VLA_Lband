@@ -10,7 +10,7 @@ elif socket.gethostname() == 'caterwauler':
     data_path = os.path.expanduser("~/volume/data/")
 # NRAO
 elif "nmpost" in socket.gethostname():
-    root = os.path.expanduser("~/")
+    root = os.path.expanduser("~/VLA_Lband")
     data_path = os.path.expanduser("~/data")
 # else:
 #     root = os.path.expanduser('~/work/w51/alma/')

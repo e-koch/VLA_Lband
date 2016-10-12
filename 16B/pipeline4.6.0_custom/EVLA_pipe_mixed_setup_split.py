@@ -44,41 +44,49 @@ logprint("Splitting by SPW.",
 line_run = False
 cont_run = False
 
+parentdir = os.getcwd().split("/")[-1]
+
 if len(line_spws) == 0:
     logprint("No line SPWs found.",
              logfileout='logs/mixed_setup_split.log')
 else:
-    if not os.path.exists('speclines'):
-        os.mkdir('speclines')
+    lines_folder = parentdir + '_speclines'
+    if not os.path.exists(lines_folder):
+        os.mkdir(lines_folder)
 
     line_fields = copy(fields)
-    line_fields.remove("0521+166=3C138")
-    # line_fields.remove("0316+413=3C84")
+    line_fields = line_fields[line_fields != "3C138"]
+    line_fields = line_fields[line_fields != "J0319+4130"]
 
-    split(vis=ms_active, outputvis="speclines/" + SDM_name + ".speclines.ms",
+    split(vis=ms_active,
+          outputvis=lines_folder + "/" + SDM_name + ".speclines.ms",
           spw=",".join(line_spws), datacolumn='DATA', field=",".join(fields))
 
     line_run = True
 
     line_settings = {"SDM_Name": SDM_name + ".speclines",
                      "scratch": False,
-                     "myHanning": 'n'}
+                     "myHanning": 'n',
+                     "folder_name": lines_folder}
 
 if len(cont_spws) == 0:
     logprint("No continuum SPWs found.",
              logfileout='logs/mixed_setup_split.log')
 else:
-    if not os.path.exists('continuum'):
-        os.mkdir('continuum')
+    cont_folder = parentdir + '_continuum'
+    if not os.path.exists(cont_folder):
+        os.mkdir(cont_folder)
 
-    split(vis=ms_active, outputvis="continuum/" + SDM_name + ".continuum.ms",
+    split(vis=ms_active,
+          outputvis=cont_folder + "/" + SDM_name + ".continuum.ms",
           spw=",".join(cont_spws), datacolumn='DATA', field=",".join(fields))
 
     cont_run = True
 
     cont_settings = {"SDM_Name": SDM_name + ".continuum",
                      "scratch": False,
-                     "myHanning": 'y'}
+                     "myHanning": myHanning,
+                     "folder_name": cont_folder}
 
 logprint("Finished EVLA_pipe_mixed_setup_split.py",
          logfileout='logs/mixed_setup_split.log')

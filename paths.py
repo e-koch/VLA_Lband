@@ -8,6 +8,10 @@ if socket.gethostname() == 'ewk':
 elif socket.gethostname() == 'caterwauler':
     root = os.path.expanduser('~/Dropbox/code_development/VLA_Lband/')
     data_path = os.path.expanduser("~/volume/data/")
+# NRAO
+elif "nmpost" in socket.gethostname():
+    root = os.path.expanduser("~/")
+    data_path = os.path.expanduser("~/data")
 # else:
 #     root = os.path.expanduser('~/work/w51/alma/')
 

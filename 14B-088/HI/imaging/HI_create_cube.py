@@ -65,8 +65,8 @@ channel_direcs = ordered_chans
 images = []
 for channel in channel_direcs:
     image = glob.glob(os.path.join(channel, search_string))
-    if not image:
-        print("Cannot find log file in " + channel)
+    if len(image) == 0:
+        print("Cannot find image in " + channel)
         continue
 
     images.append(image[0])

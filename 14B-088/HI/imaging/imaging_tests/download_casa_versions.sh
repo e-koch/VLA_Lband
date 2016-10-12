@@ -47,3 +47,12 @@ rm casa-release-4.6.0-el6.tar.gz
 mv casa-release-4.6.0-el6/bin/casa casa-release-4.6.0-el6/bin/casa-4.6
 
 echo 'export PATH="$PATH:/home/ekoch/casa-release-4.6.0-el6/bin"' >> $HOME/.bashrc
+
+# CASA 4.7
+wget https://svn.cv.nrao.edu/casa/distro/linux/release/el6/casa-release-4.7.0-el6.tar.gz
+tar -zxf casa-release-4.7.0-el6.tar.gz
+rm casa-release-4.7.0-el6.tar.gz
+
+mv casa-release-4.7.0-el6/bin/casa casa-release-4.7.0-el6/bin/casa-4.7
+
+echo 'export PATH="$PATH:/home/ekoch/casa-release-4.7.0-el6/bin"' >> $HOME/.bashrc

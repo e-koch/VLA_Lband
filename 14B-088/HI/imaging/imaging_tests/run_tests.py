@@ -30,11 +30,12 @@ maskname = "M33_14B-088_HI_mask_modified_channel_330.image"
 # https://safe.nrao.edu/wiki/bin/view/Software/CASAUserTestingMinutes20141021
 # I did this by hand, not in the script
 
-versions = [os.path.expanduser("~/casapy-42.2.30986-pipe-1-64b/bin/casa-4.2.2"),
-            os.path.expanduser("~/casa-release-4.3.1-el6/bin/casa-4.3.1"),
+# versions = [os.path.expanduser("~/casapy-42.2.30986-pipe-1-64b/bin/casa-4.2.2"),
+versions = [os.path.expanduser("~/casa-release-4.3.1-el6/bin/casa-4.3.1"),
             os.path.expanduser("~/casa-release-4.4.0-el6/bin/casa-4.4"),
             os.path.expanduser("~/casa-release-4.5.3-el6/bin/casa-4.5.3"),
-            os.path.expanduser("~/casa-release-4.6.0-el6/bin/casa")]
+            os.path.expanduser("~/casa-release-4.6.0-el6/bin/casa"),
+            os.path.expanduser("~/casa-release-4.7.0-el6/bin/casa")]
 
 call = 'qsub -N JOB_NAME -l nodes=NODE:ppn=PROCS,pmem=PMEM,' \
     'walltime=HOURS:00:00 -d . <<< "VERSION --logfile JOB_NAME.log -c' \
@@ -54,7 +55,13 @@ for version in versions:
     for tclean in ["T", "F"]:
 
         if os.path.basename(version) == "casa":
-            major, minor, revision = 4, 6, 0
+            if "4.6" in version:
+                major, minor, revision = 4, 6, 0
+            elif "4.7" in version:
+                major, minor, revision = 4, 7, 0
+            else:
+                raise Exception("The version is not 4.6 or 4.7? Was given"
+                                " {}".format(version))
         else:
             try:
                 major, minor, revision = \

@@ -69,7 +69,7 @@ else:
     clean(vis=vis, imagename=out_root + '.clean', field=field,
           restfreq='1420.40575177MHz',
           mode='channel', width=1, nchan=1, start=1,
-          cell='3arcsec', multiscale=[0, 4, 8, 20, 40, 80],
+          cell='3arcsec', multiscale=multiscale,
           threshold='1.8mJy/beam', imagermode='mosaic', gain=0.1,
           imsize=[2560, 2560], weighting='natural', robust=0.0, niter=200000,
           pbcor=True, minpb=0.2, interpolation='linear', usescratch=False,

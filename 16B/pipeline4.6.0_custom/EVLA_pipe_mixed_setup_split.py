@@ -60,7 +60,8 @@ else:
 
     split(vis=ms_active,
           outputvis=lines_folder + "/" + SDM_name + ".speclines.ms",
-          spw=",".join(line_spws), datacolumn='DATA', field=",".join(fields))
+          spw=",".join(line_spws), datacolumn='DATA',
+          field=",".join(line_fields))
 
     line_run = True
 

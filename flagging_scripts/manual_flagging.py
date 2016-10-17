@@ -12,13 +12,13 @@ Plot visibility data for each spw to allow for easy manual flags
 
 try:
     vis_name = sys.argv[1]
-    field_name = sys.argv[2]
+    field_names = sys.argv[2]
     corrstring = sys.argv[3]
     starting_spw = int(sys.argv[4])
     bp_scan = sys.argv[5]
 except IndexError:
     vis_name = raw_input("MS Name? : ")
-    field_name = raw_input("Field Name/Number? : ")
+    field_names = raw_input("Field Name/Number(s)? : ")
     corrstring = raw_input("Corrstring? : ")
     starting_spw = int(raw_input("SPW to start at? : "))
     bp_scan = raw_input("Bandpass scan? : ")
@@ -30,162 +30,168 @@ tb.close()
 
 spws = range(starting_spw, len(freqs))
 
+fields = field_names.split(",")
 
-for spw_num in spws:
-    nchan = nchans[spw_num]
+for n, field_name in enumerate(fields):
 
-    print "On " + str(spw_num + 1) + " of " + str(len(freqs))
+    print("On {0}. {1} out of {2} fields.".format(field_name, n + 1,
+                                                  len(fields)))
 
-    default('plotms')
-    vis = vis_name
-    xaxis = 'time'
-    yaxis = 'amp'
-    ydatacolumn = 'corrected'
-    selectdata = True
-    field = field_name
-    spw = str(spw_num)
-    scan = bp_scan
-    correlation = corrstring
-    averagedata = False
-    avgscan = False
-    transform = False
-    extendflag = False
-    iteraxis = ''
-    coloraxis = 'antenna2'
-    plotrange = []
-    xlabel = ''
-    ylabel = ''
-    showmajorgrid = False
-    showminorgrid = False
-    plotms()
+    for spw_num in spws:
+        nchan = nchans[spw_num]
 
-    raw_input("Continue?")
+        print "On SPW {0} of {1}".format(str(spw_num + 1), str(len(freqs)))
 
-    default('plotms')
-    vis = vis_name
-    xaxis = 'channel'
-    yaxis = 'phase'
-    ydatacolumn = 'corrected'
-    selectdata = True
-    field = field_name
-    spw = str(spw_num)
-    correlation = corrstring
-    averagedata = True
-    avgtime = '1e8s'
-    avgscan = True
-    transform = False
-    extendflag = False
-    iteraxis = ''
-    coloraxis = 'antenna2'
-    plotrange = []
-    xlabel = ''
-    ylabel = ''
-    showmajorgrid = False
-    showminorgrid = False
-    plotms()
+        default('plotms')
+        vis = vis_name
+        xaxis = 'time'
+        yaxis = 'amp'
+        ydatacolumn = 'corrected'
+        selectdata = True
+        field = field_name
+        spw = str(spw_num)
+        scan = bp_scan
+        correlation = corrstring
+        averagedata = False
+        avgscan = False
+        transform = False
+        extendflag = False
+        iteraxis = ''
+        coloraxis = 'antenna2'
+        plotrange = []
+        xlabel = ''
+        ylabel = ''
+        showmajorgrid = False
+        showminorgrid = False
+        plotms()
 
-    raw_input("Continue?")
+        raw_input("Continue?")
 
-    default('plotms')
-    vis = vis_name
-    xaxis = 'channel'
-    yaxis = 'amp'
-    ydatacolumn = 'corrected'
-    selectdata = True
-    field = field_name
-    spw = str(spw_num)
-    correlation = corrstring
-    averagedata = True
-    avgtime = '1e8s'
-    avgscan = True
-    transform = False
-    extendflag = False
-    iteraxis = ''
-    coloraxis = 'antenna2'
-    plotrange = []
-    xlabel = ''
-    ylabel = ''
-    showmajorgrid = False
-    showminorgrid = False
-    plotms()
+        default('plotms')
+        vis = vis_name
+        xaxis = 'channel'
+        yaxis = 'phase'
+        ydatacolumn = 'corrected'
+        selectdata = True
+        field = field_name
+        spw = str(spw_num)
+        correlation = corrstring
+        averagedata = True
+        avgtime = '1e8s'
+        avgscan = True
+        transform = False
+        extendflag = False
+        iteraxis = ''
+        coloraxis = 'antenna2'
+        plotrange = []
+        xlabel = ''
+        ylabel = ''
+        showmajorgrid = False
+        showminorgrid = False
+        plotms()
 
-    raw_input("Continue?")
+        raw_input("Continue?")
 
-    default('plotms')
-    vis = vis_name
-    xaxis = 'time'
-    yaxis = 'amp'
-    ydatacolumn = 'corrected'
-    selectdata = True
-    field = field_name
-    spw = str(spw_num)
-    correlation = corrstring
-    averagedata = True
-    avgchannel = str(nchan)
-    avgscan = False
-    transform = False
-    extendflag = False
-    iteraxis = 'scan'
-    coloraxis = 'antenna2'
-    plotrange = []
-    xlabel = ''
-    ylabel = ''
-    showmajorgrid = False
-    showminorgrid = False
-    plotms()
+        default('plotms')
+        vis = vis_name
+        xaxis = 'channel'
+        yaxis = 'amp'
+        ydatacolumn = 'corrected'
+        selectdata = True
+        field = field_name
+        spw = str(spw_num)
+        correlation = corrstring
+        averagedata = True
+        avgtime = '1e8s'
+        avgscan = True
+        transform = False
+        extendflag = False
+        iteraxis = ''
+        coloraxis = 'antenna2'
+        plotrange = []
+        xlabel = ''
+        ylabel = ''
+        showmajorgrid = False
+        showminorgrid = False
+        plotms()
 
-    raw_input("Continue?")
+        raw_input("Continue?")
 
-    default('plotms')
-    vis = vis_name
-    xaxis = 'time'
-    yaxis = 'phase'
-    ydatacolumn = 'corrected'
-    selectdata = True
-    field = field_name
-    spw = str(spw_num)
-    correlation = corrstring
-    averagedata = True
-    avgchannel = str(nchan)
-    avgscan = False
-    transform = False
-    extendflag = False
-    iteraxis = 'scan'
-    coloraxis = 'antenna2'
-    plotrange = []
-    xlabel = ''
-    ylabel = ''
-    showmajorgrid = False
-    showminorgrid = False
-    plotms()
+        default('plotms')
+        vis = vis_name
+        xaxis = 'time'
+        yaxis = 'amp'
+        ydatacolumn = 'corrected'
+        selectdata = True
+        field = field_name
+        spw = str(spw_num)
+        correlation = corrstring
+        averagedata = True
+        avgchannel = str(nchan)
+        avgscan = False
+        transform = False
+        extendflag = False
+        iteraxis = 'scan'
+        coloraxis = 'antenna2'
+        plotrange = []
+        xlabel = ''
+        ylabel = ''
+        showmajorgrid = False
+        showminorgrid = False
+        plotms()
 
-    raw_input("Continue?")
+        raw_input("Continue?")
 
-    default('plotms')
-    vis = vis_name
-    xaxis = 'uvwave'
-    yaxis = 'amp'
-    ydatacolumn = 'corrected'
-    selectdata = True
-    field = field_name
-    spw = str(spw_num)
-    correlation = corrstring
-    averagedata = True
-    avgchannel = str(nchan)
-    avgtime = '1e8s'
-    avgscan = False
-    transform = False
-    extendflag = False
-    iteraxis = ''
-    coloraxis = 'antenna2'
-    plotrange = []
-    xlabel = ''
-    ylabel = ''
-    showmajorgrid = False
-    showminorgrid = False
-    plotms()
+        default('plotms')
+        vis = vis_name
+        xaxis = 'time'
+        yaxis = 'phase'
+        ydatacolumn = 'corrected'
+        selectdata = True
+        field = field_name
+        spw = str(spw_num)
+        correlation = corrstring
+        averagedata = True
+        avgchannel = str(nchan)
+        avgscan = False
+        transform = False
+        extendflag = False
+        iteraxis = 'scan'
+        coloraxis = 'antenna2'
+        plotrange = []
+        xlabel = ''
+        ylabel = ''
+        showmajorgrid = False
+        showminorgrid = False
+        plotms()
 
-    raw_input("Continue?")
+        raw_input("Continue?")
+
+        default('plotms')
+        vis = vis_name
+        xaxis = 'uvwave'
+        yaxis = 'amp'
+        ydatacolumn = 'corrected'
+        selectdata = True
+        field = field_name
+        spw = str(spw_num)
+        correlation = corrstring
+        averagedata = True
+        avgchannel = str(nchan)
+        avgtime = '1e8s'
+        avgscan = False
+        transform = False
+        extendflag = False
+        iteraxis = ''
+        coloraxis = 'antenna2'
+        plotrange = []
+        xlabel = ''
+        ylabel = ''
+        showmajorgrid = False
+        showminorgrid = False
+        plotms()
+
+        raw_input("Continue?")
 
 # Get the existing flag version names.
 flag_folder = "{}.flagversions".format(vis_name)

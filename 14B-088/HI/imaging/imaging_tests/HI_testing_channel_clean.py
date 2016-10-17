@@ -38,9 +38,9 @@ else:
                       if i not in [3, 7]]) + ", M33_7_center"
 
 if use_multiscale:
-    # multiscale = [0, 4, 8, 20, 40, 80]
+    multiscale = [0, 4, 8, 20, 40, 80]
     # Different progression based on # pixels within a beam
-    multiscale = list(np.array([0, 1, 3, 9, 27, 81]) * 4)
+    # multiscale = list(np.array([0, 1, 3, 9, 27, 81]) * 4)
     # multiscale = list(np.array([0, 2, 5]) * 4)
 else:
     multiscale = []

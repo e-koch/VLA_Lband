@@ -2,8 +2,9 @@
 
 import sys
 import numpy as np
+import os
 
-from tasks import clean
+from tasks import clean, feather
 
 '''
 Cleans an MS with a single channel given a mask and a model
@@ -75,3 +76,10 @@ else:
           pbcor=True, minpb=0.2, interpolation='linear', usescratch=False,
           phasecenter='J2000 01h33m50.904 +30d39m35.79', veltype='radio',
           modelimage=model, mask=mask)
+
+# Run feathering with the model
+if model is not None:
+    if os.path.exists(out_root + ".clean.image"):
+        feather(imagename=out_root + ".clean.image.feathered",
+                highres=out_root + ".clean.image",
+                lowres=model)

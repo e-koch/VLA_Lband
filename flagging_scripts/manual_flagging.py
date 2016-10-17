@@ -178,7 +178,7 @@ for n, field_name in enumerate(fields):
         correlation = corrstring
         averagedata = True
         avgchannel = str(nchan)
-        avgtime = '1e8s'
+        avgtime = '60s'
         avgscan = False
         transform = False
         extendflag = False

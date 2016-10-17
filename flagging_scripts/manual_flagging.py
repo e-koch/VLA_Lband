@@ -122,11 +122,10 @@ for spw_num in spws:
     correlation = corrstring
     averagedata = True
     avgchannel = str(nchan)
-    avgtime = '1e8s'
     avgscan = False
     transform = False
     extendflag = False
-    iteraxis = ''
+    iteraxis = 'scan'
     coloraxis = 'antenna2'
     plotrange = []
     xlabel = ''
@@ -148,11 +147,10 @@ for spw_num in spws:
     correlation = corrstring
     averagedata = True
     avgchannel = str(nchan)
-    avgtime = '1e8s'
     avgscan = False
     transform = False
     extendflag = False
-    iteraxis = ''
+    iteraxis = 'scan'
     coloraxis = 'antenna2'
     plotrange = []
     xlabel = ''

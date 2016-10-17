@@ -1,5 +1,10 @@
 
 import sys
+from glob import glob
+import os
+from datetime import datetime
+
+from tasks import plotms
 
 '''
 Plot visibility data for each spw to allow for easy manual flags
@@ -29,7 +34,7 @@ spws = range(starting_spw, len(freqs))
 for spw_num in spws:
     nchan = nchans[spw_num]
 
-    print "On " + str(spw_num+1) + " of " + str(len(freqs))
+    print "On " + str(spw_num + 1) + " of " + str(len(freqs))
 
     default('plotms')
     vis = vis_name
@@ -183,3 +188,21 @@ for spw_num in spws:
     plotms()
 
     raw_input("Continue?")
+
+# Get the existing flag version names.
+flag_folder = "{}.flagversions".format(vis_name)
+tstamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+if not os.path.exists(flag_folder):
+    print("No flag versions exist. Using default flag name.")
+    versionname = "manual_flagging_1_{}".format(tstamp)
+else:
+    flag_versions = glob(os.path.join(flag_folder, "flag.manual_flagging_*"))
+    if len(flag_versions) == 0:
+        versionname = "manual_flagging_1_{}".format(tstamp)
+    else:
+        num = len(flag_versions) + 1
+        versionname = "manual_flagging_{0}_{1}".format(num, tstamp)
+
+# Save this new version of the flags
+flagmanager(vis=vis_name, mode='save',
+            versionname=versionname)

@@ -90,6 +90,8 @@ for source in imaging_sources:
             'test_images/{0}.{1}.spw_{2}'.format(ms_active[:-3],
                                                  source,
                                                  spw_num)
+        # Remove old image products
+        rmtables(imagename + "*")
 
         clean(vis=ms_active,
               imagename=imagename,

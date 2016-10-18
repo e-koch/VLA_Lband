@@ -97,6 +97,9 @@ for source in imaging_sources:
                                                  source,
                                                  spw_num)
 
+        # Remove old image products
+        rmtables(imagename + "*")
+
         clean(vis=ms_active,
               imagename=imagename,
               field='*' + source + '*', spw=str(spw_num),

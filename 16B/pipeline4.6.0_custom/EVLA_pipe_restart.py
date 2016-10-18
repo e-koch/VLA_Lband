@@ -33,7 +33,7 @@ EVLA_pipe_restore.py needs to be run before hand
 
 '''
 
-pipeline_scripts = ['startup', 'import', 'hanning', 'msinfo', 'flagall',
+pipeline_scripts = ['startup', 'import', 'hanning', 'msinfo', 'fake_flagall',
                     'calprep', 'priorcals', 'testBPdcals',
                     'flag_baddeformatters', 'flag_baddeformattersphase',
                     'checkflag', 'semiFinalBPdcals1',

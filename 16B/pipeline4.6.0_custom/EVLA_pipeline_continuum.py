@@ -162,6 +162,11 @@ try:
 
 ######################################################################
 
+    # Set fake flag results. This should already have been completed before
+    # splitting the data!
+    execfile(pipepath + 'EVLA_pipe_fake_flagall.py')
+
+
 # PREPARE FOR CALIBRATIONS
 # Fill model columns for primary calibrators
 

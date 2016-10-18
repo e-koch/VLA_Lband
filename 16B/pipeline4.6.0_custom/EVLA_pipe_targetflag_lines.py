@@ -32,7 +32,7 @@
 # CHECKING FLAGGING OF ALL CALIBRATED DATA, INCLUDING TARGET
 # use rflag mode of flagdata
 
-logprint("Starting EVLA_pipe_targetflag.py", logfileout='logs/targetflag.log')
+logprint("Starting EVLA_pipe_targetflag_lines.py", logfileout='logs/targetflag.log')
 time_list = runtiming('checkflag', 'start')
 QA2_targetflag = 'Pass'
 
@@ -97,7 +97,7 @@ if (frac_flagged_on_source2 >= 0.6):
     QA2_targetflag = 'Fail'
 
 logprint("QA2 score: " + QA2_targetflag, logfileout='logs/targetflag.log')
-logprint("Finished EVLA_pipe_targetflag.py", logfileout='logs/targetflag.log')
+logprint("Finished EVLA_pipe_targetflag_lines.py", logfileout='logs/targetflag.log')
 time_list = runtiming('targetflag', 'end')
 
 pipeline_save()

@@ -14,6 +14,7 @@ Custom Pipeline Changes
 * `EVLA_pipe_restore.list` - add parameters for test imaging
 * `EVLA_pipe_restart_lines.py` - Changed some script names to use the line versions.
 * Both restart scripts - Added test imaging scripts to the end. These are skipped if the `test_imaging` is `False`.
+* Added `EVLA_pipe_fake_flagall.py` when running the split MS pipelines. This calculates the input flag statistics only, since all deterministic flagging is performed prior to splitting. Setting these parameters is necessary for other portions of the pipeline, though.
 
 Project Specific Changes
 ========================

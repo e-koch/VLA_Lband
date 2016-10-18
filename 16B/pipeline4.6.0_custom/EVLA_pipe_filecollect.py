@@ -47,11 +47,16 @@ time_list=runtiming('filecollect', 'start')
 caltables_dir = './final_caltables'
 weblog_dir = './weblog'
 
-#Check if directories exists - if not create one
-if not os.path.exists(caltables_dir):
+# Check if directories exists - if not create one
+# Delete existing files if they already exist
+if os.path.exists(caltables_dir):
+    rmtables(os.path.join(caltables_dir, "*"))
+else:
     os.makedirs(caltables_dir)
 
-if not os.path.exists(weblog_dir):
+if os.path.exists(weblog_dir):
+    rmtables(os.path.join(weblog_dir, "*"))
+else:
     os.makedirs(weblog_dir)
 
 #Move all png files/plots

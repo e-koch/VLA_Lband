@@ -16,12 +16,20 @@ try:
     corrstring = sys.argv[3]
     starting_spw = int(sys.argv[4])
     bp_scan = sys.argv[5]
+    show_time_averaged = True if sys.argv[6] == "T" else False
 except IndexError:
     vis_name = raw_input("MS Name? : ")
     field_names = raw_input("Field Name/Number(s)? : ")
     corrstring = raw_input("Corrstring? : ")
     starting_spw = int(raw_input("SPW to start at? : "))
-    bp_scan = raw_input("Bandpass scan? : ")
+    bp_scan = raw_input("Bandpass scan? (None or scan number): ")
+    show_time_averaged = True if \
+        raw_input("Show time averaged amp/time and phase/time? (T or F)") == "T" \
+        else False
+
+# Only show BP scan plots when given
+if bp_scan == "None" or bp_scan == "none":
+    bp_scan = None
 
 tb.open(vis_name + '/SPECTRAL_WINDOW')
 freqs = tb.getcol('REF_FREQUENCY')
@@ -42,80 +50,82 @@ for n, field_name in enumerate(fields):
 
         print "On SPW {0} of {1}".format(str(spw_num + 1), str(len(freqs)))
 
-        default('plotms')
-        vis = vis_name
-        xaxis = 'time'
-        yaxis = 'amp'
-        ydatacolumn = 'corrected'
-        selectdata = True
-        field = field_name
-        spw = str(spw_num)
-        scan = bp_scan
-        correlation = corrstring
-        averagedata = False
-        avgscan = False
-        transform = False
-        extendflag = False
-        iteraxis = ''
-        coloraxis = 'antenna2'
-        plotrange = []
-        xlabel = ''
-        ylabel = ''
-        showmajorgrid = False
-        showminorgrid = False
-        plotms()
+        if bp_scan is not None:
+            default('plotms')
+            vis = vis_name
+            xaxis = 'time'
+            yaxis = 'amp'
+            ydatacolumn = 'corrected'
+            selectdata = True
+            field = field_name
+            spw = str(spw_num)
+            scan = bp_scan
+            correlation = corrstring
+            averagedata = False
+            avgscan = False
+            transform = False
+            extendflag = False
+            iteraxis = ''
+            coloraxis = 'antenna2'
+            plotrange = []
+            xlabel = ''
+            ylabel = ''
+            showmajorgrid = False
+            showminorgrid = False
+            plotms()
 
-        raw_input("Continue?")
+            raw_input("Continue?")
 
-        default('plotms')
-        vis = vis_name
-        xaxis = 'channel'
-        yaxis = 'phase'
-        ydatacolumn = 'corrected'
-        selectdata = True
-        field = field_name
-        spw = str(spw_num)
-        correlation = corrstring
-        averagedata = True
-        avgtime = '1e8s'
-        avgscan = True
-        transform = False
-        extendflag = False
-        iteraxis = ''
-        coloraxis = 'antenna2'
-        plotrange = []
-        xlabel = ''
-        ylabel = ''
-        showmajorgrid = False
-        showminorgrid = False
-        plotms()
+        if show_time_averaged:
+            default('plotms')
+            vis = vis_name
+            xaxis = 'channel'
+            yaxis = 'phase'
+            ydatacolumn = 'corrected'
+            selectdata = True
+            field = field_name
+            spw = str(spw_num)
+            correlation = corrstring
+            averagedata = True
+            avgtime = '1e8s'
+            avgscan = True
+            transform = False
+            extendflag = False
+            iteraxis = ''
+            coloraxis = 'antenna2'
+            plotrange = []
+            xlabel = ''
+            ylabel = ''
+            showmajorgrid = False
+            showminorgrid = False
+            plotms()
 
-        raw_input("Continue?")
+            raw_input("Continue?")
 
-        default('plotms')
-        vis = vis_name
-        xaxis = 'channel'
-        yaxis = 'amp'
-        ydatacolumn = 'corrected'
-        selectdata = True
-        field = field_name
-        spw = str(spw_num)
-        correlation = corrstring
-        averagedata = True
-        avgtime = '1e8s'
-        avgscan = True
-        transform = False
-        extendflag = False
-        iteraxis = ''
-        coloraxis = 'antenna2'
-        plotrange = []
-        xlabel = ''
-        ylabel = ''
-        showmajorgrid = False
-        showminorgrid = False
-        plotms()
+            default('plotms')
+            vis = vis_name
+            xaxis = 'channel'
+            yaxis = 'amp'
+            ydatacolumn = 'corrected'
+            selectdata = True
+            field = field_name
+            spw = str(spw_num)
+            correlation = corrstring
+            averagedata = True
+            avgtime = '1e8s'
+            avgscan = True
+            transform = False
+            extendflag = False
+            iteraxis = ''
+            coloraxis = 'antenna2'
+            plotrange = []
+            xlabel = ''
+            ylabel = ''
+            showmajorgrid = False
+            showminorgrid = False
+            plotms()
 
-        raw_input("Continue?")
+            raw_input("Continue?")
 
         default('plotms')
         vis = vis_name

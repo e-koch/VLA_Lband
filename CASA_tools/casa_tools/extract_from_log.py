@@ -1,6 +1,6 @@
 
 '''
-Extract info from the CASA logs.
+Extract info from a call to the clean task from CASA logs.
 '''
 
 import re
@@ -26,6 +26,21 @@ def collect_clean_results(log_files, filename=None, format='ascii.csv',
     '''
     Loop through the list of given log files, extract results from the clean
     calls, and save as a csv file.
+
+    Parameters
+    ----------
+    log_files : list or np.ndarray
+        List or array of the log file names.
+    filename : str, optional
+        Name of file to save with clean results. If None is given, no file is
+        saved.
+    format : str of filetype
+        Filetype to save the table as. See the list of writers available for
+        `~astropy.table` here:
+        `http://docs.astropy.org/en/stable/io/unified.html#built-in-readers-writers`_
+    show_in_browser : bool, optional
+        Displays the table in a web browser.
+
     '''
     results_dict = {"Name": [],
                     "Reached Threshold": [],
@@ -48,7 +63,7 @@ def collect_clean_results(log_files, filename=None, format='ascii.csv',
             results_dict["Time Elapsed"].append(results.time_elapsed.value)
 
         except Warning as e:
-            print("Failed for log: "+log)
+            print("Failed for log: " + log)
             print(e)
 
             results_dict["Name"].append(log.rstrip(".log"))
@@ -74,7 +89,13 @@ def collect_clean_results(log_files, filename=None, format='ascii.csv',
 class CleanResults(object):
     """
     Read the results of running clean from a log file.
+
+    Parameters
+    ----------
+    filename : str
+        Name of the log file to search.
     """
+
     def __init__(self, filename):
         self.filename = filename
 
@@ -134,7 +155,8 @@ class CleanResults(object):
 
     def get_finished(self):
 
-        finish_re = all_time_date+info+"*MFMSCleanImageSkyModel::solve\s*Reached*"
+        finish_re = all_time_date + info + \
+            "*MFMSCleanImageSkyModel::solve\s*Reached*"
 
         if not self.line_ranges:
             self.get_line_ranges()
@@ -170,8 +192,9 @@ class CleanResults(object):
         Find the beginning and end of CLEAN.
         '''
 
-        start_re = all_time_date+info+"*clean::::.\s####.*Begin Task: clean.*"
-        stop_re = all_time_date+info+"*clean::::\s####.*End Task: clean.*"
+        start_re = all_time_date + info + \
+            "*clean::::.\s####.*Begin Task: clean.*"
+        stop_re = all_time_date + info + "*clean::::\s####.*End Task: clean.*"
 
         start_search = self.search_log(start_re)
         if start_search:
@@ -189,7 +212,7 @@ class CleanResults(object):
             Warning("Could not find end to clean call. "
                     "An error likely occurred in CASA. "
                     "Setting the end to the final log line.")
-            stop_lines = len(self.lines)-1
+            stop_lines = len(self.lines) - 1
             self._error = True
 
         # If they aren't equal, there was an error (no end line)
@@ -213,7 +236,7 @@ class CleanResults(object):
     def time_elapsed(self):
         return self._time_elapsed
 
-    def get_time_elapsed(self, output='minutes'):
+    def get_time_elapsed(self, output_unit=u.min):
         '''
         Find the time needed for CLEAN to run.
         '''
@@ -231,7 +254,7 @@ class CleanResults(object):
                                           casa_datetime_format)
 
             self._time_elapsed = \
-                time_difference(start_time, stop_time, output=output)
+                time_difference(start_time, stop_time, output_unit=output_unit)
 
         else:
             self._time_elapsed = []
@@ -244,7 +267,8 @@ class CleanResults(object):
                                               casa_datetime_format)
 
                 diff_time = \
-                    time_difference(start_time, stop_time, output=output)
+                    time_difference(start_time, stop_time,
+                                    output_unit=output_unit)
                 self._time_elapsed.append(diff_time)
 
     @property
@@ -253,7 +277,8 @@ class CleanResults(object):
 
     def get_max_residuals(self):
 
-        res_re = all_time_date+info+"*MFMSCleanImageSkyModel::solve\s*Final maximum*"
+        res_re = all_time_date + info + \
+            "*MFMSCleanImageSkyModel::solve\s*Final maximum*"
 
         if not self.line_ranges:
             self.get_line_ranges()
@@ -266,10 +291,11 @@ class CleanResults(object):
 
             if not res_match:
                 Warning("Could not find final residual value.")
-                self._max_residuals = np.NaN * u.Jy/u.beam
+                self._max_residuals = np.NaN * u.Jy / u.beam
             else:
                 self._max_residuals = \
-                    float(re.findall(numbers, res_match[0])[-1]) * u.Jy/u.beam
+                    float(re.findall(numbers, res_match[
+                          0])[-1]) * u.Jy / u.beam
 
         else:
             self._max_residuals = []
@@ -280,10 +306,11 @@ class CleanResults(object):
 
                 if not res_match:
                     Warning("Could not find final residual value.")
-                    self._max_residuals.append(np.NaN * u.Jy/u.beam)
+                    self._max_residuals.append(np.NaN * u.Jy / u.beam)
                 else:
                     residual = \
-                        float(re.findall(numbers, res_match)[-1]) * u.Jy/u.beam
+                        float(re.findall(numbers, res_match)
+                              [-1]) * u.Jy / u.beam
                     self._max_residuals.append(residual)
 
     @property
@@ -292,7 +319,8 @@ class CleanResults(object):
 
     def get_niters(self):
 
-        iter_re = all_time_date+info+"*MFMSCleanImageSkyModel::solve\s*Clean used*"
+        iter_re = all_time_date + info + \
+            "*MFMSCleanImageSkyModel::solve\s*Clean used*"
 
         if not self.line_ranges:
             self.get_line_ranges()
@@ -338,12 +366,12 @@ class CleanResults(object):
                         int(re.findall(numbers, last_match)[-1])
                     self._max_residuals.append(iters)
 
-    def run_all(self, time_output="minutes"):
+    def run_all(self, time_unit=u.min):
 
         self.get_line_ranges()
         self.get_finished()
         self.get_max_residuals()
-        self.get_time_elapsed(output=time_output)
+        self.get_time_elapsed(output_unit=time_unit)
         self.get_niters()
 
     def info_dict(self):
@@ -364,16 +392,16 @@ class CleanResults(object):
 
     def __repr__(self):
         if isinstance(self.line_ranges[0], int):
-            return "Finished: "+str(self.finished)+"\nMax Residual: " + \
-                  str(self.max_residuals)+"\nIterations: " + \
-                  str(self.niters)+"\nTime Elapsed: " + \
-                  str(self.time_elapsed.round(3))
+            return "Finished: " + str(self.finished) + "\nMax Residual: " + \
+                str(self.max_residuals) + "\nIterations: " + \
+                str(self.niters) + "\nTime Elapsed: " + \
+                str(self.time_elapsed.round(3))
         else:
             for i in xrange(len(self.line_ranges[0])):
-                return "Clean "+str(i+1)+" Finished: " + \
-                    str(self.finished[i])+"\n  Max Residual: " + \
-                    str(self.max_residuals[i])+"\n  Iterations: " + \
-                    str(self.niters[i])+"\n  Time Elapsed: " + \
+                return "Clean " + str(i + 1) + " Finished: " + \
+                    str(self.finished[i]) + "\n  Max Residual: " + \
+                    str(self.max_residuals[i]) + "\n  Iterations: " + \
+                    str(self.niters[i]) + "\n  Time Elapsed: " + \
                     str(self.time_elapsed[i].round(3))
 
 
@@ -416,18 +444,10 @@ def casa_time(line):
     return line.split("\t")[0]
 
 
-def time_difference(time1, time2, output="seconds"):
+def time_difference(time1, time2, output_unit=u.min):
 
     diff = time2 - time1
 
-    if output == "seconds":
-        return diff.total_seconds() * u.s
-    elif output == "minutes":
-        return diff.total_seconds()/60. * u.min
-    elif output == "hours":
-        return diff.total_seconds()/3600. * u.hour
-    elif output == "days":
-        return diff.total_seconds()/(3600.*24.) * u.day
-    else:
-        raise TypeError("output must be 'seconds', 'minutes',"
-                        " 'hours', or 'days'.")
+    seconds_diff = diff.total_seconds() * u.s
+
+    return seconds_diff.to(output_unit)

@@ -24,7 +24,7 @@ except IndexError:
     starting_spw = int(raw_input("SPW to start at? : "))
     bp_scan = raw_input("Bandpass scan? (None or scan number): ")
     show_time_averaged = True if \
-        raw_input("Show time averaged amp/time and phase/time? (T or F)") == "T" \
+        raw_input("Show time averaged amp/time and phase/time? (T or F): ") == "T" \
         else False
 
 # Only show BP scan plots when given
@@ -210,7 +210,7 @@ if not os.path.exists(flag_folder):
     print("No flag versions exist. Using default flag name.")
     versionname = "manual_flagging_1_{}".format(tstamp)
 else:
-    flag_versions = glob(os.path.join(flag_folder, "flag.manual_flagging_*"))
+    flag_versions = glob(os.path.join(flag_folder, "flags.manual_flagging_*"))
     if len(flag_versions) == 0:
         versionname = "manual_flagging_1_{}".format(tstamp)
     else:

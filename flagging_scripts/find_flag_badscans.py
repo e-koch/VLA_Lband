@@ -57,14 +57,14 @@ if find_bad_scans:
 
         bad_scans_amp = ""
 
-        amp_scan_plots = [plot for plot in scan_plots if "amp" in plot]
+        amp_scan_plots = \
+            np.array([plot for plot in scan_plots if "amp" in plot])
 
         # Now sort by the scan number
         amp_scan_nums = \
             np.array([int(plot.split("/")[-1].split("_")[-1].rstrip(".png"))
-                      for plot in amp_scan_plots]) - 1
-        amp_scan_nums.sort()
-        amp_scan_plots = [amp_scan_plots[i] for i in amp_scan_nums]
+                      for plot in amp_scan_plots])
+        amp_scan_plots = amp_scan_plots[np.argsort(amp_scan_nums)]
 
         print("Plotting amp vs time plots.")
         for plot in amp_scan_plots:
@@ -86,16 +86,16 @@ if find_bad_scans:
 
         bad_scan_dict[spw_folder.split("/")[-1]]["Amp"] = bad_scans_amp
 
-        phase_scan_plots = [plot for plot in scan_plots if "phase" in plot]
+        phase_scan_plots = \
+            np.array([plot for plot in scan_plots if "phase" in plot])
 
         if len(phase_scan_plots) != 0:
 
             # Now sort by the scan number
             phase_scan_nums = \
                 np.array([int(plot.split("/")[-1].split("_")[-1].rstrip(".png"))
-                          for plot in phase_scan_plots]) - 1
-            phase_scan_nums.sort()
-            phase_scan_plots = [amp_scan_plots[i] for i in phase_scan_nums]
+                          for plot in phase_scan_plots])
+            phase_scan_plots = phase_scan_plots[np.argsort(phase_scan_nums)]
 
             print("Plotting phase vs time plots.")
 

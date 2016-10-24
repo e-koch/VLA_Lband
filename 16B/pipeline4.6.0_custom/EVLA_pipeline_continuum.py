@@ -306,6 +306,9 @@ try:
 
 ######################################################################
 
+# Create scan plots
+    execfile(pipepath + "flagging_scripts/make_scan_plots.py")
+
 # OPTIONALLY MAKE TEST DIRTY IMAGES
     # Set in startup
     if test_imaging:

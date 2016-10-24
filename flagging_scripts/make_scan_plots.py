@@ -22,7 +22,7 @@ except NameError:
 
 # SPWs to loop through
 tb.open(os.path.join(ms_active, "SPECTRAL_WINDOW"))
-spws = tb.getcol("NAME")
+spws = range(len(tb.getcol("NAME")))
 nchans = tb.getcol('NUM_CHAN')
 tb.close()
 
@@ -33,9 +33,9 @@ numFields = tb.nrows()
 tb.close()
 
 # Intent names
-mytb.open(msName + '/STATE')
-intentcol = mytb.getcol('OBS_MODE')
-mytb.close()
+tb.open(os.path.join(ms_active, 'STATE'))
+intentcol = tb.getcol('OBS_MODE')
+tb.close()
 
 tb.open(ms_active)
 scanNums = np.unique(tb.getcol('SCAN_NUMBER'))
@@ -45,7 +45,7 @@ is_all_flagged = np.empty((len(spws), len(scanNums)), dtype='bool')
 for ii in range(numFields):
     subtable = tb.query('FIELD_ID==%s' % ii)
     field_scan = np.unique(subtable.getcol('SCAN_NUMBER'))
-    field_scans.append(field_scans)
+    field_scans.append(field_scan)
 
     # Is the intent for calibration?
     scan_intents = intentcol[np.unique(subtable.getcol("STATE_ID"))]
@@ -55,7 +55,7 @@ for ii in range(numFields):
             is_calib = True
             break
 
-    is_calibrator[field_scan] = is_calib
+    is_calibrator[field_scan - 1] = is_calib
 
     # Are any of the scans completely flagged?
     for spw in spws:
@@ -150,4 +150,3 @@ for spw_str in spws:
                 showgui = False
                 async = False
                 plotms()
-

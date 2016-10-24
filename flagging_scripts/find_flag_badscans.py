@@ -52,6 +52,10 @@ if find_bad_scans:
 
         scan_plots = listdir_fullpath(spw_folder)
 
+        if len(scan_plots) == 0:
+            print("No plots for {}".format(spw_folder))
+            continue
+
         # Keep track of scans that should be completely flagged.
         all_bad_scan = ""
 

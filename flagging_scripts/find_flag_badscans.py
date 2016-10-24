@@ -11,6 +11,7 @@ import matplotlib.image as im
 import json
 from datetime import datetime
 from glob import glob
+import numpy as np
 
 # Enable interactive
 p.ion()
@@ -58,13 +59,20 @@ if find_bad_scans:
 
         amp_scan_plots = [plot for plot in scan_plots if "amp" in plot]
 
+        # Now sort by the scan number
+        amp_scan_nums = \
+            np.array([int(plot.split("/")[-1].split("_")[-1].rstrip(".png"))
+                      for plot in amp_scan_plots])
+        amp_scan_nums.sort()
+        amp_scan_plots = [amp_scan_plots[i] for i in amp_scan_nums]
+
         print("Plotting amp vs time plots.")
         for plot in amp_scan_plots:
             num = plot.split("/")[-1].split("_")[-1].rstrip(".png")
             img = im.imread(plot)
             p.imshow(img, origin='upper')
             p.axis("off")
-            inp = raw_input("Scan %s : T(t)/''(f)/A(a)" % (num))
+            inp = raw_input("Scan %s T(t)/''(f)/A(a): " % (num))
             bad = True if inp == "T" or inp == "t" else False
             if inp == "T" or inp == 't':
                 bad_scans_amp += num + ","
@@ -81,6 +89,14 @@ if find_bad_scans:
         phase_scan_plots = [plot for plot in scan_plots if "phase" in plot]
 
         if len(phase_scan_plots) != 0:
+
+            # Now sort by the scan number
+            phase_scan_nums = \
+                np.array([int(plot.split("/")[-1].split("_")[-1].rstrip(".png"))
+                          for plot in phase_scan_plots])
+            phase_scan_nums.sort()
+            phase_scan_plots = [amp_scan_plots[i] for i in phase_scan_nums]
+
             print("Plotting phase vs time plots.")
 
             bad_scans_phase = ""
@@ -90,7 +106,7 @@ if find_bad_scans:
                 img = im.imread(plot)
                 p.imshow(img, origin='upper')
                 p.axis("off")
-                inp = raw_input("Scan %s : " % (num))
+                inp = raw_input("Scan %s T(t)/''(f)/A(a): " % (num))
                 if inp == "T" or inp == 't':
                     bad_scans_phase += num + ","
                 elif inp == "A" or inp == 'a':

@@ -140,7 +140,7 @@ for spw_num in spws:
                 transform = False
                 extendflag = False
                 plotrange = []
-                title = 'Amp vs Time: Field {0} Scan {1}'.format(names[ii], jj)
+                title = 'Phase vs Time: Field {0} Scan {1}'.format(names[ii], jj)
                 xlabel = ''
                 ylabel = ''
                 showmajorgrid = False

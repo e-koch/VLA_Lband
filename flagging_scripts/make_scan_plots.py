@@ -123,7 +123,7 @@ for spw_num in spws:
             async = False
             plotms()
 
-            if is_calibrator[jj]:
+            if is_calibrator[jj - 1]:
                 # Plot phase vs time
                 default('plotms')
                 vis = ms_active

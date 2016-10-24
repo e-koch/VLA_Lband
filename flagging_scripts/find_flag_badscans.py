@@ -62,7 +62,7 @@ if find_bad_scans:
         # Now sort by the scan number
         amp_scan_nums = \
             np.array([int(plot.split("/")[-1].split("_")[-1].rstrip(".png"))
-                      for plot in amp_scan_plots])
+                      for plot in amp_scan_plots]) - 1
         amp_scan_nums.sort()
         amp_scan_plots = [amp_scan_plots[i] for i in amp_scan_nums]
 
@@ -93,7 +93,7 @@ if find_bad_scans:
             # Now sort by the scan number
             phase_scan_nums = \
                 np.array([int(plot.split("/")[-1].split("_")[-1].rstrip(".png"))
-                          for plot in phase_scan_plots])
+                          for plot in phase_scan_plots]) - 1
             phase_scan_nums.sort()
             phase_scan_plots = [amp_scan_plots[i] for i in phase_scan_nums]
 

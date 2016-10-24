@@ -71,7 +71,7 @@ for ii in range(numFields):
 tb.close()
 
 # Make folder for scan plots
-scan_dir = ms_active.rstrip(".ms") + "_scan_plots"
+scan_dir = ms_active[:-3] + "_scan_plots"
 
 if not os.path.exists(scan_dir):
     os.mkdir(scan_dir)
@@ -105,7 +105,7 @@ for spw_str in spws:
             selectdata = True
             field = names[ii]
             scan = str(jj)
-            spw = spw_str
+            spw = str(spw_str)
             correlation = "RR,LL"
             averagedata = True
             avgbaseline = True
@@ -133,7 +133,7 @@ for spw_str in spws:
                 selectdata = True
                 field = names[ii]
                 scan = str(jj)
-                spw = spw_str
+                spw = str(spw_str)
                 correlation = "RR,LL"
                 averagedata = True
                 avgbaseline = True

@@ -90,6 +90,11 @@ for spw_str in spws:
         print("On field {}".format(names[ii]))
         for jj in field_scans[ii]:
 
+            # Check if all of the data is flagged.
+            if is_all_flagged[spw, jj - 1]:
+                print("All data flagged in SPW {0} scan {1}".format(spw, jj))
+                continue
+
             print("On scan {}".format(jj))
 
             default('plotms')

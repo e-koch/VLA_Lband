@@ -76,10 +76,10 @@ scan_dir = ms_active[:-3] + "_scan_plots"
 if not os.path.exists(scan_dir):
     os.mkdir(scan_dir)
 
-for spw_str in spws:
+for spw_num in spws:
     print("On SPW {}".format(spw))
 
-    spw_folder = os.path.join(scan_dir, "spw_{}".format(spw_str))
+    spw_folder = os.path.join(scan_dir, "spw_{}".format(spw_num))
     if not os.path.exists(spw_folder):
         os.mkdir(spw_folder)
     else:
@@ -91,8 +91,8 @@ for spw_str in spws:
         for jj in field_scans[ii]:
 
             # Check if all of the data is flagged.
-            if is_all_flagged[spw, jj - 1]:
-                print("All data flagged in SPW {0} scan {1}".format(spw, jj))
+            if is_all_flagged[spw_num, jj - 1]:
+                print("All data flagged in SPW {0} scan {1}".format(spw_num, jj))
                 continue
 
             print("On scan {}".format(jj))
@@ -105,7 +105,7 @@ for spw_str in spws:
             selectdata = True
             field = names[ii]
             scan = str(jj)
-            spw = str(spw_str)
+            spw = str(spw_num)
             correlation = "RR,LL"
             averagedata = True
             avgbaseline = True
@@ -133,7 +133,7 @@ for spw_str in spws:
                 selectdata = True
                 field = names[ii]
                 scan = str(jj)
-                spw = str(spw_str)
+                spw = str(spw_num)
                 correlation = "RR,LL"
                 averagedata = True
                 avgbaseline = True

@@ -13,3 +13,4 @@ echo "Run this script in the new pipeline directory"
 ln -s ../../paths.py
 ln -s ../../CASA_functions
 ln -s ../../imaging_pipeline
+ln -s ../../flagging_scripts

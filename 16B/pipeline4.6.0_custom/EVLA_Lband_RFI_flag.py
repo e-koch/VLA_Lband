@@ -50,7 +50,7 @@ if needs_flagging:
     # spw6 = ""  # There are two narrow, strong, but intermittent RFI sources
     spw7 = "7:44~"
 
-    flag_str = ",".join([spw1, spw2, spw3, spw5, spw7])
+    flag_str = ",".join([spw2, spw3, spw5, spw7])
     flagdata(vis=ms_active, spw=flag_str, flagbackup=False)
 
     flagmanager(vis=ms_active, mode='save', versionname="known_RFI")

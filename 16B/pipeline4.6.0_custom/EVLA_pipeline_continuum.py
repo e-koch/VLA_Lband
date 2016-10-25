@@ -166,6 +166,8 @@ try:
     # splitting the data!
     execfile(pipepath + 'EVLA_pipe_fake_flagall.py')
 
+    # Flag regions known to be dominated by constant RFI
+    execfile(pipepath + "EVLA_Lband_RFI_flag.py")
 
 # PREPARE FOR CALIBRATIONS
 # Fill model columns for primary calibrators

@@ -45,15 +45,17 @@ if needs_flagging:
     # Using the sensitivity calculator, the difference in sensitivity is
     # 1.88 uJy/bm vs. 1.63 uJy/bm over 48 hours. So not much of a difference.
     spw2 = "2:0~20;42~54;83~96"
-    spw3 = "3:0~10;30;31;48;49;69;70"
+    spw3 = "3:0~10;30;31;69;70"
     spw5 = "5:52~67;112;113"
     # spw6 = ""  # There are two narrow, strong, but intermittent RFI sources
-    spw7 = "7:44~"
+    spw7 = "7:44~127"
 
     flag_str = ",".join([spw2, spw3, spw5, spw7])
     flagdata(vis=ms_active, spw=flag_str, flagbackup=False)
 
-    flagmanager(vis=ms_active, mode='save', versionname="known_RFI")
+    flagmanager(vis=ms_active, mode='save', versionname="known_RFI",
+                comment="Removal of constant L-band RFI in 16B. See "
+                        "EVLA_Lband_RFI_flag.py")
 else:
     logprint("known_RFI flag version already exists. Skipping flagging.")
 

@@ -175,6 +175,10 @@ try:
         line_path = line_settings["folder_name"]
         if not os.path.exists(line_path):
             raise Warning("speclines path was not created.")
+
+        # Copy the online flags plot into each split directory
+        os.system("cp ../onlineFlags.png .")
+
         os.chdir(line_path)
 
         # Change the SDM name and other needed settings
@@ -190,6 +194,10 @@ try:
         cont_path = cont_settings["folder_name"]
         if not os.path.exists(cont_path):
             raise Warning("continuum path was not created.")
+
+        # Copy the online flags plot into each split directory
+        os.system("cp ../onlineFlags.png .")
+
         os.chdir(cont_path)
 
         # Change the SDM name and other needed settings

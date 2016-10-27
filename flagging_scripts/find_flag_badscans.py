@@ -159,6 +159,10 @@ if plot_bad_scans:
 
         bad_scans = bad_scan_dict[spw]
 
+        if len(bad_scans.keys()) == 0:
+            print("No info for SPW {}".format(spw_num))
+            continue
+
         # Check for scans that need to be entirely flagged.
         if len(bad_scans["Flag"]) != 0:
             print("Found the following scans to flag:"

@@ -173,7 +173,7 @@ if plot_bad_scans:
                      scan=bad_scans["Flag"], flagbackup=False)
 
         if len(bad_scans["Amp"]) != 0:
-            print("The bad scans are {}".format(bad_scans["Amp"]))
+            print("The bad amplitude scans are {}".format(bad_scans["Amp"]))
 
             default('plotms')
             vis = ms_active
@@ -199,12 +199,16 @@ if plot_bad_scans:
             showgui = True
             async = False
             plotms()
+
+            raw_input("Continue?")
+
         else:
             print("No bad amp vs. time scans.")
 
+
         if "Phase" in bad_scans.keys():
             if len(bad_scans["Phase"]) != 0:
-                print("The bad scans are {}".format(bad_scans["Phase"]))
+                print("The bad phase scans are {}".format(bad_scans["Phase"]))
 
                 default('plotms')
                 vis = ms_active
@@ -231,10 +235,10 @@ if plot_bad_scans:
                 async = False
                 plotms()
 
+                raw_input("Continue?")
+
             else:
                 print("No bad phase vs. time scans.")
-
-        raw_input("Continue?")
 
     # Get the existing flag version names.
     flag_folder = "{}.flagversions".format(ms_active)

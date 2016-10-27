@@ -48,6 +48,8 @@ if find_bad_scans:
 
     for spw_folder in spw_folders:
 
+        print("On SPW {}".format(spw_folder[-1]))
+
         bad_scan_dict[spw_folder.split("/")[-1]] = {}
 
         scan_plots = listdir_fullpath(spw_folder)

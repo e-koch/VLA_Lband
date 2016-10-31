@@ -10,7 +10,8 @@ import shutil
 import time
 
 
-def return_template(output_direc, ms_name, model_name, mask_name):
+def return_template(output_direc, ms_name, model_name, mask_name,
+                    script_name="HI_single_channel_clean.py"):
 
     # Emailing
     #PBS -m bea
@@ -31,7 +32,7 @@ source /home/ekoch/.bashrc
 cd X1
 
 echo "Starting at: `date`"
-casa-4.4 --nologger --logfile X5 -c /home/ekoch/code_repos/VLA_Lband/14B-088/HI/imaging/HI_single_channel_clean.py X2 X3 X4
+casa-4.4 --nologger --logfile X5 -c SCRIPT X2 X3 X4
 echo "Exited with code $? at: `date`"
         '''
 
@@ -41,6 +42,7 @@ echo "Exited with code $? at: `date`"
     template = template.replace("X2", ms_name)
     template = template.replace("X3", model_name)
     template = template.replace("X4", mask_name)
+    template = template.replace("SCRIPT", script_name)
 
     # Create log file name
     logfile = ms_name.rstrip(".ms") + ".log"
@@ -73,6 +75,12 @@ model_channel_name = "/home/ekoch/m33/14B-088/model_channels/M33_14B-088_HI_" \
 mask_channel_name = "/home/ekoch/m33/14B-088/mask_channels/M33_14B-088_HI_" \
     "mask_channel_{}.image"
 output_direc = "/home/ekoch/m33/14B-088/single_channels/"
+
+# Name of script to run. Default is to use the natural weighting script
+script_name = "/home/ekoch/code_repos/VLA_Lband/14B-088/HI/imaging/" \
+    "HI_single_channel_clean.py"
+# script_name = "/home/ekoch/code_repos/VLA_Lband/14B-088/HI/imaging/" \
+#     "HI_single_channel_clean_robust.py"
 
 # Use mask and model? Disable when continuing to clean.
 use_mask_model = True
@@ -151,7 +159,8 @@ while True:
             shutil.move(mask_channel_name.format(mod_mask_num), channel_direc)
 
         chan_template = return_template(channel_direc, chan_ms,
-                                        model_name, mask_name)
+                                        model_name, mask_name,
+                                        script_name=script_name)
 
         # Write to file
         sub_file = os.path.join(channel_direc,

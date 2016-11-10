@@ -11,10 +11,14 @@ import numpy as np
 from astropy.table import Table
 from astropy.utils.console import ProgressBar
 
-data_path = os.path.expanduser("~/MyRAID/M33/14B-088/HI/imaging/testing")
+from radio_beam import Beam
+
+data_path = os.path.expanduser("~/MyRAID/M33/14B-088/HI/channel_testing")
+
 
 def append_path(path):
     return os.path.join(data_path, path)
+
 
 parameters = ["CASAVer", "Model", "Mask", "AllFields", "MScale", "Tclean"]
 
@@ -25,6 +29,15 @@ ia.close()
 # For some reason, both axes need to be reversed
 mask = mask[::-1, ::-1]
 
+# Load in the model
+ia.open(append_path("M33_14B-088_HI_model_channel_330.image"))
+model = ia.torecord()["imagearray"].squeeze()
+ia.close()
+model = model[::-1, ::-1]
+# model[~mask] = np.NaN
+
+sd_beam = \
+    Beam.from_casa_image(append_path("M33_14B-088_HI_model_channel_330.image"))
 
 folders = glob(append_path("14B-088_HI_LSRK.ms.contsub_channel_1000.CASAVer*"))
 
@@ -40,6 +53,7 @@ parameter_table["std"] = []
 parameter_table["sum"] = []
 parameter_table["median"] = []
 parameter_table["peak_res"] = []
+parameter_table["sd_frac"] = []
 
 for folder in ProgressBar(folders):
 
@@ -56,27 +70,44 @@ for folder in ProgressBar(folders):
                 break
 
     # Now try opening the image, if it exists
-    imagename = os.path.join(folder, os.path.basename(folder) + ".clean.image")
-    if not os.path.exists(imagename):
+    feather_imagename = \
+        os.path.join(folder, os.path.basename(folder) + ".clean.image.feathered")
+    imagename = \
+        os.path.join(folder, os.path.basename(folder) + ".clean.image")
+    if not os.path.exists(imagename) and not os.path.exists(feather_imagename):
         # print("No image for {}".format(folder))
         parameter_table["std"].append(np.NaN)
         parameter_table["sum"].append(np.NaN)
         parameter_table["median"].append(np.NaN)
         parameter_table["peak_res"].append(np.NaN)
+        parameter_table["sd_frac"].append(np.NaN)
         continue
 
-    ia.open(imagename)
+    if os.path.exists(feather_imagename):
+        ia.open(feather_imagename)
+    elif os.path.exists(imagename):
+        ia.open(imagename)
+
     arr = ia.torecord()["imagearray"].squeeze()
     arr[~mask] = np.NaN
     ia.close()
+
+    interf_beam = Beam.from_casa_image(imagename)
+
+    # When comparing the VLA images, need to multiply by ratio of beam areas.
+    beam_ratio = (sd_beam.sr / interf_beam.sr).value
 
     # The numpy version in CASA doesn't have the nan version?
     parameter_table["std"].append(np.std(arr[np.isfinite(arr)]))
     parameter_table["sum"].append(np.sum(arr[np.isfinite(arr)]))
     parameter_table["median"].append(np.median(arr[np.isfinite(arr)]))
+    parameter_table["sd_frac"].append((beam_ratio *
+                                       np.sum(arr[np.isfinite(arr)])) /
+                                      np.sum(model[np.isfinite(model)]))
 
     # Also pick out the peak residual in the residual image.
-    imagename = os.path.join(folder, os.path.basename(folder) + ".clean.residual")
+    imagename = \
+        os.path.join(folder, os.path.basename(folder) + ".clean.residual")
     ia.open(imagename)
     arr = ia.torecord()["imagearray"].squeeze()
     arr[~mask] = np.NaN

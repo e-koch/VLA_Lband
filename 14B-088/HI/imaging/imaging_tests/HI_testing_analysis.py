@@ -8,8 +8,7 @@ import os
 import pandas as pd
 import statsmodels.formula.api as sm
 
-
-data_path = os.path.expanduser("~/MyRAID/M33/14B-088/HI/imaging/testing")
+data_path = os.path.expanduser("~/MyRAID/M33/14B-088/HI/channel_testing")
 
 data = pd.read_csv(os.path.join(data_path, "property_values.csv"))
 

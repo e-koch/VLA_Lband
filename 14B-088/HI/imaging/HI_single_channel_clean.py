@@ -49,7 +49,7 @@ if valid_mask:
           modelimage=model, mask=mask)
 
     # Only run if the image was actually produces
-    if os.path.exists(out_root + ".clean.image"):
+    if os.path.exists(out_root + ".clean.image") and model is not None:
         feather(imagename=out_root + ".clean.image.feathered",
                 highres=out_root + ".clean.image",
                 lowres=model)

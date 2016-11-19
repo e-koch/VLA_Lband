@@ -15,7 +15,8 @@ Custom Pipeline Changes
 * `EVLA_pipe_restart_lines.py` - Changed some script names to use the line versions.
 * Both restart scripts - Added test imaging scripts to the end. These are skipped if the `test_imaging` is `False`.
 * Added `EVLA_pipe_fake_flagall.py` when running the split MS pipelines. This calculates the input flag statistics only, since all deterministic flagging is performed prior to splitting. Setting these parameters is necessary for other portions of the pipeline, though.
-* `EVLA_pipe_filecollect.py` - If the weblog and final_caltables folder already exist, delete their contents.
+* `EVLA_pipe_filecollect.py` - If the final_caltables folder already exists, delete its contents.
+* `EVLA_pipe_filecollect.py` - Keep old versions of weblog when re-running the pipeline.
 
 Project Specific Changes
 ========================

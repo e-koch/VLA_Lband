@@ -55,7 +55,19 @@ else:
     os.makedirs(caltables_dir)
 
 if os.path.exists(weblog_dir):
-    rmtables(os.path.join(weblog_dir, "*"))
+    # We want to keep the old weblog from the previous pipeline run for
+    # comparisons.
+    # This also avoids conflicts when copying the new weblog contents in.
+    ct = 1
+    while True:
+        old_weblog_folder = weblog_dir + "_old_{}".format(ct)
+        if not os.path.exists(old_weblog_folder):
+            os.rename(weblog_dir, old_weblog_folder)
+            break
+        else:
+            # This one already exists. Up the count and try again.
+            ct += 1
+            continue
 else:
     os.makedirs(weblog_dir)
 

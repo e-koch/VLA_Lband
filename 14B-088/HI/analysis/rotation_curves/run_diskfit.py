@@ -7,6 +7,8 @@ import numpy as np
 from astropy.io import fits
 from glob import glob
 
+from analysis.paths import fourteenB_HI_data_path
+
 '''
 Run Diskfit provided with the parameter file and the path to the data.
 The output is saved in the data path
@@ -74,10 +76,9 @@ tab.write('rad.out.csv')
 
 fits_files = glob("*.fits")
 
-# This is hard-coded in right now
+# This is hard-coded in right now to correct the header outputted by Diskfit
 mom1 = \
-    fits.open(os.path.join(data_path,
-                           "M33_14B-088_HI.clean.image.pbcov_gt_0.3.ellip_mask.mom1.fits"))
+    fits.open(fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3.ellip_mask.mom1.fits"))
 header = mom1[0].header.copy()
 mom1.close()
 

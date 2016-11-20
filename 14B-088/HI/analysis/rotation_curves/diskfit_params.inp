@@ -1,4 +1,4 @@
-m=0 14B088 moment 1 fitting, DISKFIT # beamsize = 18.00'' # MUST BE RUN FROM /media/eric/MyRAID/M33/14B-088/HI/full_imaging/
+m=0 14B088 moment 1 fitting, DISKFIT # beamsize = 18.00'' # MUST BE RUN FROM /mnt/MyRAID/M33/VLA/14B-088/HI/full_imaging/
 vels                               # 2 vels/phot switch
 T  T                               # 3 VELS: I/O toggles: FITS I/O, vels in m/s
 'M33_14B-088_HI.clean.image.pbcov_gt_0.3.ellip_mask.mom1.fits'      # 4 file name

@@ -38,4 +38,4 @@ linewidth.write(fourteenB_HI_data_path(lwidth_name, no_check=True))
 peak_intens_name = "M33_14B-088_HI.clean.image.pbcov_gt_0.3.ellip_mask.peakvels.fits"
 peakvels = subcube.spectral_peakintensity().astype(np.float32)
 peakvels.header["BITPIX"] = -32
-peakvels.werite(fourteenB_HI_data_path(peak_intens_name, no_check=True))
+peakvels.write(fourteenB_HI_data_path(peak_intens_name, no_check=True))

@@ -60,4 +60,4 @@ arecibo_HI_data_path = \
 # Paper figures path
 papers_path = os.path.expanduser("~/Dropbox/My_Papers/")
 paper1_figures_path = \
-    os.path.join(papers_path, "In Prep/m33_14b088_hi/figures/")
+    os.path.join(papers_path, "In Prep/m33-HI-paper1/figures/")

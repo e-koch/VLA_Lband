@@ -50,6 +50,8 @@ def surfdens_radial_profile(gal, header=None, cube=None,
     if beam is None:
         if cube is not None:
             beam = cube.beam
+        elif mom0 is not None:
+            beam = mom0.meta["beam"]
 
     if beam is not None:
         beam_pix = beam.sr.to(u.deg**2) / (header["CDELT2"] * u.deg)**2
@@ -143,12 +145,12 @@ def surfdens_radial_profile(gal, header=None, cube=None,
         sdprof_sigma = sdprof_sigma.to(u.Jy * u.km / u.s)
         # Now convert to K
         if restfreq is not None:
-            sdprof = sdprof * mom0.meta["beam"].jtok(restfreq)
-            sdprof_sigma = sdprof_sigma * mom0.meta["beam"].jtok(restfreq)
+            sdprof = sdprof * beam.jtok(restfreq)
+            sdprof_sigma = sdprof_sigma * beam.jtok(restfreq)
         else:
-            sdprof = sdprof * mom0.meta["beam"].jtok(mom0.header["RESTFREQ"])
+            sdprof = sdprof * beam.jtok(mom0.header["RESTFREQ"])
             sdprof_sigma = sdprof_sigma * \
-                mom0.meta["beam"].jtok(mom0.header["RESTFREQ"])
+                beam.jtok(mom0.header["RESTFREQ"])
 
         sdprof = sdprof / u.Jy
         sdprof_sigma = sdprof_sigma / u.Jy
@@ -159,17 +161,21 @@ def surfdens_radial_profile(gal, header=None, cube=None,
 
     return radprof, sdprof, sdprof_sigma
 
+
 if __name__ == "__main__":
     from galaxies import Galaxy
     import matplotlib.pyplot as p
+    from astropy.table import Table
     import os
 
-    direc = "/home/eric/MyRAID/M33/14B-088/HI/full_imaging/"
-    # direc = "/home/eric/MyRAID/M33/14B-088/HI/combined_HI/"
+    from spectral_cube.cube_utils import average_beams
 
-    cube_file = os.path.join(direc,
-                             "M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.fits")
-    # cube_file = os.path.join(direc,
+    from paths import (fourteenB_HI_data_path, arecibo_HI_data_path,
+                       c_hi_analysispath, paper1_figures_path,
+                       data_path)
+
+    cube_file = fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.fits")
+    # cube_file = os.path.join(fourteenB_HI_data_path,
     #                          "M33_14B-088_AT0206_HI.clean.image.pbcov_gt_0.3_masked.fits")
 
     cube = \
@@ -181,37 +187,57 @@ if __name__ == "__main__":
 
     mom0 = cube.moment0()
 
+    # Bin size in pc
+    dr = 100 * u.pc
+
     # Create a radial profile of HI
-    rs, sd, sd_sigma = surfdens_radial_profile(g, cube=cube, mom0=mom0)
+    rs, sd, sd_sigma = surfdens_radial_profile(g, cube=cube, mom0=mom0,
+                                               beam=average_beams(cube.beams),
+                                               dr=dr)
     rs_n, sd_n, sd_sigma_n = \
         surfdens_radial_profile(g, cube=cube, mom0=mom0,
-                       pa_bounds=Angle([0.5 * np.pi * u.rad,
-                                        -0.5 * np.pi * u.rad]))
+                                pa_bounds=Angle([0.5 * np.pi * u.rad,
+                                                -0.5 * np.pi * u.rad]),
+                                beam=average_beams(cube.beams),
+                                dr=dr)
     rs_s, sd_s, sd_sigma_s = \
         surfdens_radial_profile(g, cube=cube, mom0=mom0,
-                       pa_bounds=Angle([-0.5 * np.pi * u.rad,
-                                        0.5 * np.pi * u.rad]))
+                                pa_bounds=Angle([-0.5 * np.pi * u.rad,
+                                                 0.5 * np.pi * u.rad]),
+                                beam=average_beams(cube.beams),
+                                dr=dr)
 
     # There is a ~1.5 global scaling factor b/w Arecibo and VLA + Arecibo
-    scale_factor = 1.451
+    # Not needed with the corrected cube!
+    # scale_factor = 1.451
+    scale_factor = 1.0
 
     # Add in creating a radial profile of the archival and the Arecibo
     # Also CO? I guess these should be on the same grid/resolution...
 
     # Arecibo
-    arecibo_path = "/media/eric/Data_3//M33/Arecibo/14B-088_items/"
+    # arecibo_file = arecibo_HI_data_path("14B-088_items/M33_14B-088_HI_model.fits")
+    arecibo_file = arecibo_HI_data_path("M33only_jy_stokes_vrad.fits")
     arecibo_cube = \
-        SpectralCube.read(os.path.join(arecibo_path,
-                                       "M33_14B-088_HI_model.fits"))
+        SpectralCube.read(arecibo_file)
     # Cut down to extents of the other cube
-    arecibo_cube = \
-        arecibo_cube.subcube(xlo=cube.longitude_extrema[0],
-                             xhi=cube.longitude_extrema[1],
-                             yhi=cube.latitude_extrema[0],
-                             ylo=cube.latitude_extrema[1])
+    # arecibo_cube = \
+    #    arecibo_cube.subcube(xlo=cube.longitude_extrema[0],
+    #                         xhi=cube.longitude_extrema[1],
+    #                         yhi=cube.latitude_extrema[0],
+    #                         ylo=cube.latitude_extrema[1])
     arecibo_mom0 = arecibo_cube.moment0()
     rs_arec, sd_arec, sd_sigma_arec = \
-        surfdens_radial_profile(g, cube=arecibo_cube, mom0=arecibo_mom0)
+        surfdens_radial_profile(g, cube=arecibo_cube, mom0=arecibo_mom0, dr=dr)
+
+    # Archival HI
+    arch_vla_file = os.path.join(data_path, "VLA/AT0206/old_imaging/m33_hi.masked.fits")
+    # arch_vla_file = os.path.join(data_path, "VLA/AT0206/imaging/M33_206_b_c_HI.fits")
+    arch_cube = SpectralCube.read(arch_vla_file)
+
+    arch_mom0 = arch_cube.moment0()
+    rs_arch, sd_arch, sd_sigma_arch = \
+        surfdens_radial_profile(g, cube=arch_cube, mom0=arch_mom0, dr=dr)
 
     p.ioff()
 
@@ -227,7 +253,28 @@ if __name__ == "__main__":
     p.xlabel(r"R (kpc)")
     p.legend(loc='best')
     p.grid("on")
-    p.show()
+    p.savefig(os.path.join(paper1_figures_path, "M33_Sigma_profile_w_Arecibo.pdf"))
+    p.savefig(os.path.join(paper1_figures_path, "M33_Sigma_profile_w_Arecibo.png"))
+    p.clf()
+
+    # W/ archival VLA
+    p.errorbar(rs.value, sd.value / scale_factor,
+               yerr=sd_sigma.value / scale_factor, fmt="-", color="b",
+               label="VLA + Arecibo", drawstyle='steps-mid')
+    p.plot(rs_arec.value, sd_arec.value, "g--", drawstyle='steps-mid',
+           label="Arecibo")
+    p.errorbar(rs_arch.value, sd_arch.value, yerr=sd_sigma_arec.value,
+               color="r", fmt="-.", drawstyle='steps-mid',
+               label="Archival VLA")
+    # p.errorbar(rs_arec.value, sd_arec.value, yerr=sd_sigma_arec.value,
+    #            fmt="o--", color="g", label="Arecibo", drawstyle='steps-mid')
+    p.ylabel(r"$\Sigma$ (M$_{\odot}$ pc$^{-2}$)")
+    p.xlabel(r"R (kpc)")
+    p.legend(loc='best')
+    p.grid("on")
+    p.savefig(os.path.join(paper1_figures_path, "M33_Sigma_profile_w_Arecibo_archival.pdf"))
+    p.savefig(os.path.join(paper1_figures_path, "M33_Sigma_profile_w_Arecibo_archival.png"))
+    p.clf()
 
     # Show the north vs south profiles
     p.plot(rs.value, sd.value / scale_factor, "k-.",
@@ -236,29 +283,35 @@ if __name__ == "__main__":
            drawstyle='steps-mid')
     p.plot(rs_s.value, sd_s.value / scale_factor, "g--", label="South",
            drawstyle='steps-mid')
-    # p.errorbar(rs_n.value, sd_n.value, yerr=sd_sigma_n.value, fmt="D-", color="b",
-    #            label="North")
-    # p.errorbar(rs_s.value, sd_s.value, yerr=sd_sigma_s.value, fmt="o-", color="g",
-    #            label="South")
+    # p.errorbar(rs_n.value, sd_n.value, yerr=sd_sigma_n.value, fmt="D-",
+    #            color="b", label="North")
+    # p.errorbar(rs_s.value, sd_s.value, yerr=sd_sigma_s.value, fmt="o-",
+    #            color="g", label="South")
     p.ylabel(r"$\Sigma$ (M$_{\odot}$ pc$^{-2}$)")
     p.xlabel(r"R (kpc)")
     p.legend(loc='best')
     p.grid("on")
-    p.show()
+    p.savefig(os.path.join(paper1_figures_path, "M33_Sigma_profile_N_S.pdf"))
+    p.savefig(os.path.join(paper1_figures_path, "M33_Sigma_profile_N_S.png"))
+    p.clf()
 
     # Compare to the surface density profile in Corbelli
-    corbelli = Table.read(os.path.expanduser("~/Dropbox/code_development/VLA_Lband/14B-088/HI/analysis/rotation_curves/corbelli_rotation_curve.csv"))
+    corbelli_filename = \
+        c_hi_analysispath("rotation_curves/corbelli_rotation_curve.csv")
+    corbelli = Table.read(corbelli_filename)
 
     p.plot(rs.value, sd.value / scale_factor,
            linestyle="-", color="b",
            label="This work", drawstyle='steps-mid')
     p.plot(corbelli["R"][corbelli["R"] <= 10.0],
-           corbelli["SigmaHI"][corbelli["R"] <= 10.0], "g--", drawstyle='steps-mid',
+           corbelli["SigmaHI"][corbelli["R"] <= 10.0], "r--", drawstyle='steps-mid',
            label="Corbelli et al. (2014)")
     p.ylabel(r"$\Sigma$ (M$_{\odot}$ pc$^{-2}$)")
     p.xlabel(r"R (kpc)")
     p.legend(loc='best')
     p.grid()
-    p.show()
+    p.savefig(os.path.join(paper1_figures_path, "M33_Sigma_profile_w_Corbelli.pdf"))
+    p.savefig(os.path.join(paper1_figures_path, "M33_Sigma_profile_w_Corbelli.png"))
+    p.clf()
 
     p.ion()

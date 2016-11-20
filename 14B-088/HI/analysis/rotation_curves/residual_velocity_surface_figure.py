@@ -5,28 +5,40 @@ from astropy.wcs import WCS
 import matplotlib.pyplot as p
 import numpy as np
 
+from analysis.paths import fourteenB_HI_data_path, paper1_figures_path
+
 '''
 Plot the residual velocities from disk fit, and from subtracting the smoothed version.
 '''
 
-direc = "/home/eric/MyRAID/M33/14B-088/HI/full_imaging/diskfit_noasymm_nowarp_output/"
+direc = fourteenB_HI_data_path("diskfit_noasymm_nowarp_output/", no_check=True)
 
-# res = fits.open(os.path.join(direc, "rad.res.fits"))[0]
-res_fit = fits.open(os.path.join(direc, "rad.res.fits"))[0]
-
-data = res_fit.data
-
-# ax1 = p.subplot(121, projection=WCS(res.header))
-# im1 = ax1.imshow(res.data / 1000., origin='lower', cmap=p.cm.gray_r)
-
-# cb = p.colorbar(im1)
-# cb.set_label("km s$^{-1}$")
+res = fits.open(os.path.join(direc, "rad.res.fits"))[0]
+res_fit = fits.open(os.path.join(direc, "rad.fitres.fits"))[0]
 
 ax2 = p.subplot(111, projection=WCS(res_fit.header))
-im2 = ax2.imshow(data / 1000., origin='lower', cmap='seismic',
+im2 = ax2.imshow(res.data / 1000., origin='lower', cmap='seismic',
                  vmax=30, vmin=-30)
 
 cb2 = p.colorbar(im2)
 cb2.set_label("Residual Velocity (km s$^{-1}$)")
 
 p.draw()
+
+p.savefig(paper1_figures_path("M33_residual_velocity_diskfit.pdf"))
+p.savefig(paper1_figures_path("M33_residual_velocity_diskfit.png"))
+
+raw_input("Next plot?")
+p.clf()
+
+ax2 = p.subplot(111, projection=WCS(res_fit.header))
+im2 = ax2.imshow(res_fit.data / 1000., origin='lower', cmap='seismic',
+                 vmax=30, vmin=-30)
+
+cb2 = p.colorbar(im2)
+cb2.set_label("Residual Velocity (km s$^{-1}$)")
+
+p.draw()
+
+p.savefig(paper1_figures_path("M33_residual_velocity_diskfit_fit.pdf"))
+p.savefig(paper1_figures_path("M33_residual_velocity_diskfit_fit.png"))

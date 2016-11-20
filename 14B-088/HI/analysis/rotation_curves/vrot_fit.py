@@ -13,6 +13,7 @@ from galaxies import Galaxy
 Fit Meidt+08 Eq. 5 (Eq. 1 Faber & Gallagher 79)
 '''
 
+
 def vcirc(r, *pars):
     n, vmax, rmax = pars
     numer = vmax * (r / rmax)
@@ -20,26 +21,32 @@ def vcirc(r, *pars):
                      np.power(r / rmax, n), (3 / (2 * n)))
     return numer / denom
 
-def generate_vrot_model():
-    data_path = "/media/eric/MyRAID/M33/14B-088/HI/full_imaging/"
 
+def generate_vrot_model(table_name, verbose=True):
+    '''
+    Parameters
+    ----------
+    table_name : str
+        Name and path of the csv table produced by `run_diskfit.py`
+    '''
 
-    data = \
-        Table.read(os.path.join(data_path,
-                                'diskfit_noasymm_nowarp_output/rad.out.csv'))
+    if isinstance(table_name, basestring):
+        data = Table.read(table_name)
+    else:
+        data = table_name
 
     pars, pcov = curve_fit(vcirc, data['r'], data['Vt'], sigma=data['eVt'],
                            absolute_sigma=True, p0=(1., 100., 1000.))
 
-    print("n: {0} +/- {1}".format(pars[0], np.sqrt(pcov[0, 0])))
-    print("vmax: {0} +/- {1}".format(pars[1], np.sqrt(pcov[1, 1])))
-    print("rmax: {0} +/- {1}".format(pars[2], np.sqrt(pcov[2, 2])))
+    if verbose:
+        print("n: {0} +/- {1}".format(pars[0], np.sqrt(pcov[0, 0])))
+        print("vmax: {0} +/- {1}".format(pars[1], np.sqrt(pcov[1, 1])))
+        print("rmax: {0} +/- {1}".format(pars[2], np.sqrt(pcov[2, 2])))
 
     return pars, pcov
 
-def return_smooth_model(header):
 
-    gal = Galaxy("M33")
+def return_smooth_model(table_name, header, gal):
 
     radii = gal.radius(header=header).value
     pas = gal.position_angles(header=header).value
@@ -48,7 +55,7 @@ def return_smooth_model(header):
     # Distance scaling (1" ~ 4 pc). Conversion is deg to kpc
     dist_scale = (np.pi / 180.) * gal.distance.to(u.pc).value
 
-    pars, pcov = generate_vrot_model()
+    pars, pcov = generate_vrot_model(table_name)
 
     # Convert rmax to pc
     mod_pars = pars.copy()
@@ -64,30 +71,33 @@ def return_smooth_model(header):
 
     return smooth_model
 
+
 if __name__ == "__main__":
+
+    from analysis.paths import (fourteenB_HI_data_path, paper1_figures_path,
+                                c_hi_analysispath)
+
     make_plot = True
-    make_rotmodel = False
+    make_rotmodel = True
 
+    gal = Galaxy("M33")
 
-    pars, pcov = generate_vrot_model()
+    table_name = fourteenB_HI_data_path("diskfit_noasymm_nowarp_output/rad.out.csv")
 
-    data_path = "/media/eric/MyRAID/M33/14B-088/HI/full_imaging/"
+    data = Table.read(table_name)
 
-    mom1_name = "M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.mom1.fits"
-    # mom1_name = "M33_14B-088_HI.clean.image.pbcov_gt_0.3.ellip_mask.mom1.fits"
-    mom1 = \
-        fits.open(os.path.join(data_path, mom1_name))
+    pars, pcov = generate_vrot_model(table_name)
+
+    mom1_name = fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3.ellip_mask.mom1.fits")
+    mom1 = fits.open(mom1_name)
 
     # Pixel scales (1 ~ 3")
-    scale = wcs.utils.proj_plane_pixel_scales(wcs.WCS(mom1[0].header))[0]
+    mom1_wcs = wcs.WCS(mom1[0].header)
+    scale = wcs.utils.proj_plane_pixel_scales(mom1_wcs)[0]
     # Distance scaling (1" ~ 4 pc). Conversion is deg to kpc
-    dist_scale = (np.pi / 180.) * 840.
+    dist_scale = (np.pi / 180.) * gal.distance.to(u.kpc).value
 
     if make_plot:
-
-        data = \
-            Table.read(os.path.join(data_path,
-                                    'diskfit_noasymm_nowarp_output/rad.out.csv'))
 
         phys_radius = data["r"] * scale * dist_scale
         plot_pars = pars.copy()
@@ -99,12 +109,14 @@ if __name__ == "__main__":
         p.xlabel(r"Radius (kpc)")
         p.grid()
         p.draw()
+        p.savefig(paper1_figures_path("M33_vrot_nowarp_noasymm_wfit.pdf"))
+        p.savefig(paper1_figures_path("M33_vrot_nowarp_noasymm_wfit.png"))
 
         raw_input("Next plot?")
         p.clf()
 
         # load in the Corbelli curve for comparison
-        corbelli = Table.read(os.path.expanduser("~/Dropbox/code_development/VLA_Lband/14B-088/HI/analysis/rotation_curves/corbelli_rotation_curve.csv"))
+        corbelli = Table.read(c_hi_analysispath("rotation_curves/corbelli_rotation_curve.csv"))
 
         p.errorbar(phys_radius, data["Vt"], yerr=data['eVt'],
                    fmt='-', color='b', label="This work", drawstyle='steps-mid')
@@ -119,11 +131,14 @@ if __name__ == "__main__":
         p.grid()
         p.draw()
 
+        p.savefig(paper1_figures_path("M33_vrot_nowarp_noasymm_wCorbelli.pdf"))
+        p.savefig(paper1_figures_path("M33_vrot_nowarp_noasymm_wCorbelli.png"))
+
         p.ion()
 
     if make_rotmodel:
 
-        smooth_model = return_smooth_model(mom1[0].header)
+        smooth_model = return_smooth_model(data, mom1[0].header, gal)
 
         # Save the smooth model.
         new_header = mom1[0].header.copy()
@@ -134,8 +149,8 @@ if __name__ == "__main__":
                    pars[2], np.sqrt(pcov[2, 2]))
         new_header["BUNIT"] = "m / s"
         new_hdu = fits.PrimaryHDU(smooth_model, header=new_header)
-        new_hdu.writeto(os.path.join(data_path,
-                                     "diskfit_noasymm_nowarp_output/rad.fitmod.fits"),
+        new_hdu.writeto(fourteenB_HI_data_path("diskfit_noasymm_nowarp_output/rad.fitmod.fits",
+                                               no_check=True),
                         clobber=True)
 
         # And the non-circular residuals
@@ -147,6 +162,6 @@ if __name__ == "__main__":
                    pars[2], np.sqrt(pcov[2, 2]))
         new_header["BUNIT"] = "m / s"
         new_hdu = fits.PrimaryHDU(mom1[0].data - smooth_model, header=new_header)
-        new_hdu.writeto(os.path.join(data_path,
-                                     "diskfit_noasymm_nowarp_output/rad.fitres.fits"),
+        new_hdu.writeto(fourteenB_HI_data_path("diskfit_noasymm_nowarp_output/rad.fitres.fits",
+                                               no_check=True),
                         clobber=True)

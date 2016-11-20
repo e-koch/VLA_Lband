@@ -253,8 +253,8 @@ if __name__ == "__main__":
     p.xlabel(r"R (kpc)")
     p.legend(loc='best')
     p.grid("on")
-    p.savefig(os.path.join(paper1_figures_path, "M33_Sigma_profile_w_Arecibo.pdf"))
-    p.savefig(os.path.join(paper1_figures_path, "M33_Sigma_profile_w_Arecibo.png"))
+    p.savefig(paper1_figures_path("M33_Sigma_profile_w_Arecibo.pdf"))
+    p.savefig(paper1_figures_path("M33_Sigma_profile_w_Arecibo.png"))
     p.clf()
 
     # W/ archival VLA
@@ -272,8 +272,8 @@ if __name__ == "__main__":
     p.xlabel(r"R (kpc)")
     p.legend(loc='best')
     p.grid("on")
-    p.savefig(os.path.join(paper1_figures_path, "M33_Sigma_profile_w_Arecibo_archival.pdf"))
-    p.savefig(os.path.join(paper1_figures_path, "M33_Sigma_profile_w_Arecibo_archival.png"))
+    p.savefig(paper1_figures_path("M33_Sigma_profile_w_Arecibo_archival.pdf"))
+    p.savefig(paper1_figures_path("M33_Sigma_profile_w_Arecibo_archival.png"))
     p.clf()
 
     # Show the north vs south profiles
@@ -291,8 +291,8 @@ if __name__ == "__main__":
     p.xlabel(r"R (kpc)")
     p.legend(loc='best')
     p.grid("on")
-    p.savefig(os.path.join(paper1_figures_path, "M33_Sigma_profile_N_S.pdf"))
-    p.savefig(os.path.join(paper1_figures_path, "M33_Sigma_profile_N_S.png"))
+    p.savefig(paper1_figures_path("M33_Sigma_profile_N_S.pdf"))
+    p.savefig(paper1_figures_path("M33_Sigma_profile_N_S.png"))
     p.clf()
 
     # Compare to the surface density profile in Corbelli
@@ -310,8 +310,8 @@ if __name__ == "__main__":
     p.xlabel(r"R (kpc)")
     p.legend(loc='best')
     p.grid()
-    p.savefig(os.path.join(paper1_figures_path, "M33_Sigma_profile_w_Corbelli.pdf"))
-    p.savefig(os.path.join(paper1_figures_path, "M33_Sigma_profile_w_Corbelli.png"))
+    p.savefig(paper1_figures_path("M33_Sigma_profile_w_Corbelli.pdf"))
+    p.savefig(paper1_figures_path("M33_Sigma_profile_w_Corbelli.png"))
     p.clf()
 
     p.ion()

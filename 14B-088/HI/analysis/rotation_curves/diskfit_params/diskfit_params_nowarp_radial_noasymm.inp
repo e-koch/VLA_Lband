@@ -11,7 +11,7 @@ T T T                              # 9 Disk toggles: fit for PA, eps & cen
 402.0  757.0                      #11 initial guess for disk center
 F T 45.00 2                        #12 VELS: non-circ. flow + flow PA fit toggle, initial flow PA, order m
 T F                                #13 VELS: inner interpolation + radial flows fit toggles
-T -179.00 2.0 25.0                  #14 VELS: toggle to fit Vsys, initial guess Vsys, delta_ISM, & vely errtol
+T -179.00 6.0 25.0                  #14 VELS: toggle to fit Vsys, initial guess Vsys, delta_ISM, & vely errtol
 F T T T 90 0 0                     #15 VELS: warp toggles - warp, fit radius, ellip & pa, initial rw, welm & wphim
 0.                                 #16 Seeing/beam smearing: If non-zero, seeing/beam FWHM for correction.
 -0.01 -0.01                        #17 Model component smoothing lambda_1 & lambda_2

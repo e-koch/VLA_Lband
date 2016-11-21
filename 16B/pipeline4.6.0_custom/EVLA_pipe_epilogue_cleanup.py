@@ -49,7 +49,7 @@ shutil.move(os.path.join(current_path, ms_active + ".flagversions"),
             full_new_path)
 # Some reductions have custom flagging scripts I've created. Ensure these are
 # also kept.
-shutil.move(os.path.join(current_path, "*.py"))
+shutil.move(os.path.join(current_path, "*.py"), full_new_path)
 
 # Now split out the science fields, keep only the corrected column, and remove
 # all flagged data.

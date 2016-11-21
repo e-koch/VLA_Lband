@@ -14,6 +14,7 @@ will be the current folder with "_calibrated" appended.
 
 import os
 import shutil
+from glob import glob
 
 try:
     ms_active
@@ -49,7 +50,8 @@ shutil.move(os.path.join(current_path, ms_active + ".flagversions"),
             full_new_path)
 # Some reductions have custom flagging scripts I've created. Ensure these are
 # also kept.
-shutil.move(os.path.join(current_path, "*.py"), full_new_path)
+for pyfile in glob(os.path.join(current_path, "*.py")):
+    shutil.move(pyfile, full_new_path)
 
 # Now split out the science fields, keep only the corrected column, and remove
 # all flagged data.
@@ -92,4 +94,5 @@ shutil.move("test_images.tar.gz", "restoration_products")
 shutil.move("final_caltables.tar.gz", "restoration_products")
 shutil.move("{}.flagversions.tar.gz".format(ms_active), "restoration_products")
 shutil.move("pipeline_shelf.restore", "restoration_products")
-shutil.move("*.py", "restoration_products")
+for pyfile in glob("*.py"):
+    shutil.move(pyfile, "restoration_products")

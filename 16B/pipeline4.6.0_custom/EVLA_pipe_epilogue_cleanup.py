@@ -54,9 +54,16 @@ shutil.move(os.path.join(current_path, "*.py"))
 # Now split out the science fields, keep only the corrected column, and remove
 # all flagged data.
 default("split")
+# For the continuum tracks, I want to keep everything for now to avoid
+# potential issues when applying the polarization calibration
+if "continuum" in ms_active:
+    intent = ''
+else:
+    intent = "*OBSERVE*"
+
 split(vis=ms_active,
       outputvis=os.path.join(full_new_path, ms_active[:-3] + "_calibrated.ms"),
-      intent='*OBSERVE*', datacolumn='corrected', keepflags=False)
+      intent=intent, datacolumn='corrected', keepflags=False)
 
 # Now nuke the old stuff
 if remove_nonessential:

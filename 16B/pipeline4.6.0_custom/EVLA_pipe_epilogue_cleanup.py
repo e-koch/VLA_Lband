@@ -47,6 +47,9 @@ shutil.move(os.path.join(current_path, "test_images"), full_new_path)
 shutil.move(os.path.join(current_path, "weblog"), full_new_path)
 shutil.move(os.path.join(current_path, ms_active + ".flagversions"),
             full_new_path)
+# Some reductions have custom flagging scripts I've created. Ensure these are
+# also kept.
+shutil.move(os.path.join(current_path, "*.py"))
 
 # Now split out the science fields, keep only the corrected column, and remove
 # all flagged data.
@@ -82,3 +85,4 @@ shutil.move("test_images.tar.gz", "restoration_products")
 shutil.move("final_caltables.tar.gz", "restoration_products")
 shutil.move("{}.flagversions.tar.gz".format(ms_active), "restoration_products")
 shutil.move("pipeline_shelf.restore", "restoration_products")
+shutil.move("*.py", "restoration_products")

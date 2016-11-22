@@ -3,6 +3,7 @@ import sys
 import shutil
 import os
 from astropy.table import Table
+from pandas import DataFrame
 import numpy as np
 from astropy.io import fits
 from glob import glob
@@ -56,6 +57,32 @@ os.chdir(output_folder)
 # Read in as a string
 with open('rad.out') as f:
     contents = f.readlines()
+
+# Read out the best fit values for the galaxy parameters and the fit results
+# Params on line 39-42, 44, 56-59
+params = {}
+params["PA"] = float(contents[39].split()[-3])
+params["PA_err"] = float(contents[39].split()[-1])
+params["eps"] = float(contents[40].split()[-3])
+params["eps_err"] = float(contents[40].split()[-1])
+params["inc"] = float(contents[41].split()[-3])
+params["inc_err"] = float(contents[41].split()[-1])
+# Both x and y are on the same line
+params["xcent"] = float(contents[42].split()[-6])
+params["xcent_err"] = float(contents[42].split()[-4][:-1])
+params["ycent"] = float(contents[42].split()[-3])
+params["ycent_err"] = float(contents[42].split()[-1])
+params["Vsys"] = float(contents[44].split()[-3])
+params["Vsys_err"] = float(contents[44].split()[-1])
+
+params["points_used"] = float(contents[56].split()[-1])
+params["iterations"] = float(contents[57].split()[-1])
+params["chi^2"] = float(contents[58].split()[-1])
+params["DOF"] = float(contents[59].split()[-1])
+
+# Can't read a dictionary directly into an astropy table?
+df = DataFrame(params, index=[0])
+df.to_csv('rad.out.params.csv')
 
 # Column names are always on line 62, and data starts on 64
 colnames = contents[62].split()

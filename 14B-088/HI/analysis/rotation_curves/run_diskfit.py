@@ -80,10 +80,6 @@ params["iterations"] = float(contents[57].split()[-1])
 params["chi^2"] = float(contents[58].split()[-1])
 params["DOF"] = float(contents[59].split()[-1])
 
-# Can't read a dictionary directly into an astropy table?
-df = DataFrame(params, index=[0])
-df.to_csv('rad.out.params.csv')
-
 # Column names are always on line 62, and data starts on 64
 colnames = contents[62].split()
 
@@ -93,11 +89,22 @@ for line in contents[64:]:
     data.append([float(val) for val in line.split()])
 
 data = np.array(data)
-# Sometimes Vt comes out as negative.
-data[:, 2] = np.abs(data[:, 2])
+# Sometimes Vt comes out as negative, due to PA being flipped by 180 degrees
+if (data[:, 2] < 0).all():
+    data[:, 2] = np.abs(data[:, 2])
+
+    # Flip PA by 180 deg.
+    if params['PA'] + 180 < 360:
+        params["PA"] += 180.
+    else:
+        params["PA"] -= 180.
 
 tab = Table(data=data, names=colnames)
 tab.write('rad.out.csv')
+
+# Can't read a dictionary directly into an astropy table?
+df = DataFrame(params, index=[0])
+df.to_csv('rad.out.params.csv')
 
 # Add WCS info to the output of DISKFIT
 

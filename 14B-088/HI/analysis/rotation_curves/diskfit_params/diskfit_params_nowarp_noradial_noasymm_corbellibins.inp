@@ -1,0 +1,48 @@
+m=0 14B088 moment 1 fitting, DISKFIT # beamsize = 18.00'' # MUST BE RUN FROM /mnt/MyRAID/M33/VLA/14B-088/HI/full_imaging/
+vels                               # 2 vels/phot switch
+T  T                               # 3 VELS: I/O toggles: FITS I/O, vels in m/s
+'M33_14B-088_HI.clean.image.pbcov_gt_0.3.ellip_mask.mom1.fits'      # 4 file name
+None                               # 5 VELS + FITS:file name for velocity uncerts
+1  1  846  1477                 # 6 FITS region to fit: (xlow,ylow) & (xrange,yrange)
+100.0  20.00  0.45  6 3.0           # 7 FITS sampling: regrad, regpa, regeps, istepout, pixscale
+'diskfit_noasymm_noradial_nowarp_output_corbellibins/rad.out'    # 8 file name for output parameters
+T T T                              # 9 Disk toggles: fit for PA, eps & cen
+20.00  0.42                        #10 initial guess for disk PA and eps=(1-b/a)
+402.0  757.0                      #11 initial guess for disk center
+F T 45.00 2                        #12 VELS: non-circ. flow + flow PA fit toggle, initial flow PA, order m
+T F                                #13 VELS: inner interpolation + radial flows fit toggles
+T -179.00 6.0 25.0                  #14 VELS: toggle to fit Vsys, initial guess Vsys, delta_ISM, & vely errtol
+F T T T 90 0 0                     #15 VELS: warp toggles - warp, fit radius, ellip & pa, initial rw, welm & wphim
+0.                                 #16 Seeing/beam smearing: If non-zero, seeing/beam FWHM for correction.
+-0.01 -0.01                        #17 Model component smoothing lambda_1 & lambda_2
+T -50 200 -1.0                       #18 Uncertainties: toggle, seed, nunc, junc
+F                                  #19 Verbose toggle
+3.00 110.00                        #20 Min, max radii for bar/noncirc flow fit
+19.6442672616                      #21 ring radii
+22.9183118052
+37.6515122515
+52.3847126977
+59.7513129208
+67.1179131439
+88.3992026773
+99.8583585799
+118.684114706
+139.965404239
+153.06158241
+180.072449898
+186.62053898
+220.17949555
+220.998006693
+255.37547440
+260.28654121
+288.93443097
+299.57507574
+339.68212139
+379.78916705
+419.89621271
+460.00325837
+500.11030403
+540.217349695
+580.32439535
+619.61292987
+659.71997553

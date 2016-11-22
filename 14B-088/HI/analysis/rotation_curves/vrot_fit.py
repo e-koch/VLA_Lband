@@ -66,10 +66,29 @@ def return_smooth_model(table_name, header, gal):
         np.sin(gal.inclination).value
 
     # Shift by Vsys (m / s)
-    vsys = -180610.
-    smooth_model += vsys
+    smooth_model += gal.vsys.to(u.m / u.s).value
 
     return smooth_model
+
+
+def update_galaxy_params(gal, param_table, spatial_wcs):
+    '''
+    Use the fit values from fit rather than the hard-coded values in galaxies.
+    '''
+
+    from astropy.coordinates import Angle, SkyCoord
+
+    gal.inclination = Angle(param_table["inc"] * u.deg)[0]
+    gal.position_angle = Angle(param_table["PA"] * u.deg)[0]
+    gal.vsys = (param_table["Vsys"] * u.km / u.s)[0]
+
+    # The positions in the table are in pixels, so convert to the sky using
+    # the spatial WCS info.
+    xcent, ycent = param_table["xcent"], param_table["ycent"]
+    ra_cent, dec_cent = spatial_wcs.celestial.wcs_pix2world(xcent, ycent, 0)
+
+    gal.center_position = SkyCoord(ra_cent, dec_cent, unit=(u.deg, u.deg),
+                                   frame='fk5')
 
 
 if __name__ == "__main__":
@@ -77,7 +96,7 @@ if __name__ == "__main__":
     from analysis.paths import (fourteenB_HI_data_path, paper1_figures_path,
                                 c_hi_analysispath)
 
-    make_plot = True
+    make_plot = False
     make_rotmodel = True
 
     gal = Galaxy("M33")
@@ -93,17 +112,29 @@ if __name__ == "__main__":
     # for the names of the output plots.
     params = "_".join(folder_name.split("_")[1:-1])
 
-    table_name = fourteenB_HI_data_path("{}/rad.out.csv".format(folder_name))
+    # Load in moment 1
+    # mom1_name = fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3.ellip_mask.mom1.fits")
+    mom1_name = fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3.ellip_mask.mom1.fits")
+    mom1 = fits.open(mom1_name)
+    mom1_wcs = wcs.WCS(mom1[0].header)
+
+    # Since diskfit gives updated galaxy parameters, read them in and use
+    # instead of the hard-wired values in Galaxy
+    param_name = \
+        fourteenB_HI_data_path("{}/rad.out.params.csv".format(folder_name))
+
+    param_table = Table.read(param_name)
+
+    update_galaxy_params(gal, param_table, mom1_wcs)
+
+    table_name = \
+        fourteenB_HI_data_path("{}/rad.out.csv".format(folder_name))
 
     data = Table.read(table_name)
 
     pars, pcov = generate_vrot_model(table_name)
 
-    mom1_name = fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3.ellip_mask.mom1.fits")
-    mom1 = fits.open(mom1_name)
-
     # Pixel scales (1 ~ 3")
-    mom1_wcs = wcs.WCS(mom1[0].header)
     scale = wcs.utils.proj_plane_pixel_scales(mom1_wcs)[0]
     # Distance scaling (1" ~ 4 pc). Conversion is deg to kpc
     dist_scale = (np.pi / 180.) * gal.distance.to(u.kpc).value
@@ -150,6 +181,7 @@ if __name__ == "__main__":
 
     if make_rotmodel:
 
+        # First make version with the ellipse masked moment 1 loaded in above.
         smooth_model = return_smooth_model(data, mom1[0].header, gal)
 
         # Save the smooth model.
@@ -161,7 +193,7 @@ if __name__ == "__main__":
                    pars[2], np.sqrt(pcov[2, 2]))
         new_header["BUNIT"] = "m / s"
         new_hdu = fits.PrimaryHDU(smooth_model, header=new_header)
-        new_hdu.writeto(fourteenB_HI_data_path("diskfit_noasymm_nowarp_output/rad.fitmod.fits",
+        new_hdu.writeto(fourteenB_HI_data_path("{}/rad.fitmod_ellipmask.fits".format(folder_name),
                                                no_check=True),
                         clobber=True)
 
@@ -174,6 +206,38 @@ if __name__ == "__main__":
                    pars[2], np.sqrt(pcov[2, 2]))
         new_header["BUNIT"] = "m / s"
         new_hdu = fits.PrimaryHDU(mom1[0].data - smooth_model, header=new_header)
-        new_hdu.writeto(fourteenB_HI_data_path("diskfit_noasymm_nowarp_output/rad.fitres.fits",
+        new_hdu.writeto(fourteenB_HI_data_path("{}/rad.fitres_ellipmask.fits".format(folder_name),
+                                               no_check=True),
+                        clobber=True)
+
+        # And now with the normal pbcov masked grid.
+        mom1_name = fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.mom1.fits")
+        mom1 = fits.open(mom1_name)
+
+        smooth_model = return_smooth_model(data, mom1[0].header, gal)
+
+        # Save the smooth model.
+        new_header = mom1[0].header.copy()
+        new_header["COMMENT"] = "Smooth rotation model of DISKFIT output. " \
+            "Uses Eq.5 from Meidt et al. 2008. n={0:.2f}+/-{1:.2f}, " \
+            "Vmax={2:.2f}+/-{3:.2f} km/s, rmax={4:.2f}+/-{5:.2f} pix".\
+            format(pars[0], np.sqrt(pcov[0, 0]), pars[1], np.sqrt(pcov[1, 1]),
+                   pars[2], np.sqrt(pcov[2, 2]))
+        new_header["BUNIT"] = "m / s"
+        new_hdu = fits.PrimaryHDU(smooth_model, header=new_header)
+        new_hdu.writeto(fourteenB_HI_data_path("{}/rad.fitmod.fits".format(folder_name),
+                                               no_check=True),
+                        clobber=True)
+
+        # And the non-circular residuals
+        new_header = mom1[0].header.copy()
+        new_header["COMMENT"] = "Residuals from rotation model of DISKFIT output. " \
+            "Uses Eq.5 from Meidt et al. 2008. n={0:.2f}+/-{1:.2f}, " \
+            "Vmax={2:.2f}+/-{3:.2f} km/s, rmax={4:.2f}+/-{5:.2f} pix".\
+            format(pars[0], np.sqrt(pcov[0, 0]), pars[1], np.sqrt(pcov[1, 1]),
+                   pars[2], np.sqrt(pcov[2, 2]))
+        new_header["BUNIT"] = "m / s"
+        new_hdu = fits.PrimaryHDU(mom1[0].data - smooth_model, header=new_header)
+        new_hdu.writeto(fourteenB_HI_data_path("{}/rad.fitres.fits".format(folder_name),
                                                no_check=True),
                         clobber=True)

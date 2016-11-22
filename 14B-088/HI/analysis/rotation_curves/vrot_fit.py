@@ -82,7 +82,18 @@ if __name__ == "__main__":
 
     gal = Galaxy("M33")
 
-    table_name = fourteenB_HI_data_path("diskfit_noasymm_nowarp_output/rad.out.csv")
+    diskfit_runs = [dir for dir in os.listdir(fourteenB_HI_data_path(""))
+                    if dir.startswith("diskfit")]
+
+    print("Available diskfit runs: " + str(diskfit_runs))
+
+    folder_name = raw_input("Give folder name of the diskfit run: ")
+
+    # My convention has been diskfit_params_output. Only keep the params parts
+    # for the names of the output plots.
+    params = "_".join(folder_name.split("_")[1:-1])
+
+    table_name = fourteenB_HI_data_path("{}/rad.out.csv".format(folder_name))
 
     data = Table.read(table_name)
 
@@ -103,14 +114,15 @@ if __name__ == "__main__":
         plot_pars = pars.copy()
         plot_pars[2] *= scale * dist_scale
         p.errorbar(phys_radius, data["Vt"], yerr=data['eVt'],
-                   fmt='-', color='b', label="This work", drawstyle='steps-mid')
+                   fmt='-', color='b', label="This work",
+                   drawstyle='steps-mid')
         p.plot(phys_radius, vcirc(phys_radius, *plot_pars), 'r-')
         p.ylabel(r"V$_{\mathrm{circ}}$ (km / s)")
         p.xlabel(r"Radius (kpc)")
         p.grid()
         p.draw()
-        p.savefig(paper1_figures_path("M33_vrot_nowarp_noasymm_wfit.pdf"))
-        p.savefig(paper1_figures_path("M33_vrot_nowarp_noasymm_wfit.png"))
+        p.savefig(paper1_figures_path("M33_vrot_{}_wfit.pdf".format(params)))
+        p.savefig(paper1_figures_path("M33_vrot_{}_wfit.png".format(params)))
 
         raw_input("Next plot?")
         p.clf()
@@ -131,8 +143,8 @@ if __name__ == "__main__":
         p.grid()
         p.draw()
 
-        p.savefig(paper1_figures_path("M33_vrot_nowarp_noasymm_wCorbelli.pdf"))
-        p.savefig(paper1_figures_path("M33_vrot_nowarp_noasymm_wCorbelli.png"))
+        p.savefig(paper1_figures_path("M33_vrot_{}_wCorbelli.pdf".format(params)))
+        p.savefig(paper1_figures_path("M33_vrot_{}_wCorbelli.png".format(params)))
 
         p.ion()
 

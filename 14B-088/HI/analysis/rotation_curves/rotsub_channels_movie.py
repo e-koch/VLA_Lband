@@ -82,5 +82,5 @@ ani = anim.FuncAnimation(fig, updater, range(len(center_vels)))
 
 p.ioff()
 writer = anim.writers['ffmpeg'](fps=3)
-ani.save("m33_rotsub_movie.mp4", writer=writer, dpi=300)
+ani.save(paper1_figures_path("m33_rotsub_movie.mp4"), writer=writer, dpi=300)
 p.ion()

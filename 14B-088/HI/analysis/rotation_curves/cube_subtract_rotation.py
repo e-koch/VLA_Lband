@@ -70,7 +70,8 @@ for num, (i, j) in enumerate(ProgressBar(zip(*posns))):
 # Append the beam table
 hdu = fits.open(fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.fits"))
 new_fits.append(hdu[1])
-hdu.close()
 
 new_fits.flush()
 new_fits.close()
+
+hdu.close()

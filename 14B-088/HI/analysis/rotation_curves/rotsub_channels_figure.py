@@ -2,6 +2,7 @@ import numpy as np
 import os
 import matplotlib.pyplot as p
 from spectral_cube import SpectralCube
+from spectral_cube.cube_utils import average_beams
 from astropy import coordinates
 from astropy.utils.console import ProgressBar
 from astropy import units as u
@@ -13,20 +14,17 @@ from astropy.visualization import SqrtStretch, AsinhStretch
 from astropy.visualization.mpl_normalize import ImageNormalize
 import warnings
 
+from analysis.paths import fourteenB_HI_data_path, paper1_figures_path
+
 '''
 Channel plots of the rotation subtracted HI cube.
 
 Borrowing code from @keflavich: https://github.com/keflavich/paper_w51_evla/blob/master/plot_codes/h77a_layers.py
 '''
 
+cube_file = fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.rotsub.fits")
 
-direc = "/home/eric/MyRAID/M33/14B-088/HI/full_imaging/"
-
-cube_file = os.path.join(direc,
-                         "M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.rotsub.fits")
-
-cube = \
-    SpectralCube.read(cube_file)
+cube = SpectralCube.read(cube_file)
 
 # Begin channel map code here
 Nrows = 4
@@ -44,6 +42,9 @@ split = Nrows * Ncols
 
 all_slabs = np.arange(vstart, vend + vstep, vstep, dtype=int)
 
+# Define the average beam
+beam = average_beams(cube.beams)
+
 # Split the 48 slabs into 4 12-panel figures
 for n in range(4):
     p.figure(1, figsize=(12, 20)).clf()
@@ -57,7 +58,7 @@ for n in range(4):
     # Convert to K km/s, but beam equivalency doesn't allow it. Doing it ad hoc
     layers = \
         [cube[start:end].moment0().value *
-         cube.beam.jtok(1.414*u.GHz) / 1000. * u.km / u.s
+         beam.jtok(1.414 * u.GHz) / 1000. * u.km / u.s
          for start, end in zip(vchans[:-1], vchans[1:])]
     # Determine the maximum value to display
     mx = np.max([np.nanmax(x).value for x in layers])
@@ -118,6 +119,8 @@ for n in range(4):
     # p.draw()
 
     # raw_input("Next plot?")
-    p.savefig(os.path.expanduser("~/Dropbox/School_Work/MSc_Thesis/figures/M33_rotsub_channels_{}.pdf".format(n)),
+    p.savefig(paper1_figures_path("M33_rotsub_channels_{}.pdf".format(n)),
+              bbox_inches="tight", dpi=300)
+    p.savefig(paper1_figures_path("M33_rotsub_channels_{}.png".format(n)),
               bbox_inches="tight", dpi=300)
     p.clf()

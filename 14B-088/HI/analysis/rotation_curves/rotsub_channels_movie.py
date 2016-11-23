@@ -2,6 +2,7 @@ import numpy as np
 import os
 import matplotlib.pyplot as p
 from spectral_cube import SpectralCube
+from spectral_cube.cube_utils import average_beams
 from astropy import coordinates
 from astropy.utils.console import ProgressBar
 from astropy import units as u
@@ -13,20 +14,17 @@ from astropy.visualization.mpl_normalize import ImageNormalize
 import warnings
 import matplotlib.animation as anim
 
+from analysis.paths import fourteenB_HI_data_path, paper1_figures_path
+
 '''
 Channel plots of the rotation subtracted HI cube combined into a movie!
 
 Borrowing code from @keflavich: https://github.com/keflavich/paper_w51_evla/blob/master/plot_codes/h77a_layers.py
 '''
 
+cube_file = fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.rotsub.fits")
 
-direc = "/home/eric/MyRAID/M33/14B-088/HI/full_imaging/"
-
-cube_file = os.path.join(direc,
-                         "M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.rotsub.fits")
-
-cube = \
-    SpectralCube.read(cube_file)
+cube = SpectralCube.read(cube_file)
 
 # Begin channel map code here
 
@@ -36,9 +34,12 @@ vend = 788
 vstep = 10
 all_slabs = np.arange(vstart, vend + vstep, vstep, dtype=int)
 
+# Define the average beam
+beam = average_beams(cube.beams)
+
 layers = \
     [cube[start:end].moment0().value *
-     cube.beam.jtok(1.414 * u.GHz) / 1000. * u.km / u.s
+     beam.jtok(1.414 * u.GHz) / 1000. * u.km / u.s
      for start, end in zip(all_slabs[:-1], all_slabs[1:])]
 
 # Scale all to the maximum
@@ -74,6 +75,7 @@ def updater(i):
     #             (0.53, 0.9),
     #             xycoords='axes fraction', color='k',
     #             fontsize=15.5)
+
 
 ani = anim.FuncAnimation(fig, updater, range(len(center_vels)))
 # p.show()

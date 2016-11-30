@@ -125,11 +125,6 @@ for chan_1, chan_2 in zip(channel_ms_1, channel_ms_2):
 
     channel_direc = os.path.join(output_direc, "channel_" + str(chan_num))
 
-    # Check if that channel has been imaged already
-    if os.path.isdir(channel_direc):
-        print("Already imaged " + str(chan_num) + ". Skipping")
-        continue
-
     if not os.path.exists(channel_direc):
         os.mkdir(channel_direc)
     if not os.path.exists(chan_1):

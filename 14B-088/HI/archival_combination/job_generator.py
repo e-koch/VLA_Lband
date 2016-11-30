@@ -73,10 +73,10 @@ data_direc = sys.argv[1]
 
 ms_channel_1 = os.path.join(data_direc, "14B-088_channel_ms/")
 ms_channel_2 = os.path.join(data_direc, "AT0206_channel_ms/")
-model_channels = os.path.join(
-    data_direc, "model_channels/M33_model_channel_")
-mask_channels = os.path.join(
-    data_direc, "mask_channels/M33_newmask_channel_")
+model_channel_name = os.path.join(
+    data_direc, "model_channels/M33_model_channel_{}.image")
+mask_channel_name = os.path.join(
+    data_direc, "mask_channels/M33_newmask_channel_{}.image")
 output_direc = os.path.join(data_direc, "single_channels/")
 
 # Set the mode to use. Continuously checking for new splits, or a set number.
@@ -127,34 +127,34 @@ for chan_1, chan_2 in zip(channel_ms_1, channel_ms_2):
 
     if not os.path.exists(channel_direc):
         os.mkdir(channel_direc)
-    if not os.path.exists(chan_1):
+
+    base_ms_name_1 = os.path.basename(chan_1.rstrip("/"))
+    chan_ms_1 = os.path.join(channel_direc, base_ms_name_1)
+
+    base_ms_name_2 = os.path.basename(chan_2.rstrip("/"))
+    chan_ms_2 = os.path.join(channel_direc, base_ms_name_2)
+
+    base_model_name = \
+        os.path.basename(model_channel_name.format(mod_mask_num))
+    model_name = os.path.join(channel_direc, base_model_name)
+    base_mask_name = \
+        os.path.basename(mask_channel_name.format(mod_mask_num))
+    mask_name = os.path.join(channel_direc, base_mask_name)
+
+    if not os.path.exists(chan_ms_1):
         shutil.move(chan_1, channel_direc)
-    if not os.path.exists(chan_2):
+    if not os.path.exists(chan_ms_2):
         shutil.move(chan_2, channel_direc)
 
-    model_name = model_channels + str(mod_mask_num) + ".image"
-    if not os.path.exists(channel_direc) and use_model:
-        shutil.move(model_name, channel_direc)
+    if not os.path.exists(model_name) and use_model:
+        shutil.move(model_channel_name.format(mod_mask_num), channel_direc)
+    if not os.path.exists(mask_name) and use_mask:
+        shutil.move(mask_channel_name.format(mod_mask_num), channel_direc)
 
-    mask_name = mask_channels + str(mod_mask_num) + ".image"
-    if not os.path.exists(channel_direc) and use_mask:
-        shutil.move(mask_name, channel_direc)
-
-    chan_ms_1 = os.path.join(channel_direc, chan_1.split("/")[-1])
-    chan_ms_2 = os.path.join(channel_direc, chan_2.split("/")[-1])
-
-    if use_model:
-        model_name = os.path.join(channel_direc,
-                                  "M33_model_channel_"
-                                  + str(mod_mask_num) + ".image")
-    else:
+    if not use_model:
         model_name = "None"
 
-    if use_mask:
-        mask_name = os.path.join(channel_direc,
-                                 "M33_newmask_channel_"
-                                 + str(mod_mask_num) + ".image")
-    else:
+    if not use_mask:
         mask_name = "None"
 
     outname = \

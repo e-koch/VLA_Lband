@@ -71,18 +71,18 @@ def drop_last(ms_list):
 # Set the directory to look in.
 data_direc = sys.argv[1]
 
-ms_channel_1 = os.path.join(data_direc, "combined/14B-088_channel_ms/")
-ms_channel_2 = os.path.join(data_direc, "combined/AT0206_channel_ms/")
+ms_channel_1 = os.path.join(data_direc, "14B-088_channel_ms/")
+ms_channel_2 = os.path.join(data_direc, "AT0206_channel_ms/")
 model_channels = os.path.join(
-    data_direc, "combined/model_channels/M33_model_channel_")
+    data_direc, "model_channels/M33_model_channel_")
 mask_channels = os.path.join(
-    data_direc, "combined/mask_channels/M33_newmask_channel_")
-output_direc = os.path.join(data_direc, "combined/single_channels/")
+    data_direc, "mask_channels/M33_newmask_channel_")
+output_direc = os.path.join(data_direc, "single_channels/")
 
 # Set the mode to use. Continuously checking for new splits, or a set number.
 try:
-    start = int(sys.argv[1])
-    stop = int(sys.argv[2])
+    start = int(sys.argv[2])
+    stop = int(sys.argv[3])
 except IndexError:
     raise IndexError("Must provide a start and stop channel number.")
 

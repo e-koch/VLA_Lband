@@ -59,13 +59,14 @@ width = "10.0km/s"
 start = "-320.0km/s"
 threshold = "1.0mJy"
 field = "M33*"
+# field = ",".join(["M33_{}".format(i) for i in range(1, 15) if i not in [3, 7]]) + ", M33_7_center"
 phasecenter = 'J2000 01h33m50.904 +30d39m35.79'
 spw = ""
 imagermode = "mosaic"
 multiscale = []
 outframe = "LSRK"
 veltype = "radio"
-minpb = 0.3
+minpb = 0.1
 weighting = 'natural'
 robust = 0.0
 restfreq = rest_freq
@@ -125,6 +126,7 @@ if dirty_cube:
 
     out_image = os.path.join(dirty_image_direc,
                              line_name + "_" + project_name + "_dirty")
+                             # line_name + "_" + project_name + "_dirty_noM33_3_equaltime")
 
     rmtables(out_image + ".*")
 
@@ -134,7 +136,7 @@ if dirty_cube:
           imagermode=imagermode, multiscale=multiscale, outframe=outframe,
           veltype=veltype, minpb=0.3, weighting=weighting, robust=robust,
           restfreq=restfreq, usescratch=usescratch,
-          interpolation=interpolation, pbcor=True)
+          interpolation=interpolation, pbcor=True, scan="0~783")
 
 if cont_cube:
     # Check that the contsub MS exists

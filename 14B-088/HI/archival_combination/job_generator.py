@@ -31,7 +31,7 @@ source /home/ekoch/.bashrc
 cd X1
 
 echo "Starting at: `date`"
-casa-4.4 --nologger --logfile X7 -c /home/ekoch/VLA_Lband/14B-088/Combined_HI/HI_single_channel_clean.py X2 X3 X4 X5 X6
+casa-4.4 --nologger --logfile X7 -c /home/ekoch/VLA_Lband/14B-088/HI/archival_combination/HI_single_channel_clean.py X2 X3 X4 X5 X6
 echo "Exited with code $? at: `date`"
         '''
 

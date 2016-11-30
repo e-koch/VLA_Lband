@@ -171,8 +171,9 @@ for chan_1, chan_2 in zip(channel_ms_1, channel_ms_2):
 
     # Write to file
     sub_file = os.path.join(channel_direc, "channel_" + str(chan_num) + ".sub")
-    with open(sub_file, 'w') as f:
-        f.write(chan_template)
+    if not os.path.exists(sub_file):
+        with open(sub_file, 'w') as f:
+            f.write(chan_template)
 
     # Now submit!
     old_direc = os.getcwd()

@@ -16,15 +16,15 @@ try:
     corrstring = sys.argv[3]
     starting_spw = int(sys.argv[4])
     bp_scan = sys.argv[5]
-    show_time_averaged = True if sys.argv[6] == "T" else False
+    show_channels = True if sys.argv[6] == "T" else False
 except IndexError:
     vis_name = raw_input("MS Name? : ")
     field_names = raw_input("Field Name/Number(s)? : ")
     corrstring = raw_input("Corrstring? : ")
     starting_spw = int(raw_input("SPW to start at? : "))
     bp_scan = raw_input("Bandpass scan? (None or scan number): ")
-    show_time_averaged = True if \
-        raw_input("Show time averaged amp/time and phase/time? (T or F): ") == "T" \
+    show_channels = True if \
+        raw_input("Show amp/channel and phase/channel? (T or F): ") == "T" \
         else False
 
 # Only show BP scan plots when given
@@ -76,7 +76,7 @@ for n, field_name in enumerate(fields):
 
             raw_input("Continue?")
 
-        if show_time_averaged:
+        if show_channels:
             default('plotms')
             vis = vis_name
             xaxis = 'channel'

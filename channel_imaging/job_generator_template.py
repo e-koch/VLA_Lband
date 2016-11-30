@@ -114,7 +114,7 @@ for chan in xrange(start, stop + 1):
 # If there aren't any more split ms in the path, break and exit
 if len(channel_ms) == 0:
     print("No more MSs found in the directory. Exiting.")
-    break
+    raise ValueError("No measurement sets found.")
 
 # Now loop through the existing channel ms
 for chan in channel_ms:

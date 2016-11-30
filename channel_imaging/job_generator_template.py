@@ -100,7 +100,8 @@ mask_channel_name = \
 output_direc = os.path.join(data_directory, "single_channels/")
 
 # Use mask and model? Disable when continuing to clean.
-use_mask_model = True
+use_mask = True
+use_model = True
 
 # Run channels in given range
 channel_ms = []
@@ -148,10 +149,15 @@ for chan in channel_ms:
     # aren't there already
     if not os.path.exists(chan_ms):
         shutil.move(chan, channel_direc)
-    if not os.path.exists(model_name):
+    if not os.path.exists(model_name) and use_model:
         shutil.move(model_channel_name.format(mod_mask_num), channel_direc)
-    if not os.path.exists(mask_name):
+    if not os.path.exists(mask_name) and use_mask:
         shutil.move(mask_channel_name.format(mod_mask_num), channel_direc)
+
+    if not use_mask:
+        mask_name = "None"
+    if not use_model:
+        model_name = "None"
 
     chan_template = return_template(channel_direc, chan_ms,
                                     model_name, mask_name)

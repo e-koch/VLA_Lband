@@ -93,20 +93,26 @@ def update_galaxy_params(gal, param_table, spatial_wcs):
 
 if __name__ == "__main__":
 
+    import sys
+
     from analysis.paths import (fourteenB_HI_data_path, paper1_figures_path,
                                 c_hi_analysispath)
 
-    make_plot = False
+    make_plot = True
     make_rotmodel = True
 
     gal = Galaxy("M33")
 
-    diskfit_runs = [dir for dir in os.listdir(fourteenB_HI_data_path(""))
-                    if dir.startswith("diskfit")]
+    try:
+        folder_name = sys.argv[1]
+    except IndexError:
 
-    print("Available diskfit runs: " + str(diskfit_runs))
+        diskfit_runs = [dir for dir in os.listdir(fourteenB_HI_data_path(""))
+                        if dir.startswith("diskfit")]
 
-    folder_name = raw_input("Give folder name of the diskfit run: ")
+        print("Available diskfit runs: " + str(diskfit_runs))
+
+        folder_name = raw_input("Give folder name of the diskfit run: ")
 
     # My convention has been diskfit_params_output. Only keep the params parts
     # for the names of the output plots.

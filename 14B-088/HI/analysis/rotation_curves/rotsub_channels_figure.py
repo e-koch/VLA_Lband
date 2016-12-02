@@ -1,25 +1,21 @@
 import numpy as np
-import os
 import matplotlib.pyplot as p
 from spectral_cube import SpectralCube
 from spectral_cube.cube_utils import average_beams
-from astropy import coordinates
-from astropy.utils.console import ProgressBar
 from astropy import units as u
-from astropy.io import fits
-from astropy import wcs
-from astropy import log
 import aplpy
 from astropy.visualization import SqrtStretch, AsinhStretch
 from astropy.visualization.mpl_normalize import ImageNormalize
 import warnings
 
 from analysis.paths import fourteenB_HI_data_path, paper1_figures_path
+from analysis.constants import hi_freq
 
 '''
 Channel plots of the rotation subtracted HI cube.
 
-Borrowing code from @keflavich: https://github.com/keflavich/paper_w51_evla/blob/master/plot_codes/h77a_layers.py
+Borrowing code from @keflavich:
+https://github.com/keflavich/paper_w51_evla/blob/master/plot_codes/h77a_layers.py
 '''
 
 cube_file = fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.rotsub.fits")

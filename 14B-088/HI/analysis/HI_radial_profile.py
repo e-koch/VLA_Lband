@@ -180,6 +180,7 @@ if __name__ == "__main__":
                        c_hi_analysispath, paper1_figures_path,
                        data_path)
 
+    from constants import hi_freq
 
     g = Galaxy("M33")
 
@@ -191,17 +192,18 @@ if __name__ == "__main__":
     dr = 100 * u.pc
 
     # Create a radial profile of HI
-    rs, sd, sd_sigma = surfdens_radial_profile(g, mom0=mom0, dr=dr)
+    rs, sd, sd_sigma = surfdens_radial_profile(g, mom0=mom0, dr=dr,
+                                               restfreq=hi_freq)
     rs_n, sd_n, sd_sigma_n = \
         surfdens_radial_profile(g, mom0=mom0,
                                 pa_bounds=Angle([0.5 * np.pi * u.rad,
                                                 -0.5 * np.pi * u.rad]),
-                                dr=dr)
+                                dr=dr, restfreq=hi_freq)
     rs_s, sd_s, sd_sigma_s = \
         surfdens_radial_profile(g, mom0=mom0,
                                 pa_bounds=Angle([-0.5 * np.pi * u.rad,
                                                  0.5 * np.pi * u.rad]),
-                                dr=dr)
+                                dr=dr, restfreq=hi_freq)
 
     # There is a ~1.5 global scaling factor b/w Arecibo and VLA + Arecibo
     # Not needed with the corrected cube!
@@ -224,7 +226,8 @@ if __name__ == "__main__":
     #                         ylo=cube.latitude_extrema[1])
     arecibo_mom0 = arecibo_cube.moment0()
     rs_arec, sd_arec, sd_sigma_arec = \
-        surfdens_radial_profile(g, cube=arecibo_cube, mom0=arecibo_mom0, dr=dr)
+        surfdens_radial_profile(g, cube=arecibo_cube, mom0=arecibo_mom0, dr=dr,
+                                restfreq=hi_freq)
 
     # Archival HI
     arch_vla_file = os.path.join(data_path, "VLA/AT0206/old_imaging/m33_hi.masked.fits")
@@ -233,7 +236,8 @@ if __name__ == "__main__":
 
     arch_mom0 = arch_cube.moment0()
     rs_arch, sd_arch, sd_sigma_arch = \
-        surfdens_radial_profile(g, cube=arch_cube, mom0=arch_mom0, dr=dr)
+        surfdens_radial_profile(g, cube=arch_cube, mom0=arch_mom0, dr=dr,
+                                restfreq=hi_freq)
 
     p.ioff()
 

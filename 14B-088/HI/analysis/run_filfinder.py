@@ -17,6 +17,7 @@ from warnings import warn
 
 
 from HI_veldisp_profile import radial_profile
+from constants import hi_freq
 
 '''
 Filaments in M33? Why not?
@@ -90,14 +91,17 @@ def fit_skeleton_width(skel_array, intensity_array, pixscale, beam_width,
 
 if __name__ == "__main__":
 
-    mom0_fits = fits.open("/home/eric/MyRAID/M33/14B-088/HI/full_imaging/M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.mom0.fits")[0]
+    from analysis.paths import fourteenB_HI_data_path
+
+    mom0_fits = fits.open(fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.mom0.fits"))[0]
     beam = Beam.from_fits_header(mom0_fits.header)
-    mom0 = Projection(mom0_fits.data * beam.jtok(1.414 * u.GHz) / 1000. * u.km / u.s,
+    mom0 = Projection(mom0_fits.data * beam.jtok(hi_freq) / 1000. *
+                      u.km / u.s,
                       wcs=WCS(mom0_fits.header))
     mom0.meta['beam'] = beam
 
     # Create the bubble mask instead of letting FilFinder to do it.
-    bub = BubbleFinder2D(mom0, sigma=80. * beam.jtok(1.414 * u.GHz) / 1000.)
+    bub = BubbleFinder2D(mom0, sigma=80. * beam.jtok(hi_freq) / 1000.)
 
     # fils = fil_finder_2D(mom0.value, mom0.header, 10, distance=0.84e6)
     # fils.mask = ~(bub.mask.copy())

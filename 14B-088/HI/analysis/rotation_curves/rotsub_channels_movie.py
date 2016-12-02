@@ -15,6 +15,7 @@ import warnings
 import matplotlib.animation as anim
 
 from analysis.paths import fourteenB_HI_data_path, paper1_figures_path
+from analysis.constants import hi_freq
 
 '''
 Channel plots of the rotation subtracted HI cube combined into a movie!
@@ -39,7 +40,7 @@ beam = average_beams(cube.beams)
 
 layers = \
     [cube[start:end].moment0().value *
-     beam.jtok(1.414 * u.GHz) / 1000. * u.km / u.s
+     beam.jtok(hi_freq) / 1000. * u.km / u.s
      for start, end in zip(all_slabs[:-1], all_slabs[1:])]
 
 # Scale all to the maximum

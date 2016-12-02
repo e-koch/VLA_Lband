@@ -36,8 +36,6 @@ arecibo = arecibo.subcube(ylo=cube.latitude_extrema[1],
 
 # cube = cube.with_mask(cube > 3 * noise_sigma)
 
-restfreq = 1.414 * u.GHz
-
 # Using sum on two axes of a cube is super slow (and wrong? All NaNs?).
 # I'll just loop through each channel to do this
 total_spectrum = np.empty((cube.shape[0]))

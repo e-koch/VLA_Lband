@@ -58,9 +58,6 @@ def spectral_peakintensity(cube):
     Compute the spectral position of the peak intensities.
     """
 
-    # if how not in ["cube", "ray"]:
-    #     raise ValueError("how must be 'cube' or 'ray'.")
-
     def peak_velocity(arr, axis=None):
         argmax = np.argmax(arr)
         return cube.spectral_axis[argmax]
@@ -70,7 +67,7 @@ def spectral_peakintensity(cube):
 
 
 peak_intens_name = "M33_14B-088_HI.clean.image.pbcov_gt_0.3.ellip_mask.peakvels.fits"
-peakvels = subcube.spectral_peakintensity().astype(np.float32)
+peakvels = spectral_peakintensity(subcube).astype(np.float32)
 peakvels.header["BITPIX"] = -32
 peakvels.write(fourteenB_HI_data_path(peak_intens_name, no_check=True),
                overwrite=True)

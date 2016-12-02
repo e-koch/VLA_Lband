@@ -1,6 +1,7 @@
 
 from spectral_cube import SpectralCube
 from spectral_cube.lower_dimensional_structures import Projection
+from radio_beam import Beam
 import numpy as np
 import astropy.units as u
 from astropy.coordinates import Angle
@@ -101,35 +102,20 @@ def radial_profile(gal, moment, header=None, dr=100 * u.pc,
 
     return radprof, sdprof, sdprof_sigma
 
+
 if __name__ == "__main__":
     from galaxies import Galaxy
     import matplotlib.pyplot as p
-    import os
-    from astropy.io.fits import getdata
 
-    save_lwidth = False
+    from paths import (fourteenB_HI_data_path, arecibo_HI_data_path,
+                       c_hi_analysispath, paper1_figures_path,
+                       data_path)
 
-    direc = "/home/eric/MyRAID/M33/14B-088/HI/full_imaging/"
 
-    cube_file = os.path.join(direc,
-                             "M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.rotsub.fits")
-
-    cube = \
-        SpectralCube.read(cube_file)
-
-    # Now load in the source mask
-    cube = cube.with_mask(getdata(os.path.join(direc,
-        "M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.rotsub_source_mask.fits")).astype(bool))
-
-    if save_lwidth:
-        lwidth = cube.linewidth_sigma()
-        lwidth.write(os.path.join(direc,
-            "M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.rotsub.lwidth.fits"))
-    else:
-        load = fits.open(os.path.join(direc,
-            "M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.rotsub.lwidth.fits"))[0]
-        lwidth = Projection(load.data, wcs=WCS(load.header), unit=u.m / u.s)
-        lwidth.meta["beam"] = cube.beam
+    lwidth_hdu = fits.open(fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.lwidth.fits"))[0]
+    lwidth = Projection(lwidth_hdu.data, wcs=WCS(lwidth_hdu.header),
+                        unit=u.m / u.s)
+    lwidth.meta["beam"] = Beam.from_fits_header(lwidth_hdu.header)
 
     g = Galaxy("M33")
 
@@ -149,7 +135,10 @@ if __name__ == "__main__":
     p.grid()
     p.draw()
 
-    raw_input("Next plot?")
+    p.savefig(paper1_figures_path("hi_veldisp_profile.png"))
+    p.savefig(paper1_figures_path("hi_veldisp_profile.pdf"))
+
+    # raw_input("Next plot?")
     p.clf()
 
     # Create the North and South portions.
@@ -178,20 +167,23 @@ if __name__ == "__main__":
     p.legend()
     p.draw()
 
-    raw_input("Next plot?")
+    p.savefig(paper1_figures_path("hi_veldisp_profile_n_s.png"))
+    p.savefig(paper1_figures_path("hi_veldisp_profile_n_s.pdf"))
+
+    # raw_input("Next plot?")
     p.clf()
 
     # There are interesting drops at 1 and ~4.2 kpc. Plot these on the moment 0
-    mom0 = fits.getdata("/home/eric/MyRAID/M33/14B-088/HI/full_imaging/M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.mom0.fits")
+    mom0 = fits.getdata(fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.mom0.fits"))
 
-    ax = p.subplot(121, projection=cube[0].wcs)
+    ax = p.subplot(121, projection=lwidth.wcs)
     p.imshow(mom0, origin='lower')
-    radii = g.radius(header=cube.header)
+    radii = g.radius(header=lwidth.header)
     p.contour(radii <= 1 * u.kpc, colors='b')
     p.contour(radii <= 4.2 * u.kpc, colors='g')
     p.xlabel("")
     ax.set_title("Zeroth Moment")
-    ax2 = p.subplot(122, projection=cube[0].wcs)
+    ax2 = p.subplot(122, projection=lwidth.wcs)
     p.imshow(lwidth.value, origin='lower')
     p.contour(radii <= 1 * u.kpc, colors='b')
     p.contour(radii <= 4.2 * u.kpc, colors='g')
@@ -200,3 +192,8 @@ if __name__ == "__main__":
     lat = ax2.coords[1]
     lat.set_ticklabel_visible(False)
     p.draw()
+
+    p.savefig(paper1_figures_path("moment0_w_veldisp_minima.png"))
+    p.savefig(paper1_figures_path("moment0_w_veldisp_minima.pdf"))
+
+    p.close()

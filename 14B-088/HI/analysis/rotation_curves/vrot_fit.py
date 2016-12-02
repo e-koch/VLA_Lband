@@ -161,7 +161,7 @@ if __name__ == "__main__":
         p.savefig(paper1_figures_path("M33_vrot_{}_wfit.pdf".format(params)))
         p.savefig(paper1_figures_path("M33_vrot_{}_wfit.png".format(params)))
 
-        raw_input("Next plot?")
+        # raw_input("Next plot?")
         p.clf()
 
         # load in the Corbelli curve for comparison
@@ -183,6 +183,7 @@ if __name__ == "__main__":
         p.savefig(paper1_figures_path("M33_vrot_{}_wCorbelli.pdf".format(params)))
         p.savefig(paper1_figures_path("M33_vrot_{}_wCorbelli.png".format(params)))
 
+        p.close()
         p.ion()
 
     if make_rotmodel:

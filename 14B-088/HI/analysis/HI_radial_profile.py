@@ -45,7 +45,10 @@ def surfdens_radial_profile(gal, header=None, cube=None,
         raise TypeError("Either a header or cube must be given.")
 
     if header is None:
-        header = cube.header
+        if cube is not None:
+            header = cube.header
+        elif mom0 is not None:
+            header = mom0.header
 
     if beam is None:
         if cube is not None:
@@ -166,45 +169,38 @@ if __name__ == "__main__":
     from galaxies import Galaxy
     import matplotlib.pyplot as p
     from astropy.table import Table
-    import os
+    from spectral_cube.lower_dimensional_structures import Projection
+    from astropy.wcs import WCS
+    from radio_beam import Beam
+    from astropy.io import fits
 
-    from spectral_cube.cube_utils import average_beams
+    import os
 
     from paths import (fourteenB_HI_data_path, arecibo_HI_data_path,
                        c_hi_analysispath, paper1_figures_path,
                        data_path)
 
-    cube_file = fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.fits")
-    # cube_file = os.path.join(fourteenB_HI_data_path,
-    #                          "M33_14B-088_AT0206_HI.clean.image.pbcov_gt_0.3_masked.fits")
-
-    cube = \
-        SpectralCube.read(cube_file)
 
     g = Galaxy("M33")
 
-    cube = cube.with_mask(cube > 1.8e-3 * u.Jy)
-
-    mom0 = cube.moment0()
+    mom0_hdu = fits.open(fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.mom0.fits"))[0]
+    mom0 = Projection(mom0_hdu.data, wcs=WCS(mom0_hdu.header), unit=u.km / u.s)
+    mom0.meta["beam"] = Beam.from_fits_header(mom0_hdu.header)
 
     # Bin size in pc
     dr = 100 * u.pc
 
     # Create a radial profile of HI
-    rs, sd, sd_sigma = surfdens_radial_profile(g, cube=cube, mom0=mom0,
-                                               beam=average_beams(cube.beams),
-                                               dr=dr)
+    rs, sd, sd_sigma = surfdens_radial_profile(g, mom0=mom0, dr=dr)
     rs_n, sd_n, sd_sigma_n = \
-        surfdens_radial_profile(g, cube=cube, mom0=mom0,
+        surfdens_radial_profile(g, mom0=mom0,
                                 pa_bounds=Angle([0.5 * np.pi * u.rad,
                                                 -0.5 * np.pi * u.rad]),
-                                beam=average_beams(cube.beams),
                                 dr=dr)
     rs_s, sd_s, sd_sigma_s = \
-        surfdens_radial_profile(g, cube=cube, mom0=mom0,
+        surfdens_radial_profile(g, mom0=mom0,
                                 pa_bounds=Angle([-0.5 * np.pi * u.rad,
                                                  0.5 * np.pi * u.rad]),
-                                beam=average_beams(cube.beams),
                                 dr=dr)
 
     # There is a ~1.5 global scaling factor b/w Arecibo and VLA + Arecibo

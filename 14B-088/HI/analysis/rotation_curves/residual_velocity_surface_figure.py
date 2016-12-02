@@ -8,10 +8,12 @@ import numpy as np
 from analysis.paths import fourteenB_HI_data_path, paper1_figures_path
 
 '''
-Plot the residual velocities from disk fit, and from subtracting the smoothed version.
+Plot the residual velocities from disk fit, and from subtracting the
+smoothed version.
 '''
 
-direc = fourteenB_HI_data_path("diskfit_noasymm_nowarp_output/", no_check=True)
+direc = fourteenB_HI_data_path("diskfit_noasymm_noradial_nowarp_output/",
+                               no_check=True)
 
 res = fits.open(os.path.join(direc, "rad.res.fits"))[0]
 res_fit = fits.open(os.path.join(direc, "rad.fitres.fits"))[0]
@@ -28,7 +30,7 @@ p.draw()
 p.savefig(paper1_figures_path("M33_residual_velocity_diskfit.pdf"))
 p.savefig(paper1_figures_path("M33_residual_velocity_diskfit.png"))
 
-raw_input("Next plot?")
+# raw_input("Next plot?")
 p.clf()
 
 ax2 = p.subplot(111, projection=WCS(res_fit.header))
@@ -42,3 +44,5 @@ p.draw()
 
 p.savefig(paper1_figures_path("M33_residual_velocity_diskfit_fit.pdf"))
 p.savefig(paper1_figures_path("M33_residual_velocity_diskfit_fit.png"))
+
+p.close()

@@ -70,6 +70,8 @@ slicer = [(slice(594, 794), slice(620, 889)),
 
 spec_posns = [sarm_positions, ngc604_positions, nplume_positions]
 
+names = ["sarm", "ngc604", "nplume"]
+
 for i, (slices, posns) in enumerate(zip(slicer, spec_posns)):
     # Moment 0 of the last few channels to highlight in-falling HI plume
     if i == 2:
@@ -129,7 +131,11 @@ for i, (slices, posns) in enumerate(zip(slicer, spec_posns)):
     ax4.set_title("Kurtosis")
 
     p.draw()
-    raw_input("Next plot?")
+
+    p.savefig(paper1_figures_path("{}_moments.png").format(names[i]))
+    p.savefig(paper1_figures_path("{}_moments.pdf").format(names[i]))
+
+    # raw_input("Next plot?")
     p.clf()
 
 # Zoom in on the interesting portion of the spectrum
@@ -137,7 +143,7 @@ spectral_cuts = np.array([[-72, -180], [-200, -280], [-220, -315]]) * \
     u.km / u.s
 
 # Now save spectra going through the interesting regions:
-for posns, cuts in zip(spec_posns, spectral_cuts):
+for name, posns, cuts in zip(spec_posns, spectral_cuts, names):
 
     num_posns = len(posns)
     fig, axes = p.subplots(num_posns, 1, sharey=True, sharex=False,
@@ -165,5 +171,8 @@ for posns, cuts in zip(spec_posns, spectral_cuts):
     fig.text(0.04, 0.5, 'Intensity (K)', va='center', rotation='vertical')
     p.draw()
 
-    raw_input("Next plot?")
+    p.savefig(paper1_figures_path("{}_moments.png").format(name))
+    p.savefig(paper1_figures_path("{}_moments.pdf").format(name))
+
+    # raw_input("Next plot?")
     p.close()

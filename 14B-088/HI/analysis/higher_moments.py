@@ -8,66 +8,33 @@ from astropy.io import fits
 from astropy.wcs import WCS
 import astropy.units as u
 
+from analysis.paths import fourteenB_HI_data_path, paper1_figures_path
+from constants import hi_freq
+
 '''
 Investigating skewness and kurtosis in the 14B-088 cube.
 '''
 
-save_moments = False
+cube = SpectralCube.read(fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.fits"))
+mom0 = fits.open(fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.mom0.fits"))[0]
+lwidth = fits.open(fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.lwidth.fits"))[0]
 
-data_path = "/media/eric/MyRAID/M33/14B-088/HI/full_imaging/"
+skew_hdu = fits.open(fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.skewness.fits"))[0]
+skew = Projection(skew_hdu.data, wcs=WCS(skew_hdu.header), unit=u.km / u.s)
 
-cube = \
-    SpectralCube.read(os.path.join(data_path,
-                                    "M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.fits"))
+kurt_hdu = fits.open(fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.kurtosis.fits"))[0]
+kurt = Projection(kurt_hdu.data, wcs=WCS(kurt_hdu.header), unit=u.km / u.s)
 
-mask = fits.getdata(os.path.join(data_path, "M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked_source_mask.fits"))
-mask = mask.astype(bool)
-
-cube = cube.with_mask(mask)
-
-# Load in the linewidth
-lwidth_hdu = fits.open(os.path.join(data_path, "M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.rotsub.lwidth.fits"))[0]
-lwidth = Projection(lwidth_hdu.data, wcs=WCS(lwidth_hdu.header), unit=u.km / u.s)
-
-# And a moment 0
-mom0_hdu = fits.open(os.path.join(data_path, "M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.mom0.fits"))[0]
-mom0 = Projection(mom0_hdu.data, wcs=WCS(mom0_hdu.header), unit=u.Jy * u.km / u.s)
-
-
-# Skewness: Converting from m^3/s^3 to km/s
-if save_moments:
-    mom3 = cube.moment(order=3)
-    mom3.write(os.path.join(data_path, "M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.mom3.fits"),
-               overwrite=True)
-else:
-    mom3_hdu = fits.open(os.path.join(data_path, "M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.mom3.fits"))[0]
-    mom3 = Projection(mom3_hdu.data, wcs=WCS(mom3_hdu.header), unit=(u.km / u.s)**3)
-
-# Normalize third moment by the linewidth to get the skewness
-skew = mom3 / lwidth ** 3
-
-# Kurtosis: Subtract 3 to center on 0 (assuming a Gaussian)
-if save_moments:
-    mom4 = cube.moment(order=4)
-    mom4.write(os.path.join(data_path, "M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.mom4.fits"),
-               overwrite=True)
-else:
-    mom4_hdu = fits.open(os.path.join(data_path, "M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.mom4.fits"))[0]
-    mom4 = Projection(mom4_hdu.data, wcs=WCS(mom4_hdu.header), unit=(u.km / u.s)**4)
-# mom4_resc = (mom4.value - 3) ** 0.25 / 1000.
-
-# Normalize third moment by the linewidth to get the skewness
-kurt = mom4 / lwidth ** 4
 
 # Make a nice 2 panel figure
-ax = p.subplot(121, projection=mom3.wcs)
+ax = p.subplot(121, projection=skew.wcs)
 ax.imshow(skew.value,
           origin='lower', vmin=-3, vmax=3,
           interpolation='nearest', cmap='seismic')
 ax.set_title("Skewness")
 ax.set_ylabel("DEC (J2000)")
 ax.set_xlabel("RA (J2000)")
-ax2 = p.subplot(122, projection=mom4.wcs)
+ax2 = p.subplot(122, projection=kurt.wcs)
 ax2.imshow(kurt.value, vmin=0, vmax=20,
            origin='lower', interpolation='nearest', cmap='binary')
 ax2.set_title("Kurtosis")
@@ -75,7 +42,10 @@ ax2.set_xlabel("RA (J2000)")
 lat = ax2.coords[1]
 lat.set_ticklabel_visible(False)
 
-raw_input("Next plot?")
+p.savefig(paper1_figures_path("skew_kurt_maps.pdf"))
+p.savefig(paper1_figures_path("skew_kurt_maps.png"))
+
+# raw_input("Next plot?")
 p.clf()
 
 # Interesting regions:
@@ -103,15 +73,16 @@ spec_posns = [sarm_positions, ngc604_positions, nplume_positions]
 for i, (slices, posns) in enumerate(zip(slicer, spec_posns)):
     # Moment 0 of the last few channels to highlight in-falling HI plume
     if i == 2:
-        loc_mom0 = cube[950:].moment0()
+        loc_mom0 = cube[950:].moment0().hdu
     else:
         loc_mom0 = mom0
     # Moment 0
     ax = p.subplot(221, projection=mom0[slices].wcs)
-    ax.plot(posns[:, 1] - slices[1].start, posns[:, 0] - slices[0].start, color="chartreuse",
+    ax.plot(posns[:, 1] - slices[1].start, posns[:, 0] - slices[0].start,
+             color="chartreuse",
             marker="D", linestyle="None",
             markersize=6)
-    ax.imshow(loc_mom0.value[slices], origin='lower',
+    ax.imshow(loc_mom0.data[slices], origin='lower',
               interpolation='nearest', cmap='binary')
     ax.set_ylabel("DEC (J2000)")
     ax.set_title("Moment 0")
@@ -120,7 +91,8 @@ for i, (slices, posns) in enumerate(zip(slicer, spec_posns)):
 
     # Lwidth
     ax2 = p.subplot(222, projection=lwidth[slices].wcs)
-    ax2.plot(posns[:, 1] - slices[1].start, posns[:, 0] - slices[0].start, color="chartreuse",
+    ax2.plot(posns[:, 1] - slices[1].start, posns[:, 0] - slices[0].start,
+             color="chartreuse",
              marker="D", linestyle="None",
              markersize=6)
     ax2.imshow(lwidth.value[slices], origin='lower',
@@ -132,8 +104,9 @@ for i, (slices, posns) in enumerate(zip(slicer, spec_posns)):
     ax2.set_title("Linewidth")
 
     # Skewness
-    ax3 = p.subplot(223, projection=mom3[slices].wcs)
-    ax3.plot(posns[:, 1] - slices[1].start, posns[:, 0] - slices[0].start, color="chartreuse",
+    ax3 = p.subplot(223, projection=skew[slices].wcs)
+    ax3.plot(posns[:, 1] - slices[1].start, posns[:, 0] - slices[0].start,
+             color="chartreuse",
              marker="D", linestyle="None",
              markersize=6)
     ax3.imshow(skew.value[slices], vmin=-3, vmax=3,
@@ -143,8 +116,9 @@ for i, (slices, posns) in enumerate(zip(slicer, spec_posns)):
     ax3.set_xlabel("RA (J2000)")
     ax3.set_title("Skewness")
     # Kurtosis
-    ax4 = p.subplot(224, projection=mom4[slices].wcs)
-    ax4.plot(posns[:, 1] - slices[1].start, posns[:, 0] - slices[0].start, color="chartreuse",
+    ax4 = p.subplot(224, projection=kurt[slices].wcs)
+    ax4.plot(posns[:, 1] - slices[1].start, posns[:, 0] - slices[0].start,
+             color="chartreuse",
              marker="D", linestyle="None",
              markersize=6)
     ax4.imshow(kurt.value[slices], vmin=0, vmax=20,
@@ -159,15 +133,18 @@ for i, (slices, posns) in enumerate(zip(slicer, spec_posns)):
     p.clf()
 
 # Zoom in on the interesting portion of the spectrum
-spectral_cuts = np.array([[-72, -180], [-200, -280], [-220, -315]]) * u.km / u.s
+spectral_cuts = np.array([[-72, -180], [-200, -280], [-220, -315]]) * \
+    u.km / u.s
 
 # Now save spectra going through the interesting regions:
 for posns, cuts in zip(spec_posns, spectral_cuts):
 
     num_posns = len(posns)
-    fig, axes = p.subplots(num_posns, 1, sharey=True, sharex=False, figsize=(6, 10))
+    fig, axes = p.subplots(num_posns, 1, sharey=True, sharex=False,
+                           figsize=(6, 10))
     for i, (posn, ax) in enumerate(zip(posns, axes)):
-        spec = cube.spectral_slab(cuts[0], cuts[1])[:, posn[0], posn[1]].to(u.K, equivalencies=cube.beam.jtok_equiv(1.414 * u.GHz))
+        spec = cube.spectral_slab(cuts[0], cuts[1])[:, posn[0], posn[1]]
+        spec = spec.to(u.K, equivalencies=cube.beam.jtok_equiv(hi_freq))
         velocities = cube.spectral_slab(cuts[0], cuts[1]).spectral_axis.to(u.km / u.s).value
         ax.plot(velocities, spec.value, 'b-', drawstyle='steps-mid')
         if i < num_posns - 1:

@@ -41,7 +41,7 @@ linewidth.write(fourteenB_HI_data_path(lwidth_name, no_check=True),
                 overwrite=True)
 
 # Skewness
-mom3 = cube.moment(order=3)
+mom3 = cube.moment(order=3, axis=0)
 
 # Normalize third moment by the linewidth to get the skewness
 skew = mom3 / linewidth ** 3
@@ -49,7 +49,7 @@ skew.write(fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3_maske
            overwrite=True)
 
 # Kurtosis: Uncorrected
-mom4 = cube.moment(order=4)
+mom4 = cube.moment(order=4, axis=0)
 # mom4_resc = (mom4.value - 3) ** 0.25 / 1000.
 
 # Normalize third moment by the linewidth to get the skewness

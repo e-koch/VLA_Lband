@@ -8,7 +8,7 @@ None                               # 5 VELS + FITS:file name for velocity uncert
 'diskfit_noasymm_noradial_nowarp_output/rad.out'    # 8 file name for output parameters
 T T T                              # 9 Disk toggles: fit for PA, eps & cen
 20.00  0.42                        #10 initial guess for disk PA and eps=(1-b/a)
-402.0  757.0                      #11 initial guess for disk center
+458.0  795.0                      #11 initial guess for disk center
 F T 45.00 2                        #12 VELS: non-circ. flow + flow PA fit toggle, initial flow PA, order m
 T F                                #13 VELS: inner interpolation + radial flows fit toggles
 T -179.00 6.0 25.0                  #14 VELS: toggle to fit Vsys, initial guess Vsys, delta_ISM, & vely errtol

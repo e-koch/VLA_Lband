@@ -7,21 +7,18 @@ import numpy as np
 import matplotlib.pyplot as p
 from astropy.modeling import models, fitting
 
-
+from analysis.paths import (fourteenB_HI_data_path, iram_co21_data_path,
+                            paper1_figures_path)
+from analysis.constants import rotsub_cube_name
+from analysis.galaxy_params import gal
 
 '''
 Create profiles of HI and CO after rotation subtraction.
 '''
 
-co_data_path = "/media/eric/Data_3/M33/co21/"
-hi_data_path = "/media/eric/MyRAID/M33/14B-088/HI/full_imaging/"
+co_cube = SpectralCube.read(iram_co21_data_path("m33.co21_iram.rotsub.fits"))
 
-
-co_cube = SpectralCube.read(os.path.join(co_data_path,
-                            "m33.co21_iram.rotsub.fits"))
-
-hi_cube = SpectralCube.read(os.path.join(hi_data_path,
-                            "M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.rotsub.fits"))
+hi_cube = SpectralCube.read(fourteenB_HI_data_path(rotsub_cube_name))
 
 total_spectrum_hi = np.empty((hi_cube.shape[0]))
 total_spectrum_co = np.empty((co_cube.shape[0]))
@@ -35,21 +32,23 @@ for chan in ProgressBar(range(hi_cube.shape[0])):
     total_spectrum_hi[chan] = \
         np.nansum(channel.value) * (1 / beam.sr.to(u.deg ** 2)) * \
         (channel.header["CDELT2"] * u.deg)**2
-    # total_spectrum_hi[chan] = (total_spectrum_hi[chan] * u.Jy).to(u.K, equivalencies=beam.jtok_equiv(1.4 * u.GHz)).value
-total_spectrum_hi
+    # total_spectrum_hi[chan] = (total_spectrum_hi[chan] * u.Jy).to(u.K,
+    # equivalencies=beam.jtok_equiv(1.4 * u.GHz)).value
+
 for chan in ProgressBar(range(co_cube.shape[0])):
     channel = co_cube[chan]
     beam = channel.meta['beam']
-    # Units are in K, but applying the pixel area factor early. Jy conversion below
+    # Units are in K, but applying the pixel area factor early.
+    # Jy conversion below
     total_spectrum_co[chan] = \
-        np.nansum(channel.value) # * (1 / beam.sr.to(u.deg ** 2)) * \
+        np.nansum(channel.value)  # * (1 / beam.sr.to(u.deg ** 2)) * \
         # (channel.header["CDELT2"] * u.deg)**2
     # CO cube is in K. Convert to Jy
     # total_spectrum_co[chan] = \
-    #     (total_spectrum_co[chan] * u.K).to(u.Jy, equivalencies=beam.jtok_equiv(230.538 * u.GHz)).value
+    #     (total_spectrum_co[chan] * u.K).to(u.Jy,
+    # equivalencies=beam.jtok_equiv(230.538 * u.GHz)).value
 
-# VLA needs to be corrected by a 1.45 factor. See arecibo_match_props.py
-total_spectrum_hi = total_spectrum_hi * u.Jy / 1.45
+total_spectrum_hi = total_spectrum_hi * u.Jy
 total_spectrum_co = total_spectrum_co * u.K
 
 
@@ -58,9 +57,12 @@ p.plot(hi_cube.spectral_axis.to(u.km / u.s).value, total_spectrum_hi.value,
 p.xlabel("Velocity (km/s)")
 p.ylabel("Total Intensity (Jy)")
 p.xlim([-100, 100])
-p.show()
+p.draw()
 
-raw_input("Next plot?")
+p.savefig(paper1_figures_path("total_profile_corrected_velocity_rotsub_hi.pdf"))
+p.savefig(paper1_figures_path("total_profile_corrected_velocity_rotsub_hi.png"))
+
+# raw_input("Next plot?")
 p.clf()
 
 p.plot(hi_cube.spectral_axis.to(u.km / u.s).value,
@@ -68,20 +70,27 @@ p.plot(hi_cube.spectral_axis.to(u.km / u.s).value,
        'b-', drawstyle='steps-mid', label="HI")
 # There's a 1 channel offset from my rotation subtraction in the cube
 p.plot(co_cube.spectral_axis.to(u.km / u.s).value,
-       np.roll((total_spectrum_co / total_spectrum_co.max()).value, -1),
+       (total_spectrum_co / total_spectrum_co.max()).value,
+       # np.roll((total_spectrum_co / total_spectrum_co.max()).value, -1),
        'g--', drawstyle='steps-mid', label="CO(2-1)")
 p.xlabel("Velocity (km/s)")
 p.ylabel("Normalized Total Intensity")
 p.ylim([-0.02, 1.1])
 p.xlim([-100, 100])
 p.legend()
-p.show()
+p.draw()
 
-raw_input("Next plot?")
+p.savefig(paper1_figures_path("total_profile_corrected_velocity_rotsub_HI_CO21.pdf"))
+p.savefig(paper1_figures_path("total_profile_corrected_velocity_rotsub_HI_CO21.png"))
+
+p.clf()
+# raw_input("Next plot?")
 
 # Total CO mass. Using 6.7 Msol / pc^2 / K km s^-1\
-pixscale = 0.84e6 * (np.pi / 180.) * np.abs(co_cube.header["CDELT2"]) * u.pc
-chan_width = np.abs(co_cube.spectral_axis[1] - co_cube.spectral_axis[0]).to(u.km / u.s)
+pixscale = gal.distance.to(u.pc) * (np.pi / 180.) * \
+    np.abs(co_cube.header["CDELT2"])
+chan_width = \
+    np.abs(co_cube.spectral_axis[1] - co_cube.spectral_axis[0]).to(u.km / u.s)
 co21_mass_conversion = 6.7 * (u.Msun / u.pc ** 2) / (u.K * u.km / u.s)
 beam_eff = 0.75  # Beam efficiency of IRAM @ 235 GHz
 # Where total_spectrum_co is in K
@@ -101,9 +110,12 @@ print("Total H2 Mass from CO is {} Msol".format(total_co_mass))
 g_HI_init = models.Gaussian1D(amplitude=1., mean=0., stddev=5.) +  \
     models.Gaussian1D(amplitude=0.25, mean=0., stddev=20.)
 
+
 # Force to the same mean
 def tie_mean(mod):
     return mod.mean_0
+
+
 g_HI_init.mean_1.tied = tie_mean
 
 fit_g = fitting.LevMarLSQFitter()
@@ -134,9 +146,11 @@ p.xlim([-100, 100])
 p.legend()
 p.ylim([-0.1, 1.1])
 p.grid()
-p.show()
+p.draw()
 
-raw_input("Next plot?")
+p.savefig(paper1_figures_path("total_profile_corrected_velocity_rotsub_hi_fit.pdf"))
+p.savefig(paper1_figures_path("total_profile_corrected_velocity_rotsub_hi_fit.png"))
+# raw_input("Next plot?")
 
 # CO model
 
@@ -164,4 +178,9 @@ p.ylabel("Total Normalized Intensity")
 p.xlim([-100, 100])
 p.ylim([-0.1, 1.1])
 p.grid()
-p.show()
+p.draw()
+
+p.savefig(paper1_figures_path("total_profile_corrected_velocity_rotsub_co21_fit.pdf"))
+p.savefig(paper1_figures_path("total_profile_corrected_velocity_rotsub_co21_fit.png"))
+
+p.close()

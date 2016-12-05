@@ -118,7 +118,7 @@ if __name__ == "__main__":
 
     # My convention has been diskfit_params_output. Only keep the params parts
     # for the names of the output plots.
-    params = "_".join(folder_name.split("_")[1:-1])
+    params = os.path.basename(folder_name.rstrip("/"))
 
     # Load in moment 1
     # mom1_name = fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_{}.ellip_mask.mom1.fits".format(pb_lim))

@@ -5,7 +5,6 @@ import numpy as np
 import astropy.units as u
 from astropy.coordinates import Angle
 
-from galaxies import Galaxy
 import matplotlib.pyplot as p
 import os
 from astropy.io import fits
@@ -18,6 +17,7 @@ os.sys.path.insert(0, parentdir)
 from paths import (iram_co21_data_path, fourteenB_HI_data_path,
                    paper1_figures_path)
 from constants import lwidth_name
+from galaxy_params import gal
 
 from HI_veldisp_profile import radial_profile
 
@@ -33,11 +33,9 @@ lwidth_hi = fits.open(fourteenB_HI_data_path(lwidth_name))[0]
 lwidth_hi = Projection(lwidth_hi.data, wcs=WCS(lwidth_hi.header),
                        unit=u.m / u.s)
 
-g = Galaxy("M33")
-
 dr = 250 * u.pc
 
-rs, sd, sd_sigma = radial_profile(g, lwidth_co, max_rad=6 * u.kpc,
+rs, sd, sd_sigma = radial_profile(gal, lwidth_co, max_rad=6 * u.kpc,
                                   dr=dr)
 
 sd = sd.to(u.km / u.s)
@@ -59,13 +57,13 @@ p.close()
 
 # Create the North and South portions.
 rs_n, sd_n, sd_sigma_n = \
-    radial_profile(g, lwidth_co, max_rad=6 * u.kpc,
+    radial_profile(gal, lwidth_co, max_rad=6 * u.kpc,
                    pa_bounds=Angle([0.5 * np.pi * u.rad,
                                     -0.5 * np.pi * u.rad]))
 sd_n = sd_n.to(u.km / u.s)
 sd_sigma_n = sd_sigma_n.to(u.km / u.s)
 rs_s, sd_s, sd_sigma_s = \
-    radial_profile(g, lwidth_co, max_rad=6 * u.kpc,
+    radial_profile(gal, lwidth_co, max_rad=6 * u.kpc,
                    pa_bounds=Angle([-0.5 * np.pi * u.rad,
                                     0.5 * np.pi * u.rad]))
 sd_s = sd_s.to(u.km / u.s)

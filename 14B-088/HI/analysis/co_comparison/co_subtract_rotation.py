@@ -6,12 +6,14 @@ import numpy as np
 import os
 from astropy.utils.console import ProgressBar
 import pyregion
+from astropy.table impor Table
 from turbustat.statistics.stats_utils import fourier_shift
 
 # Import from above.
 parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.sys.path.insert(0, parentdir)
 from rotation_curves.vrot_fit import return_smooth_model
+from paths import fourteenB_HI_data_path, iram_co21_data_path
 
 '''
 DUPLICATED CODE WITH ../cube_subtract_rotation.py! A generalized script is
@@ -32,14 +34,15 @@ def find_nearest(array, value):
     return idx
 
 # Set vsys. Using the fit value from DISKFIT
-vsys = -180610 * u.m / u.s
+table_name = fourteenB_HI_data_path("diskfit_noasymm_noradial_nowarp_output/rad.out.params.csv")
+tab = Table.read(table_name)
 
-data_path = "/media/eric/Data_3/M33/co21/"
+vsys = (float(tab["Vsys"]) * u.km / u.s).to(u.m / u.s)
 
-cube = SpectralCube.read(os.path.join(data_path, "m33.co21_iram.fits"))
+cube = SpectralCube.read(iram_co21_data_path("m33.co21_iram.fits"))
 
 # Where's the center?
-center_pixel = find_nearest(cube.spectral_axis, vsys)
+# center_pixel = find_nearest(cube.spectral_axis, vsys)
 # In this case, the remaining difference is a minuscule 3 m/s.
 
 model = return_smooth_model(cube.header)
@@ -53,13 +56,12 @@ posns = np.where(np.isfinite(model))
 # Adjust the header
 new_header = cube.header.copy()
 # There's a 1 pixel offset
-new_header["CRPIX3"] = center_pixel + 1
-new_header["CRVAL3"] = (cube.spectral_axis[center_pixel] - vsys).value
+# new_header["CRPIX3"] = center_pixel + 1
+new_header["CRVAL3"] = new_header["CRVAL3"] - vsys.value
 
 # Create the FITS file so we can write 1 spectrum in at a time
 print("Making the empty FITS file")
-new_fitsname = os.path.join(data_path,
-                            "m33.co21_iram.rotsub.fits")
+new_fitsname = iram_co21_data_path("m33.co21_iram.rotsub.fits")
 
 create_huge_fits(new_fitsname, new_header)
 

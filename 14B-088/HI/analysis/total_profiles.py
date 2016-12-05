@@ -6,6 +6,10 @@ import os
 import matplotlib.pyplot as p
 import numpy as np
 
+from paths import (fourteenB_HI_data_path, arecibo_HI_data_path,
+                   paper1_figures_path)
+from constants import cube_name
+
 '''
 Sum over all spectra above 3 sigma. Overplot with single-dish Arecibo.
 And produce the summed spectra of the rotation subtracted cube.
@@ -16,16 +20,9 @@ execfile(os.path.expanduser("~/Dropbox/code_development/BaSiCs/basics/utils.py")
 # Needed sig_clip.
 
 
-# p.ioff()
-
-data_path = "/media/eric/MyRAID/M33/14B-088/HI/full_imaging/"
-arecibo_path = "/media/eric/Data_3//M33/Arecibo/14B-088_items/"
-
 cube = \
-    SpectralCube.read(os.path.join(data_path,
-                                   "M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.fits"))
-                                   # "M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.rotsub.fits"))
-arecibo = SpectralCube.read(os.path.join(arecibo_path, "M33_14B-088_HI_model.fits"))
+    SpectralCube.read(fourteenB_HI_data_path(cube_name))
+arecibo = SpectralCube.read(arecibo_HI_data_path("14B-088_items/M33_14B-088_HI_model.fits"))
 arecibo = arecibo.spectral_slab(*cube.spectral_extrema)
 arecibo = arecibo.subcube(ylo=cube.latitude_extrema[1],
                           yhi=cube.latitude_extrema[0],
@@ -56,17 +53,22 @@ for chan in ProgressBar(range(cube.shape[0])):
         (arec_channel.header["CDELT2"] * u.deg)**2
 
 # VLA needs to be corrected by a 1.45 factor. See arecibo_match_props.py
-total_spectrum = total_spectrum * u.Jy / 1.45
+total_spectrum = total_spectrum * u.Jy
 total_spectrum_arecibo = total_spectrum_arecibo * u.Jy
 
 p.plot(cube.spectral_axis.to(u.km / u.s).value, total_spectrum.value, 'b-',
-       label="VLA + Arecibo", drawstyle='steps-mid')
+       label="VLA", drawstyle='steps-mid')
 p.plot(arecibo.spectral_axis.to(u.km / u.s).value,
        total_spectrum_arecibo.value, 'g--', label='Arecibo',
        drawstyle='steps-mid')
 p.ylabel("Total Intensity (Jy)")
 p.xlabel("Velocity (km/s)")
 p.legend(loc='upper left')
+
+p.savefig(paper1_figures_path("total_profile.pdf"))
+p.savefig(paper1_figures_path("total_profile.png"))
+
+p.close()
 
 # Now we can get the total mass
 

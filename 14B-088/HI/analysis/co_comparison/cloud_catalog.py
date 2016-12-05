@@ -3,7 +3,6 @@ from astropy.table import Table, Column
 from astropy.io import fits
 import astropy.units as u
 import os
-from galaxies import Galaxy
 from astropy.wcs import WCS
 import matplotlib.pyplot as p
 import numpy as np
@@ -13,6 +12,7 @@ from spectral_cube import SpectralCube
 from analysis.paths import (iram_co21_data_path, fourteenB_HI_data_path,
                             paper1_figures_path)
 from analysis.constants import moment0_name
+from analysis.galaxy_params import gal
 
 '''
 Ignore "clouds" beyond 6.6 kpc to remove the edge effects
@@ -27,7 +27,6 @@ ico = fits.open(iram_co21_data_path("m33.ico.fits"))[0]
 
 cube = SpectralCube.read(iram_co21_data_path("m33.co21_iram.fits"))
 
-gal = Galaxy("M33")
 radii = gal.radius(header=ico.header)
 
 ax = p.subplot(111, projection=cube[0].wcs)

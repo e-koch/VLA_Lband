@@ -8,7 +8,6 @@ import scipy.ndimage as nd
 from scipy.stats import binned_statistic
 import numpy as np
 from skimage.morphology import medial_axis
-from galaxies import Galaxy
 from reproject import reproject_interp
 from skimage.segmentation import find_boundaries
 from astropy.utils.console import ProgressBar
@@ -16,6 +15,7 @@ from astropy.utils.console import ProgressBar
 from analysis.paths import (fourteenB_HI_data_path, iram_co21_data_path,
                             paper1_figures_path)
 from analysis.constants import rotsub_cube_name, hi_freq
+from analysis.galaxy_params import gal
 
 '''
 Calculate the intensities of HI and CO as a function of distance from the
@@ -31,9 +31,6 @@ np.random.seed(34678953)
 # Plot a bunch
 verbose = False
 slicer = (slice(825, 1033), slice(360, 692))
-
-
-gal = Galaxy("M33")
 
 # Load in the rotation subtracted cubes
 hi_cube = SpectralCube.read(fourteenB_HI_data_path(rotsub_cube_name))

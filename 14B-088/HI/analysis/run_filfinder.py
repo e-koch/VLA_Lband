@@ -12,7 +12,6 @@ import scipy.ndimage as nd
 from scipy.stats import binned_statistic
 import numpy as np
 from skimage.morphology import medial_axis
-from galaxies import Galaxy
 from warnings import warn
 
 
@@ -89,9 +88,11 @@ def fit_skeleton_width(skel_array, intensity_array, pixscale, beam_width,
 
     return fit, err, model, profile
 
+
 if __name__ == "__main__":
 
-    from analysis.paths import fourteenB_HI_data_path
+    from analysis.paths import (fourteenB_HI_data_path, paper1_figures_path,
+                                iram_co21_data_path)
     from analysis.constants import moment0_name
     from analysis.galaxy_params import gal
 
@@ -126,11 +127,14 @@ if __name__ == "__main__":
     ax.contour(skeleton, colors='r')
     p.draw()
 
-    raw_input("Next plot?")
+    p.savefig(paper1_figures_path("moment0_w_skeletons.pdf"), rasterize=True)
+    p.savefig(paper1_figures_path("moment0_w_skeletons.png"))
+
+    # raw_input("Next plot?")
     p.clf()
 
     pixscale = \
-        mom0.header['CDELT2'] * (np.pi / 180.) * 0.84e6  # * u.pc
+        mom0.header['CDELT2'] * (np.pi / 180.) * gal.distance.to(u.pc).value
     beam_width = \
         mom0.meta['beam'].major.to(u.deg).value * (np.pi / 180.) * \
         gal.distance.to(u.pc).value
@@ -150,6 +154,9 @@ if __name__ == "__main__":
     p.grid()
     p.draw()
 
+    p.savefig(paper1_figures_path("filfinder_radial_profile_hi.pdf"))
+    p.savefig(paper1_figures_path("filfinder_radial_profile_hi.png"))
+
     fraction_in_peak = np.sqrt(2 * np.pi) * (fit[0] - fit[2]) * \
         (fit[1] / pixscale) * skeleton.sum() / np.nansum(mom0.value)
 
@@ -157,15 +164,16 @@ if __name__ == "__main__":
           .format(fraction_in_peak))
     # 0.543
 
-    raw_input("Next plot?")
+    # raw_input("Next plot?")
     p.clf()
-
 
     # Now use the regridded integrated CO map with the same skeleton
     # Created with co_comparison/co_reproject.py
-    mom0_co_fits = fits.open("/media/eric/Data_3/M33/co21/m33.ico.hireprojection.fits")[0]
+    mom0_co_fits = \
+        fits.open(iram_co21_data_path("m33.ico.hireprojection.fits"))[0]
     # Correction for beam efficiency added in.
-    mom0_co = Projection(mom0_co_fits.data / 0.75, wcs=WCS(mom0_co_fits.header))
+    mom0_co = \
+        Projection(mom0_co_fits.data / 0.75, wcs=WCS(mom0_co_fits.header))
     mom0_co.meta['beam'] = Beam.from_fits_header(mom0_co_fits.header)
 
     # On the same grid, so pixscales are the same
@@ -185,6 +193,9 @@ if __name__ == "__main__":
     p.grid()
     p.draw()
 
+    p.savefig(paper1_figures_path("filfinder_radial_profile_co.pdf"))
+    p.savefig(paper1_figures_path("filfinder_radial_profile_co.png"))
+
     fraction_in_peak_co = np.sqrt(2 * np.pi) * (fit_co[0]) * \
         (fit_co[1] / pixscale) * skeleton.sum() / np.nansum(mom0_co.value)
 
@@ -193,7 +204,7 @@ if __name__ == "__main__":
     # 1.12 Yeah, this one doesn't work. And it doesn't matter since this should
     # pretty much be all of it.
 
-    raw_input("Next plot?")
+    # raw_input("Next plot?")
     p.clf()
 
     # fils = fil_finder_2D(mom0_co.value, mom0.header, 10, distance=0.84e6)
@@ -204,7 +215,8 @@ if __name__ == "__main__":
 
     # Now scale the HI and CO to have the same amplitude and ignore the HI bkg
 
-    p.plot(profile[0], model(profile[0], *[1, fit[1], 0]), 'b-', label="HI Model")
+    p.plot(profile[0], model(profile[0], *[1, fit[1], 0]), 'b-',
+           label="HI Model")
     p.plot(profile[0], model(profile[0], *[1, fit_co[1], 0]), 'g--',
            label='CO Model')
     p.xlabel("Radial Distance (pc)")
@@ -213,7 +225,10 @@ if __name__ == "__main__":
     p.grid()
     p.draw()
 
-    raw_input("Next plot?")
+    # raw_input("Next plot?")
+    p.savefig(paper1_figures_path("filfinder_radial_profile_models.pdf"))
+    p.savefig(paper1_figures_path("filfinder_radial_profile_models.png"))
+
     p.clf()
 
     # Now create a radial profile of the distance between filaments
@@ -239,3 +254,8 @@ if __name__ == "__main__":
     p.xlim([0, 8])
     p.ylim([80, 300])
     p.draw()
+
+    p.savefig(paper1_figures_path("filfinder_skeleton_distance_radial_profile.pdf"))
+    p.savefig(paper1_figures_path("filfinder_skeleton_distance_radial_profile.png"))
+
+    p.close()

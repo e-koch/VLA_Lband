@@ -1,6 +1,5 @@
 
 from astropy.io import fits
-from galaxies import Galaxy
 import matplotlib.pyplot as p
 import os
 from astropy.coordinates import Angle
@@ -19,6 +18,7 @@ from HI_radial_profile import surfdens_radial_profile
 from paths import (iram_co21_data_path, fourteenB_HI_data_path,
                    paper1_figures_path, c_hi_analysispath)
 from constants import moment0_name, cube_name
+from galaxy_params import gal
 
 from krumholz_2009_model import krumholz_ratio_model
 
@@ -45,8 +45,7 @@ direc_hi = "/home/eric/MyRAID/M33/14B-088/HI/full_imaging/"
 mom0_hi = fits.open(fourteenB_HI_data_path(moment0_name))[0]
 hi_cube = SpectralCube.read(fourteenB_HI_data_path(cube_name))
 
-g = Galaxy("M33")
-radii = g.radius(header=cube.header)
+radii = gal.radius(header=cube.header)
 # Edge effects are really awful in this map. Ignore the edges by masking
 # beyond 6 kpc. This is really close to the edge of the data anyways, and
 # honestly results beyond this point shouldn't be trusted...
@@ -57,14 +56,14 @@ cube = cube.with_mask(radii < 6. * u.kpc)
 # mom0_data = mom0.data.squeeze() * (mom0.data.squeeze() > 1.0) * u.K
 mom0 = cube.moment0()
 
-rs, sd, sd_sigma = surfdens_radial_profile(g, cube=cube, mom0=mom0,
+rs, sd, sd_sigma = surfdens_radial_profile(gal, cube=cube, mom0=mom0,
                                            max_rad=6 * u.kpc, dr=dr)
 # Correct for beam efficiency
 sd /= beam_eff
 sd_sigma /= beam_eff
 
 rs_n, sd_n, sd_sigma_n = \
-    surfdens_radial_profile(g, cube=cube, mom0=mom0,
+    surfdens_radial_profile(gal, cube=cube, mom0=mom0,
                             pa_bounds=Angle([0.5 * np.pi * u.rad,
                                              -0.5 * np.pi * u.rad]),
                             max_rad=6 * u.kpc, dr=dr)
@@ -72,7 +71,7 @@ sd_n /= beam_eff
 sd_sigma_n /= beam_eff
 
 rs_s, sd_s, sd_sigma_s = \
-    surfdens_radial_profile(g, cube=cube, mom0=mom0,
+    surfdens_radial_profile(gal, cube=cube, mom0=mom0,
                             pa_bounds=Angle([-0.5 * np.pi * u.rad,
                                              0.5 * np.pi * u.rad]),
                             max_rad=6 * u.kpc, dr=dr)
@@ -119,7 +118,7 @@ p.close()
 # Now get the HI profile on the same scales
 proj = Projection(mom0_hi.data * u.Jy * u.m / u.s, meta={'beam': hi_cube.beam},
                   wcs=WCS(cube[0].header))
-rs_hi, sd_hi, sd_sigma_hi = surfdens_radial_profile(g, cube=hi_cube,
+rs_hi, sd_hi, sd_sigma_hi = surfdens_radial_profile(gal, cube=hi_cube,
                                                     mom0=proj,
                                                     max_rad=6 * u.kpc, dr=dr)
 # Apply scaling factor
@@ -147,7 +146,8 @@ p.close()
 # Now plot their ratio against the total gas surface density
 gas_ratio = sd.value / sd_hi.value
 total_sd = sd.value + sd_hi.value
-total_sd_sigma = total_sd * np.sqrt((sd_sigma / sd) ** 2 + (sd_sigma_hi / sd_hi)).value
+total_sd_sigma = total_sd * \
+    np.sqrt((sd_sigma / sd) ** 2 + (sd_sigma_hi / sd_hi)).value
 
 # Overplot the Krumholz model with a few different clumping factors.
 # Theoretically, c -> 1 at a resolution of 100 pc. but I'm finding a better

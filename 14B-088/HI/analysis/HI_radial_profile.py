@@ -41,9 +41,6 @@ def surfdens_radial_profile(gal, header=None, cube=None,
             raise ValueError("Must give cube when not given mom0")
         mom0 = cube.moment0()
 
-    if header is None and cube is None:
-        raise TypeError("Either a header or cube must be given.")
-
     if header is None:
         if cube is not None:
             header = cube.header
@@ -139,8 +136,8 @@ def surfdens_radial_profile(gal, header=None, cube=None,
     if cube is not None:
         unit = cube.unit
 
-    # if mom0 is not None:
-    #     unit = mom0.unit
+    if mom0 is not None:
+        unit = mom0.unit
 
     if unit.is_equivalent(u.Jy):
         # The beam units are sort of implied

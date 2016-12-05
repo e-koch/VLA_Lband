@@ -51,11 +51,14 @@ image_script_path = os.path.join(root, 'imaging_pipeline')
 # Data paths
 fourteenB_HI_data_path = \
     partial(name_return_check,
-            path=os.path.join(data_path, "VLA/14B-088/HI/full_imaging_1016/"))
+            path=os.path.join(data_path, "VLA/14B-088/HI/full_imaging_noSD/"))
 # fourteenB_HI_data_path = os.path.join(data_path, "14B-088/HI/full_imaging/")
 arecibo_HI_data_path = \
     partial(name_return_check,
             path=os.path.join(data_path, "Arecibo/"))
+
+iram_co21_data_path = partial(name_return_check,
+                              path=os.path.join(data_path, "co21/"))
 
 # Paper figures path
 papers_path = os.path.expanduser("~/Dropbox/My_Papers/")

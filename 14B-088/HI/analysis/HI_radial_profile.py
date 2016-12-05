@@ -166,7 +166,6 @@ def surfdens_radial_profile(gal, header=None, cube=None,
 
 
 if __name__ == "__main__":
-    from galaxies import Galaxy
     import matplotlib.pyplot as p
     from astropy.table import Table
     from spectral_cube.lower_dimensional_structures import Projection
@@ -181,8 +180,7 @@ if __name__ == "__main__":
                        data_path)
 
     from constants import hi_freq, moment0_name
-
-    g = Galaxy("M33")
+    from galaxy_params import gal
 
     mom0_hdu = fits.open(fourteenB_HI_data_path(moment0_name))[0]
     mom0 = Projection(mom0_hdu.data, wcs=WCS(mom0_hdu.header), unit=u.km / u.s)
@@ -192,15 +190,15 @@ if __name__ == "__main__":
     dr = 100 * u.pc
 
     # Create a radial profile of HI
-    rs, sd, sd_sigma = surfdens_radial_profile(g, mom0=mom0, dr=dr,
+    rs, sd, sd_sigma = surfdens_radial_profile(gal, mom0=mom0, dr=dr,
                                                restfreq=hi_freq)
     rs_n, sd_n, sd_sigma_n = \
-        surfdens_radial_profile(g, mom0=mom0,
+        surfdens_radial_profile(gal, mom0=mom0,
                                 pa_bounds=Angle([0.5 * np.pi * u.rad,
                                                 -0.5 * np.pi * u.rad]),
                                 dr=dr, restfreq=hi_freq)
     rs_s, sd_s, sd_sigma_s = \
-        surfdens_radial_profile(g, mom0=mom0,
+        surfdens_radial_profile(gal, mom0=mom0,
                                 pa_bounds=Angle([-0.5 * np.pi * u.rad,
                                                  0.5 * np.pi * u.rad]),
                                 dr=dr, restfreq=hi_freq)
@@ -226,7 +224,8 @@ if __name__ == "__main__":
     #                         ylo=cube.latitude_extrema[1])
     arecibo_mom0 = arecibo_cube.moment0()
     rs_arec, sd_arec, sd_sigma_arec = \
-        surfdens_radial_profile(g, cube=arecibo_cube, mom0=arecibo_mom0, dr=dr,
+        surfdens_radial_profile(gal, cube=arecibo_cube, mom0=arecibo_mom0,
+                                dr=dr,
                                 restfreq=hi_freq)
 
     # Archival HI
@@ -236,7 +235,7 @@ if __name__ == "__main__":
 
     arch_mom0 = arch_cube.moment0()
     rs_arch, sd_arch, sd_sigma_arch = \
-        surfdens_radial_profile(g, cube=arch_cube, mom0=arch_mom0, dr=dr,
+        surfdens_radial_profile(gal, cube=arch_cube, mom0=arch_mom0, dr=dr,
                                 restfreq=hi_freq)
 
     p.ioff()
@@ -304,7 +303,8 @@ if __name__ == "__main__":
            linestyle="-", color="b",
            label="This work", drawstyle='steps-mid')
     p.plot(corbelli["R"][corbelli["R"] <= 10.0],
-           corbelli["SigmaHI"][corbelli["R"] <= 10.0], "r--", drawstyle='steps-mid',
+           corbelli["SigmaHI"][corbelli["R"] <= 10.0], "r--",
+           drawstyle='steps-mid',
            label="Corbelli et al. (2014)")
     p.ylabel(r"$\Sigma$ (M$_{\odot}$ pc$^{-2}$)")
     p.xlabel(r"R (kpc)")

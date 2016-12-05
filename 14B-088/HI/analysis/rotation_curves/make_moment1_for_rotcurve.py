@@ -9,8 +9,7 @@ from astropy.io import fits
 
 from analysis.paths import fourteenB_HI_data_path
 from analysis.constants import cube_name, mask_name, pb_lim
-
-gal = Galaxy("M33")
+from analysis.galaxy_params import gal
 
 cube = SpectralCube.read(fourteenB_HI_data_path(cube_name))
 mask = fits.open(fourteenB_HI_data_path(mask_name))[0]

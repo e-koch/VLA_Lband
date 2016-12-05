@@ -103,7 +103,6 @@ def radial_profile(gal, moment, header=None, dr=100 * u.pc,
 
 
 if __name__ == "__main__":
-    from galaxies import Galaxy
     import matplotlib.pyplot as p
 
     from paths import (fourteenB_HI_data_path, arecibo_HI_data_path,
@@ -111,18 +110,17 @@ if __name__ == "__main__":
                        data_path)
 
     from constants import moment0_name, lwidth_name
+    from galaxy_params import gal
 
     lwidth_hdu = fits.open(fourteenB_HI_data_path(lwidth_name))[0]
     lwidth = Projection(lwidth_hdu.data, wcs=WCS(lwidth_hdu.header),
                         unit=u.m / u.s)
     lwidth.meta["beam"] = Beam.from_fits_header(lwidth_hdu.header)
 
-    g = Galaxy("M33")
-
     # Create a radial profile of the HI vel disp out to 8 kpc.
     # Beyond 8 kpc, noise is dominant. It may be some reflection of the
     # warp, but I don't trust it right now.
-    rs, sd, sd_sigma = radial_profile(g, lwidth, max_rad=8 * u.kpc)
+    rs, sd, sd_sigma = radial_profile(gal, lwidth, max_rad=8 * u.kpc)
 
     sd = sd.to(u.km / u.s)
     sd_sigma = sd_sigma.to(u.km / u.s)
@@ -143,13 +141,13 @@ if __name__ == "__main__":
 
     # Create the North and South portions.
     rs_n, sd_n, sd_sigma_n = \
-        radial_profile(g, lwidth, max_rad=8 * u.kpc,
+        radial_profile(gal, lwidth, max_rad=8 * u.kpc,
                        pa_bounds=Angle([0.5 * np.pi * u.rad,
                                         -0.5 * np.pi * u.rad]))
     sd_n = sd_n.to(u.km / u.s)
     sd_sigma_n = sd_sigma_n.to(u.km / u.s)
     rs_s, sd_s, sd_sigma_s = \
-        radial_profile(g, lwidth, max_rad=8 * u.kpc,
+        radial_profile(gal, lwidth, max_rad=8 * u.kpc,
                        pa_bounds=Angle([-0.5 * np.pi * u.rad,
                                         0.5 * np.pi * u.rad]))
     sd_s = sd_s.to(u.km / u.s)
@@ -178,7 +176,7 @@ if __name__ == "__main__":
 
     ax = p.subplot(121, projection=lwidth.wcs)
     p.imshow(mom0, origin='lower')
-    radii = g.radius(header=lwidth.header)
+    radii = gal.radius(header=lwidth.header)
     p.contour(radii <= 1 * u.kpc, colors='b')
     p.contour(radii <= 4.2 * u.kpc, colors='g')
     p.xlabel("")

@@ -3,7 +3,6 @@ from spectral_cube import SpectralCube
 from spectral_cube.lower_dimensional_structures import Projection
 import numpy as np
 import matplotlib.pyplot as p
-import os
 from astropy.io import fits
 from astropy.wcs import WCS
 import astropy.units as u

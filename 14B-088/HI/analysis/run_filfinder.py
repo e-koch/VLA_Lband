@@ -93,6 +93,7 @@ if __name__ == "__main__":
 
     from analysis.paths import fourteenB_HI_data_path
     from analysis.constants import moment0_name
+    from analysis.galaxy_params import gal
 
     mom0_fits = fits.open(fourteenB_HI_data_path(moment0_name))[0]
     beam = Beam.from_fits_header(mom0_fits.header)
@@ -131,7 +132,8 @@ if __name__ == "__main__":
     pixscale = \
         mom0.header['CDELT2'] * (np.pi / 180.) * 0.84e6  # * u.pc
     beam_width = \
-        mom0.meta['beam'].major.to(u.deg).value * (np.pi / 180.) * 0.84e6  # * u.pc
+        mom0.meta['beam'].major.to(u.deg).value * (np.pi / 180.) * \
+        gal.distance.to(u.pc).value
 
     # HI profile and fit
     fit, err, model, profile = \
@@ -168,7 +170,8 @@ if __name__ == "__main__":
 
     # On the same grid, so pixscales are the same
     beam_width_co = \
-        mom0_co.meta['beam'].major.to(u.deg).value * (np.pi / 180.) * 0.84e6  # * u.pc
+        mom0_co.meta['beam'].major.to(u.deg).value * (np.pi / 180.) * \
+        gal.distance.to(u.pc).value
 
     fit_co, err_co, model_co, profile_co = \
         fit_skeleton_width(skeleton, mom0_co.value, pixscale, beam_width_co)
@@ -214,14 +217,13 @@ if __name__ == "__main__":
     p.clf()
 
     # Now create a radial profile of the distance between filaments
-    g = Galaxy("M33")
 
     # Create a radial profile of the HI vel disp out to 8 kpc.
     dist_arr = Projection(nd.distance_transform_edt(~skeleton) * pixscale,
                           unit=u.pc, wcs=mom0.wcs)
     dist_arr.meta['beam'] = beam
 
-    rs, sd, sd_sigma = radial_profile(g, dist_arr, max_rad=10 * u.kpc,
+    rs, sd, sd_sigma = radial_profile(gal, dist_arr, max_rad=10 * u.kpc,
                                       dr=100 * u.pc)
 
     # Multiply 2 to get the average distance instead of radius

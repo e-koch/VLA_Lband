@@ -13,6 +13,10 @@ from reproject import reproject_interp
 from skimage.segmentation import find_boundaries
 from astropy.utils.console import ProgressBar
 
+from analysis.paths import (fourteenB_HI_data_path, iram_co21_data_path,
+                            paper1_figures_path)
+from analysis.constants import rotsub_cube_name, hi_freq
+
 '''
 Calculate the intensities of HI and CO as a function of distance from the
 edges of the adap. thresh mask.
@@ -32,8 +36,8 @@ slicer = (slice(825, 1033), slice(360, 692))
 gal = Galaxy("M33")
 
 # Load in the rotation subtracted cubes
-hi_cube = SpectralCube.read("/home/eric/MyRAID/M33/14B-088/HI/full_imaging/M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.rotsub.fits")
-co_cube = SpectralCube.read("/media/eric/Data_3/M33/co21/m33.co21_iram.rotsub.fits")
+hi_cube = SpectralCube.read(fourteenB_HI_data_path(rotsub_cube_name))
+co_cube = SpectralCube.read(iram_co21_data_path("m33.co21_iram.rotsub.fits"))
 
 start_vel = - 30 * u.km / u.s
 end_vel = 30 * u.km / u.s
@@ -56,12 +60,12 @@ skeletons = []
 # Estimate the noise level in an equivalent slab
 hi_mom0 = hi_cube.spectral_slab(-180 * u.km / u.s, -183 * u.km / u.s).moment0()
 sigma = sig_clip(hi_mom0.value, nsig=10) * \
-    hi_cube.beam.jtok(1.414 * u.GHz).value
+    hi_cube.beam.jtok(hi_freq).value
 
 for i, (end, start) in enumerate(ProgressBar(zip(vels[1:], vels[:-1]))):
 
     hi_slab = hi_cube.spectral_slab(start, end)
-    hi_mom0 = hi_slab.moment0() * hi_cube.beam.jtok(1.414 * u.GHz) / u.Jy
+    hi_mom0 = hi_slab.moment0() * hi_cube.beam.jtok(hi_freq) / u.Jy
 
     # Make the CO slab, then reproject onto the HI grid
     co_mom0 = co_cube.spectral_slab(start, end).moment0()
@@ -83,7 +87,7 @@ for i, (end, start) in enumerate(ProgressBar(zip(vels[1:], vels[:-1]))):
     hole_mask = bub.mask.copy()
     # Now apply a radial boundary to the edge mask where the CO data is valid
     # This is the same cut-off used to define the valid clouds
-    radial_cut = radii <= 6.6 * u.kpc
+    radial_cut = radii <= max_radius
     edge_mask *= radial_cut
     edge_masks.append(edge_mask)
 
@@ -175,7 +179,7 @@ co_errs = np.nanstd(co_samps, axis=0)
 
 # Convert the bin_centers to pc
 pixscale = \
-    hi_mom0.header['CDELT2'] * (np.pi / 180.) * 0.84e6  # * u.pc
+    hi_mom0.header['CDELT2'] * (np.pi / 180.) * gal.distance.to(u.pc).value
 
 bin_centers *= pixscale
 
@@ -199,7 +203,10 @@ p.legend(loc='upper left')
 p.grid()
 p.draw()
 
-raw_input("Next plot?")
+p.savefig(paper1_figures_path("mask_edge_radial_profiles.pdf"))
+p.savefig(paper1_figures_path("mask_edge_radial_profiles.png"))
+
+# raw_input("Next plot?")
 p.clf()
 
 # Show the total number of elements in each distance bin
@@ -209,7 +216,10 @@ p.xlabel("Distance from mask edge (pc)")
 p.ylabel("Number of pixels")
 p.grid()
 
-raw_input("Next plot?")
+p.savefig(paper1_figures_path("mask_edge_radial_profiles_numbin.pdf"))
+p.savefig(paper1_figures_path("mask_edge_radial_profiles_numbin.png"))
+
+# raw_input("Next plot?")
 p.clf()
 
 # Now investigate the significance of the distance correlations.
@@ -237,7 +247,10 @@ p.legend(loc='upper left')
 p.grid()
 p.draw()
 
-raw_input("Next plot?")
+p.savefig(paper1_figures_path("mask_edge_radial_profiles_randbin.pdf"))
+p.savefig(paper1_figures_path("mask_edge_radial_profiles_randbin.png"))
+
+# raw_input("Next plot?")
 p.clf()
 
 # Compare the CDFs of the intensities within the masks to demonstrate CO
@@ -257,3 +270,7 @@ p.ylim([-0.05, 1.05])
 p.ylabel("CDF")
 p.xlabel("HI Integrated Intensity (K km/s)")
 p.draw()
+
+p.savefig(paper1_figures_path("inmask_hi_co_cdfs.pdf"))
+p.savefig(paper1_figures_path("inmask_hi_co_cdfs.png"))
+p.close()

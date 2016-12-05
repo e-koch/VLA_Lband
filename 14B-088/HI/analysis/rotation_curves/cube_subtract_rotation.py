@@ -10,6 +10,9 @@ from astropy.table import Table
 from turbustat.statistics.stats_utils import fourier_shift
 
 from analysis.paths import fourteenB_HI_data_path
+
+from analysis.constants import rotsub_cube_name, cube_name
+
 '''
 Subtract a rotation model from a cube.
 '''
@@ -17,7 +20,7 @@ Subtract a rotation model from a cube.
 # Load in my huge FITS creator
 execfile(os.path.expanduser("~/Dropbox/code_development/ewky_scripts/write_huge_fits.py"))
 
-cube = SpectralCube.read(fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.fits"))
+cube = SpectralCube.read(fourteenB_HI_data_path(cube_name))
 
 model = fits.open(fourteenB_HI_data_path("diskfit_noasymm_noradial_nowarp_output/rad.fitmod.fits"))
 
@@ -42,8 +45,7 @@ new_header["CRVAL3"] = new_header["CRVAL3"] - vsys.value
 
 # Create the FITS file so we can write 1 spectrum in at a time
 print("Making the empty FITS file")
-new_fitsname = fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.rotsub.fits",
-                                      no_check=True)
+new_fitsname = fourteenB_HI_data_path(rotsub_cube_name, no_check=True)
 
 create_huge_fits(new_fitsname, new_header)
 
@@ -68,7 +70,7 @@ for num, (i, j) in enumerate(ProgressBar(zip(*posns))):
         new_fits.flush()
 
 # Append the beam table
-hdu = fits.open(fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.fits"))
+hdu = fits.open(fourteenB_HI_data_path(cube_name))
 new_fits.append(hdu[1])
 
 new_fits.flush()

@@ -30,7 +30,6 @@ def radial_profile(gal, moment, header=None, dr=100 * u.pc,
     if header is None:
         header = moment.header
 
-
     if beam is None:
         # See if its in the projection
         if "beam" in moment.meta:
@@ -111,8 +110,9 @@ if __name__ == "__main__":
                        c_hi_analysispath, paper1_figures_path,
                        data_path)
 
+    from constants import moment0_name, lwidth_name
 
-    lwidth_hdu = fits.open(fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.lwidth.fits"))[0]
+    lwidth_hdu = fits.open(fourteenB_HI_data_path(lwidth_name))[0]
     lwidth = Projection(lwidth_hdu.data, wcs=WCS(lwidth_hdu.header),
                         unit=u.m / u.s)
     lwidth.meta["beam"] = Beam.from_fits_header(lwidth_hdu.header)
@@ -174,7 +174,7 @@ if __name__ == "__main__":
     p.clf()
 
     # There are interesting drops at 1 and ~4.2 kpc. Plot these on the moment 0
-    mom0 = fits.getdata(fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.mom0.fits"))
+    mom0 = fits.getdata(fourteenB_HI_data_path(moment0_name))
 
     ax = p.subplot(121, projection=lwidth.wcs)
     p.imshow(mom0, origin='lower')

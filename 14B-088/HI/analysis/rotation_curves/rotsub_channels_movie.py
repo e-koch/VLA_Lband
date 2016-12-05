@@ -15,15 +15,16 @@ import warnings
 import matplotlib.animation as anim
 
 from analysis.paths import fourteenB_HI_data_path, paper1_figures_path
-from analysis.constants import hi_freq
+from analysis.constants import hi_freq, rotsub_cube_name
 
 '''
 Channel plots of the rotation subtracted HI cube combined into a movie!
 
-Borrowing code from @keflavich: https://github.com/keflavich/paper_w51_evla/blob/master/plot_codes/h77a_layers.py
+Borrowing code from @keflavich:
+https://github.com/keflavich/paper_w51_evla/blob/master/plot_codes/h77a_layers.py
 '''
 
-cube_file = fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.rotsub.fits")
+cube_file = fourteenB_HI_data_path(rotsub_cube_name)
 
 cube = SpectralCube.read(cube_file)
 

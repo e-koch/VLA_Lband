@@ -92,8 +92,9 @@ def fit_skeleton_width(skel_array, intensity_array, pixscale, beam_width,
 if __name__ == "__main__":
 
     from analysis.paths import fourteenB_HI_data_path
+    from analysis.constants import moment0_name
 
-    mom0_fits = fits.open(fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.mom0.fits"))[0]
+    mom0_fits = fits.open(fourteenB_HI_data_path(moment0_name))[0]
     beam = Beam.from_fits_header(mom0_fits.header)
     mom0 = Projection(mom0_fits.data * beam.jtok(hi_freq) / 1000. *
                       u.km / u.s,

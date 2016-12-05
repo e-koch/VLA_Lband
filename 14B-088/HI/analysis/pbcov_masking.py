@@ -10,6 +10,7 @@ from astropy.utils.console import ProgressBar
 import os
 
 from analysis.paths import fourteenB_HI_data_path
+from analsis.constants import pb_lim, cube_name
 
 # execfile(os.path.expanduser("~/Dropbox/code_development/ewky_scripts/write_huge_fits.py"))
 
@@ -19,13 +20,11 @@ cube = SpectralCube.read(fourteenB_HI_data_path("M33_14B-088_HI.clean.image.fits
 
 # Apply the mask, using a cut-off of 0.3. This retains all of the regions with
 # emission.
-pblim = 0.3
-masked_cube = cube.with_mask(pbcov.data > pblim)
+masked_cube = cube.with_mask(pbcov.data > pb_lim)
 
 masked_cube = masked_cube.minimal_subcube()
 
-new_fitsname = fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.fits",
-                                      no_check=True)
+new_fitsname = fourteenB_HI_data_path(cube_name, no_check=True)
 
 masked_cube.write(new_fitsname)
 

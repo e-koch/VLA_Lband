@@ -180,11 +180,11 @@ if __name__ == "__main__":
                        c_hi_analysispath, paper1_figures_path,
                        data_path)
 
-    from constants import hi_freq
+    from constants import hi_freq, moment0_name
 
     g = Galaxy("M33")
 
-    mom0_hdu = fits.open(fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.mom0.fits"))[0]
+    mom0_hdu = fits.open(fourteenB_HI_data_path(moment0_name))[0]
     mom0 = Projection(mom0_hdu.data, wcs=WCS(mom0_hdu.header), unit=u.km / u.s)
     mom0.meta["beam"] = Beam.from_fits_header(mom0_hdu.header)
 

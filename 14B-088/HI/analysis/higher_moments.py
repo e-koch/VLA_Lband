@@ -9,20 +9,21 @@ from astropy.wcs import WCS
 import astropy.units as u
 
 from analysis.paths import fourteenB_HI_data_path, paper1_figures_path
-from constants import hi_freq
+from constants import (hi_freq, cube_name, moment0_name, lwidth_name,
+                       skew_name, kurt_name)
 
 '''
 Investigating skewness and kurtosis in the 14B-088 cube.
 '''
 
-cube = SpectralCube.read(fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.fits"))
-mom0 = fits.open(fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.mom0.fits"))[0]
-lwidth = fits.open(fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.lwidth.fits"))[0]
+cube = SpectralCube.read(fourteenB_HI_data_path(cube_name))
+mom0 = fits.open(fourteenB_HI_data_path(moment0_name))[0]
+lwidth = fits.open(fourteenB_HI_data_path(lwidth_name))[0]
 
-skew_hdu = fits.open(fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.skewness.fits"))[0]
+skew_hdu = fits.open(fourteenB_HI_data_path(skew_name))[0]
 skew = Projection(skew_hdu.data, wcs=WCS(skew_hdu.header), unit=u.km / u.s)
 
-kurt_hdu = fits.open(fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.kurtosis.fits"))[0]
+kurt_hdu = fits.open(fourteenB_HI_data_path(kurt_name))[0]
 kurt = Projection(kurt_hdu.data, wcs=WCS(kurt_hdu.header), unit=u.km / u.s)
 
 

@@ -98,6 +98,8 @@ if __name__ == "__main__":
     from analysis.paths import (fourteenB_HI_data_path, paper1_figures_path,
                                 c_hi_analysispath)
 
+    from analysis.constants import pb_lim
+
     make_plot = True
     make_rotmodel = True
 
@@ -119,8 +121,8 @@ if __name__ == "__main__":
     params = "_".join(folder_name.split("_")[1:-1])
 
     # Load in moment 1
-    # mom1_name = fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3.ellip_mask.mom1.fits")
-    mom1_name = fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3.ellip_mask.mom1.fits")
+    # mom1_name = fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_{}.ellip_mask.mom1.fits".format(pb_lim))
+    mom1_name = fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_{}.ellip_mask.mom1.fits".format(pb_lim))
     mom1 = fits.open(mom1_name)
     mom1_wcs = wcs.WCS(mom1[0].header)
 
@@ -218,7 +220,8 @@ if __name__ == "__main__":
                         clobber=True)
 
         # And now with the normal pbcov masked grid.
-        mom1_name = fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.mom1.fits")
+        from analysis.constants import moment1_name
+        mom1_name = fourteenB_HI_data_path(moment1_name)
         mom1 = fits.open(mom1_name)
 
         smooth_model = return_smooth_model(data, mom1[0].header, gal)

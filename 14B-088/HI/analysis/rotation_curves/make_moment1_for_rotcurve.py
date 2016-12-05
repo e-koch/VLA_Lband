@@ -8,11 +8,9 @@ from galaxies import Galaxy
 from astropy.io import fits
 
 from analysis.paths import fourteenB_HI_data_path
+from analysis.constants import cube_name, mask_name, pb_lim
 
 gal = Galaxy("M33")
-
-cube_name = "M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.fits"
-mask_name = "M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked_source_mask.fits"
 
 cube = SpectralCube.read(fourteenB_HI_data_path(cube_name))
 mask = fits.open(fourteenB_HI_data_path(mask_name))[0]
@@ -34,18 +32,18 @@ subcube = cube.with_mask(radius < max_radius).minimal_subcube()
 # Now create the moment 1 and save it. Make a linewidth one too.
 # DISKFIT has issues with float64, so convert to float32 then save
 
-moment0_name = "M33_14B-088_HI.clean.image.pbcov_gt_0.3.ellip_mask.mom0.fits"
+moment0_name = "M33_14B-088_HI.clean.image.pbcov_gt_{}.ellip_mask.mom0.fits".format(pb_lim)
 moment0 = subcube.moment0()
 moment0.write(fourteenB_HI_data_path(moment0_name, no_check=True),
               overwrite=True)
 
-moment1_name = "M33_14B-088_HI.clean.image.pbcov_gt_0.3.ellip_mask.mom1.fits"
+moment1_name = "M33_14B-088_HI.clean.image.pbcov_gt_{}.ellip_mask.mom1.fits".format(pb_lim)
 moment1 = subcube.moment1().astype(np.float32)
 moment1.header["BITPIX"] = -32
 moment1.write(fourteenB_HI_data_path(moment1_name, no_check=True),
               overwrite=True)
 
-lwidth_name = "M33_14B-088_HI.clean.image.pbcov_gt_0.3.ellip_mask.linewidth.fits"
+lwidth_name = "M33_14B-088_HI.clean.image.pbcov_gt_{}.ellip_mask.linewidth.fits".format(pb_lim)
 linewidth = subcube.linewidth_sigma()
 linewidth.write(fourteenB_HI_data_path(lwidth_name, no_check=True),
                 overwrite=True)

@@ -14,12 +14,13 @@ from spectral_cube.cube_utils import average_beams
 from basics.utils import sig_clip
 
 from analysis.paths import fourteenB_HI_data_path
+from analysis.constants import cube_name, mask_name
 
 '''
 Create a signal mask for the 14B-088 cube
 '''
 
-cube = SpectralCube.read(fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked.fits"))
+cube = SpectralCube.read(fourteenB_HI_data_path(cube_name))
 
 # noise = Noise(cube)
 
@@ -49,8 +50,7 @@ new_header["BUNIT"] = ""
 new_header["BITPIX"] = 8
 
 mask_hdu = fits.PrimaryHDU(mask.astype('>i2'), header=new_header)
-mask_hdu.writeto(fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.3_masked_source_mask.fits",
-                                        no_check=True),
+mask_hdu.writeto(fourteenB_HI_data_path(mask_name, no_check=True),
                  clobber=True)
 
 # print("Now the source mask for the rotation subtracted cube.")

@@ -6,10 +6,11 @@ import numpy as np
 import os
 from astropy.utils.console import ProgressBar
 import pyregion
+from turbustat.statistics.stats_utils import fourier_shift
 
 # Import from above.
 parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-os.sys.path.insert(0,parentdir)
+os.sys.path.insert(0, parentdir)
 from rotation_curves.vrot_fit import return_smooth_model
 
 '''
@@ -60,27 +61,27 @@ print("Making the empty FITS file")
 new_fitsname = os.path.join(data_path,
                             "m33.co21_iram.rotsub.fits")
 
-create_huge_fits(cube.shape, new_fitsname, header=new_header)
+create_huge_fits(new_fitsname, new_header)
 
 new_fits = fits.open(new_fitsname, mode='update')
 
 write_every = 20000
+
+vel_res = cube._pix_size_slice(0) * u.m / u.s
 
 print("And here we go!")
 for num, (i, j) in enumerate(ProgressBar(zip(*posns))):
     # Don't bother rolling if there's nothing there
     if not np.isfinite(cube.filled_data[:, i, j]).any():
         continue
-    shift = center_pixel - \
-        find_nearest(cube.spectral_axis,
-                     model[i, j] * u.m / u.s)
-    new_fits[0].data[:, i, j] = np.roll(cube.filled_data[:, i, j], shift)
+
+    shift = ((model[0].data[i, j] * u.m / u.s - vsys) / vel_res).value
+
+    new_fits[0].data[:, i, j] = \
+        fourier_shift(cube.filled_data[:, i, j], shift)
 
     if num % write_every == 0:
         new_fits.flush()
-
-# Set the new header
-new_fits[0].header = new_header
 
 new_fits.flush()
 new_fits.close()

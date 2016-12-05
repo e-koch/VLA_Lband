@@ -10,7 +10,7 @@ from astropy.utils.console import ProgressBar
 import os
 
 from analysis.paths import fourteenB_HI_data_path
-from analsis.constants import pb_lim, cube_name
+from analysis.constants import pb_lim, cube_name
 
 # execfile(os.path.expanduser("~/Dropbox/code_development/ewky_scripts/write_huge_fits.py"))
 
@@ -26,7 +26,7 @@ masked_cube = masked_cube.minimal_subcube()
 
 new_fitsname = fourteenB_HI_data_path(cube_name, no_check=True)
 
-masked_cube.write(new_fitsname)
+masked_cube.write(new_fitsname, overwrite=True)
 
 # create_huge_fits(new_fitsname, cube.header)
 

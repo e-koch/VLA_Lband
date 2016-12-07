@@ -3,7 +3,7 @@ vels                               # 2 vels/phot switch
 T  T                               # 3 VELS: I/O toggles: FITS I/O, vels in m/s
 'M33_14B-088_HI.clean.image.pbcov_gt_0.5.ellip_mask.mom1.fits'      # 4 file name
 None                               # 5 VELS + FITS:file name for velocity uncerts
-1  1  846  1477                 # 6 FITS region to fit: (xlow,ylow) & (xrange,yrange)
+1  1  808  1503                 # 6 FITS region to fit: (xlow,ylow) & (xrange,yrange)
 100.0  20.00  0.45  6 3.0           # 7 FITS sampling: regrad, regpa, regeps, istepout, pixscale
 'diskfit_noasymm_noradial_nowarp_output/rad.out'    # 8 file name for output parameters
 T T T                              # 9 Disk toggles: fit for PA, eps & cen

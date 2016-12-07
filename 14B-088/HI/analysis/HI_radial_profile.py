@@ -137,7 +137,14 @@ def surfdens_radial_profile(gal, header=None, cube=None,
         unit = cube.unit
 
     if mom0 is not None:
-        unit = mom0.unit
+        bases = mom0.unit.bases
+        # Look for the brightness unit
+        # Change to Jy/beam when astropy has better beam handling
+        for bright in [u.Jy, u.K]:
+            for base in bases:
+                if bright.is_equivalent(base):
+                    unit = base
+                    break
 
     if unit.is_equivalent(u.Jy):
         # The beam units are sort of implied
@@ -177,10 +184,14 @@ if __name__ == "__main__":
                        data_path)
 
     from constants import hi_freq, moment0_name
-    from galaxy_params import gal
+    # from galaxy_params import gal
+
+    from galaxies import Galaxy
+    gal = Galaxy("M33")
 
     mom0_hdu = fits.open(fourteenB_HI_data_path(moment0_name))[0]
-    mom0 = Projection(mom0_hdu.data, wcs=WCS(mom0_hdu.header), unit=u.km / u.s)
+    mom0 = Projection(mom0_hdu.data, wcs=WCS(mom0_hdu.header),
+                      unit=u.Jy * u.km / u.s)
     mom0.meta["beam"] = Beam.from_fits_header(mom0_hdu.header)
 
     # Bin size in pc

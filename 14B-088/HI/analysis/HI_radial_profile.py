@@ -191,7 +191,7 @@ if __name__ == "__main__":
 
     mom0_hdu = fits.open(fourteenB_HI_data_path(moment0_name))[0]
     mom0 = Projection(mom0_hdu.data, wcs=WCS(mom0_hdu.header),
-                      unit=u.Jy * u.km / u.s)
+                      unit=u.Jy * u.m / u.s)
     mom0.meta["beam"] = Beam.from_fits_header(mom0_hdu.header)
 
     # Bin size in pc
@@ -251,7 +251,7 @@ if __name__ == "__main__":
     # Show the total radial profile VLA and Arecibo
     p.errorbar(rs.value, sd.value / scale_factor,
                yerr=sd_sigma.value / scale_factor, fmt="-", color="b",
-               label="VLA + Arecibo", drawstyle='steps-mid')
+               label="VLA", drawstyle='steps-mid')
     p.plot(rs_arec.value, sd_arec.value, "g--", drawstyle='steps-mid',
            label="Arecibo")
     # p.errorbar(rs_arec.value, sd_arec.value, yerr=sd_sigma_arec.value,
@@ -267,7 +267,7 @@ if __name__ == "__main__":
     # W/ archival VLA
     p.errorbar(rs.value, sd.value / scale_factor,
                yerr=sd_sigma.value / scale_factor, fmt="-", color="b",
-               label="VLA + Arecibo", drawstyle='steps-mid')
+               label="VLA", drawstyle='steps-mid')
     p.plot(rs_arec.value, sd_arec.value, "g--", drawstyle='steps-mid',
            label="Arecibo")
     p.errorbar(rs_arch.value, sd_arch.value, yerr=sd_sigma_arec.value,

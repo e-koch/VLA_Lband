@@ -184,10 +184,7 @@ if __name__ == "__main__":
                        data_path)
 
     from constants import hi_freq, moment0_name
-    # from galaxy_params import gal
-
-    from galaxies import Galaxy
-    gal = Galaxy("M33")
+    from galaxy_params import gal
 
     mom0_hdu = fits.open(fourteenB_HI_data_path(moment0_name))[0]
     mom0 = Projection(mom0_hdu.data, wcs=WCS(mom0_hdu.header),

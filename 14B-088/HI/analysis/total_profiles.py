@@ -64,6 +64,7 @@ p.plot(arecibo.spectral_axis.to(u.km / u.s).value,
 p.ylabel("Total Intensity (Jy)")
 p.xlabel("Velocity (km/s)")
 p.legend(loc='upper left')
+p.grid()
 
 p.savefig(paper1_figures_path("total_profile.pdf"))
 p.savefig(paper1_figures_path("total_profile.png"))

@@ -6,7 +6,7 @@ import numpy as np
 import os
 from astropy.utils.console import ProgressBar
 import pyregion
-from astropy.table impor Table
+from astropy.table import Table
 from turbustat.statistics.stats_utils import fourier_shift
 
 # Import from above.
@@ -14,6 +14,7 @@ parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.sys.path.insert(0, parentdir)
 from rotation_curves.vrot_fit import return_smooth_model
 from paths import fourteenB_HI_data_path, iram_co21_data_path
+from galaxy_params import gal
 
 '''
 DUPLICATED CODE WITH ../cube_subtract_rotation.py! A generalized script is
@@ -34,18 +35,19 @@ def find_nearest(array, value):
     return idx
 
 # Set vsys. Using the fit value from DISKFIT
-table_name = fourteenB_HI_data_path("diskfit_noasymm_noradial_nowarp_output/rad.out.params.csv")
+table_name = fourteenB_HI_data_path("diskfit_noasymm_noradial_nowarp_output/rad.out.csv")
 tab = Table.read(table_name)
 
-vsys = (float(tab["Vsys"]) * u.km / u.s).to(u.m / u.s)
-
 cube = SpectralCube.read(iram_co21_data_path("m33.co21_iram.fits"))
+# Somehow blank keywords are generated when reading the cube in... something
+# to do with dropping the Stokes axis is my guess.
+del cube._header[""]
 
 # Where's the center?
 # center_pixel = find_nearest(cube.spectral_axis, vsys)
 # In this case, the remaining difference is a minuscule 3 m/s.
 
-model = return_smooth_model(cube.header)
+model = return_smooth_model(tab, cube.header, gal)
 
 # Now calculate the spectral shifts needed for each pixel
 # Assuming that the array shapes for the same (which they are here)
@@ -57,11 +59,15 @@ posns = np.where(np.isfinite(model))
 new_header = cube.header.copy()
 # There's a 1 pixel offset
 # new_header["CRPIX3"] = center_pixel + 1
-new_header["CRVAL3"] = new_header["CRVAL3"] - vsys.value
+new_header["CRVAL3"] = new_header["CRVAL3"] - gal.vsys.to(u.m / u.s).value
 
 # Create the FITS file so we can write 1 spectrum in at a time
 print("Making the empty FITS file")
-new_fitsname = iram_co21_data_path("m33.co21_iram.rotsub.fits")
+new_fitsname = iram_co21_data_path("m33.co21_iram.rotsub.fits", no_check=True)
+
+if os.path.exists(new_fitsname):
+    print("Removing old rotsub version.")
+    os.system("rm {}".format(new_fitsname))
 
 create_huge_fits(new_fitsname, new_header)
 
@@ -71,13 +77,15 @@ write_every = 20000
 
 vel_res = cube._pix_size_slice(0) * u.m / u.s
 
+vsys = gal.vsys.to(u.m / u.s)
+
 print("And here we go!")
 for num, (i, j) in enumerate(ProgressBar(zip(*posns))):
     # Don't bother rolling if there's nothing there
     if not np.isfinite(cube.filled_data[:, i, j]).any():
         continue
 
-    shift = ((model[0].data[i, j] * u.m / u.s - vsys) / vel_res).value
+    shift = ((model[i, j] * u.m / u.s - vsys) / vel_res).value
 
     new_fits[0].data[:, i, j] = \
         fourier_shift(cube.filled_data[:, i, j], shift)

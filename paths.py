@@ -64,3 +64,5 @@ iram_co21_data_path = partial(name_return_check,
 papers_path = os.path.expanduser("~/Dropbox/My_Papers/")
 paper1_figures_path = \
     lambda x: os.path.join(papers_path, "In Prep/m33-HI-paper1/figures/", x)
+paper1_tables_path = \
+    lambda x: os.path.join(papers_path, "In Prep/m33-HI-paper1/tables/", x)

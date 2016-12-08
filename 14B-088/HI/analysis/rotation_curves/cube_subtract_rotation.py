@@ -11,7 +11,8 @@ from turbustat.statistics.stats_utils import fourier_shift
 
 from analysis.paths import fourteenB_HI_data_path
 
-from analysis.constants import rotsub_cube_name, cube_name
+from analysis.constants import (rotsub_cube_name, cube_name, mask_name,
+                                rotsub_mask_name)
 
 '''
 Subtract a rotation model from a cube.
@@ -21,6 +22,7 @@ Subtract a rotation model from a cube.
 execfile(os.path.expanduser("~/Dropbox/code_development/ewky_scripts/write_huge_fits.py"))
 
 cube = SpectralCube.read(fourteenB_HI_data_path(cube_name))
+mask = fits.open(fourteenB_HI_data_path(mask_name))[0]
 
 model = fits.open(fourteenB_HI_data_path("diskfit_noasymm_noradial_nowarp_output/rad.fitmod.fits"))
 
@@ -66,8 +68,20 @@ for num, (i, j) in enumerate(ProgressBar(zip(*posns))):
     new_fits[0].data[:, i, j] = \
         fourier_shift(cube.filled_data[:, i, j], shift)
 
+    # Now shift the source mask by the same amount
+    # Gibbs ringing occurs at the edges, but the amplitudes will not
+    # exceed 0.5. The rounding may cause a difference os +/- on pixel
+    # one the edge of the valid regions.
+    mask.data[:, i, j] = \
+        (fourier_shift(mask.data[:, i, j], shift) > 0.5).astype(np.int)
+
     if num % write_every == 0:
         new_fits.flush()
+
+# Save the rotation subtracted mask
+new_mask_hdu = fits.PrimaryHDU(mask.data, header=mask.header)
+new_mask_hdu.writeto(fourteenB_HI_data_path(rotsub_mask_name, no_check=True),
+                     clobber=True)
 
 # Append the beam table
 hdu = fits.open(fourteenB_HI_data_path(cube_name))

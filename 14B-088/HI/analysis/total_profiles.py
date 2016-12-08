@@ -1,14 +1,17 @@
 
 from spectral_cube import SpectralCube
+from astropy.io import fits
 import astropy.units as u
 from astropy.utils.console import ProgressBar
 import os
 import matplotlib.pyplot as p
 import numpy as np
+from pandas import DataFrame
 
 from paths import (fourteenB_HI_data_path, arecibo_HI_data_path,
-                   paper1_figures_path)
-from constants import cube_name
+                   paper1_figures_path, paper1_tables_path)
+from constants import cube_name, mask_name
+from galaxy_params import gal
 
 '''
 Sum over all spectra above 3 sigma. Overplot with single-dish Arecibo.
@@ -22,6 +25,9 @@ execfile(os.path.expanduser("~/Dropbox/code_development/BaSiCs/basics/utils.py")
 
 cube = \
     SpectralCube.read(fourteenB_HI_data_path(cube_name))
+mask = fits.open(fourteenB_HI_data_path(mask_name))[0]
+cube = cube.with_mask(mask.data > 0)
+
 arecibo = SpectralCube.read(arecibo_HI_data_path("14B-088_items/M33_14B-088_HI_model.fits"))
 arecibo = arecibo.spectral_slab(*cube.spectral_extrema)
 arecibo = arecibo.subcube(ylo=cube.latitude_extrema[1],
@@ -89,11 +95,17 @@ total_line_flux_arecibo = \
     np.nansum(total_spectrum_arecibo[good_chans]) * chan_width
 
 # Distance is 0.84 Mpc
-mass_conversion = 2.36e5 * (0.84 ** 2)
+mass_conversion = 2.36e5 * (gal.distance.to(u.Mpc).value ** 2) * \
+    (u.solMass / (u.Jy * u.km / u.s))
 # These estimates are low by a factor of ~0.85. Not entirely sure why, but
 # the estimate from the moment 0 is correct (comparing to Putman+09)
 
-# total_mass = total_line_flux * mass_conversion
-# total_mass_arecibo = total_line_flux_arecibo * mass_conversion
-# print("VLA HI Total Mass: {} Msun".format(total_mass.value))
-# print("Arecibo HI Total Mass: {} Msun".format(total_mass_arecibo.value))
+total_mass = total_line_flux * mass_conversion
+total_mass_arecibo = total_line_flux_arecibo * mass_conversion
+print("VLA HI Total Mass: {}".format(total_mass))
+print("Arecibo HI Total Mass: {}".format(total_mass_arecibo))
+
+df = DataFrame({"VLA Mass": [total_mass.value],
+                "Arecibo Mass": [total_mass_arecibo.value]})
+df.to_latex(paper1_tables_path("hi_masses.tex"))
+df.to_csv(fourteenB_HI_data_path("tables/hi_masses.csv", no_check=True))

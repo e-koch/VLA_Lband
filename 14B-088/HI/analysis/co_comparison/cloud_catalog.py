@@ -26,6 +26,7 @@ cloud_mask = \
 ico = fits.open(iram_co21_data_path("m33.ico.fits"))[0]
 
 cube = SpectralCube.read(iram_co21_data_path("m33.co21_iram.fits"))
+del cube._header[""]
 
 radii = gal.radius(header=ico.header)
 
@@ -76,9 +77,10 @@ p.savefig(paper1_figures_path("co21_moment0_cloud_centers.png"))
 p.clf()
 
 # Save the clean sample
-save = False
+save = True
 if save:
-    cleantab.write(iram_co21_data_path("m33.co21_new_props_clfind_cleansample.fits"))
+    cleantab.write(iram_co21_data_path("m33.co21_new_props_clfind_cleansample.fits"),
+                   overwrite=True)
 
 
 # Overplot the clean sample on the HI moment 0

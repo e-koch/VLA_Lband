@@ -54,7 +54,7 @@ for n in range(4):
     # Convert to K km/s, but beam equivalency doesn't allow it. Doing it ad hoc
     layers = \
         [cube[start:end].moment0().value *
-         beam.jtok(1.414 * u.GHz) / 1000. * u.km / u.s
+         beam.jtok(hi_freq) / 1000. * u.km / u.s
          for start, end in zip(vchans[:-1], vchans[1:])]
     # Determine the maximum value to display
     mx = np.max([np.nanmax(x).value for x in layers])

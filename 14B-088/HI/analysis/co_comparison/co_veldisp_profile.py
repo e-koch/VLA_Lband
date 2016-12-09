@@ -11,8 +11,8 @@ from astropy.io import fits
 
 
 # Import from above.
-parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-os.sys.path.insert(0, parentdir)
+# parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# os.sys.path.insert(0, parentdir)
 
 from paths import (iram_co21_data_path, fourteenB_HI_data_path,
                    paper1_figures_path)
@@ -23,6 +23,7 @@ from HI_veldisp_profile import radial_profile
 
 # Load data in
 cube = SpectralCube.read(iram_co21_data_path("m33.co21_iram.fits"))
+del cube._header[""]
 # cube = cube.with_mask(cube > 0.1 * u.K)
 mask = fits.getdata(iram_co21_data_path("m33.co21_new_assign_clfind.fits"))
 cube = cube.with_mask(mask.astype(bool))

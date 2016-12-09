@@ -2,6 +2,7 @@ from basics import BubbleFinder2D
 from basics.utils import sig_clip
 from spectral_cube import SpectralCube
 from spectral_cube.lower_dimensional_structures import Projection
+from spectral_cube.cube_utils import average_beams
 import astropy.units as u
 import matplotlib.pyplot as p
 import scipy.ndimage as nd
@@ -30,7 +31,8 @@ np.random.seed(34678953)
 
 # Plot a bunch
 verbose = False
-slicer = (slice(825, 1033), slice(360, 692))
+# slicer = (slice(825, 1033), slice(360, 692))
+slicer = (slice(None), slice(None))
 
 # Load in the rotation subtracted cubes
 hi_cube = SpectralCube.read(fourteenB_HI_data_path(rotsub_cube_name))
@@ -45,24 +47,26 @@ vels = np.arange(start_vel.value, end_vel.value + del_vel.value,
 
 # Get the radius array so we can cut to where the CO data is valid
 radii = gal.radius(header=hi_cube[0].header)
-max_radius = 6.6 * u.kpc
-
+max_radius = 6.0 * u.kpc
 
 all_dists = []
+all_radii = []
 all_vals_hi = []
 all_vals_co = []
 edge_masks = []
 skeletons = []
 
+hi_beam = average_beams(hi_cube.beams)
+
 # Estimate the noise level in an equivalent slab
 hi_mom0 = hi_cube.spectral_slab(-180 * u.km / u.s, -183 * u.km / u.s).moment0()
 sigma = sig_clip(hi_mom0.value, nsig=10) * \
-    hi_cube.beam.jtok(hi_freq).value
+    hi_beam.jtok(hi_freq).value
 
 for i, (end, start) in enumerate(ProgressBar(zip(vels[1:], vels[:-1]))):
 
     hi_slab = hi_cube.spectral_slab(start, end)
-    hi_mom0 = hi_slab.moment0() * hi_cube.beam.jtok(hi_freq) / u.Jy
+    hi_mom0 = hi_slab.moment0() * hi_beam.jtok(hi_freq) / u.Jy
 
     # Make the CO slab, then reproject onto the HI grid
     co_mom0 = co_cube.spectral_slab(start, end).moment0()
@@ -103,6 +107,7 @@ for i, (end, start) in enumerate(ProgressBar(zip(vels[1:], vels[:-1]))):
     # print(np.nanmin(co_mom0.value[radial_cut]))
 
     all_dists.extend(list(dist_trans[radial_cut]))
+    all_radii.extend(list(radii.value[radial_cut]))
     all_vals_hi.extend(list(hi_mom0.value[radial_cut] / 1000.))
     all_vals_co.extend(list(co_mom0.value[radial_cut] / 1000.))
 
@@ -131,6 +136,7 @@ for i, (end, start) in enumerate(ProgressBar(zip(vels[1:], vels[:-1]))):
         p.clf()
 
 all_dists = np.array(all_dists)
+all_radii = np.array(all_radii)
 all_vals_hi = np.array(all_vals_hi)
 all_vals_co = np.array(all_vals_co)
 
@@ -152,7 +158,6 @@ binned_elements = \
 
 bin_width = (bin_edges[1] - bin_edges[0])
 bin_centers = bin_edges[1:] - bin_width / 2
-
 
 # Let's bootstrap to get errors in the distance bins
 niters = 100
@@ -270,4 +275,102 @@ p.draw()
 
 p.savefig(paper1_figures_path("inmask_hi_co_cdfs.pdf"))
 p.savefig(paper1_figures_path("inmask_hi_co_cdfs.png"))
+p.close()
+
+# Perform the same analysis split up into radial bins
+dr = 500 * u.pc
+
+max_radius = max_radius.to(u.pc)
+
+nbins = np.int(np.floor(max_radius / dr))
+
+inneredge = np.linspace(0, max_radius - dr, nbins)
+outeredge = np.linspace(dr, max_radius, nbins)
+
+Nrows = 4
+Ncols = 3
+
+p.figure(1, figsize=(12, 20)).clf()
+
+fig, ax = p.subplots(Nrows, Ncols,
+                     sharex=True,
+                     sharey=True, num=1)
+
+p.subplots_adjust(hspace=0.1,
+                  wspace=0.1)
+
+fig.text(0.5, 0.02, 'Distance from mask edge (pc)', ha='center')
+fig.text(0.04, 0.5, 'Normalized Intensity', va='center', rotation='vertical')
+
+for ctr, (r0, r1) in enumerate(zip(inneredge,
+                                   outeredge)):
+
+    r, c = np.unravel_index(ctr, (Nrows, Ncols))
+
+    idx = np.logical_and(all_radii >= r0.value,
+                         all_radii < r1.value)
+
+    hi_vals, bin_edges, bin_num = \
+        binned_statistic(all_dists[idx], all_vals_hi[idx],
+                         bins=bins,
+                         statistic=np.nanmean)
+
+    co_vals, bin_edges, bin_num = \
+        binned_statistic(all_dists[idx], all_vals_co[idx],
+                         bins=bins,
+                         statistic=np.nanmean)
+
+    binned_elements = \
+        binned_statistic(all_dists[idx], np.ones_like(all_dists)[idx],
+                         bins=bins,
+                         statistic=np.sum)[0]
+
+    hi_samps = np.zeros((niters, len(bin_centers)))
+    co_samps = np.zeros((niters, len(bin_centers)))
+    print("Bootstrapping")
+    for i in ProgressBar(niters):
+        hi_samps[i] = \
+            binned_statistic(all_dists[idx],
+                             np.random.permutation(all_vals_hi[idx]),
+                             bins=bins,
+                             statistic=np.nanmean)[0]
+
+        co_samps[i] = \
+            binned_statistic(all_dists[idx],
+                             np.random.permutation(all_vals_co[idx]),
+                             bins=bins,
+                             statistic=np.nanmean)[0]
+
+    # Take the stds in the distribution for each bin
+    hi_errs = np.nanstd(hi_samps, axis=0)
+    co_errs = np.nanstd(co_samps, axis=0)
+
+    ax[r, c].errorbar(bin_centers, hi_vals / np.nanmax(hi_vals),
+                      yerr=hi_errs / np.nanmax(hi_vals),
+                      fmt="-",
+                      color="b", label="HI")
+    ax[r, c].errorbar(bin_centers, co_vals / np.nanmax(co_vals),
+                      yerr=co_errs / np.nanmax(co_vals),
+                      fmt="--",
+                      color="r", label="CO(2-1)")
+    ax[r, c].annotate("{0} to {1}".format(r0.to(u.kpc).value, r1.to(u.kpc)),
+                      xy=(-360, 0.65),
+                      color='k',
+                      fontsize=14)
+
+    ax[r, c].set_ylim([0.0, 1.1])
+    # ax[r, c].set_xlabel("Distance from mask edge (pc)")
+    # ax[r, c].set_ylabel("Normalized Intensity")
+    # p.title("Radii {} to {}".format(r0, r1))
+    ax[r, c].vlines(0.0, 0.0, 1.1, 'k')
+    if ctr == 0:
+        ax[r, c].legend(loc='upper left', fontsize=14)
+    ax[r, c].grid()
+
+    ax[r, c].set_xticklabels(ax[r, c].xaxis.get_majorticklabels(),
+                             rotation=45)
+
+fig.savefig(paper1_figures_path("mask_edge_radial_profiles_byradius.pdf"))
+fig.savefig(paper1_figures_path("mask_edge_radial_profiles_byradius.png"))
+
 p.close()

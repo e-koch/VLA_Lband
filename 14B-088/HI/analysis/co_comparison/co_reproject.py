@@ -35,4 +35,4 @@ for key in keys:
 
 new_hdu = fits.PrimaryHDU(rep_array, header=new_header)
 new_hdu.writeto(iram_co21_data_path("m33.ico.hireprojection.fits",
-                                    no_check=True), overwrite=True)
+                                    no_check=True), clobber=True)

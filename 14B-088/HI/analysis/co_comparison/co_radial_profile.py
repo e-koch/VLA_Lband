@@ -7,20 +7,21 @@ from astropy import units as u
 import numpy as np
 from spectral_cube import SpectralCube
 from spectral_cube.lower_dimensional_structures import Projection
+from spectral_cube.cube_utils import average_beams
 from astropy.wcs import WCS
 from astropy.table import Table
 
 # Import from above.
-parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-os.sys.path.insert(0, parentdir)
+# parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# os.sys.path.insert(0, parentdir)
 
 from HI_radial_profile import surfdens_radial_profile
 from paths import (iram_co21_data_path, fourteenB_HI_data_path,
                    paper1_figures_path, c_hi_analysispath)
-from constants import moment0_name, cube_name
+from constants import moment0_name, cube_name, mask_name
 from galaxy_params import gal
 
-from krumholz_2009_model import krumholz_ratio_model
+from co_comparison.krumholz_2009_model import krumholz_ratio_model
 
 '''
 Create the surface density profile in CO(2-1), assuming a factor to convert
@@ -39,11 +40,13 @@ dr = 100 * u.pc
 
 # Load the moment 0
 cube = SpectralCube.read(iram_co21_data_path("m33.co21_iram.fits"))
+del cube._header[""]
 cube = cube.with_mask(cube > 0.1 * u.K)
 
-direc_hi = "/home/eric/MyRAID/M33/14B-088/HI/full_imaging/"
 mom0_hi = fits.open(fourteenB_HI_data_path(moment0_name))[0]
 hi_cube = SpectralCube.read(fourteenB_HI_data_path(cube_name))
+mask = fits.open(fourteenB_HI_data_path(mask_name))[0]
+hi_cube = hi_cube.with_mask(mask.data > 0)
 
 radii = gal.radius(header=cube.header)
 # Edge effects are really awful in this map. Ignore the edges by masking
@@ -116,11 +119,12 @@ p.close()
 # p.show()
 
 # Now get the HI profile on the same scales
-proj = Projection(mom0_hi.data * u.Jy * u.m / u.s, meta={'beam': hi_cube.beam},
+proj = Projection(mom0_hi.data * u.Jy * u.m / u.s, meta={'beam': average_beams(hi_cube.beams)},
                   wcs=WCS(cube[0].header))
 rs_hi, sd_hi, sd_sigma_hi = surfdens_radial_profile(gal, cube=hi_cube,
                                                     mom0=proj,
-                                                    max_rad=6 * u.kpc, dr=dr)
+                                                    max_rad=6 * u.kpc, dr=dr,
+                                                    beam=average_beams(hi_cube.beams))
 # Apply scaling factor
 # sd_hi /= 1.45
 # sd_sigma_hi /= 1.45
@@ -198,7 +202,7 @@ p.close()
 # p.show()
 
 # Finally, let's calculate some clumping factors a la Leroy+13
-rs_m, sd_m, sd_sigma_m = surfdens_radial_profile(g, cube=cube, mom0=mom0,
+rs_m, sd_m, sd_sigma_m = surfdens_radial_profile(gal, cube=cube, mom0=mom0,
                                                  max_rad=6 * u.kpc, dr=dr,
                                                  weight_type='mass')
 # Correct for beam efficiency
@@ -206,10 +210,11 @@ sd_m /= beam_eff
 sd_sigma_m /= beam_eff
 
 rs_hi_m, sd_hi_m, sd_sigma_hi_m = \
-    surfdens_radial_profile(g, cube=hi_cube,
+    surfdens_radial_profile(gal, cube=hi_cube,
                             mom0=proj,
                             max_rad=6 * u.kpc, dr=dr,
-                            weight_type='mass')
+                            weight_type='mass',
+                            beam=average_beams(hi_cube.beams))
 # Apply scaling factor
 # sd_hi_m /= 1.45
 # sd_sigma_hi_m /= 1.45

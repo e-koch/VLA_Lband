@@ -1,11 +1,15 @@
 
 from spectral_cube import SpectralCube
+from spectral_cube.lower_dimensional_structures import Projection
 import os
 import pyregion
 import astropy.units as u
 import numpy as np
-from galaxies import Galaxy
 from astropy.io import fits
+from scipy.signal import medfilt
+from multiprocessing import Pool
+from itertools import izip
+
 
 from analysis.paths import fourteenB_HI_data_path
 from analysis.constants import cube_name, mask_name, pb_lim
@@ -50,21 +54,43 @@ linewidth.write(fourteenB_HI_data_path(lwidth_name, no_check=True),
 # Make an array of the velocities of the peak intensities.
 
 
-def spectral_peakintensity(cube):
-    """
-    Compute the spectral position of the peak intensities.
-    """
+# def spectral_peakintensity(cube):
+#     """
+#     Compute the spectral position of the peak intensities.
+#     """
 
-    def peak_velocity(arr, axis=None):
-        argmax = np.argmax(arr)
-        return cube.spectral_axis[argmax]
+#     def peak_velocity(arr, axis=None, smooth_size=31):
+#         argmax = np.argmax(medfilt(arr, smooth_size))
+#         return cube.spectral_axis[argmax]
 
-    return cube.apply_function(peak_velocity, axis=0, projection=True,
-                               unit=cube.spectral_axis.unit)
+#     return cube.apply_function(peak_velocity, axis=0, projection=True,
+#                                unit=cube.spectral_axis.unit)
+
+def peak_velocity(inputs):
+
+    y, x = inputs
+    smooth_size = 31
+    argmax = np.argmax(medfilt(subcube[:, y, x].value, smooth_size))
+    return subcube.spectral_axis[argmax], y, x
 
 
-peak_intens_name = "M33_14B-088_HI.clean.image.pbcov_gt_0.3.ellip_mask.peakvels.fits"
-peakvels = spectral_peakintensity(subcube).astype(np.float32)
+peakvels = Projection(np.zeros(subcube.shape[1:]),
+                      wcs=cube.wcs.celestial,
+                      unit=cube.spectral_axis.unit)
+
+posns = np.where(subcube.mask.include().sum(0) > 0)
+
+pool = Pool(6)
+output = pool.map(peak_velocity, izip(*posns))
+
+for out in output:
+    peakvels[out[1], out[2]] = out[0]
+
+peakvels[peakvels == 0.0 * u.m / u.s] = np.NaN * u.m / u.s
+
+peak_intens_name = "M33_14B-088_HI.clean.image.pbcov_gt_0.5.ellip_mask.peakvels.fits"
+peakvels = peakvels.astype(np.float32)
+# peakvels = spectral_peakintensity(subcube).astype(np.float32)
 peakvels.header["BITPIX"] = -32
 peakvels.write(fourteenB_HI_data_path(peak_intens_name, no_check=True),
                overwrite=True)

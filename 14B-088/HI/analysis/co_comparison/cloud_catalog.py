@@ -2,11 +2,9 @@
 from astropy.table import Table, Column
 from astropy.io import fits
 import astropy.units as u
-import os
 from astropy.wcs import WCS
 import matplotlib.pyplot as p
 import numpy as np
-import aplpy
 from spectral_cube import SpectralCube
 
 from analysis.paths import (iram_co21_data_path, fourteenB_HI_data_path,
@@ -81,6 +79,27 @@ save = True
 if save:
     cleantab.write(iram_co21_data_path("m33.co21_new_props_clfind_cleansample.fits"),
                    overwrite=True)
+
+    # Remove and relabel the cloud mask.
+    ctr = 0
+    cloud_mask_data = cloud_mask.data.copy()
+    for num, keep in enumerate(conds):
+        # If considered a valid cloud, relabel
+        if keep:
+            cloud_mask_data[np.where(cloud_mask_data == num + 1)] = ctr
+            ctr += 1
+        # Else remove it.
+        else:
+            cloud_mask_data[np.where(cloud_mask_data == num + 1)] = 0
+
+    # Save the new cloud mask.
+    # This is in all caps. WCS doesn't like that.
+    cloud_mask.header["CUNIT3"] = "km/s"
+    new_cloud_mask = \
+        fits.PrimaryHDU(cloud_mask_data,
+                        header=WCS(cloud_mask.header).dropaxis(-1).to_header())
+    new_cloud_mask.writeto(iram_co21_data_path("m33.co21_new_assign_cprops_cleansample.fits",
+                                               no_check=True))
 
 
 # Overplot the clean sample on the HI moment 0

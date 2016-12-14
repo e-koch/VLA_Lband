@@ -74,6 +74,10 @@ execfile(c_hi_analysispath("rotation_curves/rotsub_channels_figure.py"))
 # Movie! Turned off by default.
 # execfile(c_hi_analysispath("rotsub_channels_movie.py"))
 
+# Save the new galactic parameters value as a table for the paper
+call("python {0} {1}".format(c_hi_analysispath("rotation_curves/save_gal_params_table.py"),
+                             fourteenB_HI_data_path("diskfit_noasymm_noradial_nowarp_output")), shell=True)
+
 #################
 # HI analysis
 #################

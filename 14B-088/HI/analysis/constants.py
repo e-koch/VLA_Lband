@@ -9,6 +9,8 @@ hi_freq = 1.42040575177 * u.GHz
 
 pb_lim = 0.5
 
+co21_mass_conversion = 6.7 * (u.Msun / u.pc ** 2) / (u.K * u.km / u.s)
+
 cube_name = \
     "M33_14B-088_HI.clean.image.pbcov_gt_{}_masked.fits".format(pb_lim)
 

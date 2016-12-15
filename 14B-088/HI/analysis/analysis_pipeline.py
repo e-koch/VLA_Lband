@@ -57,6 +57,17 @@ call("python {0} {1} {2} {3}".format(diskfit_script, diskfit_params,
                                      fourteenB_HI_data_path(moment1_name)),
      shell=True)
 
+# And with the peak from a Gauss-Hermite polynomial
+diskfit_params = c_hi_analysispath("rotation_curves/diskfit_params/diskfit_params_ghfit_nowarp_noradial_noasymm.inp")
+output_path = fourteenB_HI_data_path("", no_check=True)
+
+call("python {0} {1} {2} {3}".format(diskfit_script, diskfit_params,
+                                     output_path,
+                                     fourteenB_HI_data_path(moment1_name)),
+     shell=True)
+
+# Compare the three rotation curves.
+execfile(c_hi_analysispath("rotation_curves/rotation_curve_comparison.py"))
 
 # Fit the rotation curve and produce a smooth model
 call("python {0} {1}".format(c_hi_analysispath("rotation_curves/vrot_fit.py"),

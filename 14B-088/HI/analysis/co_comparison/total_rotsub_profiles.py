@@ -11,7 +11,8 @@ from astropy.io import fits
 
 from analysis.paths import (fourteenB_HI_data_path, iram_co21_data_path,
                             paper1_figures_path, paper1_tables_path)
-from analysis.constants import rotsub_cube_name, rotsub_mask_name
+from analysis.constants import (rotsub_cube_name, rotsub_mask_name,
+                                co21_mass_conversion, hi_freq)
 from analysis.galaxy_params import gal
 
 '''
@@ -26,41 +27,79 @@ hi_cube = SpectralCube.read(fourteenB_HI_data_path(rotsub_cube_name))
 hi_mask = fits.open(fourteenB_HI_data_path(rotsub_mask_name))[0]
 hi_cube = hi_cube.with_mask(hi_mask.data > 0)
 
-radius = gal.radius(header=hi_cube.header)
+hi_radius = gal.radius(header=hi_cube.header)
+co_radius = gal.radius(header=co_cube.header)
 
+# Perform the same analysis split up into radial bins
+dr = 500 * u.pc
+
+max_radius = (6.0 * u.kpc).to(u.pc)
+
+nbins = np.int(np.floor(max_radius / dr))
+
+inneredge = np.linspace(0, max_radius - dr, nbins)
+outeredge = np.linspace(dr, max_radius, nbins)
+
+total_spectrum_hi_radial = np.zeros((inneredge.size, hi_cube.shape[0]))
+total_spectrum_co_radial = np.zeros((inneredge.size, co_cube.shape[0]))
+
+for ctr, (r0, r1) in enumerate(zip(inneredge,
+                                   outeredge)):
+
+    print("On bin {} to {}".format(r0.value, r1))
+
+    hi_mask = np.logical_and(hi_radius >= r0,
+                             hi_radius < r1)
+    co_mask = np.logical_and(co_radius >= r0,
+                             co_radius < r1)
+
+    # Create the HI spectrum
+    for chan in ProgressBar(range(hi_cube.shape[0])):
+        channel = hi_cube[chan]
+        beam = channel.meta['beam']
+        # Values are in Jy/bm. To get Jy, convert from bm to deg**2, then
+        # multiply by the pixel area in deg^2
+        # total_spectrum_hi_radial[ctr, chan] = \
+        #     np.nansum(channel.value * hi_mask) * (1 / beam.sr.to(u.deg ** 2)) * \
+        #     (channel.header["CDELT2"] * u.deg)**2
+        chan_kelvin = channel.to(u.K, equivalencies=beam.jtok_equiv(hi_freq))
+        total_spectrum_hi_radial[ctr, chan] = \
+            np.nansum(chan_kelvin.value * hi_mask)
+        # total_spectrum_hi[chan] = (total_spectrum_hi[chan] * u.Jy).to(u.K,
+        # equivalencies=beam.jtok_equiv(1.4 * u.GHz)).value
+
+    for chan in ProgressBar(range(co_cube.shape[0])):
+        channel = co_cube[chan]
+        beam = channel.meta['beam']
+        # Units are in K, but applying the pixel area factor early.
+        # Jy conversion below
+        total_spectrum_co_radial[ctr, chan] = \
+            np.nansum(channel.value * co_mask)
+        #    # * (1 / beam.sr.to(u.deg ** 2)) * \
+        #    # (channel.header["CDELT2"] * u.deg)**2
+        # CO cube is in K. Convert to Jy
+        # total_spectrum_co[chan] = \
+        #     (total_spectrum_co[chan] * u.K).to(u.Jy,
+        # equivalencies=beam.jtok_equiv(230.538 * u.GHz)).value
+
+total_spectrum_hi_radial = total_spectrum_hi_radial * u.K
+total_spectrum_co_radial = total_spectrum_co_radial * u.K
+
+# Need to get portions of HI emission beyond 6 kpc.
 total_spectrum_hi = np.zeros((hi_cube.shape[0]))
-total_spectrum_co = np.zeros((co_cube.shape[0]))
-
-# Create the HI spectrum
 for chan in ProgressBar(range(hi_cube.shape[0])):
     channel = hi_cube[chan]
     beam = channel.meta['beam']
-    # Values are in Jy/bm. To get Jy, convert from bm to deg**2, then multiply
-    # by the pixel area in deg^2
-    total_spectrum_hi[chan] = \
-        np.nansum(channel.value) * (1 / beam.sr.to(u.deg ** 2)) * \
-        (channel.header["CDELT2"] * u.deg)**2
-    # total_spectrum_hi[chan] = (total_spectrum_hi[chan] * u.Jy).to(u.K,
-    # equivalencies=beam.jtok_equiv(1.4 * u.GHz)).value
+    chan_kelvin = channel.to(u.K, equivalencies=beam.jtok_equiv(hi_freq))
+    total_spectrum_hi[chan] = np.nansum(chan_kelvin.value)
 
-for chan in ProgressBar(range(co_cube.shape[0])):
-    channel = co_cube[chan]
-    beam = channel.meta['beam']
-    # Units are in K, but applying the pixel area factor early.
-    # Jy conversion below
-    total_spectrum_co[chan] = \
-        np.nansum(channel.value)  # * (1 / beam.sr.to(u.deg ** 2)) * \
-        # (channel.header["CDELT2"] * u.deg)**2
-    # CO cube is in K. Convert to Jy
-    # total_spectrum_co[chan] = \
-    #     (total_spectrum_co[chan] * u.K).to(u.Jy,
-    # equivalencies=beam.jtok_equiv(230.538 * u.GHz)).value
+total_spectrum_hi = total_spectrum_hi * u.K
 
-total_spectrum_hi = total_spectrum_hi * u.Jy
-total_spectrum_co = total_spectrum_co * u.K
+# Significant CO emission is limited to within about 6 kpc
+total_spectrum_co = total_spectrum_co_radial.sum(0)
 
-
-p.plot(hi_cube.spectral_axis.to(u.km / u.s).value, total_spectrum_hi.value,
+p.plot(hi_cube.spectral_axis.to(u.km / u.s).value,
+       total_spectrum_hi.value,
        'b-', drawstyle='steps-mid', label="HI")
 p.xlabel("Velocity (km/s)")
 p.ylabel("Total Intensity (Jy)")
@@ -101,7 +140,6 @@ pixscale = gal.distance.to(u.pc) * (np.pi / 180.) * \
     np.abs(co_cube.header["CDELT2"])
 chan_width = \
     np.abs(co_cube.spectral_axis[1] - co_cube.spectral_axis[0]).to(u.km / u.s)
-co21_mass_conversion = 6.7 * (u.Msun / u.pc ** 2) / (u.K * u.km / u.s)
 beam_eff = 0.75  # Beam efficiency of IRAM @ 235 GHz
 # Where total_spectrum_co is in K
 total_co_mass = \
@@ -166,7 +204,7 @@ p.clf()
 # Save parameter table
 hi_param_df = DataFrame({"Params": parvals,
                          "Errors": [np.sqrt(cov[i, i]) for i in range(cov.shape[0])]},
-                         index=parnames)
+                        index=parnames)
 hi_param_df.to_latex(paper1_tables_path("hi_gaussian_totalprof_fits.tex"))
 hi_param_df.to_csv(fourteenB_HI_data_path("tables/hi_gaussian_totalprof_fits.csv",
                                           no_check=True))
@@ -179,11 +217,11 @@ fit_g_lor = fitting.LevMarLSQFitter()
 
 g_HI_lor = fit_g_lor(g_HI_init_lor, vels, norm_intens)
 
-cov = fit_g.fit_info['param_cov']
+cov = fit_g_lor.fit_info['param_cov']
 parnames = [n for n in g_HI_lor.param_names]
 parvals = [v for (n, v) in zip(g_HI_lor.param_names, g_HI_lor.parameters)
            if n in parnames]
-print("HI Fit")
+print("HI Lorentzian Fit")
 for i, (name, value) in enumerate(zip(parnames, parvals)):
     print('{}: {} +/- {}'.format(name, value, np.sqrt(cov[i][i])))
 
@@ -255,3 +293,127 @@ co_param_df = DataFrame({"Params": g_CO.parameters,
 co_param_df.to_latex(paper1_tables_path("co_gaussian_totalprof_fits.tex"))
 co_param_df.to_csv(iram_co21_data_path("tables/co_gaussian_totalprof_fits.csv",
                                        no_check=True))
+
+# Per radial bin spectra
+Nrows = 4
+Ncols = 3
+
+p.figure(1, figsize=(12, 20)).clf()
+
+fig, ax = p.subplots(Nrows, Ncols,
+                     sharex=True,
+                     sharey=True, num=1)
+
+p.subplots_adjust(hspace=0.1,
+                  wspace=0.1)
+
+fig.text(0.5, 0.02, 'Velocity (km/s)', ha='center')
+fig.text(0.04, 0.5, 'Normalized Intensity', va='center', rotation='vertical')
+
+
+for ctr, (r0, r1) in enumerate(zip(inneredge,
+                                   outeredge)):
+
+    r, c = np.unravel_index(ctr, (Nrows, Ncols))
+
+    ax[r, c].plot(hi_cube.spectral_axis.to(u.km / u.s).value,
+                  (total_spectrum_hi_radial[ctr] / total_spectrum_hi_radial[ctr].max()).value,
+                  'b-', drawstyle='steps-mid', label="HI", alpha=0.7)
+    # There's a 1 channel offset from my rotation subtraction in the cube
+    ax[r, c].plot(co_cube.spectral_axis.to(u.km / u.s).value,
+                  (total_spectrum_co_radial[ctr] / total_spectrum_co_radial[ctr].max()).value,
+                  'g--', drawstyle='steps-mid', label="CO(2-1)", alpha=0.7)
+    ax[r, c].set_ylim([-0.02, 1.1])
+    ax[r, c].set_xlim([-110, 100])
+
+    ax[r, c].annotate("{0} to {1}".format(r0.to(u.kpc).value, r1.to(u.kpc)),
+                      xy=(-98, 0.65),
+                      color='k',
+                      fontsize=13)
+
+    if ctr == 0:
+        ax[r, c].legend(loc='upper left', fontsize=14)
+    ax[r, c].grid()
+
+for r in range(Nrows):
+    for c in range(Ncols):
+        if r == Nrows - 1:
+            ax[r, c].set_xticklabels(ax[r, c].xaxis.get_majorticklabels(),
+                                     rotation=45)
+
+fig.savefig(paper1_figures_path("total_profile_velocity_rotsub_hi_co_radial.pdf"))
+fig.savefig(paper1_figures_path("total_profile_velocity_rotsub_hi_co_radial.png"))
+
+# How do the model parameters change with radius?
+
+g_CO_init = models.Gaussian1D(amplitude=1., mean=0., stddev=9.)
+g_HI_init = models.Gaussian1D(amplitude=1., mean=0., stddev=5.)
+
+hi_params = {}
+for name in g_HI_init.param_names:
+    # Skip the tied mean
+    if name == "mean_1":
+        continue
+    hi_params[name] = np.zeros_like(inneredge.value)
+    hi_params["{}_stderr".format(name)] = np.zeros_like(inneredge.value)
+
+co_params = {}
+for name in g_CO_init.param_names:
+    co_params[name] = np.zeros_like(inneredge.value)
+    co_params["{}_stderr".format(name)] = np.zeros_like(inneredge.value)
+
+
+for ctr, (r0, r1) in enumerate(zip(inneredge,
+                                   outeredge)):
+
+    # g_HI_init.mean_1.tied = tie_mean
+
+    fit_g = fitting.LevMarLSQFitter()
+
+    vels = hi_cube.spectral_axis.to(u.km / u.s).value
+    norm_intens = (total_spectrum_hi_radial[ctr] /
+                   total_spectrum_hi_radial[ctr].max()).value
+    g_HI = fit_g(g_HI_init, vels, norm_intens, maxiter=1000)
+
+    cov = fit_g.fit_info['param_cov']
+    if cov is None:
+        raise Exception("No covariance matrix")
+
+    idx_corr = 0
+    for idx, name in enumerate(g_HI.param_names):
+        if name == "mean_1":
+            idx_corr = 1
+            continue
+        hi_params[name][ctr] = g_HI.parameters[idx]
+        hi_params["{}_stderr".format(name)][ctr] = \
+            np.sqrt(cov[idx - idx_corr, idx - idx_corr])
+
+    fit_g_co = fitting.LevMarLSQFitter()
+
+    co_vels = co_cube.spectral_axis.to(u.km / u.s).value
+    norm_co_intens = (total_spectrum_co_radial[ctr] /
+                      total_spectrum_co_radial[ctr].max()).value
+    g_CO = fit_g_co(g_CO_init, co_vels, norm_co_intens, maxiter=1000)
+
+    cov = fit_g_co.fit_info['param_cov']
+    if cov is None:
+        raise Exception("No covariance matrix")
+
+    for idx, name in enumerate(g_CO.param_names):
+        co_params[name][ctr] = g_CO.parameters[idx]
+        co_params["{}_stderr".format(name)][ctr] = np.sqrt(cov[idx, idx])
+
+
+bin_names = ["{}-{}".format(r0.value, r1)
+             for r0, r1 in zip(inneredge, outeredge)]
+
+co_radial_fits = DataFrame(co_params, index=bin_names)
+hi_radial_fits = DataFrame(hi_params, index=bin_names)
+
+co_radial_fits.to_latex(paper1_tables_path("co_gaussian_totalprof_fits_radial.tex"))
+co_radial_fits.to_csv(iram_co21_data_path("tables/co_gaussian_totalprof_fits_radial.csv",
+                                          no_check=True))
+
+hi_radial_fits.to_latex(paper1_tables_path("hi_gaussian_totalprof_fits_radial.tex"))
+hi_radial_fits.to_csv(fourteenB_HI_data_path("tables/hi_gaussian_totalprof_fits_radial.csv",
+                                             no_check=True))

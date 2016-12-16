@@ -28,6 +28,9 @@ execfile(c_hi_analysispath("make_signal_mask.py"))
 # Create moment arrays
 execfile(c_hi_analysispath("HI_make_moments.py"))
 
+# Make some moment figures
+execfile(c_hi_analysispath("HI_moment_figures.py"))
+
 #################
 # Rotation curves
 #################

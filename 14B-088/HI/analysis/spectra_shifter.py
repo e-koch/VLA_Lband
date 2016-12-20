@@ -125,10 +125,6 @@ def cube_shifter(cube, velocity_surface, v0=None, save_shifted=False,
             all_shifted_spectra.extend([out[0] for out in shifted_spectra])
             out_posns.extend([out[1:] for out in shifted_spectra])
 
-    if pool is not None:
-        pool.close()
-        pool.join()
-
     if save_shifted:
 
         output_fits.flush()

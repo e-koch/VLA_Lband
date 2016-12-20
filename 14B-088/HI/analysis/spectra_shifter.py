@@ -49,7 +49,7 @@ def mulproc_spectrum_shifter(inputs):
 
 def cube_shifter(cube, velocity_surface, v0=None, save_shifted=False,
                  save_name=None, xy_posns=None, pool=None,
-                 return_spectra=True, chunk_size=20000,
+                 return_spectra=True, chunk_size=20000, is_mask=False,
                  verbose=False):
     '''
     Shift spectra in a cube according to a given velocity surface (peak
@@ -89,8 +89,14 @@ def cube_shifter(cube, velocity_surface, v0=None, save_shifted=False,
                             "exists".format(save_name))
 
         output_fits = fits.StreamingHDU(save_name, new_header)
+
+        if is_mask:
+            fill_value = 0
+        else:
+            fill_value = np.NaN
+
         for chan in xrange(cube.shape[0]):
-            output_fits.write(np.zeros_like(cube[chan].value) * np.NaN)
+            output_fits.write(np.zeros_like(cube[chan].value) * fill_value)
         output_fits.close()
 
         output_fits = fits.open(save_name, mode='update')
@@ -122,7 +128,11 @@ def cube_shifter(cube, velocity_surface, v0=None, save_shifted=False,
 
         if save_shifted:
             for out in shifted_spectra:
-                output_fits[0].data[:, out[1], out[2]] = out[0].value
+                if is_mask:
+                    spec = (out[0].value > 0.5).astype(np.int)
+                else:
+                    spec = out[0].value
+                output_fits[0].data[:, out[1], out[2]] = spec
 
             output_fits.flush()
 

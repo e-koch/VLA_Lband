@@ -13,13 +13,6 @@ from analysis.constants import (cube_name, mask_name, moment0_name,
                                 moment1_name, lwidth_name, skew_name,
                                 kurt_name, peakvels_name)
 
-'''
-Make the first three moments with the pbcov masked cube.
-
-The higher moments (skewness & kurtosis) need a more aggressive mask, made by
-make_signal_mask.py, and computed in higher_moments.py.
-
-'''
 
 cube = SpectralCube.read(fourteenB_HI_data_path(cube_name))
 
@@ -36,6 +29,9 @@ moment0.write(fourteenB_HI_data_path(moment0_name, no_check=True),
               overwrite=True)
 
 moment1 = cube.moment1().astype(np.float32)
+moment1[moment1 < cube.spectral_extrema[0]] = np.NaN * u.m / u.s
+moment1[moment1 > cube.spectral_extrema[1]] = np.NaN * u.m / u.s
+
 moment1.header["BITPIX"] = -32
 moment1.write(fourteenB_HI_data_path(moment1_name, no_check=True),
               overwrite=True)
@@ -89,6 +85,9 @@ for out in output:
     peakvels[out[1], out[2]] = out[0]
 
 peakvels[peakvels == 0.0 * u.m / u.s] = np.NaN * u.m / u.s
+# Make sure there are no garbage points outside of the cube spectral range
+peakvels[peakvels < cube.spectral_extrema[0]] = np.NaN * u.m / u.s
+peakvels[peakvels > cube.spectral_extrema[1]] = np.NaN * u.m / u.s
 
 peakvels = peakvels.astype(np.float32)
 # peakvels = spectral_peakintensity(subcube).astype(np.float32)

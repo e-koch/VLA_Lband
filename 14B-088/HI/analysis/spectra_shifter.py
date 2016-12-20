@@ -91,12 +91,12 @@ def cube_shifter(cube, velocity_surface, v0=None, save_shifted=False,
         output_fits = fits.StreamingHDU(save_name, new_header)
 
         if is_mask:
-            fill_value = 0
+            fill_plane = np.zeros_like(cube[0].value, dtype=np.int16)
         else:
-            fill_value = np.NaN
+            fill_plane = np.zeros_like(cube[0].value) * np.NaN
 
         for chan in xrange(cube.shape[0]):
-            output_fits.write(np.zeros_like(cube[chan].value) * fill_value)
+            output_fits.write(fill_plane)
         output_fits.close()
 
         output_fits = fits.open(save_name, mode='update')

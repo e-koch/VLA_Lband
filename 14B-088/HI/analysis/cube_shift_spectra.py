@@ -10,7 +10,8 @@ from multiprocessing import Pool
 
 from spectra_shifter import cube_shifter
 from paths import fourteenB_HI_data_path
-from constants import cube_name, centroidsub_cube_name, moment1_name
+from constants import (cube_name, centroidsub_cube_name, moment1_name,
+                       mask_name, centroidsub_mask_name)
 from galaxy_params import gal
 
 
@@ -25,3 +26,16 @@ cube_shifter(cube, mom1, gal.vsys, save_shifted=True,
              save_name=fourteenB_HI_data_path(centroidsub_cube_name,
                                               no_check=True),
              return_spectra=False, verbose=True, pool=pool)
+
+# Also shift the signal mask to match those shifted here.
+
+mask_cube = SpectralCube.read(fourteenB_HI_data_path(mask_name))
+
+cube_shifter(mask_cube, mom1, gal.vsys, save_shifted=True,
+             save_name=fourteenB_HI_data_path(centroidsub_mask_name,
+                                              no_check=True),
+             return_spectra=False, verbose=True, pool=pool,
+             is_mask=True)
+
+pool.close()
+pool.join()

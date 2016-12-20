@@ -28,6 +28,10 @@ rotsub_mask_name = \
     "M33_14B-088_HI.clean.image.pbcov_gt_{}_masked_source_mask" \
     ".rotsub.fits".format(pb_lim)
 
+centroidsub_mask_name = \
+    "M33_14B-088_HI.clean.image.pbcov_gt_{}_masked_source_mask" \
+    ".centroid_corrected.fits".format(pb_lim)
+
 moment0_name = \
     "M33_14B-088_HI.clean.image.pbcov_gt_{}_masked.mom0.fits".format(pb_lim)
 

@@ -17,6 +17,9 @@ cube_name = \
 rotsub_cube_name = \
     "M33_14B-088_HI.clean.image.pbcov_gt_{}_masked.rotsub.fits".format(pb_lim)
 
+centroidsub_cube_name = \
+    "M33_14B-088_HI.clean.image.pbcov_gt_{}_masked.centroid_corrected.fits".format(pb_lim)
+
 mask_name = \
     "M33_14B-088_HI.clean.image.pbcov_gt_{}_masked_source_mask" \
     ".fits".format(pb_lim)

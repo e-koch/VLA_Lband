@@ -89,6 +89,11 @@ def cube_shifter(cube, velocity_surface, v0=None, save_shifted=False,
                             "exists".format(save_name))
 
         output_fits = fits.StreamingHDU(save_name, new_header)
+        for chan in xrange(cube.shape[0]):
+            output_fits.write(np.zeros_like(cube[chan].value) * np.NaN)
+        output_fits.close()
+
+        output_fits = fits.open(save_name, mode='update')
 
     if return_spectra:
         all_shifted_spectra = []

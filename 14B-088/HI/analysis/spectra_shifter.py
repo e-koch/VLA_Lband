@@ -1,6 +1,6 @@
 
 from astropy.io import fits
-from spectral_cube import SpectralCube
+from spectral_cube import SpectralCube, VaryingResolutionSpectralCube
 from spectral_cube.lower_dimensional_structures import OneDSpectrum
 import astropy.units as u
 import numpy as np
@@ -83,15 +83,12 @@ def cube_shifter(cube, velocity_surface, v0=None, save_shifted=False,
     new_header["CRVAL3"] = new_header["CRVAL3"] - v0.to(u.m / u.s).value
 
     if save_shifted:
-        # execfile(os.path.expanduser("~/Dropbox/code_development/ewky_scripts/write_huge_fits.py"))
 
         if os.path.exists(save_name):
             raise Exception("The file name {} already "
                             "exists".format(save_name))
 
-        create_huge_fits(save_name, new_header)
-
-        output_fits = fits.open(save_name, mode='update')
+        output_fits = fits.StreamingHDU(save_name, new_header)
 
     if return_spectra:
         all_shifted_spectra = []
@@ -133,63 +130,17 @@ def cube_shifter(cube, velocity_surface, v0=None, save_shifted=False,
         pool.join()
 
     if save_shifted:
+
         output_fits.flush()
         output_fits.close()
 
+        # Append the beam table onto the output file.
+        if isinstance(cube, VaryingResolutionSpectralCube):
+            from spectral_cube.cube_utils import beams_to_bintable
+            output_fits = fits.open(save_name, mode='append')
+            output_fits.append(beams_to_bintable(cube.beams))
+            output_fits.flush()
+            output_fits.close()
+
     if return_spectra:
         return all_shifted_spectra, out_posns
-
-
-def create_huge_fits(filename, header, shape=None):
-
-    header.tofile(filename)
-
-    if shape is None:
-        try:
-            shape = tuple(header['NAXIS{0}'.format(ii)] for ii in
-                          range(1, header['NAXIS'] + 1))
-        except KeyError:
-            raise KeyError("header does not contain the NAXIS keywords. Need "
-                           "to provide a shape.")
-    with open(filename, 'rb+') as fobj:
-        fobj.seek(len(header.tostring()) + (np.product(shape) *
-                                            np.abs(header['BITPIX'] // 8)) - 1)
-        fobj.write(b'\0')
-
-
-def write_huge_fits(cube, filename, verbose=True, dtype=">f4"):
-    '''
-    Write a SpectralCube to a massive FITS file. Currently only 3D objects
-    will work. A more general approach where the longest axis is iterated over
-    is probably a good idea.
-
-    cube : np.ndarray or SpectralCube
-        Data to be written.
-
-    filename : str
-        Name of the FITS file to write to. If it does not already exist,
-        `create_huge_fits` is called first to create an empty FITS file.
-    '''
-
-    if not os.path.exists(filename):
-        create_huge_fits(filename, cube.header)
-
-    # Open the FITS and write the values out channel-by-channel
-    hdu = fits.open(filename, mode='update')
-
-    nchans = cube.shape[0]
-
-    if verbose:
-        iterat = ProgressBar(nchans)
-    else:
-        iterat = xrange(nchans)
-
-    for i in iterat:
-        hdu[0].data[i, :, :] = cube[i, :, :].value.astype(dtype)
-        hdu.flush()
-
-    # And write the header
-    hdu[0].header = cube.header
-    hdu.flush()
-
-    hdu.close()

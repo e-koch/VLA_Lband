@@ -42,9 +42,9 @@ def spectrum_shifter(spectrum, v0, vcent):
 
 
 def mulproc_spectrum_shifter(inputs):
-    y, x, cube, vcent, v0 = inputs
+    y, x, spec, vcent, v0 = inputs
 
-    return spectrum_shifter(cube[:, y, x], v0, vcent[y, x]), y, x
+    return spectrum_shifter(spec, v0, vcent), y, x
 
 
 def cube_shifter(cube, velocity_surface, v0=None, save_shifted=False,
@@ -107,8 +107,8 @@ def cube_shifter(cube, velocity_surface, v0=None, save_shifted=False,
         y_posns = xy_posns[0][i * chunk_size:(i + 1) * chunk_size]
         x_posns = xy_posns[1][i * chunk_size:(i + 1) * chunk_size]
 
-        gen = izip(y_posns, x_posns, repeat(cube), repeat(velocity_surface),
-                   repeat(v0))
+        gen = ((y, x, cube[:, y, x], velocity_surface[y, x], v0) for y, x in
+               izip(y_posns, x_posns))
 
         if pool is not None:
             shifted_spectra = pool.map(mulproc_spectrum_shifter, gen)

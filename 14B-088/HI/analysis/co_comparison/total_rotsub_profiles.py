@@ -12,7 +12,8 @@ from astropy.io import fits
 from analysis.paths import (fourteenB_HI_data_path, iram_co21_data_path,
                             paper1_figures_path, paper1_tables_path)
 from analysis.constants import (rotsub_cube_name, rotsub_mask_name,
-                                co21_mass_conversion, hi_freq)
+                                co21_mass_conversion, hi_freq,
+                                centroidsub_cube_name, centroidsub_mask_name)
 from analysis.galaxy_params import gal
 
 '''
@@ -43,10 +44,18 @@ def total_profile(cube, spatial_mask=None, verbose=True):
 
 
 co_cube = SpectralCube.read(iram_co21_data_path("m33.co21_iram.rotsub.fits"))
+co_cube_cent = \
+    SpectralCube.read(iram_co21_data_path("m33.co21_iram.centroid_corrected.fits"))
 
 hi_cube = SpectralCube.read(fourteenB_HI_data_path(rotsub_cube_name))
 hi_mask = fits.open(fourteenB_HI_data_path(rotsub_mask_name))[0]
 hi_cube = hi_cube.with_mask(hi_mask.data > 0)
+
+hi_cube_cent = SpectralCube.read(fourteenB_HI_data_path(centroidsub_cube_name))
+hi_mask_cent = fits.open(fourteenB_HI_data_path(centroidsub_mask_name))[0]
+hi_cube_cent = hi_cube_cent.with_mask(hi_mask_cent.data > 0)
+
+
 hi_beam = average_beams(hi_cube.beams)
 
 hi_radius = gal.radius(header=hi_cube.header)
@@ -65,6 +74,11 @@ outeredge = np.linspace(dr, max_radius, nbins)
 total_spectrum_hi_radial = np.zeros((inneredge.size, hi_cube.shape[0])) * u.K
 total_spectrum_co_radial = np.zeros((inneredge.size, co_cube.shape[0])) * u.K
 
+total_spectrum_hi_radial_cent = \
+    np.zeros((inneredge.size, hi_cube.shape[0])) * u.K
+total_spectrum_co_radial_cent = \
+    np.zeros((inneredge.size, co_cube.shape[0])) * u.K
+
 for ctr, (r0, r1) in enumerate(zip(inneredge,
                                    outeredge)):
 
@@ -78,33 +92,63 @@ for ctr, (r0, r1) in enumerate(zip(inneredge,
     total_spectrum_hi_radial[ctr] = \
         total_profile(hi_cube, hi_mask).to(u.K, equivalencies=hi_beam.jtok_equiv(hi_freq))
 
+    total_spectrum_hi_radial_cent[ctr] = \
+        total_profile(hi_cube_cent, hi_mask).to(u.K, equivalencies=hi_beam.jtok_equiv(hi_freq))
+
     total_spectrum_co_radial[ctr] = total_profile(co_cube, co_mask)
+
+    total_spectrum_co_radial_cent[ctr] = total_profile(co_cube_cent, co_mask)
 
 # Need to get portions of HI emission beyond 6 kpc.
 total_spectrum_hi = \
     total_profile(hi_cube).to(u.K, equivalencies=hi_beam.jtok_equiv(hi_freq))
 
+total_spectrum_hi_cent = \
+    total_profile(hi_cube_cent).to(u.K, equivalencies=hi_beam.jtok_equiv(hi_freq))
+
 # Significant CO emission is limited to within about 6 kpc
 total_spectrum_co = total_spectrum_co_radial.sum(0)
 
-p.plot(hi_cube.spectral_axis.to(u.km / u.s).value,
-       (total_spectrum_hi / total_spectrum_hi.max()).value,
-       'b-', drawstyle='steps-mid', label="HI")
+total_spectrum_co_cent = total_spectrum_co_radial_cent.sum(0)
+
+
+# Plot the profiles.
+fig, ax = p.subplots(1, 2, sharey=True)
+
+p.subplots_adjust(hspace=0.1,
+                  wspace=0.1)
+ax[0].plot(hi_cube.spectral_axis.to(u.km / u.s).value,
+           (total_spectrum_hi / total_spectrum_hi.max()).value,
+           'b-', drawstyle='steps-mid', label="HI")
 # There's a 1 channel offset from my rotation subtraction in the cube
-p.plot(co_cube.spectral_axis.to(u.km / u.s).value,
-       (total_spectrum_co / total_spectrum_co.max()).value,
-       # np.roll((total_spectrum_co / total_spectrum_co.max()).value, -1),
-       'g--', drawstyle='steps-mid', label="CO(2-1)")
-p.xlabel("Velocity (km/s)")
-p.ylabel("Normalized Total Intensity")
-p.ylim([-0.02, 1.1])
-p.xlim([-100, 100])
-p.grid()
-p.legend()
+ax[0].plot(co_cube.spectral_axis.to(u.km / u.s).value,
+           (total_spectrum_co / total_spectrum_co.max()).value,
+           'g--', drawstyle='steps-mid', label="CO(2-1)")
+ax[0].set_xlabel("Velocity (km/s)")
+ax[0].set_ylabel("Normalized Total Intensity")
+ax[0].set_title("Rotation subtracted")
+ax[0].set_ylim([-0.02, 1.1])
+ax[0].set_xlim([-50, 50])
+ax[0].grid()
+ax[0].legend()
+
+ax[1].plot(hi_cube_cent.spectral_axis.to(u.km / u.s).value,
+           (total_spectrum_hi_cent / total_spectrum_hi_cent.max()).value,
+           'b-', drawstyle='steps-mid')
+# There's a 1 channel offset from my rotation subtraction in the cube
+ax[1].plot(co_cube.spectral_axis.to(u.km / u.s).value,
+           (total_spectrum_co_cent / total_spectrum_co_cent.max()).value,
+           'g--', drawstyle='steps-mid')
+ax[1].set_title("Centroid subtracted")
+ax[1].set_xlabel("Velocity (km/s)")
+ax[1].set_ylim([-0.02, 1.1])
+ax[1].set_xlim([-50, 50])
+ax[1].grid()
+
 p.draw()
 
-p.savefig(paper1_figures_path("total_profile_corrected_velocity_rotsub_HI_CO21.pdf"))
-p.savefig(paper1_figures_path("total_profile_corrected_velocity_rotsub_HI_CO21.png"))
+fig.savefig(paper1_figures_path("total_profile_corrected_velocity_HI_CO21.pdf"))
+fig.savefig(paper1_figures_path("total_profile_corrected_velocity_HI_CO21.png"))
 
 p.clf()
 # raw_input("Next plot?")
@@ -151,12 +195,8 @@ cov = fit_g.fit_info['param_cov']
 parnames = [n for n in g_HI.param_names if n not in ['mean_1']]
 parvals = [v for (n, v) in zip(g_HI.param_names, g_HI.parameters)
            if n in parnames]
-print("HI Fit")
-for i, (name, value) in enumerate(zip(parnames, parvals)):
-    print('{}: {} +/- {}'.format(name, value, np.sqrt(cov[i][i])))
 
 # Note that the statistical errors on the mean are too small.
-# Due to my rolling approximation, the error is ~1 channel width.
 
 p.plot(vels, norm_intens, 'b-', drawstyle='steps-mid')
 p.plot(vels, g_HI(vels), 'k:', label="Total Fit")
@@ -175,10 +215,26 @@ p.savefig(paper1_figures_path("total_profile_corrected_velocity_rotsub_hi_fit.pn
 # raw_input("Next plot?")
 p.clf()
 
+fit_g = fitting.LevMarLSQFitter()
+
+vels = hi_cube_cent.spectral_axis.to(u.km / u.s).value
+norm_intens = (total_spectrum_hi_cent / total_spectrum_hi_cent.max()).value
+g_HI = fit_g(g_HI_init, vels, norm_intens)
+
+# The covariance matrix is hidden away... tricksy
+cov_cent = fit_g.fit_info['param_cov']
+parnames_cent = [n for n in g_HI.param_names if n not in ['mean_1']]
+parvals_cent = [v for (n, v) in zip(g_HI.param_names, g_HI.parameters)
+                if n in parnames]
+
+
 # Save parameter table
-hi_param_df = DataFrame({"Params": parvals,
-                         "Errors": [np.sqrt(cov[i, i]) for i in
-                                    range(cov.shape[0])]},
+hi_param_df = DataFrame({"Rot Sub Params": parvals,
+                         "Rot Sub Errors": [np.sqrt(cov[i, i]) for i in
+                                            range(cov.shape[0])],
+                         "Cent Sub Params": parvals_cent,
+                         "Cent Sub Errors": [np.sqrt(cov_cent[i, i]) for i in
+                                             range(cov_cent.shape[0])]},
                         index=parnames)
 hi_param_df.to_latex(paper1_tables_path("hi_gaussian_totalprof_fits.tex"))
 hi_param_df.to_csv(fourteenB_HI_data_path("tables/hi_gaussian_totalprof_fits.csv",
@@ -197,9 +253,6 @@ norm_co_intens = total_spectrum_co / total_spectrum_co.max()
 g_CO = fit_g_co(g_CO_init, co_vels, norm_co_intens)
 
 cov = fit_g_co.fit_info['param_cov']
-print("CO(2-1) Fit")
-for i, (name, value) in enumerate(zip(g_CO.param_names, g_CO.parameters)):
-    print('{}: {} +/- {}'.format(name, value, np.sqrt(cov[i][i])))
 
 # Better sampling for plotting
 more_vels = np.arange(co_vels.min(), co_vels.max(), 0.5)
@@ -213,15 +266,27 @@ p.ylim([-0.1, 1.1])
 p.grid()
 p.draw()
 
-p.savefig(paper1_figures_path("total_profile_corrected_velocity_rotsub_co21_fit.pdf"))
-p.savefig(paper1_figures_path("total_profile_corrected_velocity_rotsub_co21_fit.png"))
+p.savefig(paper1_figures_path("total_profile_corrected_velocity_co21_fit.pdf"))
+p.savefig(paper1_figures_path("total_profile_corrected_velocity_co21_fit.png"))
 
 p.close()
 
+
+fit_g_co = fitting.LevMarLSQFitter()
+
+co_vels = co_cube.spectral_axis.to(u.km / u.s).value
+norm_co_intens = total_spectrum_co_cent / total_spectrum_co_cent.max()
+g_CO_cent = fit_g_co(g_CO_init, co_vels, norm_co_intens)
+
+cov_cent = fit_g_co.fit_info['param_cov']
+
 # Save table of parameters
-co_param_df = DataFrame({"Params": g_CO.parameters,
-                         "Errors": [np.sqrt(cov[i, i]) for i in
-                                    range(cov.shape[0])]},
+co_param_df = DataFrame({"Rot Sub Params": g_CO.parameters,
+                         "Rot Sub Errors": [np.sqrt(cov[i, i]) for i in
+                                            range(cov.shape[0])],
+                         "Cent Sub Params": g_CO_cent.parameters,
+                         "Cent Sub Errors": [np.sqrt(cov_cent[i, i]) for i in
+                                             range(cov_cent.shape[0])]},
                         index=g_CO.param_names)
 co_param_df.to_latex(paper1_tables_path("co_gaussian_totalprof_fits.tex"))
 co_param_df.to_csv(iram_co21_data_path("tables/co_gaussian_totalprof_fits.csv",
@@ -286,27 +351,39 @@ fig.savefig(paper1_figures_path("total_profile_velocity_rotsub_hi_co_radial.png"
 # How do the model parameters change with radius?
 
 g_CO_init = models.Gaussian1D(amplitude=1., mean=0., stddev=9.)
-g_HI_init = models.Gaussian1D(amplitude=1., mean=0., stddev=5.)
+g_HI_init = models.Gaussian1D(amplitude=1., mean=0., stddev=10.)
+# g_HI_init = models.Gaussian1D(amplitude=0.75, mean=0., stddev=5.) + \
+#     models.Gaussian1D(amplitude=0.25, mean=0.0, stddev=13.)
+# g_HI_init.mean_1.tied = tie_mean
+# g_HI_init.amplitude_0.bounds = (0.5, 1.0)
+# g_HI_init.amplitude_1.bounds = (0.0, 0.5)
 
 hi_params = {}
-for name in g_HI_init.param_names:
-    # Skip the tied mean
-    if name == "mean_1":
-        continue
-    hi_params[name] = np.zeros_like(inneredge.value)
-    hi_params["{}_stderr".format(name)] = np.zeros_like(inneredge.value)
-
 co_params = {}
-for name in g_CO_init.param_names:
-    co_params[name] = np.zeros_like(inneredge.value)
-    co_params["{}_stderr".format(name)] = np.zeros_like(inneredge.value)
+
+for sub in ["rotsub", "centsub"]:
+    for name in g_HI_init.param_names:
+        # Skip the tied mean
+        if name == "mean_1":
+            continue
+        par_name = "{0}_{1}".format(sub, name)
+        par_error = "{}_stderr".format(par_name)
+
+        hi_params[par_name] = np.zeros_like(inneredge.value)
+        hi_params[par_error] = np.zeros_like(inneredge.value)
+
+    for name in g_CO_init.param_names:
+        par_name = "{0}_{1}".format(sub, name)
+        par_error = "{}_stderr".format(par_name)
+
+        co_params[par_name] = np.zeros_like(inneredge.value)
+        co_params[par_error] = np.zeros_like(inneredge.value)
 
 
 for ctr, (r0, r1) in enumerate(zip(inneredge,
                                    outeredge)):
 
-    # g_HI_init.mean_1.tied = tie_mean
-
+    # HI rotsub
     fit_g = fitting.LevMarLSQFitter()
 
     vels = hi_cube.spectral_axis.to(u.km / u.s).value
@@ -323,10 +400,34 @@ for ctr, (r0, r1) in enumerate(zip(inneredge,
         if name == "mean_1":
             idx_corr = 1
             continue
-        hi_params[name][ctr] = g_HI.parameters[idx]
-        hi_params["{}_stderr".format(name)][ctr] = \
+        par_name = "rotsub_{}".format(name)
+        hi_params[par_name][ctr] = g_HI.parameters[idx]
+        hi_params["{}_stderr".format(par_name)][ctr] = \
             np.sqrt(cov[idx - idx_corr, idx - idx_corr])
 
+    # HI centsub
+    fit_g = fitting.LevMarLSQFitter()
+
+    vels = hi_cube_cent.spectral_axis.to(u.km / u.s).value
+    norm_intens = (total_spectrum_hi_radial_cent[ctr] /
+                   total_spectrum_hi_radial_cent[ctr].max()).value
+    g_HI = fit_g(g_HI_init, vels, norm_intens, maxiter=1000)
+
+    cov = fit_g.fit_info['param_cov']
+    if cov is None:
+        raise Exception("No covariance matrix")
+
+    idx_corr = 0
+    for idx, name in enumerate(g_HI.param_names):
+        if name == "mean_1":
+            idx_corr = 1
+            continue
+        par_name = "centsub_{}".format(name)
+        hi_params[par_name][ctr] = g_HI.parameters[idx]
+        hi_params["{}_stderr".format(par_name)][ctr] = \
+            np.sqrt(cov[idx - idx_corr, idx - idx_corr])
+
+    # CO rotsub
     fit_g_co = fitting.LevMarLSQFitter()
 
     co_vels = co_cube.spectral_axis.to(u.km / u.s).value
@@ -339,9 +440,26 @@ for ctr, (r0, r1) in enumerate(zip(inneredge,
         raise Exception("No covariance matrix")
 
     for idx, name in enumerate(g_CO.param_names):
-        co_params[name][ctr] = g_CO.parameters[idx]
-        co_params["{}_stderr".format(name)][ctr] = np.sqrt(cov[idx, idx])
+        par_name = "rotsub_{}".format(name)
+        co_params[par_name][ctr] = g_CO.parameters[idx]
+        co_params["{}_stderr".format(par_name)][ctr] = np.sqrt(cov[idx, idx])
 
+    # CO centsub
+    fit_g_co = fitting.LevMarLSQFitter()
+
+    co_vels = co_cube_cent.spectral_axis.to(u.km / u.s).value
+    norm_co_intens = (total_spectrum_co_radial_cent[ctr] /
+                      total_spectrum_co_radial_cent[ctr].max()).value
+    g_CO = fit_g_co(g_CO_init, co_vels, norm_co_intens, maxiter=1000)
+
+    cov = fit_g_co.fit_info['param_cov']
+    if cov is None:
+        raise Exception("No covariance matrix")
+
+    for idx, name in enumerate(g_CO.param_names):
+        par_name = "centsub_{}".format(name)
+        co_params[par_name][ctr] = g_CO.parameters[idx]
+        co_params["{}_stderr".format(par_name)][ctr] = np.sqrt(cov[idx, idx])
 
 bin_names = ["{}-{}".format(r0.value, r1)
              for r0, r1 in zip(inneredge, outeredge)]
@@ -356,3 +474,37 @@ co_radial_fits.to_csv(iram_co21_data_path("tables/co_gaussian_totalprof_fits_rad
 hi_radial_fits.to_latex(paper1_tables_path("hi_gaussian_totalprof_fits_radial.tex"))
 hi_radial_fits.to_csv(fourteenB_HI_data_path("tables/hi_gaussian_totalprof_fits_radial.csv",
                                              no_check=True))
+
+# Plot comparisons of these fits
+bin_cents = (outeredge - dr / 2.).to(u.kpc).value
+
+fig, ax = p.subplots(1, 2, sharey=True)
+
+p.subplots_adjust(hspace=0.1,
+                  wspace=0.1)
+
+ax[0].errorbar(bin_cents, hi_params["rotsub_stddev"],
+               yerr=hi_params["rotsub_stddev_stderr"],
+               color='b', label='HI')
+ax[0].errorbar(bin_cents, co_params["rotsub_stddev"],
+               yerr=co_params["rotsub_stddev_stderr"],
+               color='g', linestyle='--', label='CO(2-1)')
+ax[0].legend(loc='lower left')
+ax[0].grid()
+ax[0].set_title("Rotation subtracted")
+ax[0].set_xlabel("Radius (kpc)")
+ax[0].set_ylabel("Gaussian Width (km/s)")
+
+ax[1].errorbar(bin_cents, hi_params["centsub_stddev"],
+               yerr=hi_params["centsub_stddev_stderr"],
+               color='b', label='HI')
+ax[1].errorbar(bin_cents, co_params["centsub_stddev"],
+               yerr=co_params["centsub_stddev_stderr"],
+               color='g', linestyle='--', label='CO(2-1)')
+ax[1].legend(loc='lower left')
+ax[1].grid()
+ax[1].set_title("Centroid subtracted")
+ax[1].set_xlabel("Radius (kpc)")
+
+fig.savefig(paper1_figures_path("total_profile_radial_widths_HI_CO21.pdf"))
+fig.savefig(paper1_figures_path("total_profile_radial_widths_HI_CO21.png"))

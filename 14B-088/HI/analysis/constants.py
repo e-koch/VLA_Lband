@@ -40,3 +40,5 @@ skew_name = \
 kurt_name = \
     "M33_14B-088_HI.clean.image.pbcov_gt_{}_masked.kurtosis.fits".format(pb_lim)
 
+peakvels_name = \
+    "M33_14B-088_HI.clean.image.pbcov_gt_{}_masked.peakvels.fits".format(pb_lim)

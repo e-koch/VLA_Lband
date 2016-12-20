@@ -1,12 +1,17 @@
 
 from spectral_cube import SpectralCube
+from spectral_cube.lower_dimensional_structures import Projection
 import numpy as np
+import astropy.units as u
 from astropy.io import fits
+from scipy.signal import medfilt
+from itertools import izip
+from multiprocessing import Pool
 
 from analysis.paths import fourteenB_HI_data_path
 from analysis.constants import (cube_name, mask_name, moment0_name,
                                 moment1_name, lwidth_name, skew_name,
-                                kurt_name)
+                                kurt_name, peakvels_name)
 
 '''
 Make the first three moments with the pbcov masked cube.
@@ -56,3 +61,37 @@ kurt = mom4 / linewidth ** 4
 
 kurt.write(fourteenB_HI_data_path(kurt_name, no_check=True),
            overwrite=True)
+
+
+# Peak velocity map
+def peak_velocity(inputs):
+
+    y, x = inputs
+    smooth_size = 31
+    argmax = np.argmax(medfilt(cube[:, y, x].value, smooth_size))
+    return cube.spectral_axis[argmax], y, x
+
+
+peakvels = Projection(np.zeros(cube.shape[1:]),
+                      wcs=cube.wcs.celestial,
+                      unit=cube.spectral_axis.unit)
+
+
+posns = np.where(cube.mask.include().sum(0) > 0)
+
+pool = Pool(6)
+output = pool.map(peak_velocity, izip(*posns))
+
+pool.close()
+pool.join()
+
+for out in output:
+    peakvels[out[1], out[2]] = out[0]
+
+peakvels[peakvels == 0.0 * u.m / u.s] = np.NaN * u.m / u.s
+
+peakvels = peakvels.astype(np.float32)
+# peakvels = spectral_peakintensity(subcube).astype(np.float32)
+peakvels.header["BITPIX"] = -32
+peakvels.write(fourteenB_HI_data_path(peakvels_name, no_check=True),
+               overwrite=True)

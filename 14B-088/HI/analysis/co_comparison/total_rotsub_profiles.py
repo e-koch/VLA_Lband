@@ -45,7 +45,7 @@ def total_profile(cube, spatial_mask=None, verbose=True):
 
 co_cube = SpectralCube.read(iram_co21_data_path("m33.co21_iram.rotsub.fits"))
 co_cube_cent = \
-    SpectralCube.read(iram_co21_data_path("m33.co21_iram.centroid_corrected.fits"))
+    SpectralCube.read(iram_co21_data_path("m33.co21_iram.hi_centroid_corrected.fits"))
 
 hi_cube = SpectralCube.read(fourteenB_HI_data_path(rotsub_cube_name))
 hi_mask = fits.open(fourteenB_HI_data_path(rotsub_mask_name))[0]
@@ -508,3 +508,5 @@ ax[1].set_xlabel("Radius (kpc)")
 
 fig.savefig(paper1_figures_path("total_profile_radial_widths_HI_CO21.pdf"))
 fig.savefig(paper1_figures_path("total_profile_radial_widths_HI_CO21.png"))
+
+fig.close()

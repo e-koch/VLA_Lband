@@ -25,6 +25,6 @@ params = os.path.basename(folder_name.rstrip("/"))
 param_name = \
     fourteenB_HI_data_path("{}/rad.out.params.csv".format(folder_name))
 
-param_table = read_csv(param_name)
+param_table = read_csv(param_name).T
 
 param_table.to_latex(paper1_tables_path("galactic_parameters_{}.tex".format(params)))

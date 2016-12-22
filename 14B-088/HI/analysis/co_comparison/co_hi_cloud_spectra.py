@@ -212,6 +212,8 @@ for i in ProgressBar(num_clouds):
         # raw_input("?")
         fig.savefig(paper1_figures_path("GMC_CO_peakshift/GMC_CO_peakshift"
                                         "_{}.png".format(i + 1)))
+        fig.savefig(paper1_figures_path("GMC_CO_peakshift/GMC_CO_peakshift"
+                                        "_{}.pdf".format(i + 1)))
 
         plt.clf()
 plt.close()

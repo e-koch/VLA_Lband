@@ -367,8 +367,11 @@ for ctr, (r0, r1) in enumerate(zip(inneredge,
         ax[r, c].legend(loc='upper left', fontsize=14)
     ax[r, c].grid()
 
-    ax[r, c].set_xticklabels(ax[r, c].xaxis.get_majorticklabels(),
-                             rotation=45)
+for r in range(Nrows):
+    for c in range(Ncols):
+        if r == Nrows - 1:
+            ax[r, c].set_xticklabels(ax[r, c].xaxis.get_majorticklabels(),
+                                     rotation=45)
 
 fig.savefig(paper1_figures_path("mask_edge_radial_profiles_byradius.pdf"))
 fig.savefig(paper1_figures_path("mask_edge_radial_profiles_byradius.png"))

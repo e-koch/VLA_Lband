@@ -478,16 +478,24 @@ hi_radial_fits.to_csv(fourteenB_HI_data_path("tables/hi_gaussian_totalprof_fits_
 # Plot comparisons of these fits
 bin_cents = (outeredge - dr / 2.).to(u.kpc).value
 
+hi_velres = \
+  (hi_cube.spectral_axis[1] - hi_cube.spectral_axis[0]).to(u.km / u.s).value
+co_velres = \
+  (co_cube.spectral_axis[1] - co_cube.spectral_axis[0]).to(u.km / u.s).value
+
+hi_width_error = lambda val: np.sqrt(val**2 + hi_velres**2)
+co_width_error = lambda val: np.sqrt(val**2 + co_velres**2)
+
 fig, ax = p.subplots(1, 2, sharey=True)
 
 p.subplots_adjust(hspace=0.1,
                   wspace=0.1)
 
 ax[0].errorbar(bin_cents, hi_params["rotsub_stddev"],
-               yerr=hi_params["rotsub_stddev_stderr"],
+               yerr=hi_width_error(hi_params["rotsub_stddev_stderr"]),
                color='b', label='HI')
 ax[0].errorbar(bin_cents, co_params["rotsub_stddev"],
-               yerr=co_params["rotsub_stddev_stderr"],
+               yerr=co_width_error(co_params["rotsub_stddev_stderr"]),
                color='g', linestyle='--', label='CO(2-1)')
 ax[0].legend(loc='lower left')
 ax[0].grid()
@@ -496,10 +504,10 @@ ax[0].set_xlabel("Radius (kpc)")
 ax[0].set_ylabel("Gaussian Width (km/s)")
 
 ax[1].errorbar(bin_cents, hi_params["centsub_stddev"],
-               yerr=hi_params["centsub_stddev_stderr"],
+               yerr=hi_width_error(hi_params["centsub_stddev_stderr"]),
                color='b', label='HI')
 ax[1].errorbar(bin_cents, co_params["centsub_stddev"],
-               yerr=co_params["centsub_stddev_stderr"],
+               yerr=co_width_error(co_params["centsub_stddev_stderr"]),
                color='g', linestyle='--', label='CO(2-1)')
 ax[1].legend(loc='lower left')
 ax[1].grid()

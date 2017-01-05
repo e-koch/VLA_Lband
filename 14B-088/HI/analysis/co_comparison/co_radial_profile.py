@@ -41,7 +41,7 @@ dr = 100 * u.pc
 # Load the moment 0
 cube = SpectralCube.read(iram_co21_data_path("m33.co21_iram.fits"))
 del cube._header[""]
-cube = cube.with_mask(cube > 0.1 * u.K)
+# cube = cube.with_mask(cube > 0.1 * u.K)
 
 mom0_hi = fits.open(fourteenB_HI_data_path(moment0_name))[0]
 hi_cube = SpectralCube.read(fourteenB_HI_data_path(cube_name))
@@ -57,10 +57,11 @@ cube = cube.with_mask(radii < 6. * u.kpc)
 # mom0 = fits.open(os.path.join(direc, "m33.ico.fits"))[0]
 
 # mom0_data = mom0.data.squeeze() * (mom0.data.squeeze() > 1.0) * u.K
-mom0 = cube.moment0()
+mom0 = cube.moment0().to(u.K * u.km / u.s)
 
 rs, sd, sd_sigma = surfdens_radial_profile(gal, cube=cube, mom0=mom0,
-                                           max_rad=6 * u.kpc, dr=dr)
+                                           max_rad=6 * u.kpc, dr=dr,
+                                           mass_conversion=co21_mass_conversion)
 # Correct for beam efficiency
 sd /= beam_eff
 sd_sigma /= beam_eff
@@ -69,7 +70,9 @@ rs_n, sd_n, sd_sigma_n = \
     surfdens_radial_profile(gal, cube=cube, mom0=mom0,
                             pa_bounds=Angle([0.5 * np.pi * u.rad,
                                              -0.5 * np.pi * u.rad]),
-                            max_rad=6 * u.kpc, dr=dr)
+                            max_rad=6 * u.kpc, dr=dr,
+                            mass_conversion=co21_mass_conversion)
+
 sd_n /= beam_eff
 sd_sigma_n /= beam_eff
 
@@ -77,9 +80,11 @@ rs_s, sd_s, sd_sigma_s = \
     surfdens_radial_profile(gal, cube=cube, mom0=mom0,
                             pa_bounds=Angle([-0.5 * np.pi * u.rad,
                                              0.5 * np.pi * u.rad]),
-                            max_rad=6 * u.kpc, dr=dr)
-sd_n /= beam_eff
-sd_sigma_n /= beam_eff
+                            max_rad=6 * u.kpc, dr=dr,
+                            mass_conversion=co21_mass_conversion)
+
+sd_s /= beam_eff
+sd_sigma_s /= beam_eff
 
 p.ioff()
 p.errorbar(rs.value, np.log10(sd.value),
@@ -151,7 +156,7 @@ p.close()
 gas_ratio = sd.value / sd_hi.value
 total_sd = sd.value + sd_hi.value
 total_sd_sigma = total_sd * \
-    np.sqrt((sd_sigma / sd) ** 2 + (sd_sigma_hi / sd_hi)).value
+    np.sqrt((sd_sigma / sd)**2 + (sd_sigma_hi / sd_hi)**2).value
 
 # Overplot the Krumholz model with a few different clumping factors.
 # Theoretically, c -> 1 at a resolution of 100 pc. but I'm finding a better
@@ -235,7 +240,9 @@ p.xlabel(r"log Area-Weighted $\Sigma$ / (M$_{\odot}$ pc$^{-2}$)")
 p.ylim([0.35, 1.9])
 p.xlim([-2.1, 1.4])
 p.legend(loc='upper left')
-p.show()
+p.savefig(paper1_figures_path("hi_co_area_weighted_vs_mass_weighted_dr_{}pc.pdf".format(dr.value)))
+p.savefig(paper1_figures_path("hi_co_area_weighted_vs_mass_weighted_dr_{}pc.png".format(dr.value)))
+p.close()
 # The H2 (ie CO) is all over the place, and HI is clustered together and hard to see.
 # Make an HI only
 p.errorbar(np.log10(sd_hi.value), np.log10(sd_hi_m.value),

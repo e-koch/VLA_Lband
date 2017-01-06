@@ -181,7 +181,27 @@ p.savefig(paper1_figures_path("ratio_totalsigma_w_krumholzmodel_dr_{}pc.pdf".for
 p.savefig(paper1_figures_path("ratio_totalsigma_w_krumholzmodel_dr_{}pc.png".format(dr.value)))
 p.close()
 
+# Gratier+16 find evidence for a dark CO component, at about ~5 Msol/pc^2.
+# Let's add this in, assuming the dark component is *only* in the CO and not
+# due to optically thick HI (some portion probably is).
+gas_ratio_dark = (sd.value + 5) / sd_hi.value
+
+p.semilogy(total_sd, gas_ratio, 'bD', label="H$_2$ + HI")
+p.semilogy(total_sd + 5, gas_ratio_dark, 'ro', label="H$_2$ + HI + Dark H$_2$")
+p.plot(sds, krumholz_ratio_model(sds, c=2, Z=0.5), "r--", label="c=2, Z=0.5")
+p.plot(sds, krumholz_ratio_model(sds, c=4, Z=0.5), "g-.", label="c=4, Z=0.5")
+p.plot(sds, krumholz_ratio_model(sds, c=4, Z=0.25), "m.", label="c=4, Z=0.25")
+p.plot(sds, krumholz_ratio_model(sds, c=4, Z=1.0), "k-", label="c=4, Z=1.0")
+p.xlabel("$\Sigma_{\mathrm{Gas}}$ (M$_{\odot}$ pc$^{-2}$)")
+p.ylabel("H$_2$-to-HI Ratio $\Sigma_{\mathrm{H2}} / \Sigma_{\mathrm{HI}}$")
+p.xlim([2, 25])
+p.ylim([1e-4, 10])
+p.legend(loc='lower right')
+p.grid()
 # p.show()
+p.savefig(paper1_figures_path("ratio_totalsigma_dark_w_krumholzmodel_dr_{}pc.pdf".format(dr.value)))
+p.savefig(paper1_figures_path("ratio_totalsigma_dark_w_krumholzmodel_dr_{}pc.png".format(dr.value)))
+p.close()
 
 # Also plot the total gas surface density against the stellar surface density
 # from Corbelli

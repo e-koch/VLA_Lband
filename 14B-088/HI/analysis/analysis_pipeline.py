@@ -137,3 +137,7 @@ execfile(c_hi_analysispath("co_comparison/total_rotsub_profiles.py"))
 
 # HI and CO spectra at the GMC locations
 execfile(c_hi_analysispath("co_comparison/co_hi_cloud_spectra.py"))
+
+# Tpeak of CO vs. the velocity offset of the HI rotation model and the peak
+# CO velocity,
+execfile(c_hi_analysispath("co_comparison/co_hi_peakoffset.py"))

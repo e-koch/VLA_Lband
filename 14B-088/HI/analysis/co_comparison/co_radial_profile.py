@@ -154,9 +154,12 @@ p.close()
 
 # Now plot their ratio against the total gas surface density
 gas_ratio = sd.value / sd_hi.value
+gas_ratio_sigma = (gas_ratio * \
+        np.sqrt((sd_sigma / sd)**2 + (sd_sigma_hi / sd_hi)**2)).value
+log_gas_ratio_sigma = gas_ratio_sigma / (gas_ratio * np.log(10))
 total_sd = sd.value + sd_hi.value
-total_sd_sigma = total_sd * \
-    np.sqrt((sd_sigma / sd)**2 + (sd_sigma_hi / sd_hi)**2).value
+total_sd_sigma = (total_sd * \
+    np.sqrt((sd_sigma / sd)**2 + (sd_sigma_hi / sd_hi)**2)).value
 
 # Overplot the Krumholz model with a few different clumping factors.
 # Theoretically, c -> 1 at a resolution of 100 pc. but I'm finding a better
@@ -165,13 +168,18 @@ total_sd_sigma = total_sd * \
 # entire sample, with a lot of scatter
 sds = np.arange(1, 40, 0.2)
 
-p.semilogy(total_sd, gas_ratio, 'bD')
+ax = p.subplot(111)
+# p.semilogy(total_sd, gas_ratio, 'bD')
+p.errorbar(total_sd, gas_ratio, yerr=[gas_ratio - gas_ratio_sigma,
+                                      gas_ratio + gas_ratio_sigma],
+           xerr=total_sd_sigma, color='b', alpha=0.6, fmt='D')
 p.plot(sds, krumholz_ratio_model(sds, c=2, Z=0.5), "r--", label="c=2, Z=0.5")
 p.plot(sds, krumholz_ratio_model(sds, c=4, Z=0.5), "g-.", label="c=4, Z=0.5")
 p.plot(sds, krumholz_ratio_model(sds, c=4, Z=0.25), "m.", label="c=4, Z=0.25")
 p.plot(sds, krumholz_ratio_model(sds, c=4, Z=1.0), "k-", label="c=4, Z=1.0")
 p.xlabel("$\Sigma_{\mathrm{Gas}}$ (M$_{\odot}$ pc$^{-2}$)")
 p.ylabel("H$_2$-to-HI Ratio $\Sigma_{\mathrm{H2}} / \Sigma_{\mathrm{HI}}$")
+ax.set_yscale("log", nonposy='clip')
 p.xlim([2, 22])
 p.ylim([1e-4, 10])
 p.legend(loc='upper left')
@@ -184,16 +192,32 @@ p.close()
 # Gratier+16 find evidence for a dark CO component, at about ~5 Msol/pc^2.
 # Let's add this in, assuming the dark component is *only* in the CO and not
 # due to optically thick HI (some portion probably is).
-gas_ratio_dark = (sd.value + 5) / sd_hi.value
+sd_dark = sd + 5 * u.solMass / u.pc**2
+sd_dark_sigma = (sd_dark * sd_sigma) / sd
+gas_ratio_dark = sd_dark.value / sd_hi.value
+gas_ratio_dark_sigma = (gas_ratio_dark * \
+        np.sqrt((sd_dark_sigma / sd_dark)**2 + (sd_sigma_hi / sd_hi)**2)).value
+total_sd_plus_dark = sd_dark.value + sd_hi.value
+total_sd_plus_dark_sigma = (total_sd_plus_dark * \
+    np.sqrt((sd_dark_sigma / sd_dark)**2 + (sd_sigma_hi / sd_hi)**2)).value
 
-p.semilogy(total_sd, gas_ratio, 'bD', label="H$_2$ + HI")
-p.semilogy(total_sd + 5, gas_ratio_dark, 'ro', label="H$_2$ + HI + Dark H$_2$")
+ax = p.subplot(111)
+# p.semilogy(total_sd, gas_ratio, 'bD', label="H$_2$ + HI")
+# p.semilogy(total_sd + 5, gas_ratio_dark, 'ro', label="H$_2$ + HI + Dark H$_2$")
+p.errorbar(total_sd, gas_ratio, yerr=gas_ratio_sigma,
+           xerr=total_sd_sigma, color='b', alpha=0.6, marker='D',
+           label=r"H$_2$ + HI")
+p.errorbar(total_sd_plus_dark, gas_ratio_dark,
+           yerr=gas_ratio_dark_sigma,
+           xerr=total_sd_plus_dark_sigma, color='r', alpha=0.6, marker='o',
+           label=r"H$_2$ + HI + Dark H$_2$")
 p.plot(sds, krumholz_ratio_model(sds, c=2, Z=0.5), "r--", label="c=2, Z=0.5")
 p.plot(sds, krumholz_ratio_model(sds, c=4, Z=0.5), "g-.", label="c=4, Z=0.5")
 p.plot(sds, krumholz_ratio_model(sds, c=4, Z=0.25), "m.", label="c=4, Z=0.25")
 p.plot(sds, krumholz_ratio_model(sds, c=4, Z=1.0), "k-", label="c=4, Z=1.0")
 p.xlabel("$\Sigma_{\mathrm{Gas}}$ (M$_{\odot}$ pc$^{-2}$)")
 p.ylabel("H$_2$-to-HI Ratio $\Sigma_{\mathrm{H2}} / \Sigma_{\mathrm{HI}}$")
+ax.set_yscale("log", nonposy='clip')
 p.xlim([2, 25])
 p.ylim([1e-4, 10])
 p.legend(loc='lower right')

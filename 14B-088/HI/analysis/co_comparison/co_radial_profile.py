@@ -168,20 +168,21 @@ total_sd_sigma = (total_sd * \
 # entire sample, with a lot of scatter
 sds = np.arange(1, 40, 0.2)
 
-ax = p.subplot(111)
 # p.semilogy(total_sd, gas_ratio, 'bD')
-p.errorbar(total_sd, gas_ratio, yerr=[gas_ratio - gas_ratio_sigma,
-                                      gas_ratio + gas_ratio_sigma],
+p.errorbar(total_sd, np.log10(gas_ratio), yerr=log_gas_ratio_sigma,
            xerr=total_sd_sigma, color='b', alpha=0.6, fmt='D')
-p.plot(sds, krumholz_ratio_model(sds, c=2, Z=0.5), "r--", label="c=2, Z=0.5")
-p.plot(sds, krumholz_ratio_model(sds, c=4, Z=0.5), "g-.", label="c=4, Z=0.5")
-p.plot(sds, krumholz_ratio_model(sds, c=4, Z=0.25), "m.", label="c=4, Z=0.25")
-p.plot(sds, krumholz_ratio_model(sds, c=4, Z=1.0), "k-", label="c=4, Z=1.0")
+p.plot(sds, np.log10(krumholz_ratio_model(sds, c=2, Z=0.5)), "r--",
+       label="c=2, Z=0.5")
+p.plot(sds, np.log10(krumholz_ratio_model(sds, c=4, Z=0.5)), "g-.",
+       label="c=4, Z=0.5")
+p.plot(sds, np.log10(krumholz_ratio_model(sds, c=4, Z=0.25)), "m.",
+       label="c=4, Z=0.25")
+p.plot(sds, np.log10(krumholz_ratio_model(sds, c=4, Z=1.0)), "k-",
+       label="c=4, Z=1.0")
 p.xlabel("$\Sigma_{\mathrm{Gas}}$ (M$_{\odot}$ pc$^{-2}$)")
-p.ylabel("H$_2$-to-HI Ratio $\Sigma_{\mathrm{H2}} / \Sigma_{\mathrm{HI}}$")
-ax.set_yscale("log", nonposy='clip')
+p.ylabel("log H$_2$-to-HI Ratio $\Sigma_{\mathrm{H2}} / \Sigma_{\mathrm{HI}}$")
 p.xlim([2, 22])
-p.ylim([1e-4, 10])
+p.ylim([-4, 1])
 p.legend(loc='upper left')
 p.grid()
 
@@ -195,37 +196,46 @@ p.close()
 sd_dark = sd + 5 * u.solMass / u.pc**2
 sd_dark_sigma = (sd_dark * sd_sigma) / sd
 gas_ratio_dark = sd_dark.value / sd_hi.value
-gas_ratio_dark_sigma = (gas_ratio_dark * \
+gas_ratio_dark_sigma = (gas_ratio_dark *
         np.sqrt((sd_dark_sigma / sd_dark)**2 + (sd_sigma_hi / sd_hi)**2)).value
+log_gas_ratio_dark_sigma = gas_ratio_dark_sigma / (gas_ratio_dark * np.log(10))
+
 total_sd_plus_dark = sd_dark.value + sd_hi.value
-total_sd_plus_dark_sigma = (total_sd_plus_dark * \
+total_sd_plus_dark_sigma = (total_sd_plus_dark *
     np.sqrt((sd_dark_sigma / sd_dark)**2 + (sd_sigma_hi / sd_hi)**2)).value
 
-ax = p.subplot(111)
 # p.semilogy(total_sd, gas_ratio, 'bD', label="H$_2$ + HI")
 # p.semilogy(total_sd + 5, gas_ratio_dark, 'ro', label="H$_2$ + HI + Dark H$_2$")
-p.errorbar(total_sd, gas_ratio, yerr=gas_ratio_sigma,
-           xerr=total_sd_sigma, color='b', alpha=0.6, marker='D',
-           label=r"H$_2$ + HI")
-p.errorbar(total_sd_plus_dark, gas_ratio_dark,
-           yerr=gas_ratio_dark_sigma,
+p.errorbar(total_sd_plus_dark, np.log10(gas_ratio_dark),
+           yerr=log_gas_ratio_dark_sigma,
            xerr=total_sd_plus_dark_sigma, color='r', alpha=0.6, marker='o',
-           label=r"H$_2$ + HI + Dark H$_2$")
-p.plot(sds, krumholz_ratio_model(sds, c=2, Z=0.5), "r--", label="c=2, Z=0.5")
-p.plot(sds, krumholz_ratio_model(sds, c=4, Z=0.5), "g-.", label="c=4, Z=0.5")
-p.plot(sds, krumholz_ratio_model(sds, c=4, Z=0.25), "m.", label="c=4, Z=0.25")
-p.plot(sds, krumholz_ratio_model(sds, c=4, Z=1.0), "k-", label="c=4, Z=1.0")
+           label=r"H$_2$ + HI + CO-dark H$_2$")
+p.errorbar(total_sd, np.log10(gas_ratio), yerr=log_gas_ratio_sigma,
+           xerr=total_sd_sigma, color='b', alpha=0.6, fmt='D',
+           label=r"H$_2$ + HI")
+p.plot(sds, np.log10(krumholz_ratio_model(sds, c=2, Z=0.5)), "r--",
+       label="c=2, Z=0.5")
+p.plot(sds, np.log10(krumholz_ratio_model(sds, c=4, Z=0.5)), "g-.",
+       label="c=4, Z=0.5")
+p.plot(sds, np.log10(krumholz_ratio_model(sds, c=4, Z=0.25)), "m.",
+       label="c=4, Z=0.25")
+p.plot(sds, np.log10(krumholz_ratio_model(sds, c=4, Z=1.0)), "k-",
+       label="c=4, Z=1.0")
 p.xlabel("$\Sigma_{\mathrm{Gas}}$ (M$_{\odot}$ pc$^{-2}$)")
-p.ylabel("H$_2$-to-HI Ratio $\Sigma_{\mathrm{H2}} / \Sigma_{\mathrm{HI}}$")
-ax.set_yscale("log", nonposy='clip')
+p.ylabel("log H$_2$-to-HI Ratio $\Sigma_{\mathrm{H2}} / \Sigma_{\mathrm{HI}}$")
 p.xlim([2, 25])
-p.ylim([1e-4, 10])
+p.ylim([-4, 1])
 p.legend(loc='lower right')
 p.grid()
 # p.show()
 p.savefig(paper1_figures_path("ratio_totalsigma_dark_w_krumholzmodel_dr_{}pc.pdf".format(dr.value)))
 p.savefig(paper1_figures_path("ratio_totalsigma_dark_w_krumholzmodel_dr_{}pc.png".format(dr.value)))
 p.close()
+
+# But M33 has a known metallicity gradient, so we can do a bit better
+# Clumping factors should converge to 1 on 100 pc, based on the Krumholz model
+# This isn't happening here, so let's what c needs to be for the curve to
+# intersect with each point we have.
 
 # Also plot the total gas surface density against the stellar surface density
 # from Corbelli

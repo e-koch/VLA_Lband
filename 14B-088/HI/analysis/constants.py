@@ -49,3 +49,6 @@ kurt_name = \
 
 peakvels_name = \
     "M33_14B-088_HI.clean.image.pbcov_gt_{}_masked.peakvels.fits".format(pb_lim)
+
+regridco_cube_name = \
+    "M33_14B-088_HI.clean.image.pbcov_gt_{}_masked_co21_full_regrid.fits".format(pb_lim)

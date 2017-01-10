@@ -21,6 +21,13 @@ hi_conv_cube = hi_cube.convolve_to(hi_beam)
 
 hi_conv_cube = hi_conv_cube.spectral_interpolate(cube.spectral_axis)
 
-hi_conv_cube = hi_conv_cube.regrid(cube.header)
+hi_conv_cube = hi_conv_cube.reproject(cube.header)
 
-hi_conv_cube.write(fourteenB_HI_data_path(regridco_cube_name, no_check=True))
+# For some reason, the velocity axis in the data needs to be flipped.
+# Look into where this is happening in spectral_cube
+hi_hdu = hi_conv_cube.hdu.copy()
+hi_hdu.data = hi_hdu.data[::-1]
+
+new_hi_conv_cube = SpectralCube.read(hi_hdu)
+
+new_hi_conv_cube.write(fourteenB_HI_data_path(regridco_cube_name, no_check=True))

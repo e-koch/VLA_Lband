@@ -1,5 +1,7 @@
 
 import numpy as np
+from itertools import cycle
+import scipy.optimize as opt
 
 '''
 Krumholz model for the fraction of H2 as a function of surface density and
@@ -59,3 +61,41 @@ def alternate_krumholz_ratio_model(Sigma, psi=1.0, c=1, Z=0.1):
     term1 = (s / 11.) ** 3 * ((125 + s) / (96 + s)) ** 3
 
     return np.power(1 + term1, 1 / 3.) - 1
+
+
+def optimize_clump_factors(Sigma, R, Z=0.5, init_c=4.0):
+    '''
+    Solve for the clump factor needed to intersect each point.
+
+    Parameters
+    ----------
+    Sigma : Quantity
+        Surface densities.
+    Z : float or array
+        Metallicity values.
+    '''
+
+    if not isinstance(Z, np.ndarray):
+        Z = cycle([Z])
+
+    clump_values = []
+
+    for sig, r, z in zip(Sigma, R, Z):
+
+        # def clump_minimize(c):
+        #     return np.abs(krumholz_ratio_model(sig, Z=z, c=c) - r)
+
+        # # Now minimize.
+        # res = opt.minimize(clump_minimize, init_c)
+
+        # clump_values.append(float(res.x))
+
+        def model(sigma, c):
+            return krumholz_ratio_model(sigma, Z=z, c=c)
+
+        popt, pcov = opt.curve_fit(model, sig, r)
+
+        clump_values.append(popt)
+
+    # return np.array(clump_values)
+    return clump_values

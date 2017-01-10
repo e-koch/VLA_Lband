@@ -21,7 +21,8 @@ from paths import (iram_co21_data_path, fourteenB_HI_data_path,
 from constants import moment0_name, cube_name, mask_name
 from galaxy_params import gal
 
-from co_comparison.krumholz_2009_model import krumholz_ratio_model
+from co_comparison.krumholz_2009_model import (krumholz_ratio_model,
+                                               optimize_clump_factors)
 
 '''
 Create the surface density profile in CO(2-1), assuming a factor to convert
@@ -91,7 +92,7 @@ p.errorbar(rs.value, np.log10(sd.value),
            yerr=0.434 * sd_sigma.value / sd.value, fmt="-", color="b",
            label=r"H$_2$", drawstyle='steps-mid')
 p.ylabel(r" log $\Sigma$ (M$_{\odot}$ pc$^{-2}$)")
-p.xlabel(r"R (kpc)")
+p.xlabel(r"Radius (kpc)")
 # p.legend(loc='best')
 p.grid("on")
 
@@ -113,7 +114,7 @@ p.errorbar(rs_s.value, np.log10(sd_s.value),
 # p.plot(rs_n.value, sd_n.value, "bD-", label="North")
 # p.plot(rs_s.value, sd_s.value, "go-", label="South")
 p.ylabel(r"log $\Sigma$ (M$_{\odot}$ pc$^{-2}$)")
-p.xlabel(r"R (kpc)")
+p.xlabel(r"Radius (kpc)")
 p.legend(loc='best')
 p.grid("on")
 
@@ -142,7 +143,7 @@ p.errorbar(rs_hi.value, np.log10(sd_hi.value),
            yerr=0.434 * sd_sigma_hi.value / sd_hi.value, fmt="--", color="g",
            label=r"HI", drawstyle='steps-mid')
 p.ylabel(r" log $\Sigma$ (M$_{\odot}$ pc$^{-2}$)")
-p.xlabel(r"R (kpc)")
+p.xlabel(r"Radius (kpc)")
 p.legend(loc='best')
 p.grid("on")
 
@@ -237,6 +238,42 @@ p.close()
 # This isn't happening here, so let's what c needs to be for the curve to
 # intersect with each point we have.
 
+# Metallicity of 0.5
+clump_constz = optimize_clump_factors(total_sd, gas_ratio, Z=0.5,
+                                      init_c=5.0)
+
+
+# Metallicity Gradient from Roso & Simon (2005)
+def ros_sim_metallicity(radius):
+    return 10 ** (8.36 - 0.027 * radius - 8.8)
+
+
+clump_rossim = optimize_clump_factors(total_sd, gas_ratio,
+                                      Z=ros_sim_metallicity(rs.value),
+                                      init_c=7.5)
+
+
+# And from Bresolin 2011
+def bresolin_metallicity(radius):
+    return 10 ** (8.82 - 0.03 * radius - 8.8)
+
+
+clump_bresolin = optimize_clump_factors(total_sd, gas_ratio,
+                                        Z=bresolin_metallicity(rs.value))
+
+p.plot(rs.value[:-1], clump_constz[:-1], 'bD-', label="Z=0.5")
+p.plot(rs.value[:-1], clump_rossim[:-1], 'ro--', label="Rosolowsky & Simon (2005)")
+p.plot(rs.value[:-1], clump_bresolin[:-1], 'gs-.', label="Bresolin (2011)")
+p.legend(loc='best')
+p.grid()
+p.ylabel("Clumping Factor")
+p.xlabel("Radius (kpc)")
+
+p.savefig(paper1_figures_path("clumpfactor_krumholzmodel_dr_{}pc.pdf".format(dr.value)))
+p.savefig(paper1_figures_path("clumpfactor_krumholzmodel_dr_{}pc.png".format(dr.value)))
+p.close()
+
+
 # Also plot the total gas surface density against the stellar surface density
 # from Corbelli
 corbelli = Table.read(c_hi_analysispath("rotation_curves/corbelli_rotation_curve.csv"))
@@ -249,7 +286,7 @@ p.semilogy(corbelli["R"][corbelli["R"] <= 6.5],
            drawstyle='steps-mid',
            label="Stars")
 p.ylabel(r"log $\Sigma$ / (M$_{\odot}$ pc$^{-2}$)")
-p.xlabel(r"R (kpc)")
+p.xlabel(r"Radius (kpc)")
 p.legend(loc='best')
 p.grid()
 
@@ -263,7 +300,8 @@ p.close()
 # Finally, let's calculate some clumping factors a la Leroy+13
 rs_m, sd_m, sd_sigma_m = surfdens_radial_profile(gal, cube=cube, mom0=mom0,
                                                  max_rad=6 * u.kpc, dr=dr,
-                                                 weight_type='mass')
+                                                 weight_type='mass',
+                                                 mass_conversion=co21_mass_conversion)
 # Correct for beam efficiency
 sd_m /= beam_eff
 sd_sigma_m /= beam_eff
@@ -291,7 +329,7 @@ equality = np.arange(-2.5, 2, 0.1)
 p.plot(equality, equality, 'k--')
 p.ylabel(r"log Mass-Weighted $\Sigma$ / (M$_{\odot}$ pc$^{-2}$)")
 p.xlabel(r"log Area-Weighted $\Sigma$ / (M$_{\odot}$ pc$^{-2}$)")
-p.ylim([0.35, 1.9])
+p.ylim([0.25, 1.9])
 p.xlim([-2.1, 1.4])
 p.legend(loc='upper left')
 p.savefig(paper1_figures_path("hi_co_area_weighted_vs_mass_weighted_dr_{}pc.pdf".format(dr.value)))
@@ -307,8 +345,8 @@ equality = np.arange(-2.5, 2, 0.1)
 p.plot(equality, equality, 'k--')
 p.ylabel(r"log Mass-Weighted $\Sigma$ / (M$_{\odot}$ pc$^{-2}$)")
 p.xlabel(r"log Area-Weighted $\Sigma$ / (M$_{\odot}$ pc$^{-2}$)")
-p.ylim([0.72, 1.02])
-p.xlim([0.72, 1.02])
+p.ylim([0.65, 1.0])
+p.xlim([0.65, 0.9])
 # p.legend(loc='upper left')
 
 p.savefig(paper1_figures_path("area_weighted_vs_mass_weighted_dr_{}pc.pdf".format(dr.value)))

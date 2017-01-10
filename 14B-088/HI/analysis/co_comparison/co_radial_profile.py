@@ -239,8 +239,7 @@ p.close()
 # intersect with each point we have.
 
 # Metallicity of 0.5
-clump_constz = optimize_clump_factors(total_sd, gas_ratio, Z=0.5,
-                                      init_c=5.0)
+clump_constz = optimize_clump_factors(total_sd, gas_ratio, Z=0.5)
 
 
 # Metallicity Gradient from Roso & Simon (2005)
@@ -249,8 +248,7 @@ def ros_sim_metallicity(radius):
 
 
 clump_rossim = optimize_clump_factors(total_sd, gas_ratio,
-                                      Z=ros_sim_metallicity(rs.value),
-                                      init_c=7.5)
+                                      Z=ros_sim_metallicity(rs.value))
 
 
 # And from Bresolin 2011

@@ -87,7 +87,6 @@ def optimize_clump_factors(Sigma, R, Z=0.5):
 
         popt, pcov = opt.curve_fit(model, sig, r)
 
-        clump_values.append(popt)
+        clump_values.append(popt[0])
 
-    # return np.array(clump_values)
-    return clump_values
+    return np.array(clump_values)

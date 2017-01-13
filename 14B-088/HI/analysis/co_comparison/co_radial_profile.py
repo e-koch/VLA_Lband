@@ -1,7 +1,6 @@
 
 from astropy.io import fits
 import matplotlib.pyplot as p
-import os
 from astropy.coordinates import Angle
 from astropy import units as u
 import numpy as np
@@ -11,15 +10,12 @@ from spectral_cube.cube_utils import average_beams
 from astropy.wcs import WCS
 from astropy.table import Table
 
-# Import from above.
-# parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# os.sys.path.insert(0, parentdir)
-
 from HI_radial_profile import surfdens_radial_profile
 from paths import (iram_co21_data_path, fourteenB_HI_data_path,
                    paper1_figures_path, c_hi_analysispath)
 from constants import moment0_name, cube_name, mask_name
 from galaxy_params import gal
+from plotting_styles import onecolumn_figure, default_figure
 
 from co_comparison.krumholz_2009_model import (krumholz_ratio_model,
                                                optimize_clump_factors)
@@ -28,6 +24,8 @@ from co_comparison.krumholz_2009_model import (krumholz_ratio_model,
 Create the surface density profile in CO(2-1), assuming a factor to convert
 to the H2 mass.
 '''
+
+default_figure()
 
 co21_mass_conversion = 6.7 * (u.M_sun / u.pc ** 2) / (u.K * u.km / u.s)
 
@@ -87,7 +85,6 @@ rs_s, sd_s, sd_sigma_s = \
 sd_s /= beam_eff
 sd_sigma_s /= beam_eff
 
-p.ioff()
 p.errorbar(rs.value, np.log10(sd.value),
            yerr=0.434 * sd_sigma.value / sd.value, fmt="-", color="b",
            label=r"H$_2$", drawstyle='steps-mid')
@@ -96,8 +93,8 @@ p.xlabel(r"Radius (kpc)")
 # p.legend(loc='best')
 p.grid("on")
 
-p.savefig(paper1_figures_path("M33_Sigma_profile_co21_dr_{}pc.pdf".format(dr.value)))
-p.savefig(paper1_figures_path("M33_Sigma_profile_co21_dr_{}pc.png".format(dr.value)))
+p.savefig(paper1_figures_path("M33_Sigma_profile_co21_dr_{}pc.pdf".format(int(dr.value))))
+p.savefig(paper1_figures_path("M33_Sigma_profile_co21_dr_{}pc.png".format(int(dr.value))))
 p.close()
 # p.show()
 
@@ -118,8 +115,8 @@ p.xlabel(r"Radius (kpc)")
 p.legend(loc='best')
 p.grid("on")
 
-p.savefig(paper1_figures_path("M33_Sigma_profile_co21_N_S_dr_{}pc.pdf".format(dr.value)))
-p.savefig(paper1_figures_path("M33_Sigma_profile_co21_N_S_dr_{}pc.png".format(dr.value)))
+p.savefig(paper1_figures_path("M33_Sigma_profile_co21_N_S_dr_{}pc.pdf".format(int(dr.value))))
+p.savefig(paper1_figures_path("M33_Sigma_profile_co21_N_S_dr_{}pc.png".format(int(dr.value))))
 p.close()
 
 # p.show()
@@ -136,6 +133,8 @@ rs_hi, sd_hi, sd_sigma_hi = surfdens_radial_profile(gal, cube=hi_cube,
 # sd_sigma_hi /= 1.45
 
 # Overplot these two.
+onecolumn_figure(font_scale=1.0)
+
 p.errorbar(rs.value, np.log10(sd.value),
            yerr=0.434 * sd_sigma.value / sd.value, fmt="-", color="b",
            label=r"H$_2$", drawstyle='steps-mid')
@@ -144,11 +143,12 @@ p.errorbar(rs_hi.value, np.log10(sd_hi.value),
            label=r"HI", drawstyle='steps-mid')
 p.ylabel(r" log $\Sigma$ (M$_{\odot}$ pc$^{-2}$)")
 p.xlabel(r"Radius (kpc)")
-p.legend(loc='best')
+p.legend(loc='best', frameon=True)
 p.grid("on")
+p.tight_layout()
 
-p.savefig(paper1_figures_path("M33_Sigma_profile_hi_co21_dr_{}pc.pdf".format(dr.value)))
-p.savefig(paper1_figures_path("M33_Sigma_profile_hi_co21_dr_{}pc.png".format(dr.value)))
+p.savefig(paper1_figures_path("M33_Sigma_profile_hi_co21_dr_{}pc.pdf".format(int(dr.value))))
+p.savefig(paper1_figures_path("M33_Sigma_profile_hi_co21_dr_{}pc.png".format(int(dr.value))))
 p.close()
 
 # p.show()
@@ -184,11 +184,12 @@ p.xlabel("$\Sigma_{\mathrm{Gas}}$ (M$_{\odot}$ pc$^{-2}$)")
 p.ylabel("log H$_2$-to-HI Ratio $\Sigma_{\mathrm{H2}} / \Sigma_{\mathrm{HI}}$")
 p.xlim([2, 22])
 p.ylim([-4, 1])
-p.legend(loc='upper left')
+p.legend(loc='lower right')
 p.grid()
+p.tight_layout()
 
-p.savefig(paper1_figures_path("ratio_totalsigma_w_krumholzmodel_dr_{}pc.pdf".format(dr.value)))
-p.savefig(paper1_figures_path("ratio_totalsigma_w_krumholzmodel_dr_{}pc.png".format(dr.value)))
+p.savefig(paper1_figures_path("ratio_totalsigma_w_krumholzmodel_dr_{}pc.pdf".format(int(dr.value))))
+p.savefig(paper1_figures_path("ratio_totalsigma_w_krumholzmodel_dr_{}pc.png".format(int(dr.value))))
 p.close()
 
 # Gratier+16 find evidence for a dark CO component, at about ~5 Msol/pc^2.
@@ -226,11 +227,11 @@ p.xlabel("$\Sigma_{\mathrm{Gas}}$ (M$_{\odot}$ pc$^{-2}$)")
 p.ylabel("log H$_2$-to-HI Ratio $\Sigma_{\mathrm{H2}} / \Sigma_{\mathrm{HI}}$")
 p.xlim([2, 25])
 p.ylim([-4, 1])
-p.legend(loc='lower right')
+p.legend(loc='lower right', frameon=True)
 p.grid()
-# p.show()
-p.savefig(paper1_figures_path("ratio_totalsigma_dark_w_krumholzmodel_dr_{}pc.pdf".format(dr.value)))
-p.savefig(paper1_figures_path("ratio_totalsigma_dark_w_krumholzmodel_dr_{}pc.png".format(dr.value)))
+p.tight_layout()
+p.savefig(paper1_figures_path("ratio_totalsigma_dark_w_krumholzmodel_dr_{}pc.pdf".format(int(dr.value))))
+p.savefig(paper1_figures_path("ratio_totalsigma_dark_w_krumholzmodel_dr_{}pc.png".format(int(dr.value))))
 p.close()
 
 # But M33 has a known metallicity gradient, so we can do a bit better
@@ -262,15 +263,16 @@ clump_bresolin = optimize_clump_factors(total_sd, gas_ratio,
 p.plot(rs.value[:-1], clump_constz[:-1], 'bD-', label="Z=0.5")
 p.plot(rs.value[:-1], clump_rossim[:-1], 'ro--', label="Rosolowsky & Simon (2005)")
 p.plot(rs.value[:-1], clump_bresolin[:-1], 'gs-.', label="Bresolin (2011)")
-p.legend(loc='best')
+p.legend(loc='best', frameon=True)
+p.ylim([-1, 10])
 p.grid()
 p.ylabel("Clumping Factor")
 p.xlabel("Radius (kpc)")
+p.tight_layout()
 
-p.savefig(paper1_figures_path("clumpfactor_krumholzmodel_dr_{}pc.pdf".format(dr.value)))
-p.savefig(paper1_figures_path("clumpfactor_krumholzmodel_dr_{}pc.png".format(dr.value)))
+p.savefig(paper1_figures_path("clumpfactor_krumholzmodel_dr_{}pc.pdf".format(int(dr.value))))
+p.savefig(paper1_figures_path("clumpfactor_krumholzmodel_dr_{}pc.png".format(int(dr.value))))
 p.close()
-
 
 # Also plot the total gas surface density against the stellar surface density
 # from Corbelli
@@ -287,9 +289,10 @@ p.ylabel(r"log $\Sigma$ / (M$_{\odot}$ pc$^{-2}$)")
 p.xlabel(r"Radius (kpc)")
 p.legend(loc='best')
 p.grid()
+p.tight_layout()
 
-p.savefig(paper1_figures_path("M33_Sigma_profile_gas_stars_corbelli_{}pc.pdf".format(dr.value)))
-p.savefig(paper1_figures_path("M33_Sigma_profile_gas_stars_corbelli_{}pc.png".format(dr.value)))
+p.savefig(paper1_figures_path("M33_Sigma_profile_gas_stars_corbelli_{}pc.pdf".format(int(dr.value))))
+p.savefig(paper1_figures_path("M33_Sigma_profile_gas_stars_corbelli_{}pc.png".format(int(dr.value))))
 p.close()
 
 
@@ -330,8 +333,9 @@ p.xlabel(r"log Area-Weighted $\Sigma$ / (M$_{\odot}$ pc$^{-2}$)")
 p.ylim([0.25, 1.9])
 p.xlim([-2.1, 1.4])
 p.legend(loc='upper left')
-p.savefig(paper1_figures_path("hi_co_area_weighted_vs_mass_weighted_dr_{}pc.pdf".format(dr.value)))
-p.savefig(paper1_figures_path("hi_co_area_weighted_vs_mass_weighted_dr_{}pc.png".format(dr.value)))
+p.savefig(paper1_figures_path("hi_co_area_weighted_vs_mass_weighted_dr_{}pc.pdf".format(int(dr.value))))
+p.savefig(paper1_figures_path("hi_co_area_weighted_vs_mass_weighted_dr_{}pc.png".format(int(dr.value))))
+p.tight_layout()
 p.close()
 # The H2 (ie CO) is all over the place, and HI is clustered together and hard to see.
 # Make an HI only
@@ -345,10 +349,11 @@ p.ylabel(r"log Mass-Weighted $\Sigma$ / (M$_{\odot}$ pc$^{-2}$)")
 p.xlabel(r"log Area-Weighted $\Sigma$ / (M$_{\odot}$ pc$^{-2}$)")
 p.ylim([0.65, 1.0])
 p.xlim([0.65, 0.9])
+p.tight_layout()
 # p.legend(loc='upper left')
 
-p.savefig(paper1_figures_path("area_weighted_vs_mass_weighted_dr_{}pc.pdf".format(dr.value)))
-p.savefig(paper1_figures_path("area_weighted_vs_mass_weighted_dr_{}pc.png".format(dr.value)))
+p.savefig(paper1_figures_path("area_weighted_vs_mass_weighted_dr_{}pc.pdf".format(int(dr.value))))
+p.savefig(paper1_figures_path("area_weighted_vs_mass_weighted_dr_{}pc.png".format(int(dr.value))))
 p.close()
 
 # p.show()

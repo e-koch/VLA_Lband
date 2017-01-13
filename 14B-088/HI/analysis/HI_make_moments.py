@@ -53,7 +53,8 @@ mom4 = cube.moment(order=4, axis=0)
 # mom4_resc = (mom4.value - 3) ** 0.25 / 1000.
 
 # Normalize third moment by the linewidth to get the skewness
-kurt = mom4 / linewidth ** 4
+# And subtract 3 to correct for Gaussian kurtosis of 3.
+kurt = (mom4 / linewidth ** 4) - 3
 
 kurt.write(fourteenB_HI_data_path(kurt_name, no_check=True),
            overwrite=True)

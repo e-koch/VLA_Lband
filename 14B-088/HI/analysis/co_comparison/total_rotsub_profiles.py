@@ -15,6 +15,7 @@ from analysis.constants import (rotsub_cube_name, rotsub_mask_name,
                                 co21_mass_conversion, hi_freq,
                                 centroidsub_cube_name, centroidsub_mask_name)
 from analysis.galaxy_params import gal
+from analysis.plotting_styles import *
 
 '''
 Create profiles of HI and CO after rotation subtraction.
@@ -112,6 +113,7 @@ total_spectrum_co = total_spectrum_co_radial.sum(0)
 total_spectrum_co_cent = total_spectrum_co_radial_cent.sum(0)
 
 
+twocolumn_twopanel_figure()
 # Plot the profiles.
 fig, ax = p.subplots(1, 2, sharey=True)
 
@@ -126,11 +128,13 @@ ax[0].plot(co_cube.spectral_axis.to(u.km / u.s).value,
            'g--', drawstyle='steps-mid', label="CO(2-1)")
 ax[0].set_xlabel("Velocity (km/s)")
 ax[0].set_ylabel("Normalized Total Intensity")
-ax[0].set_title("Rotation subtracted")
+# ax[0].set_title("Rotation subtracted")
+ax[0].text(-45, 0.88, "Rotation\nsubtracted",
+           bbox={"boxstyle": "square", "facecolor": "w"})
 ax[0].set_ylim([-0.02, 1.1])
 ax[0].set_xlim([-50, 50])
 ax[0].grid()
-ax[0].legend()
+ax[0].legend(frameon=True)
 
 ax[1].plot(hi_cube_cent.spectral_axis.to(u.km / u.s).value,
            (total_spectrum_hi_cent / total_spectrum_hi_cent.max()).value,
@@ -139,18 +143,22 @@ ax[1].plot(hi_cube_cent.spectral_axis.to(u.km / u.s).value,
 ax[1].plot(co_cube.spectral_axis.to(u.km / u.s).value,
            (total_spectrum_co_cent / total_spectrum_co_cent.max()).value,
            'g--', drawstyle='steps-mid')
-ax[1].set_title("Centroid subtracted")
+# ax[1].set_title("Centroid subtracted")
+ax[1].text(-45, 0.88, "Centroid\nsubtracted",
+           bbox={"boxstyle": "square", "facecolor": "w"})
+
 ax[1].set_xlabel("Velocity (km/s)")
 ax[1].set_ylim([-0.02, 1.1])
 ax[1].set_xlim([-50, 50])
 ax[1].grid()
 
+p.tight_layout()
 p.draw()
 
 fig.savefig(paper1_figures_path("total_profile_corrected_velocity_HI_CO21.pdf"))
 fig.savefig(paper1_figures_path("total_profile_corrected_velocity_HI_CO21.png"))
 
-p.clf()
+p.close()
 # raw_input("Next plot?")
 
 # Total CO mass. Using 6.7 Msol / pc^2 / K km s^-1\
@@ -196,24 +204,37 @@ parnames = [n for n in g_HI.param_names if n not in ['mean_1']]
 parvals = [v for (n, v) in zip(g_HI.param_names, g_HI.parameters)
            if n in parnames]
 
-# Note that the statistical errors on the mean are too small.
+onecolumn_figure(fig_ratio=0.8)
 
+# Note that the statistical errors on the mean are too small.
+ax1 = p.subplot2grid((5, 1), (0, 0), rowspan=4)
 p.plot(vels, norm_intens, 'b-', drawstyle='steps-mid')
 p.plot(vels, g_HI(vels), 'k:', label="Total Fit")
 p.plot(vels, g_HI["None_0"](vels), 'g--', label="Narrow Component")
 p.plot(vels, g_HI["None_1"](vels), 'm-.', label="Wide Component")
-p.xlabel("Velocity (km/s)")
-p.ylabel("Total Normalized Intensity")
-p.xlim([-100, 100])
-p.legend()
+p.ylabel("HI Normalized Intensity")
+p.xticks([])
+p.xlim([-100, 130])
+p.legend(frameon=True)
 p.ylim([-0.1, 1.1])
 p.grid()
-p.draw()
+
+ax2 = p.subplot2grid((5, 1), (4, 0))
+p.plot(vels, norm_intens - g_HI(vels), 'b-', drawstyle='steps-mid')
+p.hlines(0.0, -100, 100, color='k')
+p.grid()
+p.ylim([-0.015, 0.015])
+p.xlim([-100, 130])
+p.xlabel("Velocity (km/s)")
+p.ylabel("Residuals")
+
+p.tight_layout()
+p.subplots_adjust(hspace=0)
 
 p.savefig(paper1_figures_path("total_profile_corrected_velocity_rotsub_hi_fit.pdf"))
 p.savefig(paper1_figures_path("total_profile_corrected_velocity_rotsub_hi_fit.png"))
 # raw_input("Next plot?")
-p.clf()
+p.close()
 
 fit_g = fitting.LevMarLSQFitter()
 
@@ -257,14 +278,28 @@ cov = fit_g_co.fit_info['param_cov']
 # Better sampling for plotting
 more_vels = np.arange(co_vels.min(), co_vels.max(), 0.5)
 
+ax1 = p.subplot2grid((5, 1), (0, 0), rowspan=4)
 p.plot(co_vels, norm_co_intens, 'b-', drawstyle='steps-mid')
-p.plot(more_vels, g_CO(more_vels), 'k--', label="Total Fit")
-p.xlabel("Velocity (km/s)")
-p.ylabel("Total Normalized Intensity")
+p.plot(more_vels, g_CO(more_vels), 'k--', label="Fit")
+p.ylabel("CO Normalized Intensity")
+p.xticks([])
 p.xlim([-100, 100])
+p.legend()
 p.ylim([-0.1, 1.1])
 p.grid()
-p.draw()
+
+ax2 = p.subplot2grid((5, 1), (4, 0))
+p.plot(co_vels, norm_co_intens - g_CO(co_vels), 'b-', drawstyle='steps-mid')
+p.hlines(0.0, -100, 100, color='k')
+p.grid()
+# p.ylim([-0.015, 0.015])
+p.xlim([-100, 100])
+p.yticks([-0.06, -0.03, 0.0, 0.03, 0.06])
+p.xlabel("Velocity (km/s)")
+p.ylabel("Residuals")
+
+p.tight_layout()
+p.subplots_adjust(hspace=0)
 
 p.savefig(paper1_figures_path("total_profile_corrected_velocity_co21_fit.pdf"))
 p.savefig(paper1_figures_path("total_profile_corrected_velocity_co21_fit.png"))
@@ -296,16 +331,17 @@ co_param_df.to_csv(iram_co21_data_path("tables/co_gaussian_totalprof_fits.csv",
 Nrows = 4
 Ncols = 3
 
-p.figure(1, figsize=(12, 20)).clf()
+twocolumn_figure(font_scale=1.3)
+p.figure(1, figsize=(8.4, 11)).clf()
 
 fig, ax = p.subplots(Nrows, Ncols,
                      sharex=True,
                      sharey=True, num=1)
 
-p.subplots_adjust(hspace=0.1,
-                  wspace=0.1)
+p.subplots_adjust(hspace=0.05,
+                  wspace=0.05)
 
-fig.text(0.5, 0.02, 'Velocity (km/s)', ha='center')
+fig.text(0.5, 0.04, 'Velocity (km/s)', ha='center')
 fig.text(0.04, 0.5, 'Normalized Intensity', va='center', rotation='vertical')
 
 
@@ -332,11 +368,11 @@ for ctr, (r0, r1) in enumerate(zip(inneredge,
 
     ax[r, c].annotate("{0} to {1}".format(r0.to(u.kpc).value, r1.to(u.kpc)),
                       xy=(-98, 0.65),
-                      color='k',
-                      fontsize=13)
+                      color='k', fontsize=10,
+                      bbox={"boxstyle": "square", "facecolor": "w"})
 
     if ctr == 0:
-        ax[r, c].legend(loc='upper left', fontsize=14)
+        ax[r, c].legend(loc='upper left', frameon=True)
     ax[r, c].grid()
 
 for r in range(Nrows):
@@ -347,6 +383,8 @@ for r in range(Nrows):
 
 fig.savefig(paper1_figures_path("total_profile_velocity_rotsub_hi_co_radial.pdf"))
 fig.savefig(paper1_figures_path("total_profile_velocity_rotsub_hi_co_radial.png"))
+
+p.close()
 
 # How do the model parameters change with radius?
 
@@ -486,35 +524,46 @@ co_velres = \
 hi_width_error = lambda val: np.sqrt(val**2 + hi_velres**2)
 co_width_error = lambda val: np.sqrt(val**2 + co_velres**2)
 
-fig, ax = p.subplots(1, 2, sharey=True)
+twocolumn_twopanel_figure()
 
-p.subplots_adjust(hspace=0.1,
-                  wspace=0.1)
+fig, ax = p.subplots(1, 2, sharey=True)
 
 ax[0].errorbar(bin_cents, hi_params["rotsub_stddev"],
                yerr=hi_width_error(hi_params["rotsub_stddev_stderr"]),
-               color='b', label='HI')
+               color='b', label='HI',
+               drawstyle='steps-mid')
 ax[0].errorbar(bin_cents, co_params["rotsub_stddev"],
                yerr=co_width_error(co_params["rotsub_stddev_stderr"]),
-               color='g', linestyle='--', label='CO(2-1)')
-ax[0].legend(loc='lower left')
+               color='g', linestyle='--', label='CO(2-1)',
+               drawstyle='steps-mid')
+ax[0].legend(loc='lower left', frameon=True)
 ax[0].grid()
-ax[0].set_title("Rotation subtracted")
+ax[0].set_ylim([0.25, 15])
+ax[0].text(3.5, 13.5, "Rotation subtracted",
+           bbox={"boxstyle": "square", "facecolor": "w"})
 ax[0].set_xlabel("Radius (kpc)")
-ax[0].set_ylabel("Gaussian Width (km/s)")
+ax[0].set_ylabel("Fitted Gaussian Width (km/s)")
 
 ax[1].errorbar(bin_cents, hi_params["centsub_stddev"],
                yerr=hi_width_error(hi_params["centsub_stddev_stderr"]),
-               color='b', label='HI')
+               color='b', label='HI',
+               drawstyle='steps-mid')
 ax[1].errorbar(bin_cents, co_params["centsub_stddev"],
                yerr=co_width_error(co_params["centsub_stddev_stderr"]),
-               color='g', linestyle='--', label='CO(2-1)')
-ax[1].legend(loc='lower left')
+               color='g', linestyle='--', label='CO(2-1)',
+               drawstyle='steps-mid')
 ax[1].grid()
-ax[1].set_title("Centroid subtracted")
 ax[1].set_xlabel("Radius (kpc)")
+ax[1].text(3.5, 13.5, "Centroid subtracted",
+           bbox={"boxstyle": "square", "facecolor": "w"})
+
+p.tight_layout()
+p.subplots_adjust(hspace=0.05,
+                  wspace=0.05)
 
 fig.savefig(paper1_figures_path("total_profile_radial_widths_HI_CO21.pdf"))
 fig.savefig(paper1_figures_path("total_profile_radial_widths_HI_CO21.png"))
 
-fig.close()
+p.close()
+
+default_figure()

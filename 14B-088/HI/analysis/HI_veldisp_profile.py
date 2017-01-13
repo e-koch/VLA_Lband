@@ -111,6 +111,8 @@ if __name__ == "__main__":
 
     from constants import moment0_name, lwidth_name
     from galaxy_params import gal
+    from plotting_styles import default_figure, onecolumn_figure
+
 
     lwidth_hdu = fits.open(fourteenB_HI_data_path(lwidth_name))[0]
     lwidth = Projection(lwidth_hdu.data, wcs=WCS(lwidth_hdu.header),
@@ -125,12 +127,14 @@ if __name__ == "__main__":
     sd = sd.to(u.km / u.s)
     sd_sigma = sd_sigma.to(u.km / u.s)
 
+    onecolumn_figure(font_scale=1.)
     p.errorbar(rs.value, sd.value,
                yerr=sd_sigma.value, fmt="-", color="b",
                drawstyle='steps-mid')
-    p.xlabel("R (kpc)")
+    p.xlabel("Radius (kpc)")
     p.ylabel("HI Velocity Dispersion (km/s)")
     p.grid()
+    p.tight_layout()
     p.draw()
 
     p.savefig(paper1_figures_path("hi_veldisp_profile.png"))
@@ -153,45 +157,51 @@ if __name__ == "__main__":
     sd_s = sd_s.to(u.km / u.s)
     sd_sigma_s = sd_sigma_s.to(u.km / u.s)
 
-    p.plot(rs.value, sd.value, "k-.",
-           drawstyle='steps-mid', label="Total")
-    p.plot(rs_n.value, sd_n.value, "b-", label="North",
+    # p.plot(rs.value, sd.value, "k-.",
+    #        drawstyle='steps-mid', label="Total")
+    p.plot(rs_n.value, sd_n.value, "r-.", label="North",
            drawstyle='steps-mid')
     p.plot(rs_s.value, sd_s.value, "g--", label="South",
            drawstyle='steps-mid')
-    p.xlabel("R (kpc)")
+    p.errorbar(rs.value, sd.value,
+               yerr=sd_sigma.value, fmt="-", color="b",
+               drawstyle='steps-mid', label='Total')
+    p.xlabel("Radius (kpc)")
     p.ylabel("HI Velocity Dispersion (km/s)")
     p.grid()
     p.legend()
+    p.tight_layout()
     p.draw()
 
     p.savefig(paper1_figures_path("hi_veldisp_profile_n_s.png"))
     p.savefig(paper1_figures_path("hi_veldisp_profile_n_s.pdf"))
 
     # raw_input("Next plot?")
-    p.clf()
+    p.close()
 
     # There are interesting drops at 1 and ~4.2 kpc. Plot these on the moment 0
-    mom0 = fits.getdata(fourteenB_HI_data_path(moment0_name))
+    # mom0 = fits.getdata(fourteenB_HI_data_path(moment0_name))
 
-    ax = p.subplot(121, projection=lwidth.wcs)
-    p.imshow(mom0, origin='lower')
-    radii = gal.radius(header=lwidth.header)
-    p.contour(radii <= 1 * u.kpc, colors='b')
-    p.contour(radii <= 4.2 * u.kpc, colors='g')
-    p.xlabel("")
-    ax.set_title("Zeroth Moment")
-    ax2 = p.subplot(122, projection=lwidth.wcs)
-    p.imshow(lwidth.value, origin='lower')
-    p.contour(radii <= 1 * u.kpc, colors='b')
-    p.contour(radii <= 4.2 * u.kpc, colors='g')
-    p.xlabel("")
-    ax2.set_title("Line Width")
-    lat = ax2.coords[1]
-    lat.set_ticklabel_visible(False)
-    p.draw()
+    # ax = p.subplot(121, projection=lwidth.wcs)
+    # p.imshow(mom0, origin='lower')
+    # radii = gal.radius(header=lwidth.header)
+    # p.contour(radii <= 1 * u.kpc, colors='b')
+    # p.contour(radii <= 4.2 * u.kpc, colors='g')
+    # p.xlabel("")
+    # ax.set_title("Zeroth Moment")
+    # ax2 = p.subplot(122, projection=lwidth.wcs)
+    # p.imshow(lwidth.value, origin='lower')
+    # p.contour(radii <= 1 * u.kpc, colors='b')
+    # p.contour(radii <= 4.2 * u.kpc, colors='g')
+    # p.xlabel("")
+    # ax2.set_title("Line Width")
+    # lat = ax2.coords[1]
+    # lat.set_ticklabel_visible(False)
+    # p.draw()
 
-    p.savefig(paper1_figures_path("moment0_w_veldisp_minima.png"))
-    p.savefig(paper1_figures_path("moment0_w_veldisp_minima.pdf"))
+    # p.savefig(paper1_figures_path("moment0_w_veldisp_minima.png"))
+    # p.savefig(paper1_figures_path("moment0_w_veldisp_minima.pdf"))
 
-    p.close()
+    # p.close()
+
+    default_figure()

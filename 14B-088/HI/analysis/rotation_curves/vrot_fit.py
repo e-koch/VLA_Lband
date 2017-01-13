@@ -99,6 +99,7 @@ if __name__ == "__main__":
                                 c_hi_analysispath)
 
     from analysis.constants import pb_lim
+    from analysis.plotting_styles import default_figure, onecolumn_figure
 
     make_plot = True
     make_rotmodel = True
@@ -149,6 +150,8 @@ if __name__ == "__main__":
 
     if make_plot:
 
+        onecolumn_figure(font_scale=1.0)
+
         phys_radius = data["r"] * scale * dist_scale
         plot_pars = pars.copy()
         plot_pars[2] *= scale * dist_scale
@@ -156,15 +159,18 @@ if __name__ == "__main__":
                    fmt='-', color='b', label="This work",
                    drawstyle='steps-mid')
         p.plot(phys_radius, vcirc(phys_radius, *plot_pars), 'r-')
-        p.ylabel(r"V$_{\mathrm{circ}}$ (km / s)")
+        p.ylabel(r"Circular Velocity (km / s)")
         p.xlabel(r"Radius (kpc)")
         p.grid()
         p.draw()
+
+        p.tight_layout()
+
         p.savefig(paper1_figures_path("M33_vrot_{}_wfit.pdf".format(params)))
         p.savefig(paper1_figures_path("M33_vrot_{}_wfit.png".format(params)))
 
         # raw_input("Next plot?")
-        p.clf()
+        p.close()
 
         # load in the Corbelli curve for comparison
         corbelli = Table.read(c_hi_analysispath("rotation_curves/corbelli_rotation_curve.csv"))
@@ -176,17 +182,20 @@ if __name__ == "__main__":
                    yerr=corbelli["dVr"][corbelli["R"] <= 8.0],
                    fmt='--', color='r', label="Corbelli et al. (2014)",
                    drawstyle='steps-mid')
-        p.ylabel(r"V$_{\mathrm{circ}}$ (km / s)")
+        p.ylabel(r"Circular Velocity (km / s)")
         p.xlabel(r"Radius (kpc)")
         p.legend(loc='lower right')
         p.grid()
         p.draw()
 
+        p.tight_layout()
+
         p.savefig(paper1_figures_path("M33_vrot_{}_wCorbelli.pdf".format(params)))
         p.savefig(paper1_figures_path("M33_vrot_{}_wCorbelli.png".format(params)))
 
         p.close()
-        p.ion()
+
+        default_figure()
 
     if make_rotmodel:
 

@@ -10,10 +10,12 @@ from astropy.io import fits
 import astropy.units as u
 import pandas as pd
 import numpy as np
+import seaborn as sb
 
 from paths import fourteenB_HI_data_path, paper1_figures_path
 from constants import pb_lim
 from galaxy_params import gal
+from plotting_styles import default_figure, onecolumn_figure
 
 
 # Requires that diskfit has already been run on these 3 surfaces!
@@ -36,7 +38,8 @@ scale = wcs.utils.proj_plane_pixel_scales(mom1_wcs)[0]
 # Distance scaling (1" ~ 4 pc). Conversion is deg to kpc
 dist_scale = (np.pi / 180.) * gal.distance.to(u.kpc).value
 
-
+onecolumn_figure(font_scale=1.0)
+sb.set_palette("afmhot")
 # Plot the rotation curves
 plt.errorbar(cent_tab["r"] * scale * dist_scale, cent_tab["Vt"],
              yerr=cent_tab["eVt"], markersize=7,
@@ -50,11 +53,13 @@ plt.errorbar(gh_tab["r"] * scale * dist_scale, gh_tab["Vt"],
              yerr=gh_tab["eVt"], markersize=7,
              label='Gauss-Hermite Fit', fmt='+-', alpha=0.8)
 
-plt.legend(loc='lower right')
+plt.legend(loc='lower right', frameon=True)
 plt.grid()
 
-plt.ylabel(r"V$_{\rm circ}$ (km/s)")
+plt.ylabel("Circular Velocity (km/s)")
 plt.xlabel("Radius (kpc)")
+
+plt.tight_layout()
 
 plt.savefig(paper1_figures_path("HI_rotation_curve_comparisons.png"))
 plt.savefig(paper1_figures_path("HI_rotation_curve_comparisons.pdf"))

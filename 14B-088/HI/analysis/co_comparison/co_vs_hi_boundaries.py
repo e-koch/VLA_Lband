@@ -8,7 +8,6 @@ import matplotlib.pyplot as p
 import scipy.ndimage as nd
 from scipy.stats import binned_statistic
 import numpy as np
-from skimage.morphology import medial_axis
 from reproject import reproject_interp
 from skimage.segmentation import find_boundaries
 from astropy.utils.console import ProgressBar
@@ -17,6 +16,11 @@ from analysis.paths import (fourteenB_HI_data_path, iram_co21_data_path,
                             paper1_figures_path)
 from analysis.constants import rotsub_cube_name, hi_freq
 from analysis.galaxy_params import gal
+from analysis.plotting_styles import (default_figure, twocolumn_figure,
+                                      onecolumn_figure)
+
+
+default_figure()
 
 '''
 Calculate the intensities of HI and CO as a function of distance from the
@@ -185,6 +189,9 @@ pixscale = \
 
 bin_centers *= pixscale
 
+
+onecolumn_figure()
+
 p.errorbar(bin_centers, hi_vals / np.nanmax(hi_vals),
            yerr=hi_errs / np.nanmax(hi_vals), fmt="D-",
            color="b", label="HI")
@@ -198,18 +205,20 @@ p.errorbar(bin_centers, co_vals / np.nanmax(co_vals),
 #        label="CO(2-1)")
 # p.xlim([0.0, 200])
 p.ylim([0.0, 1.1])
+p.xlim([-400, 220])
 p.xlabel("Distance from mask edge (pc)")
 p.ylabel("Normalized Intensity")
 p.vlines(0.0, 0.0, 1.1, 'k')
-p.legend(loc='upper left')
+p.legend(loc='upper left', frameon=True)
 p.grid()
+p.tight_layout()
 p.draw()
 
 p.savefig(paper1_figures_path("mask_edge_radial_profiles.pdf"))
 p.savefig(paper1_figures_path("mask_edge_radial_profiles.png"))
 
 # raw_input("Next plot?")
-p.clf()
+p.close()
 
 # Show the total number of elements in each distance bin
 
@@ -217,43 +226,44 @@ p.semilogy(bin_centers, binned_elements, 'bD-')
 p.xlabel("Distance from mask edge (pc)")
 p.ylabel("Number of pixels")
 p.grid()
+p.tight_layout()
 
 p.savefig(paper1_figures_path("mask_edge_radial_profiles_numbin.pdf"))
 p.savefig(paper1_figures_path("mask_edge_radial_profiles_numbin.png"))
 
 # raw_input("Next plot?")
-p.clf()
+p.close()
 
 # Now investigate the significance of the distance correlations.
 # Randomize the order of the CO and HI intensities.
 
-hi_rand_vals = \
-    binned_statistic(all_dists, np.random.permutation(all_vals_hi),
-                     bins=bins,
-                     statistic=np.nanmean)[0]
+# hi_rand_vals = \
+#     binned_statistic(all_dists, np.random.permutation(all_vals_hi),
+#                      bins=bins,
+#                      statistic=np.nanmean)[0]
 
-co_rand_vals = \
-    binned_statistic(all_dists, np.random.permutation(all_vals_co),
-                     bins=bins,
-                     statistic=np.nanmean)[0]
+# co_rand_vals = \
+#     binned_statistic(all_dists, np.random.permutation(all_vals_co),
+#                      bins=bins,
+#                      statistic=np.nanmean)[0]
 
-p.plot(bin_centers, hi_rand_vals / np.nanmax(hi_rand_vals), 'bD-',
-       label="HI")
-p.plot(bin_centers, co_rand_vals / np.nanmax(co_rand_vals), 'ro-',
-       label="CO(2-1)")
-# p.xlim([0.0, 200])
-p.ylim([0.0, 1.1])
-p.xlabel("Distance from mask edge (pc)")
-p.ylabel("Normalized Intensity")
-p.legend(loc='upper left')
-p.grid()
-p.draw()
+# p.plot(bin_centers, hi_rand_vals / np.nanmax(hi_rand_vals), 'bD-',
+#        label="HI")
+# p.plot(bin_centers, co_rand_vals / np.nanmax(co_rand_vals), 'ro-',
+#        label="CO(2-1)")
+# # p.xlim([0.0, 200])
+# p.ylim([0.0, 1.1])
+# p.xlabel("Distance from mask edge (pc)")
+# p.ylabel("Normalized Intensity")
+# p.legend(loc='upper left')
+# p.grid()
+# p.draw()
 
-p.savefig(paper1_figures_path("mask_edge_radial_profiles_randbin.pdf"))
-p.savefig(paper1_figures_path("mask_edge_radial_profiles_randbin.png"))
+# p.savefig(paper1_figures_path("mask_edge_radial_profiles_randbin.pdf"))
+# p.savefig(paper1_figures_path("mask_edge_radial_profiles_randbin.png"))
 
-# raw_input("Next plot?")
-p.clf()
+# # raw_input("Next plot?")
+# p.close()
 
 # Compare the CDFs of the intensities within the masks to demonstrate CO
 # is not colocated with all of the HI
@@ -271,6 +281,7 @@ p.grid()
 p.ylim([-0.05, 1.05])
 p.ylabel("CDF")
 p.xlabel("HI Integrated Intensity (K km/s)")
+p.tight_layout()
 p.draw()
 
 p.savefig(paper1_figures_path("inmask_hi_co_cdfs.pdf"))
@@ -290,17 +301,18 @@ outeredge = np.linspace(dr, max_radius, nbins)
 Nrows = 4
 Ncols = 3
 
-p.figure(1, figsize=(12, 20)).clf()
+twocolumn_figure()
+p.figure(1, figsize=(8.4, 11)).clf()
 
 fig, ax = p.subplots(Nrows, Ncols,
                      sharex=True,
                      sharey=True, num=1)
 
+fig.text(0.5, 0.04, 'Distance from mask edge (pc)', ha='center')
+fig.text(0.04, 0.5, 'Normalized Intensity', va='center', rotation='vertical')
+
 p.subplots_adjust(hspace=0.1,
                   wspace=0.1)
-
-fig.text(0.5, 0.02, 'Distance from mask edge (pc)', ha='center')
-fig.text(0.04, 0.5, 'Normalized Intensity', va='center', rotation='vertical')
 
 for ctr, (r0, r1) in enumerate(zip(inneredge,
                                    outeredge)):
@@ -356,24 +368,28 @@ for ctr, (r0, r1) in enumerate(zip(inneredge,
     ax[r, c].annotate("{0} to {1}".format(r0.to(u.kpc).value, r1.to(u.kpc)),
                       xy=(-360, 0.65),
                       color='k',
-                      fontsize=14)
+                      fontsize=12,
+                      bbox={"boxstyle": "square", "facecolor": "w"})
 
     ax[r, c].set_ylim([0.0, 1.1])
+    ax[r, c].set_xlim([-400, 220])
     # ax[r, c].set_xlabel("Distance from mask edge (pc)")
     # ax[r, c].set_ylabel("Normalized Intensity")
     # p.title("Radii {} to {}".format(r0, r1))
     ax[r, c].vlines(0.0, 0.0, 1.1, 'k')
     if ctr == 0:
-        ax[r, c].legend(loc='upper left', fontsize=14)
+        ax[r, c].legend(loc='upper left', fontsize=12, frameon=True)
     ax[r, c].grid()
 
-for r in range(Nrows):
-    for c in range(Ncols):
-        if r == Nrows - 1:
-            ax[r, c].set_xticklabels(ax[r, c].xaxis.get_majorticklabels(),
-                                     rotation=45)
+# for r in range(Nrows):
+#     for c in range(Ncols):
+#         if r == Nrows - 1:
+#             ax[r, c].set_xticklabels(ax[r, c].xaxis.get_majorticklabels(),
+#                                      rotation=45)
 
 fig.savefig(paper1_figures_path("mask_edge_radial_profiles_byradius.pdf"))
 fig.savefig(paper1_figures_path("mask_edge_radial_profiles_byradius.png"))
 
 p.close()
+
+default_figure()

@@ -12,6 +12,7 @@ from paths import (fourteenB_HI_data_path, arecibo_HI_data_path,
                    paper1_figures_path, paper1_tables_path)
 from constants import cube_name, mask_name
 from galaxy_params import gal
+from plotting_styles import onecolumn_figure, default_figure
 
 '''
 Sum over all spectra above 3 sigma. Overplot with single-dish Arecibo.
@@ -62,6 +63,7 @@ for chan in ProgressBar(range(cube.shape[0])):
 total_spectrum = total_spectrum * u.Jy
 total_spectrum_arecibo = total_spectrum_arecibo * u.Jy
 
+onecolumn_figure(font_scale=1.0)
 p.plot(cube.spectral_axis.to(u.km / u.s).value, total_spectrum.value, 'b-',
        label="VLA", drawstyle='steps-mid')
 p.plot(arecibo.spectral_axis.to(u.km / u.s).value,
@@ -69,13 +71,16 @@ p.plot(arecibo.spectral_axis.to(u.km / u.s).value,
        drawstyle='steps-mid')
 p.ylabel("Total Intensity (Jy)")
 p.xlabel("Velocity (km/s)")
-p.legend(loc='upper left')
+p.legend(loc='upper left', frameon=True)
 p.grid()
+p.tight_layout()
 
 p.savefig(paper1_figures_path("total_profile.pdf"))
 p.savefig(paper1_figures_path("total_profile.png"))
 
 p.close()
+
+default_figure()
 
 # Now we can get the total mass
 

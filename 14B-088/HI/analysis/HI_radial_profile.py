@@ -185,6 +185,8 @@ if __name__ == "__main__":
 
     from constants import hi_freq, moment0_name
     from galaxy_params import gal
+    from plotting_styles import (default_figure, onecolumn_figure,
+                                 twocolumn_twopanel_figure)
 
     mom0_hdu = fits.open(fourteenB_HI_data_path(moment0_name))[0]
     mom0 = Projection(mom0_hdu.data, wcs=WCS(mom0_hdu.header),
@@ -243,8 +245,7 @@ if __name__ == "__main__":
         surfdens_radial_profile(gal, cube=arch_cube, mom0=arch_mom0, dr=dr,
                                 restfreq=hi_freq)
 
-    p.ioff()
-
+    onecolumn_figure(font_scale=1.)
     # Show the total radial profile VLA and Arecibo
     p.errorbar(rs.value, sd.value / scale_factor,
                yerr=sd_sigma.value / scale_factor, fmt="-", color="b",
@@ -253,15 +254,18 @@ if __name__ == "__main__":
            label="Arecibo")
     # p.errorbar(rs_arec.value, sd_arec.value, yerr=sd_sigma_arec.value,
     #            fmt="o--", color="g", label="Arecibo", drawstyle='steps-mid')
-    p.ylabel(r"$\Sigma$ (M$_{\odot}$ pc$^{-2}$)")
-    p.xlabel(r"R (kpc)")
+    p.ylabel(r"$\Sigma_{\rm HI}$ (M$_{\odot}$ pc$^{-2}$)")
+    p.xlabel(r"Radius (kpc)")
     p.legend(loc='best')
     p.grid("on")
+    p.tight_layout()
+
     p.savefig(paper1_figures_path("M33_Sigma_profile_w_Arecibo.pdf"))
     p.savefig(paper1_figures_path("M33_Sigma_profile_w_Arecibo.png"))
-    p.clf()
+    p.close()
 
     # W/ archival VLA
+    ax = p.subplot(111)
     p.errorbar(rs.value, sd.value / scale_factor,
                yerr=sd_sigma.value / scale_factor, fmt="-", color="b",
                label="VLA", drawstyle='steps-mid')
@@ -270,20 +274,31 @@ if __name__ == "__main__":
     p.errorbar(rs_arch.value, sd_arch.value, yerr=sd_sigma_arec.value,
                color="r", fmt="-.", drawstyle='steps-mid',
                label="Archival VLA")
+    import matplotlib.patches as patches
+    ax.add_patch(patches.Rectangle((1.9, 0.3), 1.2, 1.4, facecolor='w', edgecolor='k'))
     # p.errorbar(rs_arec.value, sd_arec.value, yerr=sd_sigma_arec.value,
     #            fmt="o--", color="g", label="Arecibo", drawstyle='steps-mid')
-    p.ylabel(r"$\Sigma$ (M$_{\odot}$ pc$^{-2}$)")
-    p.xlabel(r"R (kpc)")
-    p.legend(loc='best')
+    # Add lines according to the beam widths
+    conv = 4.e-3 * u.kpc / u.arcsec
+    p.plot([2, 2 + (arecibo_cube.beam.major.to(u.arcsec) * conv).value], [1.5, 1.5], 'g')
+    p.plot([2, 2 + (mom0.meta['beam'].major.to(u.arcsec) * conv).value], [1.0, 1.0], 'b')
+    p.plot([2, 2 + (arch_cube.beam.major.to(u.arcsec) * conv).value], [0.5, 0.5], 'r')
+    p.ylabel(r"$\Sigma_{\rm HI}$ (M$_{\odot}$ pc$^{-2}$)")
+    p.xlabel(r"Radius (kpc)")
+    p.ylim([0, 8])
+    p.xlim([0, 13])
+    p.legend(loc='upper right')
     p.grid("on")
+    p.tight_layout()
+
     p.savefig(paper1_figures_path("M33_Sigma_profile_w_Arecibo_archival.pdf"))
     p.savefig(paper1_figures_path("M33_Sigma_profile_w_Arecibo_archival.png"))
-    p.clf()
+    p.close()
 
     # Show the north vs south profiles
-    p.plot(rs.value, sd.value / scale_factor, "k-.",
+    p.plot(rs.value, sd.value / scale_factor, "b",
            drawstyle='steps-mid', label="Total")
-    p.plot(rs_n.value, sd_n.value / scale_factor, "b-", label="North",
+    p.plot(rs_n.value, sd_n.value / scale_factor, "r-.", label="North",
            drawstyle='steps-mid')
     p.plot(rs_s.value, sd_s.value / scale_factor, "g--", label="South",
            drawstyle='steps-mid')
@@ -291,13 +306,16 @@ if __name__ == "__main__":
     #            color="b", label="North")
     # p.errorbar(rs_s.value, sd_s.value, yerr=sd_sigma_s.value, fmt="o-",
     #            color="g", label="South")
-    p.ylabel(r"$\Sigma$ (M$_{\odot}$ pc$^{-2}$)")
-    p.xlabel(r"R (kpc)")
+    p.ylabel(r"$\Sigma_{\rm HI}$ (M$_{\odot}$ pc$^{-2}$)")
+    p.xlabel(r"Radius (kpc)")
     p.legend(loc='best')
     p.grid("on")
+    p.ylim([0, 8])
+    p.xlim([0, 13])
+    p.tight_layout()
     p.savefig(paper1_figures_path("M33_Sigma_profile_N_S.pdf"))
     p.savefig(paper1_figures_path("M33_Sigma_profile_N_S.png"))
-    p.clf()
+    p.close()
 
     # Compare to the surface density profile in Corbelli
     corbelli_filename = \
@@ -312,11 +330,12 @@ if __name__ == "__main__":
            drawstyle='steps-mid',
            label="Corbelli et al. (2014)")
     p.ylabel(r"$\Sigma$ (M$_{\odot}$ pc$^{-2}$)")
-    p.xlabel(r"R (kpc)")
+    p.xlabel(r"Radius (kpc)")
     p.legend(loc='best')
     p.grid()
+    p.tight_layout()
     p.savefig(paper1_figures_path("M33_Sigma_profile_w_Corbelli.pdf"))
     p.savefig(paper1_figures_path("M33_Sigma_profile_w_Corbelli.png"))
-    p.clf()
+    p.close()
 
-    p.ion()
+    default_figure()

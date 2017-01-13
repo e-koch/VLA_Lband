@@ -23,6 +23,7 @@ from analysis.paths import (fourteenB_HI_data_path, iram_co21_data_path,
 from analysis.constants import rotsub_cube_name, hi_freq, cube_name, moment1_name
 from analysis.galaxy_params import gal
 from analysis.spectra_shifter import cube_shifter
+from analysis.plotting_styles import onecolumn_figure
 
 
 # Set the same origin for double axis plots
@@ -163,6 +164,13 @@ for i in ProgressBar(num_clouds):
     cloud_avg_specs_hi[i] = (hi_spec * hi_beam.jtok(hi_freq).value) / hi_count
 
     if verbose:
+
+        onecolumn_figure()
+        sb.set_context("paper", rc={"font.family": "serif",
+                                    "figure.figsize": np.array([7.325, 5.9375])},
+                       font_scale=1.5)
+        sb.set_palette("afmhot")
+
         fig, ax = plt.subplots(3, 1,
                                sharex=True,
                                sharey=False, num=1)
@@ -172,29 +180,29 @@ for i in ProgressBar(num_clouds):
 
         fig.text(0.5, 0.02, 'Velocity (km/s)', ha='center')
 
-        ax[0].plot(hi_cube.spectral_axis.value,
+        ax[0].plot(hi_cube.spectral_axis.to(u.km / u.s).value,
                    cloud_avg_specs_hi[i], 'b',
                    drawstyle='steps-mid', label='HI')
         # For the legend
         ax[0].plot([], [], 'r--', label="CO(2-1)")
         ax2 = ax[0].twinx()
-        ax2.plot(cube.spectral_axis.value,
-                 cloud_avg_specs_co[i],
+        ax2.plot(cube.spectral_axis.to(u.km / u.s).value,
+                 cloud_avg_specs_co[i] * 1000.,
                  'r--',
                  drawstyle='steps-mid', label='CO(2-1)')
         align_yaxis(ax[0], 0, ax2, 0)
         # ax[0].set_ylim([0, 1])
-        ax[0].set_xlim([gal.vsys.to(u.m / u.s).value - 40000,
-                        gal.vsys.to(u.m / u.s).value + 40000])
+        ax[0].set_xlim([gal.vsys.to(u.km / u.s).value - 40,
+                        gal.vsys.to(u.km / u.s).value + 40])
         ax[0].set_ylabel("HI Intensity (K)")
-        ax2.set_ylabel("CO Intensity (K)")
+        ax2.set_ylabel("CO Intensity (mK)")
         ax[0].grid()
 
-        ax[0].legend()
+        ax[0].legend(frameon=True, loc='upper right')
 
         for spec in hi_shifted[0]:
             if not np.isnan(spec).all():
-                ax[1].plot(hi_cube.spectral_axis.value,
+                ax[1].plot(hi_cube.spectral_axis.to(u.km / u.s).value,
                            spec.value * hi_beam.jtok(hi_freq).value, '--',
                            alpha=0.5, drawstyle='steps-mid')
         ax[1].set_ylabel("HI Intensity (K)")
@@ -202,12 +210,11 @@ for i in ProgressBar(num_clouds):
 
         for spec in co_shifted[0]:
             if not np.isnan(spec).all():
-                ax[2].plot(cube.spectral_axis.value, spec.value, '--',
+                ax[2].plot(cube.spectral_axis.to(u.km / u.s).value,
+                           spec.to(u.mK).value, '--',
                            alpha=0.5, drawstyle='steps-mid')
-        ax[2].set_ylabel("CO Intensity (K)")
+        ax[2].set_ylabel("CO Intensity (mK)")
         ax[2].grid()
-
-        # plt.draw()
 
         # raw_input("?")
         fig.savefig(paper1_figures_path("GMC_CO_peakshift/GMC_CO_peakshift"

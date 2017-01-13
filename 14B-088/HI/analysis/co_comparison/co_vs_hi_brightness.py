@@ -43,7 +43,6 @@ nan_vals = ~np.logical_or(np.isnan(hi_vals), np.isnan(co_vals))
 all_vals = np.vstack([hi_vals.value[nan_vals],
                       co_vals.value[nan_vals]])
 
-# onecolumn_figure()
 default_figure()
 sb.set_context("paper", rc={"figure.figsize": np.array([6.4, 5.8])},
                font_scale=1.5)

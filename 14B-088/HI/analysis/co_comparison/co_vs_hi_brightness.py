@@ -1,7 +1,7 @@
-from astropy.io import fits
 import matplotlib.pyplot as p
 import numpy as np
 from astropy import units as u
+from astropy.stats import mad_std
 from spectral_cube import SpectralCube
 import seaborn as sb
 # import pandas as pd
@@ -43,6 +43,12 @@ nan_vals = ~np.logical_or(np.isnan(hi_vals), np.isnan(co_vals))
 all_vals = np.vstack([hi_vals.value[nan_vals],
                       co_vals.value[nan_vals]])
 
+# Estimates of the noise level.
+# Now the bowls will cause this to be a bit of an overestimation. But we're
+# only using this value for the plot. A few far outliers will be down-weighted
+# from using the MAD std.
+hi_std = mad_std(hi_vals[hi_vals < 0])
+
 default_figure()
 sb.set_context("paper", rc={"figure.figsize": np.array([6.4, 5.8])},
                font_scale=1.5)
@@ -54,8 +60,8 @@ p.hlines(0.0, -20, 110, color='k', linestyle='-')
 p.vlines(0.0, -0.2, 1.4, color='k', linestyle='-')
 
 # Noise limits.
-p.hlines(0.04066, -20, 110, color='r', linestyle='--')
-p.vlines(7.5, -0.2, 1.4, color='r', linestyle='--')
+p.hlines(3 * 0.02033, -20, 110, color='r', linestyle='--')
+p.vlines(3 * hi_std.value, -0.2, 1.4, color='r', linestyle='--')
 
 p.ylabel("CO Intensity (K)")
 p.xlabel("HI Intensity (K)")

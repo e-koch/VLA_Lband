@@ -42,7 +42,7 @@ ax.add_patch(beam.ellipse_to_plot(int(0.05 * moment0.shape[0]),
                                   int(0.05 * moment0.shape[1]), pixscale))
 
 cbar = plt.colorbar(im)
-cbar.set_label(r"Intensity (K km s$^{-1}$)")
+cbar.set_label(r"Integrated Intensity (K km s$^{-1}$)")
 
 # raw_input("?")
 

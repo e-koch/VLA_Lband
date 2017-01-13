@@ -141,3 +141,9 @@ execfile(c_hi_analysispath("co_comparison/co_hi_cloud_spectra.py"))
 # Tpeak of CO vs. the velocity offset of the HI rotation model and the peak
 # CO velocity,
 execfile(c_hi_analysispath("co_comparison/co_hi_peakoffset.py"))
+
+# Make a HI version regridded to the CO cube.CO
+execfile(c_hi_analysispath("co_comparison/hi_regrid_to_co.py"))
+
+# Make a point-by-point comparison between HI and CO temperatures.
+execfile(c_hi_analysispath("co_comparison/co_vs_hi_brightness.py"))

@@ -7,11 +7,20 @@ import matplotlib.pyplot as p
 from scipy import ndimage as nd
 from astropy.wcs.utils import proj_plane_pixel_scales
 from astropy.utils.console import ProgressBar
+from astropy.wcs.utils import proj_plane_pixel_area
+from astropy.io import fits
+from radio_beam import Beam
+from astropy.visualization import AsinhStretch
+from astropy.visualization.mpl_normalize import ImageNormalize
+from reproject import reproject_interp
+import seaborn as sb
 
 from rotation_curves.vrot_fit import return_smooth_model
 from paths import (fourteenB_HI_data_path, iram_co21_data_path,
                    paper1_figures_path)
 from galaxy_params import gal
+from plotting_styles import onecolumn_figure, default_figure, twocolumn_figure
+from constants import moment0_name, hi_freq
 
 try:
     from corner import hist2d
@@ -45,6 +54,7 @@ co_avg_noise = 20.33 * u.mK
 
 # Only keep peaks above 3 sigma.
 min_snr = 5.
+min_pts = 2
 
 Tpeak = np.zeros(cube.shape[1:]) * u.K
 vel_Tpeak = np.zeros(cube.shape[1:]) * u.m / u.s
@@ -79,6 +89,7 @@ Tpeak_mask = nd.binary_closing(Tpeak_mask, beam_kern)
 vel_diff_values = vel_diff.value[Tpeak_mask & np.isfinite(Tpeak)]
 Tpeak_values = Tpeak.value[Tpeak_mask & np.isfinite(Tpeak)]
 
+onecolumn_figure(font_scale=1.1)
 hist2d(vel_diff_values, Tpeak_values, bins=16, data_kwargs={"alpha": 0.6},
        range=[(0.0, 30.0),
               (0.0, np.max(Tpeak_values))])
@@ -87,7 +98,67 @@ p.hlines(co_avg_noise.to(u.K).value * min_snr, 0.0, 30.0, color='r',
 p.ylabel(r"T$_\mathrm{peak, CO}$ (K)")
 p.xlabel(r"|V$_\mathrm{peak, CO}$ - V$_\mathrm{rot, HI}$| (km/s)")
 p.grid()
+p.tight_layout()
 
 p.savefig(paper1_figures_path("co21_Tpeak_velocity_offset.pdf"))
 p.savefig(paper1_figures_path("co21_Tpeak_velocity_offset.png"))
 p.close()
+
+# Where do the outliers occur
+moment0 = fits.open(fourteenB_HI_data_path(moment0_name))[0]
+
+moment0_reproj = reproject_interp(moment0, cube.wcs.celestial,
+                                  shape_out=vel_diff.shape)[0]
+
+beam = Beam.from_fits_header(moment0.header)
+
+moment0_Kkm_s = beam.jtok(hi_freq).value * moment0_reproj / 1000.
+
+pixscale = np.sqrt(proj_plane_pixel_area(cube.wcs.celestial))
+
+twocolumn_figure(fig_ratio=0.95, font_scale=1.2)
+sb.set_palette("colorblind")
+
+ax = p.subplot(111, projection=cube.wcs.celestial)
+im = ax.imshow(moment0_Kkm_s,
+               origin='lower',
+               interpolation='nearest',
+               norm=ImageNormalize(vmin=-0.001,
+                                   vmax=np.nanmax(moment0_Kkm_s),
+                                   stretch=AsinhStretch()))
+ax.set_ylabel("DEC (J2000)")
+ax.set_xlabel("RA (J2000)")
+ax.set_ylim([260, 900])
+ax.set_xlim([130, 620])
+# ax.add_patch(beam.ellipse_to_plot(int(0.05 * moment0.shape[0]),
+#                                   int(0.05 * moment0.shape[1]), pixscale))
+
+# Where are the velocity outliers spatially?
+# Assign colours to points based on their percentile in the distribution
+
+percs = np.percentile(vel_diff_values[vel_diff_values < 50],
+                      [85, 95, 99, 99.5])
+labels = ["85%", "95%", "99%", "99.5%"]
+labels = ["> {0} km/s ({1})".format(round(perc, 1), label)
+          for perc, label in zip(percs, labels)]
+
+cols = ["D", "s", "o", "^"]
+
+nonan_vel_diff = vel_diff.copy()
+nonan_vel_diff[np.isnan(nonan_vel_diff)] = 0.0 * u.km / u.s
+nonan_vel_diff *= Tpeak_mask * np.isfinite(Tpeak)
+
+for perc, col, label in zip(percs, cols, labels):
+    ypos, xpos = np.where(np.abs(nonan_vel_diff.value) > perc)
+    p.plot(xpos, ypos, col, label=label)
+
+p.legend(loc='lower left', frameon=True)
+
+cbar = p.colorbar(im)
+cbar.set_label(r"Integrated Intensity (K km s$^{-1}$)")
+
+p.savefig(paper1_figures_path("co21_HI_velocity_offset_outliers.pdf"))
+p.savefig(paper1_figures_path("co21_HI_velocity_offset_outliers.png"))
+p.close()
+
+default_figure()

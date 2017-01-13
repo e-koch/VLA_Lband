@@ -104,7 +104,8 @@ if __name__ == "__main__":
     mom0.meta['beam'] = beam
 
     # Create the bubble mask instead of letting FilFinder to do it.
-    bub = BubbleFinder2D(mom0, sigma=80. * beam.jtok(hi_freq) / 1000.)
+    bub = BubbleFinder2D(mom0, sigma=60)
+    bub.create_mask(bkg_nsig=6, region_min_nsig=7, fill_radius=1)
 
     # fils = fil_finder_2D(mom0.value, mom0.header, 10, distance=0.84e6)
     # fils.mask = ~(bub.mask.copy())
@@ -120,6 +121,15 @@ if __name__ == "__main__":
     # Fit Errors: [ 0.89151974  0.48394493  0.27313627  1.1462345 ]
 
     skeleton = medial_axis(~bub.mask)
+
+    # Reject regions that don't have enough pixels
+    beam_pix = int(np.ceil(beam.major.value / mom0.header["CDELT2"]))
+    labels, n = nd.label(skeleton, np.ones((3, 3)))
+    num_pixels = nd.sum(skeleton, labels, range(1, n + 1))
+    for i, pix in enumerate(num_pixels):
+        # Longer than ~3 beam widths.
+        if pix < 3 * beam_pix:
+            skeleton[np.where(labels == i + 1)] = False
 
     # Overplot the skeleton on the moment0
     ax = p.subplot(111, projection=mom0.wcs)

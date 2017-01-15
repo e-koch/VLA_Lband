@@ -22,6 +22,9 @@ del cube._header[""]
 
 hi_cube = SpectralCube.read(fourteenB_HI_data_path(regridco_cube_name))
 
+# Cut the CO data to the same spectral extent of the HI
+cube = cube.spectral_slab(*hi_cube.spectral_extrema)
+
 # Apply masks out to 6 kpc to avoid CO map edges
 radii = gal.radius(header=cube.header).to(u.kpc)
 max_rad = 6 * u.kpc

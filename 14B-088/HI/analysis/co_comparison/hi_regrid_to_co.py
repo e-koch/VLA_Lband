@@ -23,6 +23,9 @@ hi_conv_cube = hi_conv_cube.spectral_interpolate(cube.spectral_axis)
 
 hi_conv_cube = hi_conv_cube.reproject(cube.header)
 
+# Cut the velocity axis to the extrema of the original cube.
+hi_conv_cube = hi_conv_cube.spectral_slab(*hi_cube.spectral_extrema)
+
 # For some reason, the velocity axis in the data needs to be flipped.
 # Look into where this is happening in spectral_cube
 hi_hdu = hi_conv_cube.hdu.copy()

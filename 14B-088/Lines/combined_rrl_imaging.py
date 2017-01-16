@@ -11,7 +11,7 @@ import json
 
 from tasks import imhead, imsmooth, impbcor, immath
 
-root = os.path.expanduser("~/Data_1/14B-088_HRL/")
+root = os.path.expanduser("~/bigdata/ekoch/VLA/14B-088/Lines/RRLs/")
 
 lines = ["H152alp", "H153alp", "H158alp", "H164alp", "H166alp"]
 # lines = ["H152alp", "H153alp", "H166alp"]
@@ -48,12 +48,12 @@ targetbeamminor = beamminor[targetidx]
 targetbeampa = beampa[targetidx]
 
 # Apply PB correction
-for image in image_names:
-    outputimage = image + ".pbcor"
-    impbcor(imagename=image, pbimage=image.replace(".image", ".flux"),
-            outfile=outputimage)
+# for image in image_names:
+#     outputimage = image + ".pbcor"
+#     impbcor(imagename=image, pbimage=image.replace(".image", ".flux"),
+#             outfile=outputimage)
 
-image_names = [name + ".pbcor" for name in image_names]
+# image_names = [name + ".pbcor" for name in image_names]
 
 # smoothing the images
 for image in image_names:

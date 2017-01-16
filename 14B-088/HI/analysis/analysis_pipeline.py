@@ -48,7 +48,7 @@ output_path = fourteenB_HI_data_path("", no_check=True)
 
 call("python {0} {1} {2} {3}".format(diskfit_script, diskfit_params,
                                      output_path,
-                                     fourteenB_HI_data_path(moment1_name)),
+                                     fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.5.ellip_mask.mom1.fits")),
      shell=True)
 
 # And then using peak velocity
@@ -57,7 +57,7 @@ output_path = fourteenB_HI_data_path("", no_check=True)
 
 call("python {0} {1} {2} {3}".format(diskfit_script, diskfit_params,
                                      output_path,
-                                     fourteenB_HI_data_path(moment1_name)),
+                                     fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.5.ellip_mask.mom1.fits")),
      shell=True)
 
 # And with the peak from a Gauss-Hermite polynomial
@@ -66,7 +66,7 @@ output_path = fourteenB_HI_data_path("", no_check=True)
 
 call("python {0} {1} {2} {3}".format(diskfit_script, diskfit_params,
                                      output_path,
-                                     fourteenB_HI_data_path(moment1_name)),
+                                     fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.5.ellip_mask.mom1.fits")),
      shell=True)
 
 # Compare the three rotation curves.
@@ -147,3 +147,10 @@ execfile(c_hi_analysispath("co_comparison/hi_regrid_to_co.py"))
 
 # Make a point-by-point comparison between HI and CO temperatures.
 execfile(c_hi_analysispath("co_comparison/co_vs_hi_brightness.py"))
+
+########
+# Other
+########
+
+# Make a UV plane plot
+execfile(c_hi_analysispath("uv_plots/channel_1000_uvplot.py"))

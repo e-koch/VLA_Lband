@@ -284,7 +284,7 @@ p.plot(more_vels, g_CO(more_vels), 'k--', label="Fit")
 p.ylabel("CO Normalized Intensity")
 p.xticks([])
 p.xlim([-100, 100])
-p.legend()
+p.legend(frameon=True)
 p.ylim([-0.1, 1.1])
 p.grid()
 

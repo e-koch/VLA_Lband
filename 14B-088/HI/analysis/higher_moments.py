@@ -140,7 +140,7 @@ for i, (slices, posns) in enumerate(zip(slicer, spec_posns)):
     lon.set_ticklabel_visible(False)
     lat = ax2.coords[1]
     lat.set_ticklabel_visible(False)
-    ax2.text(10, 10, "Linewidth", bbox={"boxstyle": "square", "facecolor": "w"},
+    ax2.text(10, 10, "Line Width", bbox={"boxstyle": "square", "facecolor": "w"},
              horizontalalignment='left', verticalalignment='bottom')
 
     # Skewness

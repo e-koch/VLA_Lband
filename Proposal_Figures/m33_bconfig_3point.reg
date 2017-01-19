@@ -1,0 +1,5 @@
+# Region file format: DS9 astropy/regions
+fk5
+circle(23.5831,30.9167,0.2770) # color=green width=2
+circle(23.4621,30.6599,0.2770) # color=green width=2
+circle(23.3418,30.4031,0.2770) # color=green width=2

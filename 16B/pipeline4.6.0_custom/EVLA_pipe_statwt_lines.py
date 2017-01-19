@@ -55,24 +55,24 @@ statwt()
 # set spw to exclude strong science spectral lines
 
 # Calculate std excluding edges and middle of SPW
-spw_usechan = ''
-percents = np.array([0.1, 0.3, 0.7, 0.9])
-for idx, spw_num in enumerate(spws):
-    perc_chans = np.round(channels[idx] * percents).astype(int)
-    spw_usechan += str(idx) + ":{0}~{1};{2}~{3}".format(*perc_chans) + ","
+# spw_usechan = ''
+# percents = np.array([0.1, 0.3, 0.7, 0.9])
+# for idx, spw_num in enumerate(spws):
+#     perc_chans = np.round(channels[idx] * percents).astype(int)
+#     spw_usechan += str(idx) + ":{0}~{1};{2}~{3}".format(*perc_chans) + ","
 
-default(statwt)
-vis=ms_active
-dorms=False
-fitspw=spw_usechan[:-1]
-fitcorr=''
-combine=''
-minsamp=2
-field=''
-spw=''
-intent='*TARGET*'
-datacolumn='corrected'
-statwt()
+# default(statwt)
+# vis=ms_active
+# dorms=False
+# fitspw=spw_usechan[:-1]
+# fitcorr=''
+# combine=''
+# minsamp=2
+# field=''
+# spw=''
+# intent='*TARGET*'
+# datacolumn='corrected'
+# statwt()
 
 # Until we understand better the failure modes of this task, leave QA2
 # score set to "Pass".

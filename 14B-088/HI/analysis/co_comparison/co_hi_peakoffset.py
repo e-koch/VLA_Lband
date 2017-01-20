@@ -12,6 +12,7 @@ from astropy.io import fits
 from radio_beam import Beam
 from astropy.visualization import AsinhStretch
 from astropy.visualization.mpl_normalize import ImageNormalize
+from astropy.visualization import hist
 from reproject import reproject_interp
 import seaborn as sb
 
@@ -20,7 +21,7 @@ from paths import (fourteenB_HI_data_path, iram_co21_data_path,
                    paper1_figures_path)
 from galaxy_params import gal
 from plotting_styles import onecolumn_figure, default_figure, twocolumn_figure
-from constants import moment0_name, hi_freq
+from constants import moment0_name, hi_freq, moment1_name
 
 try:
     from corner import hist2d
@@ -44,6 +45,13 @@ radii = gal.radius(header=cube.header)
 
 hi_model = return_smooth_model(tab, cube.header, gal) * u.m / u.s
 
+# Now load in the HI centroids
+moment1 = fits.open(fourteenB_HI_data_path(moment1_name))[0]
+
+moment1_reproj = reproject_interp(moment1, cube.wcs.celestial,
+                                  shape_out=cube.shape[1:])[0] * u.m / u.s
+
+
 # Mask everything at the edges of the map.
 r_max = 6. * u.kpc
 hi_model[radii > r_max] = np.NaN * u.m / u.s
@@ -59,6 +67,11 @@ min_pts = 2
 Tpeak = np.zeros(cube.shape[1:]) * u.K
 vel_Tpeak = np.zeros(cube.shape[1:]) * u.m / u.s
 
+# Compute the first moment array for the whole cube.
+vel_centroid = cube.with_mask(cube > co_avg_noise * 3).moment1()
+# We'll zero out any noise dominated regions below, so don't
+# worry about the masking.
+
 good_posns = np.where(cube.mask.include().sum(0) > 0)
 
 for y, x in ProgressBar(zip(*good_posns)):
@@ -68,6 +81,7 @@ for y, x in ProgressBar(zip(*good_posns)):
     if Tpeak[y, x] < min_snr * co_avg_noise:
         Tpeak[y, x] = np.NaN * u.K
         vel_Tpeak[y, x] = np.NaN * u.m / u.s
+        vel_centroid[y, x] = np.NaN * u.m / u.s
     else:
         vel_Tpeak[y, x] = cube.spectral_axis[specind]
 
@@ -102,6 +116,46 @@ p.tight_layout()
 
 p.savefig(paper1_figures_path("co21_Tpeak_velocity_offset.pdf"))
 p.savefig(paper1_figures_path("co21_Tpeak_velocity_offset.png"))
+p.close()
+
+# Now do the difference between HI and CO centroids
+# vel_diff = (hi_model - vel_Tpeak).to(u.km / u.s)
+# vel_diff_values = vel_diff[Tpeak_mask & np.isfinite(Tpeak)]
+
+vel_diff_centroids = \
+    (moment1_reproj - vel_centroid.quantity).to(u.km / u.s)
+vel_diff_centroid_values = \
+    vel_diff_centroids.value[Tpeak_mask & np.isfinite(Tpeak)]
+
+# vel_diff_hicentroid_copeak = \
+#     (moment1_reproj - vel_Tpeak).to(u.km / u.s)
+# vel_diff_hicentroid_copeak_values = \
+#     vel_diff_hicentroid_copeak.value[Tpeak_mask & np.isfinite(Tpeak)]
+# vel_diff_hicentroid_copeak_values = \
+#     vel_diff_hicentroid_copeak_values[np.isfinite(vel_diff_hicentroid_copeak_values)]
+
+# one = hist(vel_diff_values, bins='scott', color='r', normed=True,
+#            label='V$_\mathrm{peak, CO}$ - V$_\mathrm{rot, HI}', histtype='step')
+# two = hist(vel_diff_centroid_values, bins='scott', color='g', normed=True,
+#            label='V$_\mathrm{cent, CO}$ - V$_\mathrm{cent, HI}', histtype='step')
+# three = hist(vel_diff_hicentroid_copeak_values, bins='scott', color='b', normed=True,
+#              label='V$_\mathrm{peak, CO}$ - V$_\mathrm{cent, HI}', histtype='step')
+# p.legend(frameon=True)
+# p.grid()
+
+hist2d(np.abs(vel_diff_centroid_values), Tpeak_values, bins=12,
+       data_kwargs={"alpha": 0.6},
+       range=[(0.0, 30.0),
+              (0.0, np.max(Tpeak_values))])
+p.hlines(co_avg_noise.to(u.K).value * min_snr, 0.0, 120.0, color='r',
+         linestyle='--')
+p.ylabel(r"T$_\mathrm{peak, CO}$ (K)")
+p.xlabel(r"|V$_\mathrm{cent, CO}$ - V$_\mathrm{cemt, HI}$| (km/s)")
+p.grid()
+p.tight_layout()
+
+p.savefig(paper1_figures_path("co21_Tpeak_velocity_offset_centroids.pdf"))
+p.savefig(paper1_figures_path("co21_Tpeak_velocity_offset_centroids.png"))
 p.close()
 
 # Where do the outliers occur

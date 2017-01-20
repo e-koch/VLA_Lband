@@ -19,8 +19,8 @@ from tasks import clean
 from CASA_functions import (set_imagermode, set_imagesize, set_cellsize,
                             has_field)
 
-from paths import image_script_path, path
-execfile(path("imaging_cleanup.py", image_script_path))
+from paths import image_script_path
+execfile(os.path.join(image_script_path, "imaging_cleanup.py"))
 
 
 # This script should still be usable if the user didn't enable imaging at the

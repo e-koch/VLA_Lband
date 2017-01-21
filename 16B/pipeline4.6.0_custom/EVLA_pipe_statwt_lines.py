@@ -61,18 +61,38 @@ statwt()
 #     perc_chans = np.round(channels[idx] * percents).astype(int)
 #     spw_usechan += str(idx) + ":{0}~{1};{2}~{3}".format(*perc_chans) + ","
 
-# default(statwt)
-# vis=ms_active
-# dorms=False
-# fitspw=spw_usechan[:-1]
-# fitcorr=''
-# combine=''
-# minsamp=2
-# field=''
-# spw=''
-# intent='*TARGET*'
-# datacolumn='corrected'
-# statwt()
+# Here are the channels I would like to use for finding the stand. dev.
+# This is now dependent on the instrument setup and should be removed for all
+# other purposes?
+hi_chans = "0:600~900;2800~3300"
+
+rrl_chans = "10~25;100~110"
+all_rrls = ""
+for i in [1, 2, 4, 8, 9]:
+    all_rrls += "{0}:{1},".format(i, rrl_chans)
+
+all_rrls = all_rrls[:-1]
+
+oh_chans = "20~50;200~230"
+all_ohs = ""
+for i in [3, 5, 6, 7]:
+    all_ohs += "{0}:{1},".format(i, oh_chans)
+all_ohs = all_ohs[:-1]
+spw_usechan = "{0},{1},{2}".format(hi_chans, all_rrls, all_ohs)
+
+default(statwt)
+vis=ms_active
+dorms=False
+# fitspw=spw_usechan[:-1]  # Use with the percentile finder above
+fitspw=spw_usechan  # Use with the user-defined channels
+fitcorr=''
+combine=''
+minsamp=2
+field=''
+spw=''
+intent='*TARGET*'
+datacolumn='corrected'
+statwt()
 
 # Until we understand better the failure modes of this task, leave QA2
 # score set to "Pass".

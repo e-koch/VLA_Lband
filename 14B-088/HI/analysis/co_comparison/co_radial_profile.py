@@ -169,11 +169,12 @@ total_sd_sigma = (total_sd * \
 # entire sample, with a lot of scatter
 sds = np.arange(1, 40, 0.2)
 
+onecolumn_figure(font_scale=1.0, fig_ratio=1.0)
 # p.semilogy(total_sd, gas_ratio, 'bD')
 p.errorbar(total_sd, np.log10(gas_ratio), yerr=log_gas_ratio_sigma,
            xerr=total_sd_sigma, color='b', alpha=0.6, fmt='D')
-p.plot(sds, np.log10(krumholz_ratio_model(sds, c=2, Z=0.5)), "r--",
-       label="c=2, Z=0.5")
+p.plot(sds, np.log10(krumholz_ratio_model(sds, c=1, Z=0.5)), "r--",
+       label="c=1, Z=0.5")
 p.plot(sds, np.log10(krumholz_ratio_model(sds, c=4, Z=0.5)), "g-.",
        label="c=4, Z=0.5")
 p.plot(sds, np.log10(krumholz_ratio_model(sds, c=4, Z=0.25)), "m.",
@@ -184,7 +185,7 @@ p.xlabel("$\Sigma_{\mathrm{Gas}}$ (M$_{\odot}$ pc$^{-2}$)")
 p.ylabel("log H$_2$-to-HI Ratio $\Sigma_{\mathrm{H2}} / \Sigma_{\mathrm{HI}}$")
 p.xlim([2, 22])
 p.ylim([-4, 1])
-p.legend(loc='lower right')
+p.legend(loc='lower right', frameon=True)
 p.grid()
 p.tight_layout()
 
@@ -208,6 +209,8 @@ total_sd_plus_dark_sigma = (total_sd_plus_dark *
 
 # p.semilogy(total_sd, gas_ratio, 'bD', label="H$_2$ + HI")
 # p.semilogy(total_sd + 5, gas_ratio_dark, 'ro', label="H$_2$ + HI + Dark H$_2$")
+onecolumn_figure(font_scale=1.0, fig_ratio=1.0)
+
 p.errorbar(total_sd_plus_dark, np.log10(gas_ratio_dark),
            yerr=log_gas_ratio_dark_sigma,
            xerr=total_sd_plus_dark_sigma, color='r', alpha=0.6, marker='o',
@@ -215,8 +218,8 @@ p.errorbar(total_sd_plus_dark, np.log10(gas_ratio_dark),
 p.errorbar(total_sd, np.log10(gas_ratio), yerr=log_gas_ratio_sigma,
            xerr=total_sd_sigma, color='b', alpha=0.6, fmt='D',
            label=r"H$_2$ + HI")
-p.plot(sds, np.log10(krumholz_ratio_model(sds, c=2, Z=0.5)), "r--",
-       label="c=2, Z=0.5")
+p.plot(sds, np.log10(krumholz_ratio_model(sds, c=1, Z=0.5)), "r--",
+       label="c=1, Z=0.5")
 p.plot(sds, np.log10(krumholz_ratio_model(sds, c=4, Z=0.5)), "g-.",
        label="c=4, Z=0.5")
 p.plot(sds, np.log10(krumholz_ratio_model(sds, c=4, Z=0.25)), "m.",
@@ -230,6 +233,7 @@ p.ylim([-4, 1])
 p.legend(loc='lower right', frameon=True)
 p.grid()
 p.tight_layout()
+
 p.savefig(paper1_figures_path("ratio_totalsigma_dark_w_krumholzmodel_dr_{}pc.pdf".format(int(dr.value))))
 p.savefig(paper1_figures_path("ratio_totalsigma_dark_w_krumholzmodel_dr_{}pc.png".format(int(dr.value))))
 p.close()
@@ -260,8 +264,11 @@ def bresolin_metallicity(radius):
 clump_bresolin = optimize_clump_factors(total_sd, gas_ratio,
                                         Z=bresolin_metallicity(rs.value))
 
+onecolumn_figure(font_scale=1.0)
+
 p.plot(rs.value[:-1], clump_constz[:-1], 'bD-', label="Z=0.5")
-p.plot(rs.value[:-1], clump_rossim[:-1], 'ro--', label="Rosolowsky & Simon (2005)")
+p.plot(rs.value[:-1], clump_rossim[:-1], 'ro--',
+       label="Rosolowsky & Simon (2005)")
 p.plot(rs.value[:-1], clump_bresolin[:-1], 'gs-.', label="Bresolin (2011)")
 p.legend(loc='best', frameon=True)
 p.ylim([-1, 10])

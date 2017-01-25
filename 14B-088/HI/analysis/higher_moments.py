@@ -15,7 +15,7 @@ from astropy.visualization.mpl_normalize import ImageNormalize
 from analysis.paths import (fourteenB_HI_data_path, paper1_figures_path,
                             iram_co21_data_path, data_path)
 from constants import (hi_freq, cube_name, moment0_name, lwidth_name,
-                       skew_name, kurt_name, mask_name)
+                       skew_name, kurt_name, mask_name, moment1_name)
 from plotting_styles import (twocolumn_figure, onecolumn_figure,
                              default_figure)
 
@@ -30,6 +30,10 @@ cube = cube.with_mask(mask)
 mom0_hdu = fits.open(fourteenB_HI_data_path(moment0_name))[0]
 mom0 = Projection(mom0_hdu.data, wcs=WCS(mom0_hdu.header),
                   unit=u.Jy * u.m / u.s)
+
+mom1_hdu = fits.open(fourteenB_HI_data_path(moment1_name))[0]
+mom1 = Projection(mom1_hdu.data, wcs=WCS(mom1_hdu.header),
+                  unit=u.m / u.s)
 
 lwidth_hdu = fits.open(fourteenB_HI_data_path(lwidth_name))[0]
 lwidth = Projection(lwidth_hdu.data, wcs=WCS(lwidth_hdu.header),
@@ -50,33 +54,33 @@ irac1_reproj = reproject_interp(irac1_hdu, mom0.header)[0]
 irac1_map = Projection(irac1_reproj, wcs=mom0.wcs, unit=u.MJy / u.sr)
 
 # Make a nice 2 panel figure
-# twocolumn_figure(fig_ratio=0.5)
-# ax = p.subplot(121, projection=skew.wcs)
-# im = ax.imshow(skew.value,
-#                origin='lower', vmin=-2, vmax=2,
-#                interpolation='nearest', cmap='seismic')
-# # ax.set_title("Skewness")
-# ax.set_ylabel("DEC (J2000)")
-# ax.set_xlabel("RA (J2000)")
-# cbar = p.colorbar(im)
-# cbar.set_label("Skewness")
+twocolumn_figure(fig_ratio=0.5)
+ax = p.subplot(121, projection=skew.wcs)
+im = ax.imshow(skew.value,
+               origin='lower', vmin=-2, vmax=2,
+               interpolation='nearest', cmap='seismic')
+# ax.set_title("Skewness")
+ax.set_ylabel("DEC (J2000)")
+ax.set_xlabel("RA (J2000)")
+cbar = p.colorbar(im)
+cbar.set_label("Skewness")
 
-# ax2 = p.subplot(122, projection=kurt.wcs)
-# im2 = ax2.imshow(kurt.value, vmin=-2, vmax=1,
-#                  origin='lower', interpolation='nearest', cmap='binary')
-# ax2.set_xlabel("RA (J2000)")
-# lat = ax2.coords[1]
-# lat.set_ticklabel_visible(False)
-# cbar2 = p.colorbar(im2)
-# cbar2.set_label("Kurtosis")
+ax2 = p.subplot(122, projection=kurt.wcs)
+im2 = ax2.imshow(kurt.value, vmin=-2, vmax=1,
+                 origin='lower', interpolation='nearest', cmap='binary')
+ax2.set_xlabel("RA (J2000)")
+lat = ax2.coords[1]
+lat.set_ticklabel_visible(False)
+cbar2 = p.colorbar(im2)
+cbar2.set_label("Kurtosis")
 
-# p.tight_layout()
+p.tight_layout()
 
-# p.savefig(paper1_figures_path("skew_kurt_maps.pdf"))
-# p.savefig(paper1_figures_path("skew_kurt_maps.png"))
+p.savefig(paper1_figures_path("skew_kurt_maps.pdf"))
+p.savefig(paper1_figures_path("skew_kurt_maps.png"))
 
-# # raw_input("Next plot?")
-# p.close()
+# raw_input("Next plot?")
+p.close()
 
 
 # Interesting regions:
@@ -106,111 +110,111 @@ spec_posns = [sarm_positions, ngc604_positions, nplume_positions]
 
 names = ["sarm", "ngc604", "nplume"]
 
-# twocolumn_figure(fig_ratio=0.67)
+twocolumn_figure(fig_ratio=0.67)
 
-# for i, (slices, posns) in enumerate(zip(slicer, spec_posns)):
-#     # Moment 0 of the last few channels to highlight in-falling HI plume
-#     if i == 2:
-#         loc_mom0 = cube[950:].moment0()
-#     else:
-#         loc_mom0 = mom0
-#     # Moment 0
-#     ax = p.subplot(231, projection=mom0[slices].wcs)
-#     ax.plot(posns[:, 1] - slices[1].start, posns[:, 0] - slices[0].start,
-#             color="chartreuse",
-#             marker="D", linestyle="None",
-#             markersize=6)
-#     ax.imshow(loc_mom0[slices].value, origin='lower',
-#               interpolation='nearest', cmap='binary')
-#     ax.set_ylabel("DEC (J2000)")
-#     ax.text(10, 10, "Moment 0", bbox={"boxstyle": "square", "facecolor": "w"},
-#             horizontalalignment='left', verticalalignment='bottom')
-#     lon = ax.coords[0]
-#     lon.set_ticklabel_visible(False)
+for i, (slices, posns) in enumerate(zip(slicer, spec_posns)):
+    # Moment 0 of the last few channels to highlight in-falling HI plume
+    if i == 2:
+        loc_mom0 = cube[950:].moment0()
+    else:
+        loc_mom0 = mom0
+    # Moment 0
+    ax = p.subplot(231, projection=mom0[slices].wcs)
+    ax.plot(posns[:, 1] - slices[1].start, posns[:, 0] - slices[0].start,
+            color="chartreuse",
+            marker="D", linestyle="None",
+            markersize=6)
+    ax.imshow(loc_mom0[slices].value, origin='lower',
+              interpolation='nearest', cmap='binary')
+    ax.set_ylabel("DEC (J2000)")
+    ax.text(10, 10, "Moment 0", bbox={"boxstyle": "square", "facecolor": "w"},
+            horizontalalignment='left', verticalalignment='bottom')
+    lon = ax.coords[0]
+    lon.set_ticklabel_visible(False)
 
-#     # Lwidth
-#     ax2 = p.subplot(232, projection=lwidth[slices].wcs)
-#     ax2.plot(posns[:, 1] - slices[1].start, posns[:, 0] - slices[0].start,
-#              color="chartreuse",
-#              marker="D", linestyle="None",
-#              markersize=6)
-#     ax2.imshow(lwidth.value[slices], origin='lower',
-#                interpolation='nearest', cmap='binary')
-#     lon = ax2.coords[0]
-#     lon.set_ticklabel_visible(False)
-#     lat = ax2.coords[1]
-#     lat.set_ticklabel_visible(False)
-#     ax2.text(10, 10, "Line Width", bbox={"boxstyle": "square", "facecolor": "w"},
-#              horizontalalignment='left', verticalalignment='bottom')
+    # Lwidth
+    ax2 = p.subplot(232, projection=lwidth[slices].wcs)
+    ax2.plot(posns[:, 1] - slices[1].start, posns[:, 0] - slices[0].start,
+             color="chartreuse",
+             marker="D", linestyle="None",
+             markersize=6)
+    ax2.imshow(lwidth.value[slices], origin='lower',
+               interpolation='nearest', cmap='binary')
+    lon = ax2.coords[0]
+    lon.set_ticklabel_visible(False)
+    lat = ax2.coords[1]
+    lat.set_ticklabel_visible(False)
+    ax2.text(10, 10, "Line Width", bbox={"boxstyle": "square", "facecolor": "w"},
+             horizontalalignment='left', verticalalignment='bottom')
 
-#     # Skewness
-#     ax3 = p.subplot(234, projection=skew[slices].wcs)
-#     ax3.plot(posns[:, 1] - slices[1].start, posns[:, 0] - slices[0].start,
-#              color="chartreuse",
-#              marker="D", linestyle="None",
-#              markersize=6)
-#     ax3.imshow(skew.value[slices], vmin=-2, vmax=2,
-#                origin='lower',
-#                interpolation='nearest', cmap='seismic')
-#     ax3.set_ylabel("DEC (J2000)")
-#     ax3.set_xlabel("RA (J2000)")
-#     ax3.text(10, 10, "Skewness", bbox={"boxstyle": "square", "facecolor": "w"},
-#              horizontalalignment='left', verticalalignment='bottom')
+    # Skewness
+    ax3 = p.subplot(234, projection=skew[slices].wcs)
+    ax3.plot(posns[:, 1] - slices[1].start, posns[:, 0] - slices[0].start,
+             color="chartreuse",
+             marker="D", linestyle="None",
+             markersize=6)
+    ax3.imshow(skew.value[slices], vmin=-2, vmax=2,
+               origin='lower',
+               interpolation='nearest', cmap='seismic')
+    ax3.set_ylabel("DEC (J2000)")
+    ax3.set_xlabel("RA (J2000)")
+    ax3.text(10, 10, "Skewness", bbox={"boxstyle": "square", "facecolor": "w"},
+             horizontalalignment='left', verticalalignment='bottom')
 
-#     # Kurtosis
-#     ax4 = p.subplot(235, projection=kurt[slices].wcs)
-#     ax4.plot(posns[:, 1] - slices[1].start, posns[:, 0] - slices[0].start,
-#              color="chartreuse",
-#              marker="D", linestyle="None",
-#              markersize=6)
-#     ax4.imshow(kurt.value[slices], vmin=1, vmax=4,
-#                origin='lower', interpolation='nearest', cmap='binary')
-#     lat = ax4.coords[1]
-#     lat.set_ticklabel_visible(False)
-#     ax4.text(10, 10, "Kurtosis", bbox={"boxstyle": "square", "facecolor": "w"},
-#              horizontalalignment='left', verticalalignment='bottom')
-#     ax4.set_xlabel("RA (J2000)")
-#     # CO
-#     ax5 = p.subplot(233, projection=co_map[slices].wcs)
-#     ax5.plot(posns[:, 1] - slices[1].start, posns[:, 0] - slices[0].start,
-#              color="chartreuse",
-#              marker="D", linestyle="None",
-#              markersize=6, markeredgecolor='k')
-#     ax5.imshow(co_map.value[slices],
-#                origin='lower', interpolation='nearest', cmap='binary')
-#     lon = ax5.coords[0]
-#     lon.set_ticklabel_visible(False)
-#     lat = ax5.coords[1]
-#     lat.set_ticklabel_visible(False)
-#     ax5.text(10, 10, "CO(2-1) Peak Int.", bbox={"boxstyle": "square", "facecolor": "w"},
-#              horizontalalignment='left', verticalalignment='bottom')
-#     # IRAC 3.6 um
-#     ax6 = p.subplot(236, projection=irac1_map[slices].wcs)
-#     ax6.plot(posns[:, 1] - slices[1].start, posns[:, 0] - slices[0].start,
-#              color="chartreuse",
-#              marker="D", linestyle="None",
-#              markersize=6)
-#     ax6.imshow(irac1_map.value[slices],
-#                origin='lower', interpolation='nearest', cmap='binary',
-#                norm=ImageNormalize(vmin=0.0,
-#                                    vmax=1.,
-#                                    stretch=AsinhStretch()))
-#     ax6.set_xlabel("RA (J2000)")
-#     lat = ax6.coords[1]
-#     lat.set_ticklabel_visible(False)
-#     ax6.text(10, 10, r"IRAC 3.6 $\mu$m", bbox={"boxstyle": "square", "facecolor": "w"},
-#              horizontalalignment='left', verticalalignment='bottom')
+    # Kurtosis
+    ax4 = p.subplot(235, projection=kurt[slices].wcs)
+    ax4.plot(posns[:, 1] - slices[1].start, posns[:, 0] - slices[0].start,
+             color="chartreuse",
+             marker="D", linestyle="None",
+             markersize=6)
+    ax4.imshow(kurt.value[slices], vmin=1, vmax=4,
+               origin='lower', interpolation='nearest', cmap='binary')
+    lat = ax4.coords[1]
+    lat.set_ticklabel_visible(False)
+    ax4.text(10, 10, "Kurtosis", bbox={"boxstyle": "square", "facecolor": "w"},
+             horizontalalignment='left', verticalalignment='bottom')
+    ax4.set_xlabel("RA (J2000)")
+    # CO
+    ax5 = p.subplot(233, projection=co_map[slices].wcs)
+    ax5.plot(posns[:, 1] - slices[1].start, posns[:, 0] - slices[0].start,
+             color="chartreuse",
+             marker="D", linestyle="None",
+             markersize=6, markeredgecolor='k')
+    ax5.imshow(co_map.value[slices],
+               origin='lower', interpolation='nearest', cmap='binary')
+    lon = ax5.coords[0]
+    lon.set_ticklabel_visible(False)
+    lat = ax5.coords[1]
+    lat.set_ticklabel_visible(False)
+    ax5.text(10, 10, "CO(2-1) Peak Int.", bbox={"boxstyle": "square", "facecolor": "w"},
+             horizontalalignment='left', verticalalignment='bottom')
+    # IRAC 3.6 um
+    ax6 = p.subplot(236, projection=irac1_map[slices].wcs)
+    ax6.plot(posns[:, 1] - slices[1].start, posns[:, 0] - slices[0].start,
+             color="chartreuse",
+             marker="D", linestyle="None",
+             markersize=6)
+    ax6.imshow(irac1_map.value[slices],
+               origin='lower', interpolation='nearest', cmap='binary',
+               norm=ImageNormalize(vmin=0.0,
+                                   vmax=1.,
+                                   stretch=AsinhStretch()))
+    ax6.set_xlabel("RA (J2000)")
+    lat = ax6.coords[1]
+    lat.set_ticklabel_visible(False)
+    ax6.text(10, 10, r"IRAC 3.6 $\mu$m", bbox={"boxstyle": "square", "facecolor": "w"},
+             horizontalalignment='left', verticalalignment='bottom')
 
-#     p.subplots_adjust(hspace=0.02, wspace=0.02)
-#     p.draw()
+    p.subplots_adjust(hspace=0.02, wspace=0.02)
+    p.draw()
 
-#     p.savefig(paper1_figures_path("{}_moments.png").format(names[i]))
-#     p.savefig(paper1_figures_path("{}_moments.pdf").format(names[i]))
+    p.savefig(paper1_figures_path("{}_moments.png").format(names[i]))
+    p.savefig(paper1_figures_path("{}_moments.pdf").format(names[i]))
 
-#     # raw_input("Next plot?")
-#     p.clf()
+    # raw_input("Next plot?")
+    p.clf()
 
-# p.close()
+p.close()
 
 # Zoom in on the interesting portion of the spectrum
 spectral_cuts = np.array([[-72, -180], [-200, -280], [-220, -315]]) * \
@@ -236,6 +240,7 @@ for posns, cuts, name, dist in zip(spec_posns, spectral_cuts, names, dists):
         spec = spec.to(u.K, equivalencies=average_beams(cube.beams).jtok_equiv(hi_freq))
         velocities = cube.spectral_slab(cuts[0], cuts[1]).spectral_axis.to(u.km / u.s).value
         ax.plot(velocities, spec.value, 'b-', drawstyle='steps-mid')
+        # ax.axvline(mom1[posn[0], posn[1]].to(u.km / u.s).value)
         if i < num_posns - 1:
             ax.set_xticklabels([])
         else:
@@ -255,6 +260,15 @@ for posns, cuts, name, dist in zip(spec_posns, spectral_cuts, names, dists):
                                              round(kurt.value[posn[0], posn[1]] - 3, 3)),
                 verticalalignment='bottom')
 
+        # ax.text(cuts[0].value - (cuts[0] - cuts[1]).value * 0.95,
+        #         ax.get_ybound()[1] * 0.45,
+        #         "Skew={0}\n Kurt={1}\nLW={2}\nMean={3}"
+        #         .format(round(skew.value[posn[0], posn[1]], 3),
+        #                 round(kurt.value[posn[0], posn[1]] - 3, 3),
+        #                 round(lwidth.value[posn[0], posn[1]]/1000., 3),
+        #                 round(mom1.value[posn[0], posn[1]]/1000., 3)),
+        #         verticalalignment='bottom')
+
         if i == 0:
             for label in ax.get_yticklabels()[1::2]:
                 label.set_visible(False)
@@ -264,6 +278,8 @@ for posns, cuts, name, dist in zip(spec_posns, spectral_cuts, names, dists):
 
     fig.text(0.04, 0.5, 'Intensity (K)', va='center', rotation='vertical')
     p.draw()
+
+    # raw_input("Continue ?")
 
     p.savefig(paper1_figures_path("{}_spectra.png").format(name))
     p.savefig(paper1_figures_path("{}_spectra.pdf").format(name))

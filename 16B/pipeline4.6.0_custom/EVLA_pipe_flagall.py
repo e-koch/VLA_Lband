@@ -320,6 +320,8 @@ merge='replace'
 flagmanager()
 logprint ("Flag column saved to "+versionname, logfileout='logs/flagall.log')
 
+# Add in the custom quacking commands for this project
+execfile(os.path.join(pipepath, "custom_quacking.py"))
 
 # report new statistics
 default('flagdata')

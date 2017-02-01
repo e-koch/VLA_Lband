@@ -22,4 +22,4 @@ Project Specific Changes
 ========================
 
 * Fields for polarization calibration are dropped from the line MS (`EVLA_pipe_mixed_setup_split.py`)
-* 
+* Added additional quack flags for repeated bad beginning and end integrations (`custom_quacking.py`). A call to this script is made in `EVLA_pipe_flagall.py`

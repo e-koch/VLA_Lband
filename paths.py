@@ -28,9 +28,9 @@ elif socket.gethostname() == 'caterwauler':
 elif "nmpost" in socket.gethostname():
     root = os.path.expanduser("~/VLA_Lband")
     data_path = os.path.expanduser("~/data")
-elif "segfault" in socket.gethostname():
-    root = os.path.expanduser("'~/Dropbox/code_development/VLA_Lband/")
-    data_path = "/mnt/bigdata/"
+elif "segfault" == socket.gethostname():
+    root = os.path.expanduser("~/Dropbox/code_development/VLA_Lband/")
+    data_path = "/mnt/bigdata/reduction"
 # else:
 #     root = os.path.expanduser('~/work/w51/alma/')
 

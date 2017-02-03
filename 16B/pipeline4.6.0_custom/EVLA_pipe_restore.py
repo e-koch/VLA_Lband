@@ -60,12 +60,12 @@ if not os.path.exists(timing_file):
     timelog=open(timing_file,'w')
 else:
     timelog=open(timing_file,'a')
-    
+
 def runtiming(pipestate, status):
     '''Determine profile for a given state/stage of the pipeline
     '''
     time_list.append({'pipestate':pipestate, 'time':time.time(), 'status':status})
-    
+
     if (status == "end"):
         timelog=open(timing_file,'a')
         timelog.write(pipestate+': '+str(time_list[-1]['time'] - time_list[-2]['time'])+' sec \n')
@@ -76,13 +76,13 @@ def runtiming(pipestate, status):
         #    casalogfile.write(tempfile.read())
         #    tempfile.close()
         #casalogfile.close()
-        
-    
+
+
     return time_list
 
 
 def pipeline_restore(shelf_filename='pipeline_shelf.restore'):
-    '''Restore the state of the pipeline from shelf file 
+    '''Restore the state of the pipeline from shelf file
     '''
     if os.path.exists(shelf_filename):
         try:
@@ -105,8 +105,12 @@ try:
 
     pipeline_restore()
     maincasalog = casalogger.func_globals['thelogfile']
+    if not os.path.exists(pipepath):
+        from paths import sixteenB_pipe_path
+        pipepath = sixteenB_pipe_path
+
     execfile(pipepath+'EVLA_pipe_startup.py')
-    
+
 
 except Exception, e:
     logprint ("Exiting script: "+str(e))

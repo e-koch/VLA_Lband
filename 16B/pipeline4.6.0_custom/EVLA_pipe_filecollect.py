@@ -71,9 +71,13 @@ if os.path.exists(weblog_dir):
 else:
     os.makedirs(weblog_dir)
 
-#Move all png files/plots
+# Move all png files/plots
+# This gets run on the split mixed setup. Copy the plots from the parent
+# directory first.
+parent_png_files = glob.glob("../*.png")
+
 png_files = glob.glob('./*.png')
-for file in png_files:
+for file in png_files + parent_png_files:
     try:
         shutil.move(file, weblog_dir+'/.')
     except:

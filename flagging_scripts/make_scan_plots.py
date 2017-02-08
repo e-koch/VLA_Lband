@@ -217,6 +217,8 @@ for spw_num in spws:
                 scan = str(jj)
                 spw = str(spw_num)
                 correlation = "RR,LL"
+                avgchannel = str(max(channels))
+                avgtime = '1e8s'
                 averagedata = True
                 avgbaseline = False
                 transform = False
@@ -233,7 +235,7 @@ for spw_num in spws:
                 async = False
                 plotms()
 
-                # Plot phase vs uvdist
+                # Plot amp vs uvdist
                 default('plotms')
                 vis = ms_active
                 xaxis = 'uvdist'
@@ -243,6 +245,8 @@ for spw_num in spws:
                 field = names[ii]
                 scan = str(jj)
                 spw = str(spw_num)
+                avgchannel = str(max(channels))
+                avgtime = '1e8s'
                 correlation = "RR,LL"
                 averagedata = True
                 avgbaseline = False

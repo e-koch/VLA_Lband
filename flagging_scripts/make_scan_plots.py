@@ -151,6 +151,35 @@ for spw_num in spws:
             async = False
             plotms()
 
+            # Plot amp vs uvdist
+            default('plotms')
+            vis = ms_active
+            xaxis = 'uvdist'
+            yaxis = 'amp'
+            ydatacolumn = 'corrected'
+            selectdata = True
+            field = names[ii]
+            scan = str(jj)
+            spw = str(spw_num)
+            avgchannel = str(max(channels))
+            avgtime = '1e8s'
+            correlation = "RR,LL"
+            averagedata = True
+            avgbaseline = False
+            transform = False
+            extendflag = False
+            plotrange = []
+            title = 'Amp vs UVDist: Field {0} Scan {1}'.format(names[ii], jj)
+            xlabel = ''
+            ylabel = ''
+            showmajorgrid = False
+            showminorgrid = False
+            plotfile = os.path.join(spw_folder, 'field_{0}_amp_uvdist_scan_{1}.png'.format(names[ii], jj))
+            overwrite = True
+            showgui = False
+            async = False
+            plotms()
+
             if is_calibrator[jj - 1]:
                 # Plot phase vs time
                 default('plotms')
@@ -230,35 +259,6 @@ for spw_num in spws:
                 showmajorgrid = False
                 showminorgrid = False
                 plotfile = os.path.join(spw_folder, 'field_{0}_phase_uvdist_scan_{1}.png'.format(names[ii], jj))
-                overwrite = True
-                showgui = False
-                async = False
-                plotms()
-
-                # Plot amp vs uvdist
-                default('plotms')
-                vis = ms_active
-                xaxis = 'uvdist'
-                yaxis = 'amp'
-                ydatacolumn = 'corrected'
-                selectdata = True
-                field = names[ii]
-                scan = str(jj)
-                spw = str(spw_num)
-                avgchannel = str(max(channels))
-                avgtime = '1e8s'
-                correlation = "RR,LL"
-                averagedata = True
-                avgbaseline = False
-                transform = False
-                extendflag = False
-                plotrange = []
-                title = 'Amp vs UVDist: Field {0} Scan {1}'.format(names[ii], jj)
-                xlabel = ''
-                ylabel = ''
-                showmajorgrid = False
-                showminorgrid = False
-                plotfile = os.path.join(spw_folder, 'field_{0}_amp_uvdist_scan_{1}.png'.format(names[ii], jj))
                 overwrite = True
                 showgui = False
                 async = False

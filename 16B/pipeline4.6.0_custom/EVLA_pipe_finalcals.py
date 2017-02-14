@@ -412,23 +412,27 @@ for fields in standard_source_fields:
         for myspw in spws:
             reference_frequency = center_frequencies[myspw]
             EVLA_band = find_EVLA_band(reference_frequency)
-            logprint ("Center freq for spw "+str(myspw)+" = "+str(reference_frequency)+", observing band = "+EVLA_band, logfileout='logs/calprep.log')
+            logprint ("Center freq for spw "+str(myspw)+" = "+str(reference_frequency)+", observing band = "+EVLA_band, logfileout='logs/finalcals.log')
 
             model_image = standard_source_names[ii]+'_'+EVLA_band+'.im'
 
-            logprint ("Setting model for field "+str(myfield)+" spw "+str(myspw)+" using "+model_image, logfileout='logs/calprep.log')
+            logprint ("Setting model for field "+str(myfield)+" spw "+str(myspw)+" using "+model_image, logfileout='logs/finalcals.log')
 
-            default('setjy')
-            vis='calibrators.ms'
-            field=str(myfield)
-            spw=str(myspw)
-            selectdata=False
-            scalebychan=True
-            standard='Perley-Butler 2013'
-            model=model_image
-            listmodels=False
-            usescratch=scratch
-            setjy()
+            try:
+                default('setjy')
+                vis='calibrators.ms'
+                field=str(myfield)
+                spw=str(myspw)
+                selectdata=False
+                scalebychan=True
+                standard='Perley-Butler 2013'
+                model=model_image
+                listmodels=False
+                usescratch=scratch
+                setjy()
+            except:
+                logprint('no data found for field ' + str(myfield)+" spw "+str(myspw), logfileout='logs/finalcals.log')
+
     ii=ii+1
 
 tb.close()

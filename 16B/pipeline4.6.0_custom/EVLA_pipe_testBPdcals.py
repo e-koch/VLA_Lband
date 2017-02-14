@@ -127,7 +127,7 @@ else:
     fracFlaggedSolns=1.0
 
 # NB: in case the reference antenna has a bad baseband/IF, check
-# a couple of reference antennas if there is a high fraction of 
+# a couple of reference antennas if there is a high fraction of
 # flagged solutions
 
 if (fracFlaggedSolns > critfrac):
@@ -217,8 +217,8 @@ for ii in range(nplots):
 
 # Try running with solint of int_time, 3*int_time, and 10*int_time.
 # If there is still a large fraction of failed solutions with
-# solint=10*int_time the source may be too weak, and calibration via the 
-# pipeline has failed; will need to implement a mode to cope with weak 
+# solint=10*int_time the source may be too weak, and calibration via the
+# pipeline has failed; will need to implement a mode to cope with weak
 # calibrators (later)
 
 if (delay_scan_select_string == bandpass_scan_select_string):
@@ -598,7 +598,7 @@ logprint ("Plot calibrated bandpass and delay calibrators", logfileout='logs/tes
 syscommand='rm -rf testcalibratedBPcal.png'
 os.system(syscommand)
 
-default('plotms') 
+default('plotms')
 vis=ms_active
 xaxis='freq'
 yaxis='amp'
@@ -608,7 +608,7 @@ field=bandpass_field_select_string
 scan=bandpass_scan_select_string
 correlation=corrstring
 averagedata=True
-avgtime='1e8s'
+avgtime='1e8'
 avgscan=True
 transform=False
 extendflag=False
@@ -640,7 +640,7 @@ if (delay_scan_select_string != bandpass_scan_select_string):
     scan=delay_scan_select_string
     correlation=corrstring
     averagedata=True
-    avgtime='1e8s'
+    avgtime='1e8'
     avgscan=True
     transform=False
     extendflag=False
@@ -683,7 +683,7 @@ else:
 
 logprint ("QA2_gain: "+QA2_gain, logfileout='logs/testBPdcals.log')
 
-if (flaggedBPSolns['all']['total'] > 0): 
+if (flaggedBPSolns['all']['total'] > 0):
     if (flaggedBPSolns['antmedian']['fraction'] > 0.2):
         QA2_BP='Partial'
     else:

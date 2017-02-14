@@ -27,7 +27,7 @@
 #
 ######################################################################
 
-#MAKING FINAL UV PLOTS ON ALL SOURCES 
+#MAKING FINAL UV PLOTS ON ALL SOURCES
 
 logprint ("Starting EVLA_pipe_plotsummary.py", logfileout='logs/plotsummary.log')
 time_list=runtiming('plotsummary', 'start')
@@ -152,7 +152,149 @@ for ii in field_ids:
     overwrite=True
     showgui=False
     plotms()
-#
+
+## Make Amp vs. Freq plots per field per baseband for newer data sets that have the band, baseband and spw info
+## such as EVLA_X#A0C0#0
+if '#' in spw_names[0]:
+    for ii in field_ids:
+        for iii in range(0,len(spws_info)):
+            BB=spws_info[iii]
+            band=BB[0]
+            bband=BB[1]
+            bbspw=BB[2]
+            if ((band=='X') and (len(bbspw)==1)):
+                print band, bband, bbspw
+                logprint("Seems to have encountered a reference poining spw; Amp vs. Freq plots will not be made for this spw", logfileout='logs/plotsummary.log')
+            else:
+                print band, bband, bbspw
+                default('plotms')
+                vis=ms_active
+                xaxis='freq'
+                yaxis='amp'
+                ydatacolumn='corrected'
+                selectdata=True
+                field=str(field_ids[ii])
+                correlation=corrstring
+                spw=str(bbspw).strip('[]')
+                averagedata=True
+                avgtime='1e8'
+                avgscan=True
+                avgantenna=True
+                transform=False
+                extendflag=False
+                iteraxis=''
+                coloraxis='antenna1'
+                plotrange=[0, 0, 0, 0]
+                title='Field '+field+', '+field_names[ii]+', '+band+'-Band '+bband+', spw='+str(bbspw)
+                xlabel=''
+                ylabel=''
+                showmajorgrid=False
+                showminorgrid=False
+                plotfile='field'+field+'_'+band+'-Band_'+bband+'_amp_freq.png'
+                overwrite=True
+                showgui=False
+                plotms()
+else:
+    logprint("These are old EVLA data; will make one Amp vs. Freq plot per field with all available spectral windows", logfileout='logs/plotsummary.log')
+    for ii in field_ids:
+        default('plotms')
+        vis=ms_active
+        xaxis='freq'
+        yaxis='amp'
+        ydatacolumn='corrected'
+        selectdata=True
+        field=str(field_ids[ii])
+        correlation=corrstring
+        averagedata=True
+        avgtime='1e8'
+        avgscan=True
+        avgantenna=True
+        transform=False
+        extendflag=False
+        iteraxis=''
+        coloraxis='antenna1'
+        plotrange=[0, 0, 0, 0]
+        title='Field '+field+', '+field_names[ii]
+        xlabel=''
+        ylabel=''
+        showmajorgrid=False
+        showminorgrid=False
+        plotfile='field'+field+'_amp_freq.png'
+        overwrite=True
+        showgui=False
+        plotms()
+
+## Make Phase vs. Freq plots per field per baseband for newer data sets that have the band, baseband and spw info
+## such as EVLA_X#A0C0#0
+if '#' in spw_names[0]:
+    for ii in field_ids:
+        for iii in range(0,len(spws_info)):
+            BB=spws_info[iii]
+            band=BB[0]
+            bband=BB[1]
+            bbspw=BB[2]
+            if ((band=='X') and (len(bbspw)==1)):
+                print band, bband, bbspw
+                logprint("Seems to have encountered a reference pointing spw; Phase vs. Freq plots will not be made for this spw", logfileout='logs/plotsummary.log')
+            else:
+                print band, bband, bbspw
+                default('plotms')
+                vis=ms_active
+                xaxis='freq'
+                yaxis='phase'
+                ydatacolumn='corrected'
+                selectdata=True
+                field=str(field_ids[ii])
+                correlation=corrstring
+                spw=str(bbspw).strip('[]')
+                averagedata=True
+                avgtime='1e8'
+                avgscan=True
+                avgantenna=True
+                transform=False
+                extendflag=False
+                iteraxis=''
+                coloraxis='antenna1'
+                plotrange=[0, 0, -180, 180]
+                title='Field '+field+', '+field_names[ii]+', '+band+'-Band '+bband+', spw='+str(bbspw)
+                xlabel=''
+                ylabel=''
+                showmajorgrid=False
+                showminorgrid=False
+                plotfile='field'+field+'_'+band+'-Band_'+bband+'_phase_freq.png'
+                overwrite=True
+                showgui=False
+                plotms()
+else:
+    logprint("These are old EVLA data; will make one Phase vs. Freq plot per field with all available spectral windows", logfileout='logs/plotsummary.log')
+    for ii in field_ids:
+        default('plotms')
+        vis=ms_active
+        xaxis='freq'
+        yaxis='phase'
+        ydatacolumn='corrected'
+        selectdata=True
+        field=str(field_ids[ii])
+        correlation=corrstring
+        averagedata=True
+        avgtime='1e8'
+        avgscan=True
+        avgantenna=True
+        transform=False
+        extendflag=False
+        iteraxis=''
+        coloraxis='antenna1'
+        plotrange=[0, 0, -180, 180]
+        title='Field '+field+', '+field_names[ii]
+        xlabel=''
+        ylabel=''
+        showmajorgrid=False
+        showminorgrid=False
+        plotfile='field'+field+'_phase_freq.png'
+        overwrite=True
+        showgui=False
+        plotms()
+
 # see if we can omit this now in CASA 4.2.2...
 #
 #    mylogfile = casalog.logfile()

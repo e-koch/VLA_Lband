@@ -192,7 +192,7 @@ commentlog.write('One of your Scheduling Blocks, , has been processed through th
 commentlog.write('CASA Calibration Pipeline, which is designed to handle Stokes I\n')
 commentlog.write('continuum data, and has received a QA2 score of ''. NRAO staff have\n')
 commentlog.write('checked the calibrated data and no major issues have been identified.\n')
-commentlog.write('Some data may need further flagging before imaging as described below:\n\n\n\n') 
+commentlog.write('Some data may need further flagging before imaging as described below:\n\n\n\n')
 commentlog.write('- If your science involves spectral lines, you should be aware of the following:\n\n')
 commentlog.write('1) The pipeline applies Hanning-smoothing by default, which may make the\n')
 commentlog.write('   calibrated data set not optimal for certain spectral-line science.\n\n')
@@ -262,7 +262,7 @@ wlog.write('<br>Date of observation: '+observeDateString+' \n')
 wlog.write('<br>QA2 score: '+QA2_pipeline+' \n')
 wlog.write('<br>Date of pipeline execution: '+pipelineDateString+' \n')
 wlog.write('<br>Pipeline version: '+version+' svn revision #'+svnrevision+' \n')
-wlog.write('<br>CASA version: '+casadef.casa_version+' revision #'+casadef.subversion_revision+' \n')
+wlog.write('<br>CASA version: '+casadef.casa_version[:5]+' revision #'+casadef.subversion_revision+' \n')
 #wlog.write('<br>PPR document: \n')
 wlog.write('<br>Notes to PI from QA2 evaluation: <a href="./comments.txt" type="text/plain" target="_blank">link</a>\n')
 wlog.write('<br>Observing log: \n')
@@ -377,7 +377,7 @@ wlog.write('<br>Fitted flux densities: <a href="./logs/fluxboot.log" type="text/
 wlog.write('<br>Final delays [abs(max.delay) = '+str(maxdelay)+' ns]: \n')
 nplots=int(numAntenna/3)
 if ((numAntenna%3)>0):
-    nplots = nplots + 1 
+    nplots = nplots + 1
 for ii in range(nplots):
     filename='finaldelay'+str(ii)+'.png'
     wlog.write('<br><img src="./'+filename+'">\n')
@@ -407,6 +407,53 @@ for ii in field_ids:
     filename='field'+str(field_ids[ii])+'_amp_uvdist.png'
     if os.path.exists('weblog/'+filename):
         wlog.write('<br><img src="./'+filename+'">\n')
+wlog.write('<br>\n')
+wlog.write('<br>Amplitude and Phase vs. Frequency for all fields: \n')
+for ii in field_ids:
+    if '#' in spw_names[0]:
+        for iii in range(0,len(spws_info)):
+            BB=spws_info[iii]
+            band=BB[0]
+            bband=BB[1]
+            filename_a='field'+str(field_ids[ii])+'_'+band+'-Band_'+bband+'_amp_freq.png'
+            filename_p='field'+str(field_ids[ii])+'_'+band+'-Band_'+bband+'_phase_freq.png'
+            if (os.path.exists('weblog/'+filename_a)) or (os.path.exists('weblog/'+filename_p)):
+                wlog.write('<br><img src="./'+filename_a+'" height="50%"><img src="./'+filename_p+'" height="50%">\n')
+    else:
+        filename_a='field'+str(field_ids[ii])+'_amp_freq.png'
+        filename_p='field'+str(field_ids[ii])+'_phase_freq.png'
+        if (os.path.exists('weblog/'+filename_a)) or (os.path.exists('weblog/'+filename_p)):
+                wlog.write('<br><img src="./'+filename_a+'" height="50%"><img src="./'+filename_p+'" height="50%">\n')
+wlog.write('<br>\n')
+#wlog.write('<br>Amplitude vs. Frequency for all fields: \n')
+#for ii in field_ids:
+#    if '#' in spw_names[0]:
+#        for iii in range(0,len(spws_info)):
+#            BB=spws_info[iii]
+#            band=BB[0]
+#            bband=BB[1]
+#           filename='field'+str(field_ids[ii])+'_'+band+'-Band_'+bband+'_amp_freq.png'
+#            if os.path.exists('weblog/'+filename):
+#                wlog.write('<br><img src="./'+filename+'">\n')
+#    else:
+#       filename='field'+str(field_ids[ii])+'_amp_freq.png'
+#       if os.path.exists('weblog/'+filename):
+#           wlog.write('<br><img src="./'+filename+'">\n')
+#wlog.write('<br>\n')
+#wlog.write('<br>Phase vs. Frequency for all fields: \n')
+#for ii in field_ids:
+#    if '#' in spw_names[0]:
+#        for iii in range(0,len(spws_info)):
+#            BB=spws_info[iii]
+#            band=BB[0]
+#            bband=BB[1]
+#           filename='field'+str(field_ids[ii])+'_'+band+'-Band_'+bband+'_phase_freq.png'
+#            if os.path.exists('weblog/'+filename):
+#                wlog.write('<br><img src="./'+filename+'">\n')
+#    else:
+#       filename='field'+str(field_ids[ii])+'_phase_freq.png'
+#       if os.path.exists('weblog/'+filename):
+#           wlog.write('<br><img src="./'+filename+'">\n')
 #wlog.write('<br>Corrected amplitudes minus model for calibrators: \n')
 #wlog.write('<br>Issues/warnings from pipeline: \n')
 wlog.write('<br>Notes to PI from QA2 evaluation: <a href="./comments.txt" type="text/plain" target="_blank">link</a>\n')
@@ -787,6 +834,58 @@ for ii in field_ids:
     filename='field'+str(field_ids[ii])+'_amp_uvdist.png'
     if os.path.exists('weblog/'+filename):
         wlog.write('<br><img src="./'+filename+'">\n')
+wlog.write('<br>\n')
+wlog.write('<br>Amplitude and Phase vs. Frequency for all fields: \n')
+for ii in field_ids:
+    if '#' in spw_names[0]:
+        for iii in range(0,len(spws_info)):
+            BB=spws_info[iii]
+            band=BB[0]
+            bband=BB[1]
+            filename_a='field'+str(field_ids[ii])+'_'+band+'-Band_'+bband+'_amp_freq.png'
+            filename_p='field'+str(field_ids[ii])+'_'+band+'-Band_'+bband+'_phase_freq.png'
+            if (os.path.exists('weblog/'+filename_a)) or (os.path.exists('weblog/'+filename_p)):
+                wlog.write('<br><img src="./'+filename_a+'" height="50%"><img src="./'+filename_p+'" height="50%">\n')
+    else:
+        filename_a='field'+str(field_ids[ii])+'_amp_freq.png'
+        filename_p='field'+str(field_ids[ii])+'_phase_freq.png'
+        if (os.path.exists('weblog/'+filename_a)) or (os.path.exists('weblog/'+filename_p)):
+                wlog.write('<br><img src="./'+filename_a+'" height="50%"><img src="./'+filename_p+'" height="50%">\n')
+wlog.write('<br>\n')
+
+#wlog.write('<br>Amplitude vs. Frequency for all fields: \n')
+#for ii in field_ids:
+#    if '#' in spw_names[0]:
+#        for iii in range(0,len(spws_info)):
+#            BB=spws_info[iii]
+#            band=BB[0]
+#            bband=BB[1]
+#           filename='field'+str(field_ids[ii])+'_'+band+'-Band_'+bband+'_amp_freq.png'
+#            if os.path.exists('weblog/'+filename):
+#                wlog.write('<br><img src="./'+filename+'">\n')
+#    else:
+#       filename='field'+str(field_ids[ii])+'_amp_freq.png'
+#       if os.path.exists('weblog/'+filename):
+#           wlog.write('<br><img src="./'+filename+'">\n')
+#wlog.write('<br>\n')
+#
+#
+#wlog.write('<br>Phase vs. Frequency for all fields: \n')
+#for ii in field_ids:
+#    if '#' in spw_names[0]:
+#        for iii in range(0,len(spws_info)):
+#            BB=spws_info[iii]
+#            band=BB[0]
+#            bband=BB[1]
+#           filename='field'+str(field_ids[ii])+'_'+band+'-Band_'+bband+'_phase_freq.png'
+#            if os.path.exists('weblog/'+filename):
+#                wlog.write('<br><img src="./'+filename+'">\n')
+#    else:
+#       filename='field'+str(field_ids[ii])+'_phase_freq.png'
+#       if os.path.exists('weblog/'+filename):
+#           wlog.write('<br><img src="./'+filename+'">\n')
+#
+#
 wlog.write('</li>\n')
 wlog.write('</ul>\n')
 wlog.write('<br>\n')
@@ -820,7 +919,7 @@ for file in all_logs:
         shutil.move(file, weblog_dir+'/.')
     except:
         logprint('Unable to move ' + file, logfileout='logs/filecollect.log')
- 
+
 all_html = glob.glob('./*.html')
 for file in all_html:
     try:

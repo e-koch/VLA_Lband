@@ -379,15 +379,15 @@ if startdate <= 55978.50:
     calibrator_state_select_string = ('STATE_ID in [%s'%calibrator_state_IDs[0])
     for state_ID in range(1,len(calibrator_state_IDs)):
         calibrator_state_select_string += (',%s')%calibrator_state_IDs[state_ID]
-   
-    calibrator_state_select_string += ']' 
+
+    calibrator_state_select_string += ']'
     subtable = tb.query(calibrator_state_select_string)
     calibrator_scan_list = list(np.unique(subtable.getcol('SCAN_NUMBER')))
     calibrator_scan_select_string = ','.join(["%s" % ii for ii in calibrator_scan_list])
     calibrator_field_list = list(np.unique(subtable.getcol('FIELD_ID')))
     subtable.close()
     calibrator_field_select_string = ','.join(["%s" % ii for ii in calibrator_field_list])
-   
+
     tb.close()
 else:
     bandpass_state_IDs = []
@@ -424,9 +424,9 @@ else:
             elif (scan_intent == 'CALIBRATE_POINTING'):
                 pointing_state_IDs.append(state_ID)
                 calibrator_state_IDs.append(state_ID)
-   
+
     tb.open(ms_active)
-   
+
     if (len(flux_state_IDs) == 0):
         QA2_msinfo='Fail'
         logprint("ERROR: No flux density calibration scans found", logfileout='logs/msinfo.log')
@@ -444,7 +444,7 @@ else:
         subtable.close()
         flux_field_select_string = ','.join(["%s" % ii for ii in flux_field_list])
         logprint ("Flux density calibrator(s) are fields "+flux_field_select_string, logfileout='logs/msinfo.log')
- 
+
     if (len(bandpass_state_IDs) == 0):
         logprint ("No bandpass calibration scans defined, using flux density calibrator", logfileout='logs/msinfo.log')
         bandpass_scan_select_string=flux_scan_select_string
@@ -470,7 +470,7 @@ else:
             logprint ("WARNING: are to be used, not yet implemented; the pipeline will use", logfileout='logs/msinfo.log')
             logprint ("WARNING: only the first field.", logfileout='logs/msinfo.log')
             bandpass_field_select_string = str(bandpass_field_list[0])
- 
+
     if (len(delay_state_IDs) == 0):
         logprint ("No delay calibration scans defined, using bandpass calibrator", logfileout='logs/msinfo.log')
         delay_scan_select_string=bandpass_scan_select_string
@@ -490,7 +490,7 @@ else:
         subtable.close()
         delay_field_select_string = ','.join(["%s" % ii for ii in delay_field_list])
         logprint ("Delay calibrator(s) are fields "+delay_field_select_string, logfileout='logs/msinfo.log')
-    
+
     if (len(polarization_state_IDs) == 0):
         logprint ("No polarization calibration scans defined, no polarization calibration possible", logfileout='logs/msinfo.log')
         polarization_scan_select_string=''
@@ -509,7 +509,7 @@ else:
         subtable.close()
         polarization_field_select_string = ','.join(["%s" % ii for ii in polarization_field_list])
         logprint ("Polarization calibrator(s) are fields "+polarization_field_select_string, logfileout='logs/msinfo.log')
-    
+
     if (len(phase_state_IDs) == 0):
         QA2_msinfo='Fail'
         logprint("ERROR: No gain calibration scans found", logfileout='logs/msinfo.log')
@@ -527,7 +527,7 @@ else:
         subtable.close()
         phase_field_select_string = ','.join(["%s" % ii for ii in phase_field_list])
         logprint ("Phase calibrator(s) are fields "+phase_field_select_string, logfileout='logs/msinfo.log')
-    
+
     if (len(amp_state_IDs) == 0):
         logprint ("No amplitude calibration scans defined, will use phase calibrator", logfileout='logs/msinfo.log')
         amp_scan_select_string=phase_scan_select_string
@@ -547,21 +547,21 @@ else:
         subtable.close()
         amp_field_select_string = ','.join(["%s" % ii for ii in amp_field_list])
         logprint ("Amplitude calibrator(s) are fields "+amp_field_select_string, logfileout='logs/msinfo.log')
-    
+
     # Find all calibrator scans and fields
-    
+
     calibrator_state_select_string = ('STATE_ID in [%s'%calibrator_state_IDs[0])
     for state_ID in range(1,len(calibrator_state_IDs)):
         calibrator_state_select_string += (',%s')%calibrator_state_IDs[state_ID]
-    
-    calibrator_state_select_string += ']' 
+
+    calibrator_state_select_string += ']'
     subtable = tb.query(calibrator_state_select_string)
     calibrator_scan_list = list(np.unique(subtable.getcol('SCAN_NUMBER')))
     calibrator_scan_select_string = ','.join(["%s" % ii for ii in calibrator_scan_list])
     calibrator_field_list = list(np.unique(subtable.getcol('FIELD_ID')))
     subtable.close()
     calibrator_field_select_string = ','.join(["%s" % ii for ii in calibrator_field_list])
-    
+
     tb.close()
 
 if (((startdate >= 55918.80) and (startdate <= 55938.98)) or ((startdate >= 56253.6) and (startdate <= 56271.6))):
@@ -604,7 +604,7 @@ positions = []
 
 for ii in range(0,len(field_positions[0][0])):
     positions.append([field_positions[0][0][ii], field_positions[1][0][ii]])
-    
+
 fields_3C84 = find_3C84(positions)
 
 cal3C84_d = False
@@ -746,7 +746,7 @@ xaxis='time'
 yaxis='elevation'
 selectdata=True
 spw='*:31'
-antenna='0&1;2&3'
+antenna='0&1;2&3;4&5;6&7'
 correlation=corrstring
 averagedata=False
 transform=False

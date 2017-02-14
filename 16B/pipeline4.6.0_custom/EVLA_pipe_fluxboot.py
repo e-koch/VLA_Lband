@@ -84,7 +84,7 @@ try:
 # looking for lines like:
 #2012-03-09 21:30:23     INFO    fluxscale::::    Flux density for J1717-3342 in SpW=3 is: 1.94158 +/- 0.0123058 (SNR = 157.777, N= 34)
 # sometimes they look like:
-#2012-03-09 21:30:23     INFO    fluxscale::::    Flux density for J1717-3342 in SpW=0 is:  INSUFFICIENT DATA 
+#2012-03-09 21:30:23     INFO    fluxscale::::    Flux density for J1717-3342 in SpW=0 is:  INSUFFICIENT DATA
 # so watch for that.
 
     sources = []
@@ -181,7 +181,7 @@ try:
 # with a = pfinal[0] and b = pfinal[1].  the errors on the coefficients are
 # sqrt(covar[i][i]*residual_variance) with the residual covariance calculated
 # as below (it's like the reduced chi squared without dividing out the errors).
-# see the scipy.optimize.leastsq documentation and 
+# see the scipy.optimize.leastsq documentation and
 # http://stackoverflow.com/questions/14854339/in-scipy-how-and-why-does-curve-fit-calculate-the-covariance-of-the-parameter-es
 #
                 summed_error = 0.0
@@ -266,7 +266,7 @@ selectdata=True
 scan=calibrator_scan_select_string
 correlation=corrstring
 averagedata=True
-avgtime='1e8s'
+avgtime='1e8'
 avgscan=True
 transform=False
 extendflag=False

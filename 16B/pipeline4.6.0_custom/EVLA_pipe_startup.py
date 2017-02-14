@@ -148,13 +148,15 @@ logprint("SDM used is: " + SDM_name, logfileout='logs/startup.log')
 
 # Ask if a a real model column should be created, or the virtual model
 # should be used
-
+mymodel_already_set = 1
 try:
-    scratch
+    mymodel
 except NameError:
-    realmodel = raw_input("Create the real model column (y/n): ")
+    mymodel_already_set = 0
 
-    if realmodel == "y":
+    mymodel = raw_input("Create the real model column (y/n): ")
+
+    if mymodel == "y":
         scratch = True
     else:
         scratch = False

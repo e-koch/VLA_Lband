@@ -85,17 +85,21 @@ for fields in standard_source_fields:
 
             logprint ("Setting model for field "+str(myfield)+" spw "+str(myspw)+" using "+model_image, logfileout='logs/fluxgains.log')
 
-            default('setjy')
-            vis='calibrators.ms'
-            field=str(myfield)
-            spw=str(myspw)
-            selectdata=False
-            scalebychan=True
-            standard='Perley-Butler 2013'
-            model=model_image
-            listmodels=False
-            usescratch=scratch
-            setjy()
+            try:
+                default('setjy')
+                vis='calibrators.ms'
+                field=str(myfield)
+                spw=str(myspw)
+                selectdata=False
+                scalebychan=True
+                standard='Perley-Butler 2013'
+                model=model_image
+                listmodels=False
+                usescratch=scratch
+                setjy()
+            except:
+                logprint('no data found for field ' + str(myfield)+" spw "+str(myspw), logfileout='logs/fluxgains.log')
+
     ii=ii+1
 
 tb.close()

@@ -28,7 +28,7 @@
 ######################################################################
 
 # SEMI-FINAL DELAY AND BANDPASS CALIBRATIONS
-# (semi-final because we have not yet determined the spectral index 
+# (semi-final because we have not yet determined the spectral index
 # of the bandpass calibrator)
 
 # Find reference antenna again after all that flagging
@@ -511,7 +511,7 @@ uvrange='>0klambda'
 scan=calibrator_scan_select_string
 correlation=corrstring
 averagedata=True
-avgtime='1e8s'
+avgtime='1e8'
 avgscan=False
 transform=False
 extendflag=False

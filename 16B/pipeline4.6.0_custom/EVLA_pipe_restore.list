@@ -10,6 +10,8 @@ SDM_name
 msname
 mshsmooth
 ms_spave
+realmodel
+scratch
 myHanning
 projectCode
 piName
@@ -205,5 +207,8 @@ missingScanStr
 afterzero_total
 zero_flagged
 right_index
+spws_info
+spw_names
+mymodel
 test_imaging
 image_sources

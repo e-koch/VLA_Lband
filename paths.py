@@ -45,7 +45,7 @@ archival_hi_analysispath = os.path.join(archival_path, 'AT0206/Analysis')
 
 # Pipeline paths
 fourteenB_pipe_path = os.path.join(c_path, "Cal_Scripts/EVLA_pipeline1.3.0") + "/"
-sixteenB_pipe_path = os.path.join(a_path, "pipeline4.6.0_custom") + "/"
+sixteenB_pipe_path = os.path.join(a_path, "pipeline4.7.1_custom") + "/"
 twelveA_pipe_path = os.path.join(archival_12_path, "pipeline4.6.0") + "/"
 
 # Paths to common modules

@@ -47,7 +47,7 @@ field=calibrator_field_select_string
 correlation=corrstring
 averagedata=True
 avgchannel=str(max(channels))
-avgtime='1e8s'
+avgtime='1e8'
 avgscan=False
 transform=False
 extendflag=False
@@ -91,7 +91,7 @@ plotms()
 #correlation=corrstring
 #averagedata=True
 #avgchannel=str(max(channels))
-#avgtime='1e8s'
+#avgtime='1e8'
 #avgscan=False
 #transform=False
 #extendflag=False
@@ -136,7 +136,7 @@ for ii in field_ids:
     correlation=corrstring
     averagedata=True
     avgchannel=str(max(channels))
-    avgtime='1e8s'
+    avgtime='1e8'
     avgscan=False
     transform=False
     extendflag=False

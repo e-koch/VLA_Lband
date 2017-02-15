@@ -67,20 +67,20 @@ from paths import sixteenB_pipe_path
 # Define location of pipeline
 pipepath = sixteenB_pipe_path
 
-version = "1.3.8"
-svnrevision = '11nnn'
-date = "2016Apr12"
+version = "1.3.10"
+svnrevision = '11nno'
+date = "2017Feb10"
 
-print "Pipeline version " + version + " for use with CASA 4.6.0"
+print "Pipeline version " + version + " for use with CASA 4.7.1"
 
 [major, minor, revision] = casadef.casa_version.split('.')
 casa_version = 100 * int(major) + 10 * int(minor) + int(revision)
-if casa_version < 460:
+if casa_version < 471:
     sys.exit("Your CASA version is " + casadef.casa_version +
-             ", please re-start using CASA 4.6.0")
-if casa_version > 460:
+             ", please re-start using CASA 4.7.1")
+if casa_version > 471:
     sys.exit("Your CASA version is " + casadef.casa_version +
-             ", please re-start using CASA 4.6.0")
+             ", please re-start using CASA 4.7.1")
 
 
 # This is the default time-stamped casa log file, in case we

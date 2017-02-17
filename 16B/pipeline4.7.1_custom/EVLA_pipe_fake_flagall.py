@@ -2,7 +2,17 @@
 '''
 On mixed setups, flagall is already run. This defines the variables set
 during that script so it doesn't need to be run multiple times.
+
+BUT, if we're re-running the pipeline, the script will check for manual
+flagging scripts saved in the appropriate project folder for the track.
+
 '''
+
+import os
+import glob
+import numpy as np
+
+from paths import a_path
 
 logprint("Starting EVLA_pipe_fake_flagall.py",
          logfileout='logs/flagall.log')
@@ -12,6 +22,28 @@ QA2_flagall = 'Pass'
 logprint("These value are based on the current flags on the MS. All"
          " deterministic was performed prior to splitting into separate line"
          " and continuum MSs.")
+
+
+# Path to the manual flagging scripts
+# Do any of them match?
+folder_name = os.getcwd().split("/")[-1]
+proj_code = "16B-242" if "16B-242" in folder_name else "16B-236"
+flagging_path = os.path.join(a_path, proj_code, "track_flagging")
+track_flags = glob.glob(flagging_path + "/*.py")
+hits = np.where([os.getcwd().split("/")[-1] in track for
+                 track in track_flags])[0]
+if len(hits) == 1:
+    logprint("Found a manual flagging script to run: "
+             "{}".format(hits[0].split(",")[-1]))
+    execfile(track_flags[hits[0]])
+elif len(hits) > 1:
+    from warnings import warn
+    import sys
+    logprint("Multiple script hits? Something is wrong!")
+    sys.exit()
+else:
+    logprint("No manual flagging script found.")
+
 
 # report initial statistics
 default('flagdata')

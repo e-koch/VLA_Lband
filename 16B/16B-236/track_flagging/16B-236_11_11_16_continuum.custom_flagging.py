@@ -41,7 +41,7 @@ flagdata(vis=vis_name, mode='manual', scan='9~42,65',
 # A couple bad channels in scans 60,61 for spw 3
 default("flagdata")
 flagdata(vis=vis_name, mode='manual', scan='60~61',
-         spw='3:119~', flagbackup=False)
+         spw='3:119~128', flagbackup=False)
 # Longer bad spike in scan 52
 default("flagdata")
 flagdata(vis=vis_name, mode='manual', scan='52',
@@ -62,6 +62,10 @@ flagdata(vis=vis_name, mode='manual', scan='8',
 default("flagdata")
 flagdata(vis=vis_name, mode='manual', scan='10',
          spw='5:0~21', flagbackup=False)
+flagdata(vis=vis_name, mode='manual', scan='10',
+         spw='5', timerange="<24:00:20",
+         flagbackup=False)
+default("flagdata")
 flagdata(vis=vis_name, mode='manual', scan='33',
          spw='5:71~74', flagbackup=False)
 default("flagdata")
@@ -77,10 +81,13 @@ flagdata(vis=vis_name, mode='manual', scan='62',
 # There's a big spike that appears for only a few scans at a time.
 default("flagdata")
 flagdata(vis=vis_name, mode='manual',
-         scan='10,15~16,36~38,62~64',
+         scan='10,15~16,62~64,65',
          spw='5:18~21',
          flagbackup=False)
-
+flagdata(vis=vis_name, mode='manual',
+         scan='36~38',
+         spw='5:18~24',
+         flagbackup=False)
 # Shorter 52 spike in 6
 default("flagdata")
 flagdata(vis=vis_name, mode='manual', scan='52',

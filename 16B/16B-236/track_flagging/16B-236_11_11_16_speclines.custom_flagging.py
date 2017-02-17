@@ -41,6 +41,10 @@ default('flagdata')
 # flagdata(vis=vis_name, mode='manual', scan='43',
 #          antenna='XXX', flagbackup=False)
 
+# Issue with ea16 in scan 41
+flagdata(vis=vis_name, mode='manual', scan='41',
+         antenna='ea16', flagbackup=False)
+
 default('flagdata')
 # Big RFI peak over half of band
 flagdata(vis=vis_name, mode='manual', scan='52',

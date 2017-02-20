@@ -33,9 +33,10 @@ track_flags = glob.glob(flagging_path + "/*.py")
 hits = np.where([os.getcwd().split("/")[-1] in track for
                  track in track_flags])[0]
 if len(hits) == 1:
+    track_flag_script = track_flags[hits[0]]
     logprint("Found a manual flagging script to run: "
-             "{}".format(hits[0].split(",")[-1]))
-    execfile(track_flags[hits[0]])
+             "{}".format(track_flag_script))
+    execfile(track_flag_script)
 elif len(hits) > 1:
     from warnings import warn
     import sys

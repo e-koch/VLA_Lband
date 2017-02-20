@@ -19,6 +19,16 @@ try:
 except NameError:
     ms_active = raw_input("ms_active is not defined. Provide MS name: ")
 
+# Average over baselines for spectral-line data, but not the continuum
+if "continuum" in ms_active:
+    avg_baseline = True
+elif "speclines" in ms_active:
+    avg_baseline = False
+else:
+    from warnings import warn
+    warn("Unsure if this is a continuum or line MS. Enabling baseline"
+         " averaging.")
+    avg_baseline = True
 
 # SPWs to loop through
 tb.open(os.path.join(ms_active, "SPECTRAL_WINDOW"))
@@ -108,8 +118,12 @@ for spw_num in spws:
             scan = str(jj)
             spw = str(spw_num)
             correlation = "RR,LL"
-            averagedata = False
-            avgbaseline = False
+            if avg_baseline:
+                averagedata = True
+                avgbaseline = True
+            else:
+                averagedata = False
+                avgbaseline = False
             transform = False
             extendflag = False
             plotrange = []
@@ -135,8 +149,12 @@ for spw_num in spws:
             scan = str(jj)
             spw = str(spw_num)
             correlation = "RR,LL"
-            averagedata = False
-            avgbaseline = False
+            if avg_baseline:
+                averagedata = True
+                avgbaseline = True
+            else:
+                averagedata = False
+                avgbaseline = False
             transform = False
             extendflag = False
             plotrange = []
@@ -164,8 +182,12 @@ for spw_num in spws:
             # avgchannel = str(max(channels))
             # avgtime = '1e8s'
             correlation = "RR,LL"
-            averagedata = False
-            avgbaseline = False
+            if avg_baseline:
+                averagedata = True
+                avgbaseline = True
+            else:
+                averagedata = False
+                avgbaseline = False
             transform = False
             extendflag = False
             plotrange = []
@@ -192,8 +214,12 @@ for spw_num in spws:
                 scan = str(jj)
                 spw = str(spw_num)
                 correlation = "RR,LL"
-                averagedata = False
-                avgbaseline = False
+                if avg_baseline:
+                    averagedata = True
+                    avgbaseline = True
+                else:
+                    averagedata = False
+                    avgbaseline = False
                 transform = False
                 extendflag = False
                 plotrange = []
@@ -219,8 +245,12 @@ for spw_num in spws:
                 scan = str(jj)
                 spw = str(spw_num)
                 correlation = "RR,LL"
-                averagedata = False
-                avgbaseline = False
+                if avg_baseline:
+                    averagedata = True
+                    avgbaseline = True
+                else:
+                    averagedata = False
+                    avgbaseline = False
                 transform = False
                 extendflag = False
                 plotrange = []
@@ -248,8 +278,12 @@ for spw_num in spws:
                 correlation = "RR,LL"
                 avgchannel = str(max(channels))
                 # avgtime = '1e8s'
-                averagedata = False
-                avgbaseline = False
+                if avg_baseline:
+                    averagedata = True
+                    avgbaseline = True
+                else:
+                    averagedata = False
+                    avgbaseline = False
                 transform = False
                 extendflag = False
                 plotrange = []

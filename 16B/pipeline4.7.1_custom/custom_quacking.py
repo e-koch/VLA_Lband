@@ -42,7 +42,7 @@ pos = np.where(output[:, 1] == ms_active[:-3])[0]
 if len(pos) == 0:
     logprint("Could not find track name! Skipping 3C48 quack ...")
 else:
-    start_time = output[4][0][-1]
+    start_time = output[pos][0][-1]
 
     flagdata(vis=ms_active, mode='manual', field="3C48",
              flagbackup=False, scan='2', timerange="<{}".format(start_time))

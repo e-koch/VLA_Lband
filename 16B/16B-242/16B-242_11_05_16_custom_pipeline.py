@@ -11,6 +11,7 @@ import sys
 import os
 import time
 import shutil
+from glob import glob
 
 # Import path to pipeline
 from paths import sixteenB_pipe_path
@@ -112,14 +113,20 @@ execfile(pipepath + 'EVLA_pipe_msinfo.py')
 execfile(pipepath + 'EVLA_pipe_flagall.py')
 
 # Copy the logs folder to a unique name
-shutil("logs", "logs_1")
+shutil.move("logs", "logs_1")
 
-shutil.move("*.png", "logs_1")
-shutil.move("*.listobs", "logs_1")
+for png in glob("*.png"):
+    shutil.move(png, "logs_1")
+for lobs in glob("*.listobs"):
+    shutil.move(lobs, "logs_1")
+
+os.makedirs(log_dir)
 
 # Now the second part
 
 SDM_name = "16B-242_sb32614458_5.57697.30203707176"
+
+execfile(pipepath + 'EVLA_pipe_startup.py')
 
 execfile(pipepath + 'EVLA_pipe_import.py')
 
@@ -130,8 +137,10 @@ execfile(pipepath + 'EVLA_pipe_flagall.py')
 # Copy the logs folder to a unique name
 shutil("logs", "logs_2")
 
-shutil.move("*.png", "logs_2")
-shutil.move("*.listobs", "logs_2")
+for png in glob("*.png"):
+    shutil.move(png, "logs_2")
+for lobs in glob("*.listobs"):
+    shutil.move(lobs, "logs_2")
 
 
 # Combine the output MS's
@@ -142,7 +151,11 @@ concat(vis=["16B-242.sb32614458.eb32984320.57697.291263148145.ms",
 default("concat")
 
 # Now run the pipeline as normal
+os.makedirs(log_dir)
+
 SDM_name = "16B-242.sb32614458.eb32984320.57697.291263148145.ms"
+
+execfile(pipepath + 'EVLA_pipe_startup.py')
 
 try:
 

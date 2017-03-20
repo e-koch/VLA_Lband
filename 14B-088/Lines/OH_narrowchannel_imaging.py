@@ -57,7 +57,7 @@ for weighting in weightings:
                              "OH1665_14B-088_{}".format(weighting))
 
     # Ensure there aren't any old versions
-    rmtables(os.path.join(out_image, "*"))
+    rmtables(out_image + ".*")
 
     clean(vis=ms_active, imagename=out_image, niter=0, imsize=imagesize,
           cell=cellsize, mode=mode, nchan=nchan, width=width, start=start,

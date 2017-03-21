@@ -22,6 +22,9 @@ rotsub_cube_name = \
 centroidsub_cube_name = \
     "M33_14B-088_HI.clean.image.pbcov_gt_{}_masked.centroid_corrected.fits".format(pb_lim)
 
+peakvelsub_cube_name = \
+    "M33_14B-088_HI.clean.image.pbcov_gt_{}_masked.peakvels_corrected.fits".format(pb_lim)
+
 mask_name = \
     "M33_14B-088_HI.clean.image.pbcov_gt_{}_masked_source_mask" \
     ".fits".format(pb_lim)
@@ -33,6 +36,10 @@ rotsub_mask_name = \
 centroidsub_mask_name = \
     "M33_14B-088_HI.clean.image.pbcov_gt_{}_masked_source_mask" \
     ".centroid_corrected.fits".format(pb_lim)
+
+peakvelssub_mask_name = \
+    "M33_14B-088_HI.clean.image.pbcov_gt_{}_masked_source_mask" \
+    ".peakvels_corrected.fits".format(pb_lim)
 
 moment0_name = \
     "M33_14B-088_HI.clean.image.pbcov_gt_{}_masked.mom0.fits".format(pb_lim)

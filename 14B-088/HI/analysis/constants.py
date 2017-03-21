@@ -11,6 +11,8 @@ pb_lim = 0.5
 
 co21_mass_conversion = 6.7 * (u.Msun / u.pc ** 2) / (u.K * u.km / u.s)
 
+hi_coldens_Kkms = 1.82e18 * u.cm**-2 / (u.K * u.km / u.s)
+
 cube_name = \
     "M33_14B-088_HI.clean.image.pbcov_gt_{}_masked.fits".format(pb_lim)
 
@@ -49,6 +51,9 @@ kurt_name = \
 
 peakvels_name = \
     "M33_14B-088_HI.clean.image.pbcov_gt_{}_masked.peakvels.fits".format(pb_lim)
+
+peaktemps_name = \
+    "M33_14B-088_HI.clean.image.pbcov_gt_{}_masked.peaktemps.fits".format(pb_lim)
 
 regridco_cube_name = \
     "M33_14B-088_HI.clean.image.pbcov_gt_{}_masked_co21_full_regrid.fits".format(pb_lim)

@@ -1,6 +1,7 @@
 
 from spectral_cube import SpectralCube
 from spectral_cube.lower_dimensional_structures import Projection
+from spectral_cube.cube_utils import average_beams
 import numpy as np
 import astropy.units as u
 from astropy.io import fits
@@ -11,7 +12,8 @@ from multiprocessing import Pool
 from analysis.paths import fourteenB_HI_data_path
 from analysis.constants import (cube_name, mask_name, moment0_name,
                                 moment1_name, lwidth_name, skew_name,
-                                kurt_name, peakvels_name)
+                                kurt_name, peakvels_name, peaktemps_name,
+                                hi_freq)
 
 
 cube = SpectralCube.read(fourteenB_HI_data_path(cube_name))
@@ -59,6 +61,10 @@ kurt = (mom4 / linewidth ** 4) - 3
 kurt.write(fourteenB_HI_data_path(kurt_name, no_check=True),
            overwrite=True)
 
+# Peak temperature map. And convert to K
+peak_temps = cube.max(axis=0) * average_beams(cube.beams).jtok(hi_freq)
+peak_temps.write(fourteenB_HI_data_path(peaktemps_name, no_check=True),
+                 overwrite=True)
 
 # Peak velocity map
 def peak_velocity(inputs):

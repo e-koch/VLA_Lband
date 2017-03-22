@@ -48,7 +48,7 @@ def total_profile(cube, spatial_mask=None, verbose=True):
 co_cube = SpectralCube.read(iram_co21_data_path("m33.co21_iram.rotsub.fits"))
 co_cube_cent = \
     SpectralCube.read(iram_co21_data_path("m33.co21_iram.hi_centroid_corrected.fits"))
-co_cube_cent = \
+co_cube_peakvel = \
     SpectralCube.read(iram_co21_data_path("m33.co21_iram.hi_peakvels_corrected.fits"))
 
 hi_cube = SpectralCube.read(fourteenB_HI_data_path(rotsub_cube_name))
@@ -116,7 +116,7 @@ for ctr, (r0, r1) in enumerate(zip(inneredge,
     total_spectrum_co_radial_cent[ctr] = \
         total_profile(co_cube_cent, co_rad_mask)
     total_spectrum_co_radial_peakvel[ctr] = \
-        total_profile(co_cube_cent, co_rad_mask)
+        total_profile(co_cube_peakvel, co_rad_mask)
 
 # Need to get portions of HI emission beyond 6 kpc.
 total_spectrum_hi = \
@@ -133,7 +133,7 @@ total_spectrum_co = total_spectrum_co_radial.sum(0)
 
 total_spectrum_co_cent = total_spectrum_co_radial_cent.sum(0)
 
-total_spectrum_co_cent = total_spectrum_co_radial_peakvel.sum(0)
+total_spectrum_co_peakvel = total_spectrum_co_radial_peakvel.sum(0)
 
 twocolumn_twopanel_figure()
 # Plot the profiles.
@@ -155,7 +155,6 @@ ax[0].text(-45, 0.88, "Rotation\nsubtracted",
 ax[0].set_ylim([-0.02, 1.1])
 ax[0].set_xlim([-50, 50])
 ax[0].grid()
-ax[0].legend(frameon=True)
 
 ax[1].plot(hi_cube_cent.spectral_axis.to(u.km / u.s).value,
            (total_spectrum_hi_cent / total_spectrum_hi_cent.max()).value,
@@ -174,17 +173,18 @@ ax[1].grid()
 
 ax[2].plot(hi_cube_peakvel.spectral_axis.to(u.km / u.s).value,
            (total_spectrum_hi_peakvel / total_spectrum_hi_peakvel.max()).value,
-           'b-', drawstyle='steps-mid')
+           'b-', drawstyle='steps-mid', label="HI")
 ax[2].plot(co_cube.spectral_axis.to(u.km / u.s).value,
-           (total_spectrum_co_radial_peakvel / total_spectrum_co_radial_peakvel.max()).value,
-           'g--', drawstyle='steps-mid')
+           (total_spectrum_co_peakvel / total_spectrum_co_peakvel.max()).value,
+           'g--', drawstyle='steps-mid', label="CO(2-1)")
 # ax[2].set_title("Centroid subtracted")
-ax[2].text(-45, 0.88, "Peak Velocity\nsubtracted",
+ax[2].text(-45, 0.88, "Peak Vel.\nsubtracted",
            bbox={"boxstyle": "square", "facecolor": "w"})
 
 ax[2].set_xlabel("Velocity (km/s)")
 ax[2].set_ylim([-0.02, 1.1])
 ax[2].set_xlim([-50, 50])
+ax[2].legend(frameon=True)
 ax[2].grid()
 
 p.tight_layout()
@@ -258,11 +258,11 @@ for spectrum, label, file_label in zip(spectra, labels, file_labels):
     ax1 = p.subplot2grid((5, 1), (0, 0), rowspan=4)
     p.plot(vels, norm_intens, 'b-', drawstyle='steps-mid')
     p.plot(vels, g_HI(vels), 'k:', label="Total Fit")
-    p.plot(vels, g_HI["None_0"](vels), 'g--', label="Narrow Component")
-    p.plot(vels, g_HI["None_1"](vels), 'm-.', label="Wide Component")
+    p.plot(vels, g_HI["None_0"](vels), 'g--', label="Narrow")
+    p.plot(vels, g_HI["None_1"](vels), 'm-.', label="Wide")
     p.ylabel("HI Normalized Intensity")
     p.xticks([])
-    p.xlim([-100, 130])
+    p.xlim([-50, 50])
     p.legend(frameon=True)
     p.ylim([-0.1, 1.1])
     p.grid()
@@ -272,7 +272,7 @@ for spectrum, label, file_label in zip(spectra, labels, file_labels):
     p.hlines(0.0, -100, 100, color='k')
     p.grid()
     p.ylim([-0.015, 0.015])
-    p.xlim([-100, 130])
+    p.xlim([-50, 50])
     p.xlabel("Velocity (km/s)")
     p.ylabel("Residuals")
 
@@ -284,8 +284,6 @@ for spectrum, label, file_label in zip(spectra, labels, file_labels):
     p.savefig(paper1_figures_path(filename + ".png"))
     # raw_input("Next plot?")
     p.close()
-
-fit_g = fitting.LevMarLSQFitter()
 
 # Save parameter table
 hi_param_df = DataFrame(hi_fit_vals, index=parnames)
@@ -326,7 +324,7 @@ for spectrum, label, file_label in zip(spectra, labels, file_labels):
     p.plot(more_vels, g_CO(more_vels), 'k--', label="Fit")
     p.ylabel("CO Normalized Intensity")
     p.xticks([])
-    p.xlim([-100, 100])
+    p.xlim([-50, 50])
     p.legend(frameon=True)
     p.ylim([-0.1, 1.1])
     p.grid()
@@ -334,10 +332,10 @@ for spectrum, label, file_label in zip(spectra, labels, file_labels):
     ax2 = p.subplot2grid((5, 1), (4, 0))
     p.plot(co_vels, norm_co_intens - g_CO(co_vels), 'b-',
            drawstyle='steps-mid')
-    p.hlines(0.0, -100, 100, color='k')
+    p.hlines(0.0, -50, 50, color='k')
     p.grid()
     # p.ylim([-0.015, 0.015])
-    p.xlim([-100, 100])
+    p.xlim([-50, 50])
     p.yticks([-0.06, -0.03, 0.0, 0.03, 0.06])
     p.xlabel("Velocity (km/s)")
     p.ylabel("Residuals")
@@ -541,7 +539,7 @@ ax[0].errorbar(bin_cents, co_params["rotsub_stddev"],
 ax[0].legend(loc='lower left', frameon=True)
 ax[0].grid()
 ax[0].set_ylim([0.25, 15])
-ax[0].text(3.5, 13.5, "Rotation subtracted",
+ax[0].text(1.3, 13.5, "Rotation subtracted",
            bbox={"boxstyle": "square", "facecolor": "w"})
 ax[0].set_xlabel("Radius (kpc)")
 ax[0].set_ylabel("Fitted Gaussian Width (km/s)")
@@ -556,20 +554,20 @@ ax[1].errorbar(bin_cents, co_params["centsub_stddev"],
                drawstyle='steps-mid')
 ax[1].grid()
 ax[1].set_xlabel("Radius (kpc)")
-ax[1].text(3.5, 13.5, "Centroid subtracted",
+ax[1].text(1.3, 13.5, "Centroid subtracted",
            bbox={"boxstyle": "square", "facecolor": "w"})
 
-ax[1].errorbar(bin_cents, hi_params["peaksub_stddev"],
+ax[2].errorbar(bin_cents, hi_params["peaksub_stddev"],
                yerr=hi_width_error(hi_params["peaksub_stddev_stderr"]),
                color='b', label='HI',
                drawstyle='steps-mid')
-ax[1].errorbar(bin_cents, co_params["peaksub_stddev"],
+ax[2].errorbar(bin_cents, co_params["peaksub_stddev"],
                yerr=co_width_error(co_params["peaksub_stddev_stderr"]),
                color='g', linestyle='--', label='CO(2-1)',
                drawstyle='steps-mid')
-ax[1].grid()
-ax[1].set_xlabel("Radius (kpc)")
-ax[1].text(3.5, 13.5, "Peak Vel. subtracted",
+ax[2].grid()
+ax[2].set_xlabel("Radius (kpc)")
+ax[2].text(1.3, 13.5, "Peak Vel. subtracted",
            bbox={"boxstyle": "square", "facecolor": "w"})
 p.tight_layout()
 p.subplots_adjust(hspace=0.05,

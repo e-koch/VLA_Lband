@@ -21,7 +21,7 @@ from paths import (fourteenB_HI_data_path, iram_co21_data_path,
                    paper1_figures_path)
 from galaxy_params import gal
 from plotting_styles import onecolumn_figure, default_figure, twocolumn_figure
-from constants import moment0_name, hi_freq, moment1_name
+from constants import moment0_name, hi_freq, moment1_name, peakvels_name
 
 try:
     from corner import hist2d
@@ -48,7 +48,14 @@ hi_model = return_smooth_model(tab, cube.header, gal) * u.m / u.s
 # Now load in the HI centroids
 moment1 = fits.open(fourteenB_HI_data_path(moment1_name))[0]
 
+# And the peak HI velocities
+peakvel = fits.open(fourteenB_HI_data_path(peakvels_name))[0]
+
+
+# Reproject to the CO
 moment1_reproj = reproject_interp(moment1, cube.wcs.celestial,
+                                  shape_out=cube.shape[1:])[0] * u.m / u.s
+peakvel_reproj = reproject_interp(peakvel, cube.wcs.celestial,
                                   shape_out=cube.shape[1:])[0] * u.m / u.s
 
 
@@ -118,6 +125,26 @@ p.savefig(paper1_figures_path("co21_Tpeak_velocity_offset.pdf"))
 p.savefig(paper1_figures_path("co21_Tpeak_velocity_offset.png"))
 p.close()
 
+# HI vs CO peak velocities
+vel_diff_peaks = \
+    (peakvel_reproj - vel_Tpeak).to(u.km / u.s)
+vel_diff_peaks_values = \
+    vel_diff_peaks.value[Tpeak_mask & np.isfinite(Tpeak)]
+
+hist2d(vel_diff_peaks_values, Tpeak_values, bins=16, data_kwargs={"alpha": 0.6},
+       range=[(0.0, 30.0),
+              (0.0, np.max(Tpeak_values))])
+p.hlines(co_avg_noise.to(u.K).value * min_snr, 0.0, 30.0, color='r',
+         linestyle='--')
+p.ylabel(r"T$_\mathrm{peak, CO}$ (K)")
+p.xlabel(r"|V$_\mathrm{peak, CO}$ - V$_\mathrm{peak, HI}$| (km/s)")
+p.grid()
+p.tight_layout()
+
+p.savefig(paper1_figures_path("co21_Tpeak_peakvelocity_offset.pdf"))
+p.savefig(paper1_figures_path("co21_Tpeak_peakvelocity_offset.png"))
+p.close()
+
 # Now do the difference between HI and CO centroids
 # vel_diff = (hi_model - vel_Tpeak).to(u.km / u.s)
 # vel_diff_values = vel_diff[Tpeak_mask & np.isfinite(Tpeak)]
@@ -150,7 +177,7 @@ hist2d(np.abs(vel_diff_centroid_values), Tpeak_values, bins=12,
 p.hlines(co_avg_noise.to(u.K).value * min_snr, 0.0, 120.0, color='r',
          linestyle='--')
 p.ylabel(r"T$_\mathrm{peak, CO}$ (K)")
-p.xlabel(r"|V$_\mathrm{cent, CO}$ - V$_\mathrm{cemt, HI}$| (km/s)")
+p.xlabel(r"|V$_\mathrm{cent, CO}$ - V$_\mathrm{cent, HI}$| (km/s)")
 p.grid()
 p.tight_layout()
 

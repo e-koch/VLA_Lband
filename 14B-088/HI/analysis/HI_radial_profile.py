@@ -4,7 +4,7 @@ from spectral_cube import SpectralCube
 from astropy import units as u
 from astropy.coordinates import Angle
 
-hi_mass_conversion = 0.019 * (u.M_sun / u.pc ** 2) / (u.K * u.km / u.s)
+from constants import hi_mass_conversion
 
 
 def surfdens_radial_profile(gal, header=None, cube=None,

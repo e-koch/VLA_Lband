@@ -10,14 +10,18 @@ from scipy.stats import binned_statistic
 import numpy as np
 from reproject import reproject_interp
 from skimage.segmentation import find_boundaries
+from skimage.morphology import medial_axis
 from astropy.utils.console import ProgressBar
+from corner import hist2d
 
 from analysis.paths import (fourteenB_HI_data_path, iram_co21_data_path,
                             paper1_figures_path)
 from analysis.constants import rotsub_cube_name, hi_freq
 from analysis.galaxy_params import gal
 from analysis.plotting_styles import (default_figure, twocolumn_figure,
-                                      onecolumn_figure)
+                                      onecolumn_figure,
+                                      twocolumn_twopanel_figure,
+                                      align_yaxis)
 
 
 default_figure()
@@ -58,7 +62,9 @@ all_radii = []
 all_vals_hi = []
 all_vals_co = []
 edge_masks = []
-skeletons = []
+skeleton_dists = []
+skeleton_dists_pix = []
+skeleton_widths = []
 
 hi_beam = average_beams(hi_cube.beams)
 
@@ -85,8 +91,8 @@ for i, (end, start) in enumerate(ProgressBar(zip(vels[1:], vels[:-1]))):
     bub = BubbleFinder2D(hi_mom0, auto_cut=False, sigma=sigma)
     bub.create_mask(bkg_nsig=30, region_min_nsig=60, mask_clear_border=False)
 
-    # skeleton = medial_axis(~bub.mask)
-    # skeletons.append(skeleton)
+    skeleton, dists = medial_axis(~bub.mask, return_distance=True)
+    skeleton_dists.append(skeleton * dists)
 
     edge_mask = find_boundaries(bub.mask, connectivity=2, mode='outer')
     hole_mask = bub.mask.copy()
@@ -114,6 +120,11 @@ for i, (end, start) in enumerate(ProgressBar(zip(vels[1:], vels[:-1]))):
     all_radii.extend(list(radii.value[radial_cut]))
     all_vals_hi.extend(list(hi_mom0.value[radial_cut] / 1000.))
     all_vals_co.extend(list(co_mom0.value[radial_cut] / 1000.))
+
+    # Track the width of the mask
+    skeleton_widths.extend(list((skeleton * dists)[radial_cut]))
+    # Also record all of the distances from the centre of the skeletons
+    skeleton_dists_pix.extend(list(nd.distance_transform_edt(~skeleton)[radial_cut]))
 
     if verbose:
         print("Velocities: {} to {}".format(start, end))
@@ -143,6 +154,9 @@ all_dists = np.array(all_dists)
 all_radii = np.array(all_radii)
 all_vals_hi = np.array(all_vals_hi)
 all_vals_co = np.array(all_vals_co)
+
+skeleton_widths = np.array(skeleton_widths)
+skeleton_dists_pix = np.array(skeleton_dists_pix)
 
 # Now bin all of the distances against the HI and CO intensities.
 bins = np.arange(-30, 30, 1)
@@ -188,7 +202,6 @@ pixscale = \
     hi_mom0.header['CDELT2'] * (np.pi / 180.) * gal.distance.to(u.pc).value
 
 bin_centers *= pixscale
-
 
 onecolumn_figure()
 
@@ -391,5 +404,153 @@ fig.savefig(paper1_figures_path("mask_edge_radial_profiles_byradius.pdf"))
 fig.savefig(paper1_figures_path("mask_edge_radial_profiles_byradius.png"))
 
 p.close()
+
+onecolumn_figure()
+
+# Is the variation being driven by a change in the width of the regions?
+bins = np.arange(0, 6.5, 0.5) * 1000
+dists, bin_edges, bin_num = \
+    binned_statistic(all_radii[skeleton_widths > 0],
+                     skeleton_widths[skeleton_widths > 0],
+                     bins=bins, statistic=np.mean)
+dist_std = \
+    binned_statistic(all_radii[skeleton_widths > 0],
+                     skeleton_widths[skeleton_widths > 0],
+                     bins=bins, statistic=np.std)[0]
+
+bin_width = (bin_edges[1] - bin_edges[0])
+bin_centers = bin_edges[1:] - bin_width / 2
+
+ang_conv = (hi_mom0.header["CDELT2"] * u.deg).to(u.arcsec)
+phys_conv = ang_conv.to(u.rad).value * 840e3 * u.pc
+
+p.plot(all_radii[skeleton_widths > 0] / 1000.,
+       skeleton_widths[skeleton_widths > 0] * phys_conv.value,
+       'ko', alpha=0.1, ms=3.0, zorder=-1)
+
+p.errorbar(bin_centers / 1000., dists * phys_conv.value,
+           yerr=dist_std * phys_conv.value, color='r',
+           marker='', linestyle='-', linewidth=2, elinewidth=2)
+p.ylabel("Width of mask regions (pc)")
+p.xlabel("Radius (kpc)")
+
+p.tight_layout()
+
+p.savefig(paper1_figures_path("mask_width_byradius.pdf"))
+p.savefig(paper1_figures_path("mask_width_byradius.png"))
+p.close()
+
+# Let's take some other views of this data, while we're at it.
+
+twocolumn_twopanel_figure()
+
+fig, ax = p.subplots(1, 2, sharex=True)
+
+hist2d(skeleton_widths[skeleton_widths > 0] * phys_conv.value,
+       all_vals_co[skeleton_widths > 0],
+       ax=ax[1], data_kwargs={"alpha": 0.6})
+ax[1].set_xlabel("Mask Width (pc)")
+ax[1].set_ylabel(r"CO Int. Intensity (K km s$^{-1}$)")
+
+hist2d(skeleton_widths[skeleton_widths > 0] * phys_conv.value,
+       all_vals_hi[skeleton_widths > 0],
+       ax=ax[0], data_kwargs={"alpha": 0.6})
+ax[0].set_xlabel("Mask Width (pc)")
+ax[0].set_ylabel(r"HI Int. Intensity (K km s$^{-1}$)")
+
+p.tight_layout()
+
+p.savefig(paper1_figures_path("mask_widthvsintensity.pdf"))
+p.savefig(paper1_figures_path("mask_widthvsintensity.png"))
+p.close()
+
+# HI vs. CO with all skeleton distances (not just on the skeleton like above)
+bins = np.arange(0, 31, 1)
+
+selector_pts = np.logical_and(all_vals_co > 0,
+                              np.logical_and(all_vals_hi > 0,
+                                             skeleton_dists_pix < 30))
+
+hi_mean, bin_edges, bin_num = \
+    binned_statistic(skeleton_dists_pix[selector_pts],
+                     all_vals_hi[selector_pts],
+                     bins=bins, statistic=np.mean)
+hi_85 = \
+    binned_statistic(skeleton_dists_pix[selector_pts],
+                     all_vals_hi[selector_pts],
+                     bins=bins, statistic=lambda x: np.percentile(x, 85))[0]
+hi_15 = \
+    binned_statistic(skeleton_dists_pix[selector_pts],
+                     all_vals_hi[selector_pts],
+                     bins=bins, statistic=lambda x: np.percentile(x, 15))[0]
+
+co_mean = \
+    binned_statistic(skeleton_dists_pix[selector_pts],
+                     all_vals_co[selector_pts],
+                     bins=bins, statistic=np.mean)[0]
+co_85 = \
+    binned_statistic(skeleton_dists_pix[selector_pts],
+                     all_vals_co[selector_pts],
+                     bins=bins, statistic=lambda x: np.percentile(x, 85))[0]
+co_15 = \
+    binned_statistic(skeleton_dists_pix[selector_pts],
+                     all_vals_co[selector_pts],
+                     bins=bins, statistic=lambda x: np.percentile(x, 15))[0]
+
+bin_width = (bin_edges[1] - bin_edges[0])
+bin_centers = bin_edges[1:] - bin_width / 2
+
+twocolumn_twopanel_figure()
+
+fig, ax = p.subplots(1, 2, sharex=True)
+
+ax[1].plot(skeleton_dists_pix[selector_pts] * phys_conv.value,
+           all_vals_co[selector_pts], 'ko', ms=2.0, alpha=0.6,
+           rasterized=True, zorder=-1)
+ax[1].set_xlabel("Distance from Mask Centre (pc)")
+ax[1].set_ylabel(r"CO Int. Intensity (K km s$^{-1}$)")
+
+ax[0].plot(skeleton_dists_pix[selector_pts] * phys_conv.value,
+           all_vals_hi[selector_pts], 'ko', ms=2.0, alpha=0.6,
+           rasterized=True, zorder=-1)
+ax[0].set_xlabel("Distance from Mask Centre (pc)")
+ax[0].set_ylabel(r"HI Int. Intensity (K km s$^{-1}$)")
+
+p.tight_layout()
+
+p.savefig(paper1_figures_path("mask_intensity_vs_skeldist.pdf"))
+p.savefig(paper1_figures_path("mask_intensity_vs_skeldist.png"))
+p.close()
+
+onecolumn_figure()
+ax = p.subplot(111)
+pl1 = ax.plot(bin_centers * phys_conv.value, hi_mean, "bD-",
+              label='HI')
+# ax.errorbar(bin_centers * phys_conv.value, hi_mean,
+#             yerr=[hi_mean - hi_15, hi_85 - hi_mean], color='b',
+#             marker='D', linestyle='-', linewidth=2, elinewidth=2)
+ax.set_xlabel("Distance from Mask Centre (pc)")
+ax.set_ylabel(r"HI Int. Intensity (K km s$^{-1}$)")
+
+ax_2 = ax.twinx()
+pl2 = ax_2.plot(bin_centers * phys_conv.value, co_mean, "ro--", label='CO')
+# ax_2.errorbar(bin_centers * phys_conv.value, co_mean,
+#               yerr=[co_mean - co_15, co_85 - co_mean], color='r',
+#               marker='o', linestyle='--', linewidth=2, elinewidth=2)
+ax_2.set_ylabel(r"CO Int. Intensity (K km s$^{-1}$)")
+# align_yaxis(ax, 0, ax_2, 0)
+
+pls = pl1 + pl2
+labs = [l.get_label() for l in pls]
+ax.legend(pls, labs, frameon=True)
+
+ax.grid()
+
+p.tight_layout()
+
+p.savefig(paper1_figures_path("mask_intensity_vs_skeldist_mean.pdf"))
+p.savefig(paper1_figures_path("mask_intensity_vs_skeldist_mean.png"))
+p.close()
+
 
 default_figure()

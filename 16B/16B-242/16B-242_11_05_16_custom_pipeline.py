@@ -135,7 +135,7 @@ execfile(pipepath + 'EVLA_pipe_msinfo.py')
 execfile(pipepath + 'EVLA_pipe_flagall.py')
 
 # Copy the logs folder to a unique name
-shutil("logs", "logs_2")
+shutil.move("logs", "logs_2")
 
 for png in glob("*.png"):
     shutil.move(png, "logs_2")

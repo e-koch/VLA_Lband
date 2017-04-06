@@ -4,11 +4,11 @@ Use the clean cloud sample from cloud_catalog.py to find the CO and HI spectra
 over each cloud.
 '''
 
-from astropy.table import Table
 from astropy.io import fits
 from astropy.wcs import WCS
 from astropy.utils.console import ProgressBar
 import astropy.units as u
+from scipy import ndimage as nd
 from spectral_cube import SpectralCube
 from spectral_cube.lower_dimensional_structures import Projection
 from spectral_cube.cube_utils import average_beams
@@ -16,59 +16,61 @@ from reproject import reproject_interp
 import numpy as np
 import matplotlib.pyplot as plt
 from multiprocessing import Pool
+import seaborn as sb
+from signal_id import Noise
 
 
 from analysis.paths import (fourteenB_HI_data_path, iram_co21_data_path,
                             paper1_figures_path)
-from analysis.constants import rotsub_cube_name, hi_freq, cube_name, moment1_name
+from analysis.constants import hi_freq, cube_name, moment1_name
 from analysis.galaxy_params import gal
 from analysis.spectra_shifter import cube_shifter
-from analysis.plotting_styles import onecolumn_figure
-
-
-# Set the same origin for double axis plots
-def align_yaxis(ax1, v1, ax2, v2):
-    """adjust ax2 ylimit so that v2 in ax2 is aligned to v1 in ax1"""
-    _, y1 = ax1.transData.transform((0, v1))
-    _, y2 = ax2.transData.transform((0, v2))
-    inv = ax2.transData.inverted()
-    _, dy = inv.transform((0, 0)) - inv.transform((0, y1 - y2))
-    miny, maxy = ax2.get_ylim()
-    ax2.set_ylim(miny + dy, maxy + dy)
+from analysis.plotting_styles import onecolumn_figure, align_yaxis
 
 
 hi_cube = SpectralCube.read(fourteenB_HI_data_path(cube_name))
 hi_beam = average_beams(hi_cube.beams)
 hi_mom1 = fits.open(fourteenB_HI_data_path(moment1_name))[0]
 
-tab = Table.read(iram_co21_data_path("m33.co21_new_props_clfind_cleansample.fits"))
 
-cloud_mask = \
-    fits.open(iram_co21_data_path("m33.co21_new_assign_cprops_cleansample.fits"))[0]
+# cloud_mask = \
+#     fits.open(iram_co21_data_path("m33.co21_new_assign_cprops_cleansample.fits"))[0]
+# Improved cloud mask from Braine & Corbelli
+cloud_mask_hdu = fits.open(iram_co21_data_path("asgn.fits"))[0]
+# The cloud edges can be quite strict. Spectrally expand the mask one pixel
+# in each direction
+cloud_mask = nd.binary_dilation(cloud_mask_hdu.data > 0,
+                                np.array([[[1, 1, 1]]]).T)
 
 cube = SpectralCube.read(iram_co21_data_path("m33.co21_iram.fits"))
-del cube._header[""]
+cube = cube.with_mask(cloud_mask)
+
+# Make a SNR cube
+# noise = Noise(cube)
+# noise.estimate_noise(spectral_flat=True)
+# noise.get_scale_cube()
+
+# snr = SpectralCube(data=noise.snr.copy(), wcs=cube.wcs)
 
 
 # Create a CO centroid map where the GMC mask is valid.
 def peak_velocity(y, x, cube):
-    argmax = np.argmax(cube[:, y, x].value)
+    argmax = np.nanargmax(cube[:, y, x].value)
     return cube.spectral_axis[argmax]
 
 
 peak_intens = cube.max(0)
-peak_mask = peak_intens > 5 * 22. * u.mK
-valid_mask = cloud_mask.data.sum(0) > 0
+valid_mask = cloud_mask.sum(0) > 0
 
 cube_specinterp = cube.spectral_interpolate(hi_cube.spectral_axis)
-mom1 = cube_specinterp.with_mask(valid_mask).moment1()
-mom1[~peak_mask] = np.NaN
+mom1 = cube_specinterp.moment1()
 # mom1[~peak_mask] = np.NaN
-peak_vels_arr = np.zeros_like(mom1)
+peak_vels_arr = np.zeros_like(mom1) * np.NaN
+pbar = ProgressBar(len(zip(*np.where(valid_mask))))
 for y, x in zip(*np.where(valid_mask)):
     peak_vels_arr[y, x] = peak_velocity(y, x, cube_specinterp)
-peak_vels_arr[peak_vels_arr == 0.0] = np.NaN
-peak_vels_arr[~peak_mask] = np.NaN
+    pbar.update()
+
 # Moment 1 and peak vels need to be somewhat close to each other
 # max_diff = 20 * u.km / u.s
 # bad_peaks = np.abs(peak_vels_arr - mom1) > max_diff
@@ -76,11 +78,11 @@ peak_vels_arr[~peak_mask] = np.NaN
 
 peak_vels = Projection(peak_vels_arr, unit=mom1.unit, wcs=mom1.wcs)
 
-# mom1_reproj_arr = reproject_interp(mom1.hdu,
-#                                    hi_cube.wcs.celestial,
-#                                    shape_out=hi_cube.shape[1:])[0]
-# mom1_reproj = Projection(mom1_reproj_arr, unit=mom1.unit,
-#                          wcs=hi_cube.wcs.celestial)
+mom1_reproj_arr = reproject_interp(mom1.hdu,
+                                   hi_cube.wcs.celestial,
+                                   shape_out=hi_cube.shape[1:])[0]
+mom1_reproj = Projection(mom1_reproj_arr, unit=mom1.unit,
+                         wcs=hi_cube.wcs.celestial)
 peak_vels_reproj_arr = \
     reproject_interp(peak_vels.hdu,
                      hi_cube.wcs.celestial,
@@ -102,10 +104,8 @@ vels_hi = peak_vels_reproj
 # vels_co = mom1
 # vels_hi = mom1_reproj
 
-# Reproject onto HI grid
-
 # Loop through the clouds, making the total/average profiles.
-num_clouds = int(cloud_mask.data.max())
+num_clouds = int(cloud_mask_hdu.data.max())
 
 cloud_total_specs_co = np.zeros((num_clouds, cube.shape[0]))
 cloud_total_specs_hi = np.zeros((num_clouds, hi_cube.shape[0]))
@@ -114,7 +114,7 @@ cloud_avg_specs_co = np.zeros((num_clouds, cube.shape[0]))
 cloud_avg_specs_hi = np.zeros((num_clouds, hi_cube.shape[0]))
 
 # Plot for each cloud
-verbose = True
+verbose = False
 
 # pool = Pool(6)
 pool = None
@@ -122,13 +122,13 @@ pool = None
 for i in ProgressBar(num_clouds):
 
     # Find spatial extent of the cloud
-    plane = (cloud_mask.data == i + 1).sum(0) > 0
+    plane = (cloud_mask_hdu.data == i + 1).sum(0) > 0
     xy_posns = np.where(plane)
 
     co_spec = np.zeros((cube.shape[0],))
     co_count = np.zeros((cube.shape[0],))
 
-    # Shift wrt to CO centroids.
+    # Shift wrt to CO peak or centroid.
     co_shifted = cube_shifter(cube, vels_co, gal.vsys, xy_posns=xy_posns,
                               pool=pool, return_spectra=True,)
 
@@ -141,7 +141,7 @@ for i in ProgressBar(num_clouds):
     cloud_avg_specs_co[i] = co_spec / co_count
 
     # Now regrid plane onto the HI and do the same.
-    plane_reproj = reproject_interp((plane, WCS(cloud_mask.header).celestial),
+    plane_reproj = reproject_interp((plane, WCS(cloud_mask_hdu.header).celestial),
                                     hi_cube.wcs.celestial,
                                     shape_out=hi_cube.shape[1:])[0] > 0
     xy_posns_hi = np.where(plane_reproj)
@@ -216,7 +216,9 @@ for i in ProgressBar(num_clouds):
         ax[2].set_ylabel("CO Intensity (mK)")
         ax[2].grid()
 
+        # plt.draw()
         # raw_input("?")
+        # plt.clf()
         fig.savefig(paper1_figures_path("GMC_CO_peakshift/GMC_CO_peakshift"
                                         "_{}.png".format(i + 1)))
         fig.savefig(paper1_figures_path("GMC_CO_peakshift/GMC_CO_peakshift"
@@ -224,3 +226,7 @@ for i in ProgressBar(num_clouds):
 
         plt.clf()
 plt.close()
+
+# Save the stacked spectra
+np.savetxt("GMC_stackedspectra_peakvels_CO.txt", cloud_avg_specs_co)
+np.savetxt("GMC_stackedspectra_peakvels_HI.txt", cloud_avg_specs_hi)

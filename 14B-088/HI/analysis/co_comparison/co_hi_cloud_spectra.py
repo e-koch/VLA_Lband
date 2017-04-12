@@ -77,6 +77,7 @@ for y, x in zip(*np.where(valid_mask)):
 # peak_vels_arr[bad_peaks] = np.NaN
 
 peak_vels = Projection(peak_vels_arr, unit=mom1.unit, wcs=mom1.wcs)
+peak_vels.write(iram_co21_data_path("m33.co21_iram.masked.peakvel.fits", no_check=True))
 
 mom1_reproj_arr = reproject_interp(mom1.hdu,
                                    hi_cube.wcs.celestial,
@@ -89,6 +90,7 @@ peak_vels_reproj_arr = \
                      shape_out=hi_cube.shape[1:])[0]
 peak_vels_reproj = Projection(peak_vels_reproj_arr, unit=mom1.unit,
                               wcs=hi_cube.wcs.celestial)
+peak_vels_reproj.write(iram_co21_data_path("m33.co21_iram.masked.peakvel.hireprojection.fits", no_check=True))
 
 # hi_mom1_reproj_arr = reproject_interp(hi_mom1, cube.wcs.celestial,
 #                                       shape_out=mom1.shape)[0]

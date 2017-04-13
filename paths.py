@@ -69,3 +69,7 @@ paper1_figures_path = \
     lambda x: os.path.join(papers_path, "In Prep/m33-HI-paper1/figures/", x)
 paper1_tables_path = \
     lambda x: os.path.join(papers_path, "In Prep/m33-HI-paper1/tables/", x)
+
+# Proposal Figures
+varfig_path = os.path.expanduser("~/Dropbox/Various Plots/Proposals")
+proposal_figures_path = lambda x: os.path.join(varfig_path, x)

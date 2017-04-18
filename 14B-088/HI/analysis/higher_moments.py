@@ -66,8 +66,8 @@ cbar = p.colorbar(im)
 cbar.set_label("Skewness")
 
 ax2 = p.subplot(122, projection=kurt.wcs)
-im2 = ax2.imshow(kurt.value, vmin=-2, vmax=1,
-                 origin='lower', interpolation='nearest', cmap='binary')
+im2 = ax2.imshow(kurt.value, vmin=-3, vmax=3,
+                 origin='lower', interpolation='nearest', cmap='seismic')
 ax2.set_xlabel("RA (J2000)")
 lat = ax2.coords[1]
 lat.set_ticklabel_visible(False)

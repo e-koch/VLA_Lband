@@ -5,6 +5,16 @@ Define HI frequency once.
 
 import astropy.units as u
 
+distance = 840 * u.kpc
+
+
+def ang_to_phys(ang_size, distance=distance):
+    '''
+    Convert from angular to physical scales
+    '''
+    return (ang_size.to(u.rad).value * distance).to(u.pc)
+
+
 hi_freq = 1.42040575177 * u.GHz
 
 pb_lim = 0.5

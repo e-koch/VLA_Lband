@@ -38,9 +38,8 @@ fig.show_grayscale()
 
 # The NOEMA map has not (yet) been cleaned, so just clip to the tops of the
 # brightest peaks! Specifically, highlight that super-duper bright clump
-co_cube = SpectralCube.read("/home/eric/bigdata/ekoch/Data_3/M33/co21_noema/M33-ARM13-merged.fits")
-del co_cube._header[""]
-co21_mom0 = cube.with_mask(co_cube > 0.3 * u.Jy).moment0()
+co_cube = SpectralCube.read("/home/eric/bigdata/ekoch/M33/co21_noema/M33-ARM13-merged.fits")
+co21_mom0 = co_cube.with_mask(co_cube > 0.3 * u.Jy).moment0()
 
 # And an unmasked so we can show the map coverage.
 co21_mom0_mask = co_cube.moment0().value > 0.005

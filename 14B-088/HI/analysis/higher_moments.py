@@ -15,7 +15,8 @@ from astropy.visualization.mpl_normalize import ImageNormalize
 from analysis.paths import (fourteenB_HI_data_path, paper1_figures_path,
                             iram_co21_data_path, data_path)
 from constants import (hi_freq, cube_name, moment0_name, lwidth_name,
-                       skew_name, kurt_name, mask_name, moment1_name)
+                       skew_name, kurt_name, mask_name, moment1_name,
+                       rotsub_cube_name, rotsub_mask_name)
 from plotting_styles import (twocolumn_figure, onecolumn_figure,
                              default_figure)
 
@@ -26,6 +27,12 @@ Investigating skewness and kurtosis in the 14B-088 cube.
 cube = SpectralCube.read(fourteenB_HI_data_path(cube_name))
 mask = fits.open(fourteenB_HI_data_path(mask_name))[0].data > 0
 cube = cube.with_mask(mask)
+
+# Checked whether these variations in the spectra are driven by rotation
+# There is not significant change on these scales.
+# cube = SpectralCube.read(fourteenB_HI_data_path(rotsub_cube_name))
+# mask = fits.open(fourteenB_HI_data_path(rotsub_mask_name))[0].data > 0
+# cube = cube.with_mask(mask)
 
 mom0_hdu = fits.open(fourteenB_HI_data_path(moment0_name))[0]
 mom0 = Projection(mom0_hdu.data, wcs=WCS(mom0_hdu.header),
@@ -79,7 +86,7 @@ p.tight_layout()
 p.savefig(paper1_figures_path("skew_kurt_maps.pdf"))
 p.savefig(paper1_figures_path("skew_kurt_maps.png"))
 
-# raw_input("Next plot?")
+raw_input("Next plot?")
 p.close()
 
 
@@ -220,6 +227,12 @@ p.close()
 spectral_cuts = np.array([[-72, -180], [-200, -280], [-220, -315]]) * \
     u.km / u.s
 
+# If using with rotation-subtracted cube. This does NOT change the small-scale
+# variation in the components.
+# spectral_cuts = np.array([[-60, 60], [-60, 60], [-60, 60]]) * \
+#     u.km / u.s
+
+
 # In text, put the physical distance away from the "center" (usually the
 # brightest). Each pixel in the map is 12 pc (1 pix = 3'', 1'' = 4 pc)
 sarm_dists = np.array([3, 2, 1, 0, -1, -2]) * 10 * 12 * u.pc
@@ -284,7 +297,6 @@ for posns, cuts, name, dist in zip(spec_posns, spectral_cuts, names, dists):
     p.savefig(paper1_figures_path("{}_spectra.png").format(name))
     p.savefig(paper1_figures_path("{}_spectra.pdf").format(name))
 
-    # raw_input("Next plot?")
     p.close()
 
 default_figure()

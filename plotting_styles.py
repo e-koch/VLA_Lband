@@ -57,6 +57,20 @@ def onecolumn_figure(fig_ratio=None, font_scale=1.2):
                    rc={"figure.figsize": figsize})
 
 
+def onecolumn_Npanel_figure(N, font_scale=1.2):
+
+    width = 4.2
+
+    height = (4.4 / 6.4) * N * width
+
+    onecolumn_figure(fig_ratio=height / width, font_scale=font_scale)
+
+
+def onecolumn_twopanel_figure(font_scale=1.2):
+
+    onecolumn_Npanel_figure(N=2, font_scale=font_scale)
+
+
 def image_shape_ratio(shape):
     '''
     Return the width / height for adjusting figure sizes.

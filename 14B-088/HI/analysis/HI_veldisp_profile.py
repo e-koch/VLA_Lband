@@ -101,32 +101,6 @@ def radial_profile(gal, moment, header=None, dr=100 * u.pc,
     return radprof, sdprof, sdprof_sigma
 
 
-def total_profile(cube, spatial_mask=None, verbose=True):
-    '''
-    Create the total profile over a region in a given spatial mask.
-    '''
-
-    posns = np.where(spatial_mask)
-
-    if verbose:
-        spec_iter = ProgressBar(posns[0].size)
-    else:
-        spec_iter = xrange(posns[0].size)
-
-    total_profile = np.zeros((cube.shape[0],)) * cube.unit
-
-    for i in spec_iter:
-        y, x = posns[0][i], posns[1][i]
-
-        spec = cube[:, y, x]
-        mask_spec = cube.mask.include(view=(slice(None), y, x))
-        valid = np.logical_and(np.isfinite(spec), mask_spec)
-
-        total_profile[valid] += spec[valid]
-
-    return total_profile
-
-
 if __name__ == "__main__":
     import matplotlib.pyplot as p
     from spectral_cube.cube_utils import average_beams
@@ -207,22 +181,11 @@ if __name__ == "__main__":
     p.close()
 
     # Now do line stacking with the same bin size
-
-    hi_cube = SpectralCube.read(fourteenB_HI_data_path(rotsub_cube_name))
-    hi_mask = fits.open(fourteenB_HI_data_path(rotsub_mask_name))[0]
-    hi_cube = hi_cube.with_mask(hi_mask.data > 0)
-
-    hi_cube_cent = SpectralCube.read(fourteenB_HI_data_path(centroidsub_cube_name))
-    hi_mask_cent = fits.open(fourteenB_HI_data_path(centroidsub_mask_name))[0]
-    hi_cube_cent = hi_cube_cent.with_mask(hi_mask_cent.data > 0)
-
-    hi_cube_peakvel = SpectralCube.read(fourteenB_HI_data_path(peakvelsub_cube_name))
-    hi_mask_peakvel = fits.open(fourteenB_HI_data_path(peakvelssub_mask_name))[0]
-    hi_cube_peakvel = hi_cube_cent.with_mask(hi_mask_peakvel.data > 0)
-
-    hi_beam = average_beams(hi_cube.beams)
-
-    hi_radius = gal.radius(header=hi_cube.header)
+    # Load in the stacked "cubes". First spatial dimension are the radial bins
+    # (100 pc)
+    total_spectrum_hi_radial = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/rotation_stacked_radial_100pc.fits"))
+    total_spectrum_hi_radial_cent = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/centroid_stacked_radial_100pc.fits"))
+    total_spectrum_hi_radial_peakvel = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/peakvel_stacked_radial_100pc.fits"))
 
     dr = 100 * u.pc
     max_radius = (8.0 * u.kpc).to(u.pc)
@@ -230,30 +193,6 @@ if __name__ == "__main__":
     nbins = np.int(np.floor(max_radius / dr))
     inneredge = np.linspace(0, max_radius - dr, nbins)
     outeredge = np.linspace(dr, max_radius, nbins)
-
-    total_spectrum_hi_radial = \
-        np.zeros((inneredge.size, hi_cube.shape[0])) * u.K
-    total_spectrum_hi_radial_cent = \
-        np.zeros((inneredge.size, hi_cube.shape[0])) * u.K
-    total_spectrum_hi_radial_peakvel = \
-        np.zeros((inneredge.size, hi_cube.shape[0])) * u.K
-
-    for ctr, (r0, r1) in enumerate(zip(inneredge,
-                                       outeredge)):
-
-        print("On bin {} to {}".format(r0.value, r1))
-
-        hi_rad_mask = np.logical_and(hi_radius >= r0,
-                                     hi_radius < r1)
-
-        total_spectrum_hi_radial[ctr] = \
-            total_profile(hi_cube, hi_rad_mask).to(u.K, equivalencies=hi_beam.jtok_equiv(hi_freq))
-
-        total_spectrum_hi_radial_cent[ctr] = \
-            total_profile(hi_cube_cent, hi_rad_mask).to(u.K, equivalencies=hi_beam.jtok_equiv(hi_freq))
-
-        total_spectrum_hi_radial_peakvel[ctr] = \
-            total_profile(hi_cube_peakvel, hi_rad_mask).to(u.K, equivalencies=hi_beam.jtok_equiv(hi_freq))
 
     g_HI_init = models.Gaussian1D(amplitude=1., mean=0., stddev=10.)
 
@@ -271,9 +210,9 @@ if __name__ == "__main__":
     for ctr, (r0, r1) in enumerate(zip(inneredge,
                                        outeredge)):
 
-        hi_spectra = [total_spectrum_hi_radial[ctr],
-                      total_spectrum_hi_radial_cent[ctr],
-                      total_spectrum_hi_radial_peakvel[ctr]]
+        hi_spectra = [total_spectrum_hi_radial[:, ctr, 0],
+                      total_spectrum_hi_radial_cent[:, ctr, 0],
+                      total_spectrum_hi_radial_peakvel[:, ctr, 0]]
 
         for spectrum, label in zip(hi_spectra, labels):
 

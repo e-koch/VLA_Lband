@@ -11,11 +11,13 @@ import os
 from reproject import reproject_interp
 from astropy.visualization import AsinhStretch
 from astropy.visualization.mpl_normalize import ImageNormalize
+from corner import hist2d
 
 from analysis.paths import (fourteenB_HI_data_path, paper1_figures_path,
                             iram_co21_data_path, data_path)
 from constants import (hi_freq, cube_name, moment0_name, lwidth_name,
                        skew_name, kurt_name, mask_name, moment1_name,
+                       peaktemps_name, peakvels_name,
                        rotsub_cube_name, rotsub_mask_name)
 from plotting_styles import (twocolumn_figure, onecolumn_figure,
                              default_figure)
@@ -35,22 +37,25 @@ cube = cube.with_mask(mask)
 # cube = cube.with_mask(mask)
 
 mom0_hdu = fits.open(fourteenB_HI_data_path(moment0_name))[0]
-mom0 = Projection(mom0_hdu.data, wcs=WCS(mom0_hdu.header),
-                  unit=u.Jy * u.m / u.s)
+mom0 = Projection.from_hdu(mom0_hdu)
 
 mom1_hdu = fits.open(fourteenB_HI_data_path(moment1_name))[0]
-mom1 = Projection(mom1_hdu.data, wcs=WCS(mom1_hdu.header),
-                  unit=u.m / u.s)
+mom1 = Projection.from_hdu(mom1_hdu)
 
 lwidth_hdu = fits.open(fourteenB_HI_data_path(lwidth_name))[0]
-lwidth = Projection(lwidth_hdu.data, wcs=WCS(lwidth_hdu.header),
-                    unit=u.m / u.s)
+lwidth = Projection.from_hdu(lwidth_hdu)
 
 skew_hdu = fits.open(fourteenB_HI_data_path(skew_name))[0]
-skew = Projection(skew_hdu.data, wcs=WCS(skew_hdu.header), unit=u.Unit(""))
+skew = Projection.from_hdu(skew_hdu)
 
 kurt_hdu = fits.open(fourteenB_HI_data_path(kurt_name))[0]
-kurt = Projection(kurt_hdu.data, wcs=WCS(kurt_hdu.header), unit=u.Unit(""))
+kurt = Projection.from_hdu(kurt_hdu)
+
+peaktemps_hdu = fits.open(fourteenB_HI_data_path(peaktemps_name))[0]
+peaktemps = Projection.from_hdu(peaktemps_hdu)
+
+peakvels_hdu = fits.open(fourteenB_HI_data_path(peakvels_name))[0]
+peakvels = Projection.from_hdu(peakvels_hdu)
 
 # CO and 3.6 um for comparison
 co_hdu = fits.open(iram_co21_data_path("m33.ico.hireprojection.fits"))[0]
@@ -298,5 +303,197 @@ for posns, cuts, name, dist in zip(spec_posns, spectral_cuts, names, dists):
     p.savefig(paper1_figures_path("{}_spectra.pdf").format(name))
 
     p.close()
+
+
+# Compare the population of values to different properties
+# Convert zeroth moment to K km/s from Jy m/s
+mom0_vals = (mom0.array.flatten() * mom0.beam.jtok(hi_freq) *
+             u.km / u.s / 1000.).value
+mom1_vals = mom1.to(u.km / u.s).array.flatten()
+lwidth_vals = lwidth.to(u.km / u.s).array.flatten()
+skew_vals = skew.array.flatten()
+kurt_vals = kurt.array.flatten()
+peaktemps_vals = peaktemps.array.flatten()
+peakvels_vals = peakvels.to(u.km / u.s).array.flatten()
+
+good_vals = np.isfinite(skew_vals)
+
+mask_summed = cube.mask.include().sum(0)
+
+onecolumn_figure(font_scale=1.1)
+# Skew vs. kurt
+hist2d(skew_vals[good_vals], kurt_vals[good_vals],
+       data_kwargs={"alpha": 0.2},
+       range=[(-3, 3), (-3, 6)])
+p.xlabel("Skewness")
+p.ylabel("Kurtosis")
+p.tight_layout()
+
+p.savefig(paper1_figures_path("skewness_vs_kurtosis.pdf"))
+p.savefig(paper1_figures_path("skewness_vs_kurtosis.png"))
+p.close()
+
+# Versus integrated intensity
+hist2d(mom0_vals[good_vals], skew_vals[good_vals],
+       data_kwargs={"alpha": 0.2},
+       range=[(-1, np.nanmax(mom0_vals)), (-3, 3)])
+p.xlabel(r"Integrated Intensity (K km s$^{-1}$)")
+p.ylabel("Skewness")
+p.tight_layout()
+
+p.savefig(paper1_figures_path("mom0_vs_skewness.pdf"))
+p.savefig(paper1_figures_path("mom0_vs_skewness.png"))
+p.close()
+
+hist2d(mom0_vals[good_vals], kurt_vals[good_vals],
+       data_kwargs={"alpha": 0.2},
+       range=[(-1, np.nanmax(mom0_vals)), (-3, 6)])
+p.xlabel(r"Integrated Intensity (K km s$^{-1}$)")
+p.ylabel("Kurtosis")
+p.tight_layout()
+
+p.savefig(paper1_figures_path("mom0_vs_kurtosis.pdf"))
+p.savefig(paper1_figures_path("mom0_vs_kurtosis.png"))
+p.close()
+
+# Take a bin of summed mask values and see where this lies on the mom0 vs
+# kurtosis plane
+hist2d(mom0_vals[good_vals], kurt_vals[good_vals],
+       data_kwargs={"alpha": 0.2},
+       range=[(-1, np.nanmax(mom0_vals)), (-3, 6)])
+p.xlabel(r"Integrated Intensity (K km s$^{-1}$)")
+p.ylabel("Kurtosis")
+
+mask_summed_300 = mask_summed.flatten()[good_vals] == 300
+p.plot(mom0_vals[good_vals][mask_summed_300],
+       kurt_vals[good_vals][mask_summed_300], 'D')
+p.tight_layout()
+p.savefig(paper1_figures_path("mom0_vs_kurtosis_w_maskwidth300.pdf"))
+p.savefig(paper1_figures_path("mom0_vs_kurtosis_w_maskwidth300.png"))
+p.close()
+
+# Compare velocity surfaces to skew and kurt.
+hist2d(mom1_vals[good_vals], skew_vals[good_vals],
+       data_kwargs={"alpha": 0.2},
+       range=[(np.nanmin(mom1_vals), np.nanmax(mom1_vals)), (-3, 3)])
+p.xlabel(r"Centroid Velocity (km s$^{-1}$)")
+p.ylabel("Skewness")
+p.tight_layout()
+
+p.savefig(paper1_figures_path("mom1_vs_skewness.pdf"))
+p.savefig(paper1_figures_path("mom1_vs_skewness.png"))
+p.close()
+
+hist2d(mom1_vals[good_vals], kurt_vals[good_vals],
+       data_kwargs={"alpha": 0.2},
+       range=[(np.nanmin(mom1_vals), np.nanmax(mom1_vals)), (-3, 6)])
+p.xlabel(r"Centroid Velocity (km s$^{-1}$)")
+p.ylabel("Kurtosis")
+p.tight_layout()
+
+p.savefig(paper1_figures_path("mom1_vs_kurtosis.pdf"))
+p.savefig(paper1_figures_path("mom1_vs_kurtosis.png"))
+p.close()
+
+hist2d(peakvels_vals[good_vals], skew_vals[good_vals],
+       data_kwargs={"alpha": 0.2},
+       range=[(np.nanmin(peakvels_vals), np.nanmax(peakvels_vals)), (-3, 3)])
+p.xlabel(r"Peak Velocity (km s$^{-1}$)")
+p.ylabel("Skewness")
+p.tight_layout()
+
+p.savefig(paper1_figures_path("peakvel_vs_skewness.pdf"))
+p.savefig(paper1_figures_path("peakvel_vs_skewness.png"))
+p.close()
+
+hist2d(peakvels_vals[good_vals], kurt_vals[good_vals],
+       data_kwargs={"alpha": 0.2},
+       range=[(np.nanmin(peakvels_vals), np.nanmax(peakvels_vals)), (-3, 6)])
+p.xlabel(r"Peak Velocity (km s$^{-1}$)")
+p.ylabel("Kurtosis")
+p.tight_layout()
+
+p.savefig(paper1_figures_path("peakvel_vs_kurtosis.pdf"))
+p.savefig(paper1_figures_path("peakvel_vs_kurtosis.png"))
+p.close()
+
+# Versus peak temperature
+hist2d(peaktemps_vals[good_vals], skew_vals[good_vals],
+       data_kwargs={"alpha": 0.2},
+       range=[(np.nanmin(peaktemps).value, np.nanmax(peaktemps).value),
+              (-3, 3)])
+p.xlabel("Peak Temperature (K)")
+p.ylabel("Skewness")
+p.tight_layout()
+
+p.savefig(paper1_figures_path("peaktemp_vs_skewness.pdf"))
+p.savefig(paper1_figures_path("peaktemp_vs_skewness.png"))
+p.close()
+
+hist2d(peaktemps_vals[good_vals], kurt_vals[good_vals],
+       data_kwargs={"alpha": 0.2},
+       range=[(np.nanmin(peaktemps).value, np.nanmax(peaktemps).value),
+              (-3, 6)])
+p.xlabel("Peak Temperature (K)")
+p.ylabel("Kurtosis")
+p.tight_layout()
+
+p.savefig(paper1_figures_path("peaktemp_vs_kurtosis.pdf"))
+p.savefig(paper1_figures_path("peaktemp_vs_kurtosis.png"))
+p.close()
+
+hist2d(peaktemps_vals[good_vals], kurt_vals[good_vals],
+       data_kwargs={"alpha": 0.2},
+       range=[(np.nanmin(peaktemps).value, np.nanmax(peaktemps).value),
+              (-3, 6)])
+p.xlabel("Peak Temperature (K)")
+p.ylabel("Kurtosis")
+
+p.plot(peaktemps_vals[good_vals][mask_summed_300],
+       kurt_vals[good_vals][mask_summed_300], 'D')
+p.tight_layout()
+p.savefig(paper1_figures_path("peaktemp_vs_kurtosis_w_maskwidth300.pdf"))
+p.savefig(paper1_figures_path("peaktemp_vs_kurtosis_w_maskwidth300.png"))
+p.close()
+
+
+# How badly is each affected by the shape of the mask?
+hist2d(mask_summed.flatten()[good_vals], skew_vals[good_vals],
+       data_kwargs={"alpha": 0.2},
+       range=[(np.nanmin(mask_summed), np.nanmax(mask_summed)), (-3, 3)])
+p.xlabel("Summed Mask (spectral pixels)")
+p.ylabel("Skewness")
+p.tight_layout()
+
+p.savefig(paper1_figures_path("maskshape_vs_skewness.pdf"))
+p.savefig(paper1_figures_path("maskshape_vs_skewness.png"))
+p.close()
+
+hist2d(mask_summed.flatten()[good_vals], kurt_vals[good_vals],
+       data_kwargs={"alpha": 0.2},
+       range=[(np.nanmin(mask_summed), np.nanmax(mask_summed)), (-3, 6)])
+p.xlabel("Summed Mask (spectral pixels)")
+p.ylabel("Kurtosis")
+p.tight_layout()
+
+p.savefig(paper1_figures_path("maskshape_vs_kurtosis.pdf"))
+p.savefig(paper1_figures_path("maskshape_vs_kurtosis.png"))
+p.close()
+
+# hist2d(mask_summed.flatten()[good_vals], peaktemps_vals[good_vals],
+#        data_kwargs={"alpha": 0.2},
+#        range=[(np.nanmin(mask_summed), np.nanmax(mask_summed)),
+#               (np.nanmin(peaktemps_vals), np.nanmax(peaktemps_vals))])
+
+# hist2d(mask_summed.flatten()[good_vals], mom0_vals[good_vals],
+#        data_kwargs={"alpha": 0.2},
+#        range=[(np.nanmin(mask_summed), np.nanmax(mask_summed)),
+#               (np.nanmin(mom0).value, np.nanmax(mom0).value)])
+
+# hist2d(mom0_vals[good_vals], peaktemps_vals[good_vals],
+#        data_kwargs={"alpha": 0.2},
+#        range=[(np.nanmin(mom0_vals), np.nanmax(mom0_vals)),
+#               (np.nanmin(peaktemps_vals), np.nanmax(peaktemps_vals))])
+
 
 default_figure()

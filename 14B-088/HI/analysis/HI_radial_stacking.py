@@ -187,3 +187,85 @@ if __name__ == "__main__":
                                                  no_check=True), overwrite=True)
     peakvel_stack.write(fourteenB_HI_data_path("stacked_spectra/peakvel_stacked_radial_{}.fits".format(wstring),
                                                no_check=True), overwrite=True)
+
+    # Finally, fit Gaussian models and save the fit results
+
+    dr = 100 * u.pc
+    max_radius = (8.0 * u.kpc).to(u.pc)
+
+    nbins = np.int(np.floor(max_radius / dr))
+    inneredge = np.linspace(0, max_radius - dr, nbins)
+    outeredge = np.linspace(dr, max_radius, nbins)
+
+    g_HI_init = models.Gaussian1D(amplitude=1., mean=0., stddev=10.)
+
+    hi_params = {}
+    labels = ["rotsub", "rotsub_n", "rotsub_s", "centsub", "centsub_n",
+              "centsub_s", "peaksub", "peaksub_n", "peaksub_s"]
+
+    for sub in labels:
+        for name in g_HI_init.param_names:
+            par_name = "{0}_{1}".format(sub, name)
+            par_error = "{}_stderr".format(par_name)
+
+            hi_params[par_name] = np.zeros_like(inneredge.value)
+            hi_params[par_error] = np.zeros_like(inneredge.value)
+
+    for ctr, (r0, r1) in enumerate(zip(inneredge,
+                                       outeredge)):
+
+        hi_spectra = [rot_stack[:, ctr, 0],
+                      rot_stack_n[:, ctr, 0],
+                      rot_stack_s[:, ctr, 0],
+                      cent_stack[:, ctr, 0],
+                      cent_stack_n[:, ctr, 0],
+                      cent_stack_s[:, ctr, 0],
+                      peakvel_stack[:, ctr, 0],
+                      peakvel_stack_n[:, ctr, 0],
+                      peakvel_stack_s[:, ctr, 0]]
+
+        for spectrum, label in zip(hi_spectra, labels):
+
+            fit_g = fitting.LevMarLSQFitter()
+
+            vels = hi_cube.spectral_axis.to(u.km / u.s).value
+            norm_intens = (spectrum / spectrum.max()).value
+            g_HI = fit_g(g_HI_init, vels, norm_intens, maxiter=1000)
+
+            cov = fit_g.fit_info['param_cov']
+            if cov is None:
+                raise Exception("No covariance matrix")
+
+            idx_corr = 0
+            for idx, name in enumerate(g_HI.param_names):
+                if name == "mean_1":
+                    idx_corr = 1
+                    continue
+                par_name = "{0}_{1}".format(label, name)
+                hi_params[par_name][ctr] = g_HI.parameters[idx]
+                hi_params["{}_stderr".format(par_name)][ctr] = \
+                    np.sqrt(cov[idx - idx_corr, idx - idx_corr])
+
+    bin_names = ["{}-{}".format(r0.value, r1)
+                 for r0, r1 in zip(inneredge, outeredge)]
+
+    bin_center = (inneredge + dr / 2.).to(u.kpc)
+    hi_params["bin_center"] = bin_center
+
+    # Add stderr in quadrature with the channel width
+    hi_velres = \
+        (hi_cube.spectral_axis[1] -
+         hi_cube.spectral_axis[0]).to(u.km / u.s).value
+
+    # Add the velocity width of the channel in quadrature
+    for col in hi_params.keys():
+        if "amplitude_stderr" in col or "stddev_stderr" in col:
+            hi_params[col + "_w_chanwidth"] = np.sqrt(hi_params[col]**2 +
+                                                      hi_velres**2)
+
+    hi_radial_fits = DataFrame(hi_params, index=bin_names)
+
+    bin_string = "{0}{1}".format(int(dr.value), dr.unit)
+    hi_radial_fits.to_latex(paper1_tables_path("hi_gaussian_totalprof_fits_radial_{}.tex".format(bin_string)))
+    hi_radial_fits.to_csv(fourteenB_HI_data_path("tables/hi_gaussian_totalprof_fits_radial_{}.csv".format(bin_string),
+                                                 no_check=True))

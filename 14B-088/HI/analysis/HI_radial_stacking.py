@@ -190,13 +190,6 @@ if __name__ == "__main__":
 
     # Finally, fit Gaussian models and save the fit results
 
-    dr = 100 * u.pc
-    max_radius = (8.0 * u.kpc).to(u.pc)
-
-    nbins = np.int(np.floor(max_radius / dr))
-    inneredge = np.linspace(0, max_radius - dr, nbins)
-    outeredge = np.linspace(dr, max_radius, nbins)
-
     g_HI_init = models.Gaussian1D(amplitude=1., mean=0., stddev=10.)
 
     hi_params = {}

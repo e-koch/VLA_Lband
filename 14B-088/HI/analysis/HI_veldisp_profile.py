@@ -105,7 +105,7 @@ if __name__ == "__main__":
     import matplotlib.pyplot as p
     from spectral_cube.cube_utils import average_beams
     from astropy.modeling import models, fitting
-    from pandas import DataFrame
+    from pandas import DataFrame, read_csv
 
     from paths import (fourteenB_HI_data_path, arecibo_HI_data_path,
                        c_hi_analysispath, paper1_figures_path,
@@ -117,7 +117,8 @@ if __name__ == "__main__":
                            peakvelsub_cube_name, peakvelssub_mask_name)
 
     from galaxy_params import gal
-    from plotting_styles import default_figure, onecolumn_figure
+    from plotting_styles import (default_figure, onecolumn_figure,
+                                 twocolumn_twopanel_figure)
 
 
     lwidth_hdu = fits.open(fourteenB_HI_data_path(lwidth_name))[0]
@@ -180,81 +181,10 @@ if __name__ == "__main__":
     # raw_input("Next plot?")
     p.close()
 
-    # Now do line stacking with the same bin size
-    # Load in the stacked "cubes". First spatial dimension are the radial bins
-    # (100 pc)
-    total_spectrum_hi_radial = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/rotation_stacked_radial_100pc.fits"))
-    total_spectrum_hi_radial_cent = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/centroid_stacked_radial_100pc.fits"))
-    total_spectrum_hi_radial_peakvel = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/peakvel_stacked_radial_100pc.fits"))
+    # Now load in the line stacking fits with the same bin size
 
-    dr = 100 * u.pc
-    max_radius = (8.0 * u.kpc).to(u.pc)
-
-    nbins = np.int(np.floor(max_radius / dr))
-    inneredge = np.linspace(0, max_radius - dr, nbins)
-    outeredge = np.linspace(dr, max_radius, nbins)
-
-    g_HI_init = models.Gaussian1D(amplitude=1., mean=0., stddev=10.)
-
-    hi_params = {}
-    labels = ["rotsub", "centsub", "peaksub"]
-
-    for sub in labels:
-        for name in g_HI_init.param_names:
-            par_name = "{0}_{1}".format(sub, name)
-            par_error = "{}_stderr".format(par_name)
-
-            hi_params[par_name] = np.zeros_like(inneredge.value)
-            hi_params[par_error] = np.zeros_like(inneredge.value)
-
-    for ctr, (r0, r1) in enumerate(zip(inneredge,
-                                       outeredge)):
-
-        hi_spectra = [total_spectrum_hi_radial[:, ctr, 0],
-                      total_spectrum_hi_radial_cent[:, ctr, 0],
-                      total_spectrum_hi_radial_peakvel[:, ctr, 0]]
-
-        for spectrum, label in zip(hi_spectra, labels):
-
-            fit_g = fitting.LevMarLSQFitter()
-
-            vels = hi_cube.spectral_axis.to(u.km / u.s).value
-            norm_intens = (spectrum / spectrum.max()).value
-            g_HI = fit_g(g_HI_init, vels, norm_intens, maxiter=1000)
-
-            cov = fit_g.fit_info['param_cov']
-            if cov is None:
-                raise Exception("No covariance matrix")
-
-            idx_corr = 0
-            for idx, name in enumerate(g_HI.param_names):
-                if name == "mean_1":
-                    idx_corr = 1
-                    continue
-                par_name = "{0}_{1}".format(label, name)
-                hi_params[par_name][ctr] = g_HI.parameters[idx]
-                hi_params["{}_stderr".format(par_name)][ctr] = \
-                    np.sqrt(cov[idx - idx_corr, idx - idx_corr])
-
-    bin_names = ["{}-{}".format(r0.value, r1)
-                 for r0, r1 in zip(inneredge, outeredge)]
-
-    bin_center = (inneredge + dr / 2.).to(u.kpc)
-    hi_params["bin_center"] = bin_center
-
-    hi_radial_fits = DataFrame(hi_params, index=bin_names)
-
-    bin_string = "{0}{1}".format(int(dr.value), dr.unit)
-    hi_radial_fits.to_latex(paper1_tables_path("hi_gaussian_totalprof_fits_radial_{}.tex".format(bin_string)))
-    hi_radial_fits.to_csv(fourteenB_HI_data_path("tables/hi_gaussian_totalprof_fits_radial_{}.csv".format(bin_string),
-                                                 no_check=True))
-
-    hi_velres = \
-        (hi_cube.spectral_axis[1] -
-         hi_cube.spectral_axis[0]).to(u.km / u.s).value
-
-    # Add the velocity width of the channel in quadrature
-    hi_width_error = lambda val: np.sqrt(val**2 + hi_velres**2)
+    hi_radial_fits = \
+        read_csv(fourteenB_HI_data_path("tables/hi_gaussian_totalprof_fits_radial_100pc.csv"))
 
     onecolumn_figure(font_scale=1.)
     p.errorbar(rs.value, sd.value,
@@ -266,15 +196,15 @@ if __name__ == "__main__":
     # Now the stacked fits
     p.errorbar(hi_radial_fits['bin_center'],
                hi_radial_fits['rotsub_stddev'],
-               yerr=hi_width_error(hi_radial_fits['rotsub_stddev_stderr']),
+               yerr=hi_radial_fits['rotsub_stddev_stderr_w_chanwidth'],
                fmt='D', label='Rotation Stacked Fit', alpha=0.5)
     p.errorbar(hi_radial_fits['bin_center'],
                hi_radial_fits['centsub_stddev'],
-               yerr=hi_width_error(hi_radial_fits['centsub_stddev_stderr']),
+               yerr=hi_radial_fits['centsub_stddev_stderr_w_chanwidth'],
                fmt='o', label='Centroid Stacked Fit', alpha=0.5)
     p.errorbar(hi_radial_fits['bin_center'],
                hi_radial_fits['peaksub_stddev'],
-               yerr=hi_width_error(hi_radial_fits['peaksub_stddev_stderr']),
+               yerr=hi_radial_fits['peaksub_stddev_stderr_w_chanwidth'],
                fmt='^', label='Peak Stacked Fit', alpha=0.5)
     p.grid()
     p.legend(frameon=True)
@@ -283,6 +213,59 @@ if __name__ == "__main__":
     p.savefig(paper1_figures_path("hi_veldisp_w_stackedfits.png"))
     p.savefig(paper1_figures_path("hi_veldisp_w_stackedfits.pdf"))
 
+    p.close()
+
+    # Let's compare the line width from the second moment to the Gaussian width
+    rot_stack = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/rotation_stacked_radial_100pc.fits"))
+    cent_stack = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/centroid_stacked_radial_100pc.fits"))
+    peakvel_stack = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/peakvel_stacked_radial_100pc.fits"))
+
+    twocolumn_twopanel_figure(font_scale=1.2)
+
+    fig, ax = p.subplots(1, 3, sharey=True)
+    ax[0].errorbar(hi_radial_fits['bin_center'],
+                   hi_radial_fits['rotsub_stddev'],
+                   yerr=hi_radial_fits['rotsub_stddev_stderr_w_chanwidth'],
+                   fmt='D', label='Gaussian Fit', alpha=0.5)
+    ax[0].plot(hi_radial_fits['bin_center'],
+               rot_stack.linewidth_sigma().value / 1000.,
+               label="Moment")
+    ax[0].text(5, 11.5, "Rotation\nsubtracted",
+               bbox={"boxstyle": "square", "facecolor": "w"})
+    ax[0].legend(frameon=True, loc='lower right')
+    ax[0].grid()
+    # ax[0].set_xticklabels([])
+    ax[0].set_ylabel("HI Velocity Dispersion (km/s)")
+    ax[0].set_xlabel("Radius (kpc)")
+
+    ax[1].errorbar(hi_radial_fits['bin_center'],
+                   hi_radial_fits['centsub_stddev'],
+                   yerr=hi_radial_fits['centsub_stddev_stderr_w_chanwidth'],
+                   fmt='D', label='Gaussian Fit', alpha=0.5)
+    ax[1].plot(hi_radial_fits['bin_center'],
+               cent_stack.linewidth_sigma().value / 1000.,
+               label="Moment")
+    ax[1].text(5, 11.5, "Centroid\nsubtracted",
+               bbox={"boxstyle": "square", "facecolor": "w"})
+    ax[1].grid()
+    ax[1].set_xlabel("Radius (kpc)")
+
+    ax[2].errorbar(hi_radial_fits['bin_center'],
+                   hi_radial_fits['peaksub_stddev'],
+                   yerr=hi_radial_fits['peaksub_stddev_stderr_w_chanwidth'],
+                   fmt='D', label='Gaussian Fit', alpha=0.5)
+    ax[2].plot(hi_radial_fits['bin_center'],
+               cent_stack.linewidth_sigma().value / 1000.,
+               label="Moment")
+    ax[2].text(5, 11.5, "Peak Vel.\nsubtracted",
+               bbox={"boxstyle": "square", "facecolor": "w"})
+    ax[2].grid()
+    ax[2].set_xlabel("Radius (kpc)")
+
+    p.tight_layout()
+
+    fig.savefig(paper1_figures_path("hi_veldisp_avg_vs_stackedfits.png"))
+    fig.savefig(paper1_figures_path("hi_veldisp_avg_vs_stackedfits.pdf"))
     p.close()
 
     default_figure()

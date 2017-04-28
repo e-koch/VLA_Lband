@@ -9,6 +9,7 @@ from pandas import DataFrame
 import numpy as np
 from astropy.io import fits
 from glob import glob
+from warnings import warn
 
 '''
 Run Diskfit provided with the parameter file and the path to the data.
@@ -74,18 +75,21 @@ params["eps_err"] = float(contents[40].split()[-1])
 params["inc"] = float(contents[41].split()[-3])
 params["inc_err"] = float(contents[41].split()[-1])
 # Both x and y are on the same line
-params["xcent"] = float(contents[42].split()[-6])
-params["xcent_err"] = float(contents[42].split()[-4][:-1])
-params["ycent"] = float(contents[42].split()[-3])
-params["ycent_err"] = float(contents[42].split()[-1])
+try:
+    params["xcent"] = float(contents[42].split()[-6])
+    params["xcent_err"] = float(contents[42].split()[-4][:-1])
+    params["ycent"] = float(contents[42].split()[-3])
+    params["ycent_err"] = float(contents[42].split()[-1])
 
-# Now convert xcent and ycent to RA and Dec.
-params["RAcent"], params["Deccent"] = \
-    mywcs.celestial.wcs_pix2world(params["xcent"], params["ycent"], 0)
-# Add angular uncertainties in deg.
-pix_scale = proj_plane_pixel_scales(mywcs.celestial)
-params["RAcent_err"] = pix_scale[0] * params["xcent_err"]
-params["Deccent_err"] = pix_scale[1] * params["ycent_err"]
+    # Now convert xcent and ycent to RA and Dec.
+    params["RAcent"], params["Deccent"] = \
+        mywcs.celestial.wcs_pix2world(params["xcent"], params["ycent"], 0)
+    # Add angular uncertainties in deg.
+    pix_scale = proj_plane_pixel_scales(mywcs.celestial)
+    params["RAcent_err"] = pix_scale[0] * params["xcent_err"]
+    params["Deccent_err"] = pix_scale[1] * params["ycent_err"]
+except IndexError:
+    warn("Cannot find fit to center. Assuming this was left fixed.")
 
 params["Vsys"] = float(contents[44].split()[-3])
 params["Vsys_err"] = float(contents[44].split()[-1])
@@ -136,7 +140,10 @@ for f in fits_files:
     hdu = fits.open(f, mode='update')
 
     for key in keep_keys:
-        new_header[key] = hdu[0].header[key]
+        try:
+            new_header[key] = hdu[0].header[key]
+        except KeyError:
+            warn("Could not find keyword {} in header".format(key))
 
     hdu[0].header = new_header
     hdu.flush()

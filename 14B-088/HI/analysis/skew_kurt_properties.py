@@ -199,4 +199,134 @@ fig.savefig(paper1_figures_path("hi_skew_kurt_sd_lwidth_profile_n_s.png"))
 fig.savefig(paper1_figures_path("hi_skew_kurt_sd_lwidth_profile_n_s.pdf"))
 p.close()
 
+
+# Now load in the stacked in the profiles and compare
+
+cent_stack_n = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/centroid_stacked_radial_north_100pc.fits"))
+cent_stack_s = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/centroid_stacked_radial_south_100pc.fits"))
+cent_stack = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/centroid_stacked_radial_100pc.fits"))
+
+peakvel_stack_n = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/peakvel_stacked_radial_north_100pc.fits"))
+peakvel_stack_s = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/peakvel_stacked_radial_south_100pc.fits"))
+peakvel_stack = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/peakvel_stacked_radial_100pc.fits"))
+
+rotation_stack_n = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/rotation_stacked_radial_north_100pc.fits"))
+rotation_stack_s = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/rotation_stacked_radial_south_100pc.fits"))
+rotation_stack = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/rotation_stacked_radial_100pc.fits"))
+
+
+def skewness(cube):
+    return cube.moment(order=3) / cube.linewidth_sigma()**3
+
+
+def kurtosis(cube):
+    return (cube.moment(order=4) / cube.linewidth_sigma()**4) - 3
+
+
+dr = 100 * u.pc
+max_radius = (8.0 * u.kpc).to(u.pc)
+
+nbins = np.int(np.floor(max_radius / dr))
+inneredge = np.linspace(0, max_radius - dr, nbins)
+outeredge = np.linspace(dr, max_radius, nbins)
+bin_centers = 0.5 * (inneredge + outeredge).to(u.kpc)
+
+onecolumn_twopanel_figure(font_scale=1.2)
+
+fig, ax = p.subplots(2, 1, sharex=True)
+ax[0].errorbar(radii_skew.value, sdprof_skew.value,
+               yerr=sdprof_sigma_skew.value,
+               drawstyle='steps-mid', label="Total", zorder=-1,
+               alpha=0.5)
+ax[0].errorbar(rs_skew_n.value, sd_skew_n.value, yerr=sd_skew_sigma_n.value,
+               drawstyle='steps-mid', label="North", )
+ax[0].errorbar(rs_skew_s.value, sd_skew_s.value, yerr=sd_skew_sigma_s.value,
+               drawstyle='steps-mid', label="South", )
+ax[0].plot(bin_centers, skewness(cent_stack).value, label='Total Stacked')
+ax[0].plot(bin_centers, skewness(cent_stack_n).value, label='North Stacked')
+ax[0].plot(bin_centers, skewness(cent_stack_s).value, label='South Stacked')
+# ax[0].set_ylim([-0.5, 0.4])
+ax[0].legend(frameon=True, loc='lower right')
+ax[0].grid()
+# ax[0].set_xticklabels([])
+ax[0].set_ylabel("Skewness")
+
+ax[1].errorbar(radii_kurt.value, sdprof_kurt.value,
+               yerr=sdprof_sigma_kurt.value,
+               drawstyle='steps-mid', label="Total", zorder=-1,
+               alpha=0.5)
+ax[1].errorbar(rs_kurt_n.value, sd_kurt_n.value, yerr=sd_kurt_sigma_n.value,
+               drawstyle='steps-mid', label="North")
+ax[1].errorbar(rs_kurt_s.value, sd_kurt_s.value, yerr=sd_kurt_sigma_s.value,
+               drawstyle='steps-mid', label="South")
+ax[1].plot(bin_centers, kurtosis(cent_stack).value, label='Total Stacked')
+ax[1].plot(bin_centers, kurtosis(cent_stack_n).value, label='North Stacked')
+ax[1].plot(bin_centers, kurtosis(cent_stack_s).value, label='South Stacked')
+# ax[1].set_ylim([-0.5, 0.4])
+
+ax[1].grid()
+ax[1].set_xlabel("Radius (kpc)")
+ax[1].set_ylabel("Kurtosis")
+
+p.tight_layout()
+
+fig.savefig(paper1_figures_path("hi_skew_kurt_profile_n_s_w_cent_stacked.png"))
+fig.savefig(paper1_figures_path("hi_skew_kurt_profile_n_s_w_cent_stacked.pdf"))
+p.close()
+
+onecolumn_twopanel_figure(font_scale=1.0)
+
+fig, ax = p.subplots(2, 1, sharex=True)
+ax[0].plot(bin_centers, skewness(cent_stack).value, label='Total Cent.')
+ax[0].plot(bin_centers, skewness(cent_stack_n).value, label='North Cent.')
+ax[0].plot(bin_centers, skewness(cent_stack_s).value, label='South Cent.')
+
+ax[0].plot(bin_centers, skewness(cent_stack).value, label='Total Peak',
+           linestyle='--')
+ax[0].plot(bin_centers, skewness(cent_stack_n).value, label='North Peak',
+           linestyle='--')
+ax[0].plot(bin_centers, skewness(cent_stack_s).value, label='South Peak',
+           linestyle='--')
+
+ax[0].plot(bin_centers, skewness(rotation_stack).value, label='Total Rot.',
+           linestyle='-.')
+ax[0].plot(bin_centers, skewness(rotation_stack_n).value, label='North Rot.',
+           linestyle='-.')
+ax[0].plot(bin_centers, skewness(rotation_stack_s).value, label='South Rot.',
+           linestyle='-.')
+ax[0].set_xlim([0, 12])
+# ax[0].set_ylim([-0.5, 0.4])
+ax[0].legend(frameon=True, loc='lower right')
+ax[0].grid()
+# ax[0].set_xticklabels([])
+ax[0].set_ylabel("Skewness")
+
+ax[1].plot(bin_centers, kurtosis(cent_stack).value, label='Total Cent.')
+ax[1].plot(bin_centers, kurtosis(cent_stack_n).value, label='North Cent.')
+ax[1].plot(bin_centers, kurtosis(cent_stack_s).value, label='South Cent.')
+
+ax[1].plot(bin_centers, kurtosis(cent_stack).value, label='Total Peak',
+           linestyle='--')
+ax[1].plot(bin_centers, kurtosis(cent_stack_n).value, label='North Peak',
+           linestyle='--')
+ax[1].plot(bin_centers, kurtosis(cent_stack_s).value, label='South Peak',
+           linestyle='--')
+
+ax[1].plot(bin_centers, kurtosis(rotation_stack).value, label='Total Rot.',
+           linestyle='-.')
+ax[1].plot(bin_centers, kurtosis(rotation_stack_n).value, label='North Rot.',
+           linestyle='-.')
+ax[1].plot(bin_centers, kurtosis(rotation_stack_s).value, label='South Rot.',
+           linestyle='-.')
+
+ax[1].grid()
+ax[1].set_xlabel("Radius (kpc)")
+ax[1].set_ylabel("Kurtosis")
+
+p.tight_layout()
+
+fig.savefig(paper1_figures_path("hi_skew_kurt_stacked_comparison.png"))
+fig.savefig(paper1_figures_path("hi_skew_kurt_stacked_comparison.pdf"))
+p.close()
+
 default_figure()

@@ -188,6 +188,19 @@ if __name__ == "__main__":
     peakvel_stack.write(fourteenB_HI_data_path("stacked_spectra/peakvel_stacked_radial_{}.fits".format(wstring),
                                                no_check=True), overwrite=True)
 
+    rot_stack_n = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/rotation_stacked_radial_north_100pc.fits"))
+    rot_stack_s = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/rotation_stacked_radial_south_100pc.fits"))
+    rot_stack = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/rotation_stacked_radial_100pc.fits"))
+
+    cent_stack_n = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/centroid_stacked_radial_north_100pc.fits"))
+    cent_stack_s = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/centroid_stacked_radial_south_100pc.fits"))
+    cent_stack = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/centroid_stacked_radial_100pc.fits"))
+
+    peakvel_stack_n = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/peakvel_stacked_radial_north_100pc.fits"))
+    peakvel_stack_s = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/peakvel_stacked_radial_south_100pc.fits"))
+    peakvel_stack = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/peakvel_stacked_radial_100pc.fits"))
+
+
     # Finally, fit Gaussian models and save the fit results
 
     g_HI_init = models.Gaussian1D(amplitude=1., mean=0., stddev=10.)
@@ -252,7 +265,7 @@ if __name__ == "__main__":
 
     # Add the velocity width of the channel in quadrature
     for col in hi_params.keys():
-        if "amplitude_stderr" in col or "stddev_stderr" in col:
+        if "mean_stderr" in col or "stddev_stderr" in col:
             hi_params[col + "_w_chanwidth"] = np.sqrt(hi_params[col]**2 +
                                                       hi_velres**2)
 

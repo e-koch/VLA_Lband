@@ -30,7 +30,7 @@ elif "nmpost" in socket.gethostname():
     data_path = os.path.expanduser("~/data")
 elif "segfault" == socket.gethostname():
     root = os.path.expanduser("~/Dropbox/code_development/VLA_Lband/")
-    data_path = "/mnt/bigdata/reduction"
+    data_path = "/mnt/bigdata/M33"
 # else:
 #     root = os.path.expanduser('~/work/w51/alma/')
 

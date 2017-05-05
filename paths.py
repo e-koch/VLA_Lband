@@ -30,9 +30,7 @@ elif "nmpost" in socket.gethostname():
     data_path = os.path.expanduser("~/data")
 elif "segfault" == socket.gethostname():
     root = os.path.expanduser("~/Dropbox/code_development/VLA_Lband/")
-    data_path = "/mnt/bigdata/M33"
-# else:
-#     root = os.path.expanduser('~/work/w51/alma/')
+    data_path = "/mnt/bigdata/ekoch/M33"
 
 c_path = os.path.join(root, '14B-088')
 archival_path = os.path.join(root, 'AT0206')
@@ -55,6 +53,8 @@ image_script_path = os.path.join(root, 'imaging_pipeline')
 fourteenB_HI_data_path = \
     partial(name_return_check,
             path=os.path.join(data_path, "VLA/14B-088/HI/full_imaging_noSD/"))
+fourteenB_HI_data_wGBT_path = \
+    os.path.join(data_path, "14B-088/HI/full_imaging_wGBT/")
 # fourteenB_HI_data_path = os.path.join(data_path, "14B-088/HI/full_imaging/")
 arecibo_HI_data_path = \
     partial(name_return_check,

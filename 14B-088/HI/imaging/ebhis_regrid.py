@@ -29,6 +29,10 @@ cube = cube.subcube(xlo=vla_cube.longitude_extrema[1],
 
 cube = cube.spectral_interpolate(vla_cube.spectral_axis)
 
+# Write out the spectrally interpolated cube
+save_name = os.path.join(ebhis_path, "14B-088_items/m33_ebhis_14B088_spectralregrid.fits")
+cube.write(save_name)
+
 # Make the reprojected header
 new_header = cube.header.copy()
 new_header["NAXIS"] = 3

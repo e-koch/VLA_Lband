@@ -9,6 +9,8 @@ from astropy.modeling import models, fitting
 from pandas import DataFrame
 import matplotlib.pyplot as p
 
+from cube_analysis.spectral_stacking import total_profile
+
 from paths import (fourteenB_HI_data_path, arecibo_HI_data_path,
                    c_hi_analysispath, paper1_figures_path,
                    data_path, paper1_tables_path)
@@ -20,7 +22,6 @@ from constants import (lwidth_name, rotsub_cube_name,
                        peaktemps_name)
 
 from plotting_styles import default_figure, onecolumn_figure
-from HI_radial_stacking import total_profile
 
 
 hi_cube = SpectralCube.read(fourteenB_HI_data_path(rotsub_cube_name))
@@ -62,10 +63,10 @@ for ctr, (p0, p1) in enumerate(zip(inneredge,
     mask = np.logical_and(hi_peaktemp >= p0, hi_peaktemp < p1)
 
     total_spectrum_hi_peak[ctr] = \
-        total_profile(hi_cube, mask).to(u.K, equivalencies=hi_beam.jtok_equiv(hi_freq))
+        total_profile(hi_cube, mask, num_cores=4).to(u.K, equivalencies=hi_beam.jtok_equiv(hi_freq))
 
     total_spectrum_hi_peak_cent[ctr] = \
-        total_profile(hi_cube_cent, mask).to(u.K, equivalencies=hi_beam.jtok_equiv(hi_freq))
+        total_profile(hi_cube_cent, mask, num_cores=4).to(u.K, equivalencies=hi_beam.jtok_equiv(hi_freq))
 
     total_spectrum_hi_peak_peakvel[ctr] = \
         total_profile(hi_cube_peakvel, mask).to(u.K, equivalencies=hi_beam.jtok_equiv(hi_freq))

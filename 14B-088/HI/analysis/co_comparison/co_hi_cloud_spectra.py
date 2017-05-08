@@ -19,12 +19,12 @@ from multiprocessing import Pool
 import seaborn as sb
 from signal_id import Noise
 
+from cube_analysis.spectra_shifter import cube_shifter
 
 from analysis.paths import (fourteenB_HI_data_path, iram_co21_data_path,
                             paper1_figures_path)
 from analysis.constants import hi_freq, cube_name, moment1_name
 from analysis.galaxy_params import gal
-from analysis.spectra_shifter import cube_shifter
 from analysis.plotting_styles import onecolumn_figure, align_yaxis
 
 

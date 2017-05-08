@@ -22,6 +22,8 @@ from corner import hist2d
 from aplpy import FITSFigure
 from reproject import reproject_interp
 
+from cube_analysis.spectra_shifter import spectrum_shifter
+
 from paths import c_hi_analysispath
 
 os.sys.path.insert(0, c_hi_analysispath(""))
@@ -36,7 +38,6 @@ from plotting_styles import (onecolumn_figure, default_figure,
                              twocolumn_figure, align_yaxis)
 from co_comparison.co_cube_masking import simple_masking
 from co_comparison.krumholz_2009_model import krumholz_ratio_model
-from spectra_shifter import spectrum_shifter
 
 
 def spatial_reproject(cube, header):

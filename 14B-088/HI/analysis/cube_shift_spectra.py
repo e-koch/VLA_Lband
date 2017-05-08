@@ -12,7 +12,8 @@ from astropy.io import fits
 import astropy.units as u
 from multiprocessing import Pool
 
-from spectra_shifter import cube_shifter
+from cube_analysis.spectra_shifter import cube_shifter
+
 from paths import fourteenB_HI_data_path
 from constants import (cube_name, centroidsub_cube_name, moment1_name,
                        mask_name, centroidsub_mask_name, peakvels_name,

@@ -9,7 +9,8 @@ import astropy.units as u
 from multiprocessing import Pool
 from reproject import reproject_interp
 
-from spectra_shifter import cube_shifter
+from cube_analysis.spectra_shifter import cube_shifter
+
 from paths import fourteenB_HI_data_path, iram_co21_data_path
 from constants import moment1_name, peakvels_name
 from galaxy_params import gal

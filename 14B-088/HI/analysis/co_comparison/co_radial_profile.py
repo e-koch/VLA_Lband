@@ -10,10 +10,13 @@ from spectral_cube.cube_utils import average_beams
 from astropy.wcs import WCS
 from astropy.table import Table
 
-from HI_radial_profile import surfdens_radial_profile
+from cube_analysis.profiles import surfdens_radial_profile
+
 from paths import (iram_co21_data_path, fourteenB_HI_data_path,
                    paper1_figures_path, c_hi_analysispath)
-from constants import moment0_name, cube_name, mask_name, co21_mass_conversion
+from constants import (moment0_name, cube_name, mask_name,
+                       co21_mass_conversion,
+                       hi_mass_conversion)
 from galaxy_params import gal
 from plotting_styles import onecolumn_figure, default_figure
 
@@ -121,7 +124,8 @@ proj = Projection(mom0_hi.data * u.Jy * u.m / u.s, meta={'beam': average_beams(h
 rs_hi, sd_hi, sd_sigma_hi = surfdens_radial_profile(gal, cube=hi_cube,
                                                     mom0=proj,
                                                     max_rad=6 * u.kpc, dr=dr,
-                                                    beam=average_beams(hi_cube.beams))
+                                                    beam=average_beams(hi_cube.beams),
+                                                    mass_conversion=hi_mass_conversion)
 # Apply scaling factor
 # sd_hi /= 1.45
 # sd_sigma_hi /= 1.45

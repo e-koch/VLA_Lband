@@ -15,7 +15,7 @@ from skimage.morphology import medial_axis
 from warnings import warn
 
 
-from HI_veldisp_profile import radial_profile
+from cube_analysis.profiles import radial_profile
 from constants import hi_freq
 
 '''

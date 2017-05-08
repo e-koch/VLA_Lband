@@ -11,17 +11,18 @@ from astropy.io import fits
 import astropy.units as u
 from astropy.coordinates import Angle
 
+from cube_analysis.profiles import (radial_profile, surfdens_radial_profile)
+
 from analysis.paths import (fourteenB_HI_data_path, paper1_figures_path,
                             iram_co21_data_path, data_path)
 from constants import (hi_freq, cube_name, moment0_name, lwidth_name,
-                       skew_name, kurt_name, mask_name, moment1_name)
+                       skew_name, kurt_name, mask_name, moment1_name,
+                       hi_mass_conversion)
 from plotting_styles import (twocolumn_figure, onecolumn_figure,
                              default_figure, twocolumn_twopanel_figure,
                              onecolumn_twopanel_figure,
                              onecolumn_Npanel_figure)
 
-from HI_veldisp_profile import radial_profile
-from HI_radial_profile import surfdens_radial_profile
 from galaxy_params import gal
 
 
@@ -124,17 +125,20 @@ rs_lwidth_s, sd_lwidth_s, sd_lwidth_sigma_s = \
 
 rs_surf, sd_surf, sd_surf_sigma = \
     surfdens_radial_profile(gal, mom0=mom0, dr=dr,
-                            restfreq=hi_freq, max_rad=8 * u.kpc)
+                            restfreq=hi_freq, max_rad=8 * u.kpc,
+                            mass_converions=hi_mass_conversion)
 rs_surf_n, sd_surf_n, sd_surf_sigma_n = \
     surfdens_radial_profile(gal, mom0=mom0,
                             pa_bounds=Angle([0.5 * np.pi * u.rad,
                                             -0.5 * np.pi * u.rad]),
-                            dr=dr, restfreq=hi_freq, max_rad=8 * u.kpc)
+                            dr=dr, restfreq=hi_freq, max_rad=8 * u.kpc,
+                            mass_converions=hi_mass_conversion)
 rs_surf_s, sd_surf_s, sd_surf_sigma_s = \
     surfdens_radial_profile(gal, mom0=mom0,
                             pa_bounds=Angle([-0.5 * np.pi * u.rad,
                                              0.5 * np.pi * u.rad]),
-                            dr=dr, restfreq=hi_freq, max_rad=8 * u.kpc)
+                            dr=dr, restfreq=hi_freq, max_rad=8 * u.kpc,
+                            mass_converions=hi_mass_conversion)
 
 onecolumn_Npanel_figure(N=3, font_scale=1.0)
 

@@ -7,6 +7,7 @@ from spectral_cube import SpectralCube
 import os
 import numpy as np
 from astropy import log
+from astropy.table import Table
 
 from cube_analysis.register_cubes import cube_registration, spatial_shift_cube
 
@@ -61,6 +62,22 @@ median_gbt_lowres_offset = np.median(gbt_offset, axis=0)
 log.info("GBT LR offset: {0}, {1}".format(*median_gbt_lowres_offset))
 
 
+def save_shift(tablename, pixshifts):
+    '''
+    Save a csv of the pixel shifts for each channel.
+    '''
+
+    t = Table({"y_shift": pixshifts[:, 0], "x_shift": pixshifts[:, 1]})
+
+    t.write(tablename, format='csv')
+
+
+# Save the pixel shifts
+save_shift(os.path.join(arecibo_path, "14B-088_items_new/14B-088_pixel_shifts.csv"))
+save_shift(os.path.join(ebhis_path, "14B-088_items/14B-088_pixel_shifts.csv"))
+save_shift(os.path.join(gbt_path, "14B-088_items/14B-088_pixel_shifts_highres.csv"))
+save_shift(os.path.join(gbt_path, "14B-088_items/14B-088_pixel_shifts.csv"))
+
 # Use the median offsets to shift the cubes
 
 log.info("Shifting and saving Arecibo cube")
@@ -68,21 +85,21 @@ arecibo_shift_name = \
     os.path.join(arecibo_path,
                  "14B-088_items_new/m33_arecibo_14B088_spectralregrid_registered.fits")
 spatial_shift_cube(arecibo_cube, *median_arecibo_offset, save_shifted=True,
-                   save_name=arecibo_shift_name, num_core=num_cores)
+                   save_name=arecibo_shift_name, num_cores=num_cores)
 
 log.info("Shifting and saving EBHIS cube")
 ebhis_shift_name = \
     os.path.join(arecibo_path,
                  "14B-088_items/m33_ebhis_14B088_spectralregrid_registered.fits")
 spatial_shift_cube(ebhis_cube, *median_ebhis_offset, save_shifted=True,
-                   save_name=ebhis_shift_name, num_core=num_cores)
+                   save_name=ebhis_shift_name, num_cores=num_cores)
 
 log.info("Shifting and saving GBT cube")
 gbt_shift_name = \
     os.path.join(arecibo_path,
                  "14B-088_items/m33_gbt_vlsr_highres_Tmb_14B088_spectralregrid_registered.fits")
 spatial_shift_cube(gbt_cube, *median_gbt_offset, save_shifted=True,
-                   save_name=gbt_shift_name, num_core=num_cores)
+                   save_name=gbt_shift_name, num_cores=num_cores)
 
 log.info("Shifting and saving LR GBT cube")
 gbt_lowres_shift_name = \
@@ -90,4 +107,4 @@ gbt_lowres_shift_name = \
                  "14B-088_items/m33_gbt_vlsr_Tmb_14B088_spectralregrid_registered.fits")
 spatial_shift_cube(gbt_lowres_cube, *median_gbt_lowres_offset,
                    save_shifted=True,
-                   save_name=gbt_lowres_shift_name, num_core=num_cores)
+                   save_name=gbt_lowres_shift_name, num_cores=num_cores)

@@ -42,23 +42,26 @@ gbt_lowres_cube = SpectralCube.read(gbt_lowres_name)
 
 
 num_cores = 6
+# The last few channels become highly uncertain since there isn't much signal
+# left in the VLA map
+good_chans = slice(0, 1000)
 
 # Now find the offsets for each
 arecibo_offset = cube_registration(arecibo_cube, vla_cube, num_cores=num_cores)
-median_arecibo_offset = np.median(arecibo_offset, axis=0)
+median_arecibo_offset = np.median(arecibo_offset[good_chans], axis=0)
 log.info("Arecibo offset: {0}, {1}".format(*median_arecibo_offset))
 
 ebhis_offset = cube_registration(ebhis_cube, vla_cube, num_cores=num_cores)
-median_ebhis_offset = np.median(ebhis_offset, axis=0)
+median_ebhis_offset = np.median(ebhis_offset[good_chans], axis=0)
 log.info("EBHIS offset: {0}, {1}".format(*median_ebhis_offset))
 
 gbt_offset = cube_registration(gbt_cube, vla_cube, num_cores=num_cores)
-median_gbt_offset = np.median(gbt_offset, axis=0)
+median_gbt_offset = np.median(gbt_offset[good_chans], axis=0)
 log.info("GBT offset: {0}, {1}".format(*median_gbt_offset))
 
 gbt_lowres_offset = cube_registration(gbt_lowres_cube, vla_cube,
                                       num_cores=num_cores)
-median_gbt_lowres_offset = np.median(gbt_offset, axis=0)
+median_gbt_lowres_offset = np.median(gbt_lowres_offset[good_chans], axis=0)
 log.info("GBT LR offset: {0}, {1}".format(*median_gbt_lowres_offset))
 
 
@@ -73,10 +76,14 @@ def save_shift(tablename, pixshifts):
 
 
 # Save the pixel shifts
-save_shift(os.path.join(arecibo_path, "14B-088_items_new/14B-088_pixel_shifts.csv"))
-save_shift(os.path.join(ebhis_path, "14B-088_items/14B-088_pixel_shifts.csv"))
-save_shift(os.path.join(gbt_path, "14B-088_items/14B-088_pixel_shifts_highres.csv"))
-save_shift(os.path.join(gbt_path, "14B-088_items/14B-088_pixel_shifts.csv"))
+save_shift(os.path.join(arecibo_path, "14B-088_items_new/14B-088_pixel_shifts.csv"),
+           arecibo_offset)
+save_shift(os.path.join(ebhis_path, "14B-088_items/14B-088_pixel_shifts.csv"),
+           ebhis_offset)
+save_shift(os.path.join(gbt_path, "14B-088_items/14B-088_pixel_shifts_highres.csv"),
+           gbt_offset)
+save_shift(os.path.join(gbt_path, "14B-088_items/14B-088_pixel_shifts.csv"),
+           gbt_lowres_offset)
 
 # Use the median offsets to shift the cubes
 
@@ -89,21 +96,21 @@ spatial_shift_cube(arecibo_cube, *median_arecibo_offset, save_shifted=True,
 
 log.info("Shifting and saving EBHIS cube")
 ebhis_shift_name = \
-    os.path.join(arecibo_path,
+    os.path.join(ebhis_path,
                  "14B-088_items/m33_ebhis_14B088_spectralregrid_registered.fits")
 spatial_shift_cube(ebhis_cube, *median_ebhis_offset, save_shifted=True,
                    save_name=ebhis_shift_name, num_cores=num_cores)
 
 log.info("Shifting and saving GBT cube")
 gbt_shift_name = \
-    os.path.join(arecibo_path,
+    os.path.join(gbt_path,
                  "14B-088_items/m33_gbt_vlsr_highres_Tmb_14B088_spectralregrid_registered.fits")
 spatial_shift_cube(gbt_cube, *median_gbt_offset, save_shifted=True,
                    save_name=gbt_shift_name, num_cores=num_cores)
 
 log.info("Shifting and saving LR GBT cube")
 gbt_lowres_shift_name = \
-    os.path.join(arecibo_path,
+    os.path.join(gbt_path,
                  "14B-088_items/m33_gbt_vlsr_Tmb_14B088_spectralregrid_registered.fits")
 spatial_shift_cube(gbt_lowres_cube, *median_gbt_lowres_offset,
                    save_shifted=True,

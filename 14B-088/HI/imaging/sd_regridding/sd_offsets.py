@@ -72,7 +72,7 @@ def save_shift(tablename, pixshifts):
 
     t = Table({"y_shift": pixshifts[:, 0], "x_shift": pixshifts[:, 1]})
 
-    t.write(tablename, format='csv')
+    t.write(tablename, format='csv', overwrite=True)
 
 
 # Save the pixel shifts

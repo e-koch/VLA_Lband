@@ -19,7 +19,7 @@ vla_cube = SpectralCube.read(fourteenB_HI_data_path("M33_14B-088_HI.clean.image.
 ebhis_path = os.path.join(data_path, "EBHIS")
 
 # Spectral interpolation, followed by reprojection.
-save_name = os.path.join(ebhis_path, "14B-088_items/m33_ebhis_14B088_spectralregrid_test.fits")
+save_name = os.path.join(ebhis_path, "14B-088_items/m33_ebhis_14B088_spectralregrid.fits")
 
 # Only load in the original data if the spectrally-interpolated cube hasn't
 # been saved

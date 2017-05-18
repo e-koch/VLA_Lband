@@ -76,4 +76,4 @@ proposal_figures_path = lambda x: os.path.join(varfig_path, x)
 
 # All figures
 fig_path = os.path.expanduser("~/Dropbox/Various Plots/M33/")
-allfigs_path = lambda x: os.path.join(varfig_path, x)
+allfigs_path = lambda x: os.path.join(fig_path, x)

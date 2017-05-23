@@ -7,9 +7,9 @@ Set style for figures.
 '''
 
 
-def default_figure():
+def default_figure(font_scale=1.0):
     sb.set(font='Times New Roman', style='ticks')
-    sb.set_context("poster")
+    sb.set_context("poster", font_scale=font_scale)
 
 
 def twocolumn_figure(fig_ratio=None, font_scale=1.25):

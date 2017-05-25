@@ -182,6 +182,14 @@ try:
         """
         Based on getBaselineExtrema from analysisUtils
         """
+
+        return np.percentile(getBaselines(msFile), percentile)
+
+    def getBaselines(msFile):
+        '''
+        Return all baselines
+        '''
+
         tb.open(msFile + '/ANTENNA')
         positions = np.transpose(tb.getcol('POSITION'))
         tb.close()
@@ -196,7 +204,7 @@ try:
 
         all_lengths = np.array(all_lengths)
 
-        return np.percentile(all_lengths, percentile)
+        return all_lengths
 
     def get_mosaic_info(vis, spw, sourceid=None, intent='TARGET', pblevel=0.1):
         '''

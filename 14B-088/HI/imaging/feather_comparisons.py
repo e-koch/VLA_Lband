@@ -442,4 +442,13 @@ plt.close()
 # The scale factor we adopt is...
 print("Scale factor: {0}+/-{1}".format(np.exp(cauchy_fit_875[0]),
                                        np.abs(cauchy_fit_875[1] / cauchy_fit_875[0])))
+
+# Open up the GBT cube and update the beam parameters
+import astropy.io.fits as fits
+gbt_hdu = fits.open(os.path.join(gbt_path, "14B-088_items/m33_gbt_vlsr_highres_Tmb_14B088_spectralregrid_registered.fits"),
+                    mode='update')
+gbt_hdu[0].header.update(Beam(beam_fwhm(87.5 * u.m).to(u.deg)).to_header_keywords())
+gbt_hdu.flush()
+gbt_hdu.close()
+
 default_figure()

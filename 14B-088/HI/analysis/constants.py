@@ -22,6 +22,7 @@ pb_lim = 0.5
 co21_mass_conversion = 6.7 * (u.Msun / u.pc ** 2) / (u.K * u.km / u.s)
 
 hi_mass_conversion = 0.019 * (u.M_sun / u.pc ** 2) / (u.K * u.km / u.s)
+hi_mass_conversion_Jy = 2.36e5 * (u.M_sun / u.Mpc ** 2) / (u.Jy * u.km / u.s)
 
 hi_coldens_Kkms = 1.82e18 * u.cm**-2 / (u.K * u.km / u.s)
 

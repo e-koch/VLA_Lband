@@ -34,7 +34,7 @@ if run_gbt_highres:
     if not os.path.exists(output_path):
         os.mkdir(output_path)
 
-    save_name = os.path.join(output_path, "M33_14B-088_HI.clean.image.GBT_highres_feathered.fits")
+    save_name = os.path.join(output_path, "M33_14B-088_HI.clean.image.GBT_feathered.fits")
 
     feather_cube(vla_cube, gbt_cube, frequency=hi_freq, save_feather=True,
                  save_name=save_name, num_cores=num_cores)
@@ -47,11 +47,11 @@ if run_gbt:
     gbt_name = os.path.join(gbt_path, "14B-088_items/m33_gbt_vlsr_Tmb_14B088_spectralregrid_registered.fits")
     gbt_cube = SpectralCube.read(gbt_name)
 
-    output_path = os.path.join(data_path, "VLA/14B-088/HI/full_imaging_wGBT/")
+    output_path = os.path.join(data_path, "VLA/14B-088/HI/full_imaging_wGBT_lowres/")
     if not os.path.exists(output_path):
         os.mkdir(output_path)
 
-    save_name = os.path.join(output_path, "M33_14B-088_HI.clean.image.GBT_feathered.fits")
+    save_name = os.path.join(output_path, "M33_14B-088_HI.clean.image.GBT_lowres_feathered.fits")
 
     feather_cube(vla_cube, gbt_cube, frequency=hi_freq, save_feather=True,
                  save_name=save_name, num_cores=num_cores)

@@ -441,7 +441,7 @@ plt.close()
 
 # The scale factor we adopt is...
 print("Scale factor: {0}+/-{1}".format(np.exp(cauchy_fit_875[0]),
-                                       np.abs(cauchy_fit_875[1] / cauchy_fit_875[0])))
+                                       np.abs(cauchy_fit_875[1] * cauchy_fit_875[0])))
 
 # Open up the GBT cube and update the beam parameters
 import astropy.io.fits as fits

@@ -54,7 +54,8 @@ fourteenB_HI_data_path = \
     partial(name_return_check,
             path=os.path.join(data_path, "VLA/14B-088/HI/full_imaging_noSD/"))
 fourteenB_HI_data_wGBT_path = \
-    os.path.join(data_path, "14B-088/HI/full_imaging_wGBT/")
+    partial(name_return_check,
+            path=os.path.join(data_path, "14B-088/HI/full_imaging_wGBT/"))
 # fourteenB_HI_data_path = os.path.join(data_path, "14B-088/HI/full_imaging/")
 arecibo_HI_data_path = \
     partial(name_return_check,

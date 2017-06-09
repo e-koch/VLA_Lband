@@ -451,4 +451,12 @@ gbt_hdu[0].header.update(Beam(beam_fwhm(87.5 * u.m).to(u.deg)).to_header_keyword
 gbt_hdu.flush()
 gbt_hdu.close()
 
+# And the low-res version too
+gbt_hdu = fits.open(os.path.join(gbt_path, "14B-088_items/m33_gbt_vlsr_Tmb_14B088_spectralregrid_registered.fits"),
+                    mode='update')
+gbt_hdu[0].header.update(Beam(beam_fwhm(87.5 * u.m).to(u.deg)).to_header_keywords())
+gbt_hdu.flush()
+gbt_hdu.close()
+
+
 default_figure()

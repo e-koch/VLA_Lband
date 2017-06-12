@@ -14,22 +14,23 @@ import scipy.ndimage as nd
 
 from cube_analysis.feather_cubes import flux_recovery
 
-from paths import (fourteenB_HI_data_path, fourteenB_HI_data_wGBT_path,
+from paths import (fourteenB_HI_data_path, fourteenB_HI_file_dict,
+                   fourteenB_wGBT_HI_file_dict,
                    gbt_HI_data_path, allfigs_path, paper1_tables_path)
 from constants import pb_lim, hi_mass_conversion_Jy, distance
 from plotting_styles import default_figure, onecolumn_figure
 
 # Load the non-pb masked cube
-vla_cube = SpectralCube.read(fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.5_masked.fits"))
-vla_source_mask = fits.open(fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.5_masked_source_mask.fits"))[0].data > 0
+vla_cube = SpectralCube.read(fourteenB_HI_file_dict["Cube"])
+vla_source_mask = fits.open(fourteenB_HI_file_dict["Source_Mask"])[0].data > 0
 vla_cube = vla_cube.with_mask(vla_source_mask)
 
 gbt_name = gbt_HI_data_path("14B-088_items/m33_gbt_vlsr_highres_Tmb_14B088_spectralregrid_registered.fits")
 gbt_cube = SpectralCube.read(gbt_name)
 
-feathered_cube = SpectralCube.read(fourteenB_HI_data_wGBT_path("M33_14B-088_HI.clean.image.GBT_feathered.pbcov_gt_0.5_masked.fits"))
+feathered_cube = SpectralCube.read(fourteenB_wGBT_HI_file_dict["Cube"])
 feather_source_mask = \
-    fits.open(fourteenB_HI_data_wGBT_path("M33_14B-088_HI.clean.image.pbcov_gt_0.5_masked_source_mask.fits"))[0].data > 0
+    fits.open(fourteenB_wGBT_HI_file_dict["Source_Mask"])[0].data > 0
 feathered_cube = feathered_cube.with_mask(feather_source_mask)
 
 pbcov = fits.open(fourteenB_HI_data_path("M33_14B-088_pbcov.fits"))[0]
@@ -104,3 +105,5 @@ df = DataFrame({"VLA Mass": [vla_mass.value],
 df.to_latex(paper1_tables_path("hi_masses_nomask.tex"))
 df.to_csv(fourteenB_HI_data_wGBT_path("tables/hi_masses_withmask.csv",
                                       no_check=True))
+
+default_figure()

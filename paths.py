@@ -102,7 +102,7 @@ def find_dataproduct_names(path):
                    "PeakTemp": "peaktemps",
                    "PeakVels": "peakvels",
                    "Cube": "masked.fits",
-                   "SourceMask": "masked_source_mask",
+                   "Source_Mask": "masked_source_mask",
                    "CentSub_Cube": "masked.centroid_corrected",
                    "CentSub_Mask": "masked_source_mask.centroid_corrected",
                    "RotSub_Cube": "masked.rotsub",
@@ -122,6 +122,12 @@ def find_dataproduct_names(path):
 
     return found_dict
 
+
+# Return dictionaries with names for the existing directories
+fourteenB_HI_file_dict = \
+    find_dataproduct_names(fourteenB_HI_data_path("", no_check=True))
+fourteenB_wGBT_HI_file_dict = \
+    find_dataproduct_names(fourteenB_HI_data_wGBT_path("", no_check=True))
 
 if __name__ == "__main__":
 

@@ -10,10 +10,7 @@ from analysis.constants import moment0_name
 '''
 Reproject the CO to match the HI.
 
-Not taking the beam difference into account here since they are quite close.
-
-Once this is merged https://github.com/astrofrog/reproject/pull/115/files,
-make a full regrid of the whole cube.
+Save one version with the CO smoothed to match the HI
 
 '''
 

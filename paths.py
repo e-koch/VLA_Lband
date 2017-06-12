@@ -1,7 +1,7 @@
 import os
 import socket
 from functools import partial
-
+import glob
 
 '''
 Common set of paths giving the location of data products.
@@ -55,11 +55,19 @@ fourteenB_HI_data_path = \
             path=os.path.join(data_path, "VLA/14B-088/HI/full_imaging_noSD/"))
 fourteenB_HI_data_wGBT_path = \
     partial(name_return_check,
-            path=os.path.join(data_path, "14B-088/HI/full_imaging_wGBT/"))
-# fourteenB_HI_data_path = os.path.join(data_path, "14B-088/HI/full_imaging/")
+            path=os.path.join(data_path, "VLA/14B-088/HI/full_imaging_wGBT/"))
+
 arecibo_HI_data_path = \
     partial(name_return_check,
             path=os.path.join(data_path, "Arecibo/"))
+
+ebhis_HI_data_path = \
+    partial(name_return_check,
+            path=os.path.join(data_path, "EBHIS/"))
+
+gbt_HI_data_path = \
+    partial(name_return_check,
+            path=os.path.join(data_path, "GBT/"))
 
 iram_co21_data_path = partial(name_return_check,
                               path=os.path.join(data_path, "co21/"))
@@ -78,3 +86,44 @@ proposal_figures_path = lambda x: os.path.join(varfig_path, x)
 # All figures
 fig_path = os.path.expanduser("~/Dropbox/Various Plots/M33/")
 allfigs_path = lambda x: os.path.join(fig_path, x)
+
+
+def find_dataproduct_names(path):
+    '''
+    Given a path, return a dictionary of the data products with the name
+    convention used in this repository.
+    '''
+
+    search_dict = {"Moment0": "mom0",
+                   "Moment1": "mom1",
+                   "LWidth": "lwidth",
+                   "Skewness": "skewness",
+                   "Kurtosis": "kurtosis",
+                   "PeakTemp": "peaktemps",
+                   "PeakVels": "peakvels",
+                   "Cube": "masked.fits",
+                   "SourceMask": "masked_source_mask",
+                   "CentSub_Cube": "masked.centroid_corrected",
+                   "CentSub_Mask": "masked_source_mask.centroid_corrected",
+                   "RotSub_Cube": "masked.rotsub",
+                   "RotSub_Mask": "masked_source_mask.rotsub",
+                   "PeakSub_Cube": "masked.peakvels_corrected",
+                   "PeakSub_Mask": "masked_source_mask.peakvels_corrected"}
+
+    found_dict = {}
+
+    for filename in glob.glob(os.path.join(path, "*.fits")):
+
+        for key in search_dict:
+            if search_dict[key] in filename:
+                found_dict[key] = filename
+                search_dict.pop(key)
+                break
+
+    return found_dict
+
+
+if __name__ == "__main__":
+
+    # Append the repo directory to the path so paths is importable
+    os.sys.path.append(root)

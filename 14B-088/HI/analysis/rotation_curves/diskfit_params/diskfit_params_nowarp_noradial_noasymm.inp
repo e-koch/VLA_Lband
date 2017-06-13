@@ -1,14 +1,14 @@
 m=0 14B088 moment 1 fitting, DISKFIT # beamsize = 18.00'' # MUST BE RUN FROM /mnt/MyRAID/M33/VLA/14B-088/HI/full_imaging/
 vels                               # 2 vels/phot switch
 T  T                               # 3 VELS: I/O toggles: FITS I/O, vels in m/s
-'M33_14B-088_HI.clean.image.pbcov_gt_0.5.ellip_mask.mom1.fits'      # 4 file name
+'moments_for_diskfit/M33_14B-088_HI.clean.image.pbcov_gt_0.5_masked.mom1.fits'      # 4 file name
 None                               # 5 VELS + FITS:file name for velocity uncerts
-1  1  808  1503                 # 6 FITS region to fit: (xlow,ylow) & (xrange,yrange)
+1  1  1256  1604                 # 6 FITS region to fit: (xlow,ylow) & (xrange,yrange)
 100.0  20.00  0.45  6 3.0           # 7 FITS sampling: regrad, regpa, regeps, istepout, pixscale
 'diskfit_noasymm_noradial_nowarp_output/rad.out'    # 8 file name for output parameters
 T T T                              # 9 Disk toggles: fit for PA, eps & cen
 20.00  0.42                        #10 initial guess for disk PA and eps=(1-b/a)
-458.0  795.0                      #11 initial guess for disk center
+603.0  803.0                      #11 initial guess for disk center
 F T 45.00 2                        #12 VELS: non-circ. flow + flow PA fit toggle, initial flow PA, order m
 T F                                #13 VELS: inner interpolation + radial flows fit toggles
 T -179.00 6.0 25.0                  #14 VELS: toggle to fit Vsys, initial guess Vsys, delta_ISM, & vely errtol

@@ -100,7 +100,7 @@ def find_dataproduct_names(path):
                    "Skewness": "skewness",
                    "Kurtosis": "kurtosis",
                    "PeakTemp": "peaktemps",
-                   "PeakVels": "peakvels",
+                   "PeakVels": "peakvels.",
                    "Cube": "masked.fits",
                    "Source_Mask": "masked_source_mask",
                    "CentSub_Cube": "masked.centroid_corrected",

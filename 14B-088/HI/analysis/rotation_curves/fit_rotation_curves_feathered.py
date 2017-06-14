@@ -30,7 +30,7 @@ mom1.data = mom1.data.astype(np.float32)
 
 mom1_name = os.path.split(fourteenB_wGBT_HI_file_dict["Moment1"])[-1]
 
-mom1.writeto(fourteenB_HI_data_wGBT_path("moments_for_diskfit/{}".format(mom1_name)),
+mom1.writeto(fourteenB_HI_data_wGBT_path("moments_for_diskfit/{}".format(mom1_name), no_check=True),
              overwrite=True)
 
 peakvel = fits.open(fourteenB_wGBT_HI_file_dict["PeakVels"])[0]
@@ -39,7 +39,7 @@ peakvel.data = peakvel.data.astype(np.float32)
 
 peakvel_name = os.path.split(fourteenB_wGBT_HI_file_dict["PeakVels"])[-1]
 
-peakvel.writeto(fourteenB_HI_data_wGBT_path("moments_for_diskfit/{}".format(peakvel_name)),
+peakvel.writeto(fourteenB_HI_data_wGBT_path("moments_for_diskfit/{}".format(peakvel_name), no_check=True),
                 overwrite=True)
 
 # Now run each model. Submit as a thread so we can run these simultaneously.

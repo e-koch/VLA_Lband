@@ -10,8 +10,10 @@ from spectral_cube import SpectralCube
 import numpy as np
 import os
 from threading import Thread
+from galaxies import Galaxy
 
-from cube_analysis.rotation_curves import run_diskfit
+from cube_analysis.rotation_curves import (run_diskfit, return_smooth_model,
+                                           update_galaxy_params)
 from cube_analysis.spectral_fitting import cube_fitter
 from cube_analysis.spectral_fitting.gausshermite import herm_gauss_peak
 
@@ -65,11 +67,14 @@ peakvel.writeto(fourteenB_HI_data_path("moments_for_diskfit/{}".format(peakvel_n
 
 # Now run each model. Submit as a thread so we can run these simultaneously.
 
+gal = Galaxy("M33")
+
 param_file = c_hi_analysispath("rotation_curves/diskfit_params/diskfit_params_nowarp_noradial_noasymm.inp")
 data_path = fourteenB_HI_data_path("", no_check=True)
 fits_for_wcs = fourteenB_HI_file_dict["Moment1"]
 
-thr1 = Thread(target=run_diskfit, args=(param_file, data_path, fits_for_wcs))
+thr1 = Thread(target=run_diskfit, args=(param_file, data_path, fits_for_wcs),
+              kwargs={"fit_model": True, "gal": gal})
 log.info("Starting Centroid DiskFit run")
 thr1.start()
 
@@ -78,7 +83,8 @@ param_file = c_hi_analysispath("rotation_curves/diskfit_params/diskfit_params_pe
 data_path = fourteenB_HI_data_path("", no_check=True)
 fits_for_wcs = fourteenB_HI_file_dict["PeakVels"]
 
-thr2 = Thread(target=run_diskfit, args=(param_file, data_path, fits_for_wcs))
+thr2 = Thread(target=run_diskfit, args=(param_file, data_path, fits_for_wcs),
+              kwargs={"fit_model": True, "gal": gal})
 log.info("Starting Peak Velocity DiskFit run")
 thr2.start()
 
@@ -97,3 +103,6 @@ thr2.join()
 log.info("Finished Peak Velocity DiskFit run")
 # thr3.join()
 # log.info("Finished GH Peak DiskFit run")
+
+# Now fit the rotation models to make a smooth model
+

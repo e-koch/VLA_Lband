@@ -8,6 +8,7 @@ from astropy.io import fits
 import numpy as np
 import os
 from threading import Thread
+from galaxies import Galaxy
 
 from cube_analysis.rotation_curves import run_diskfit
 
@@ -44,11 +45,14 @@ peakvel.writeto(fourteenB_HI_data_wGBT_path("moments_for_diskfit/{}".format(peak
 
 # Now run each model. Submit as a thread so we can run these simultaneously.
 
+gal = Galaxy("M33")
+
 param_file = c_hi_analysispath("rotation_curves/diskfit_params_feathered/diskfit_params_nowarp_noradial_noasymm.inp")
 data_path = fourteenB_HI_data_wGBT_path("", no_check=True)
 fits_for_wcs = fourteenB_wGBT_HI_file_dict["Moment1"]
 
-thr1 = Thread(target=run_diskfit, args=(param_file, data_path, fits_for_wcs))
+thr1 = Thread(target=run_diskfit, args=(param_file, data_path, fits_for_wcs),
+              kwargs={"fit_model": True, "gal": gal})
 thr1.start()
 
 
@@ -56,7 +60,8 @@ param_file = c_hi_analysispath("rotation_curves/diskfit_params_feathered/diskfit
 data_path = fourteenB_HI_data_wGBT_path("", no_check=True)
 fits_for_wcs = fourteenB_wGBT_HI_file_dict["PeakVels"]
 
-thr2 = Thread(target=run_diskfit, args=(param_file, data_path, fits_for_wcs))
+thr2 = Thread(target=run_diskfit, args=(param_file, data_path, fits_for_wcs),
+              kwargs={"fit_model": True, "gal": gal})
 thr2.start()
 
 

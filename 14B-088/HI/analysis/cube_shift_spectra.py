@@ -29,7 +29,7 @@ peakvels = fits.open(fourteenB_HI_file_dict["PeakVels"])[0].data * u.m / u.s
 rotmod_name = fourteenB_HI_data_path("diskfit_peakvels_noasymm_noradial_nowarp_output/rad.fitmod.fits")
 rot_model = fits.open(rotmod_name)[0].data * u.m / u.s
 
-pool = Pool(6)
+pool = Pool(6, maxtasksperchild=5000)
 
 # Shift with the first moment
 log.info("Shifting w/ centroid")

@@ -8,35 +8,31 @@ from spectral_cube.cube_utils import average_beams
 from astropy.modeling import models, fitting
 from pandas import DataFrame
 import matplotlib.pyplot as p
+import os
 
 from cube_analysis.spectral_stacking import total_profile
 
-from paths import (fourteenB_HI_data_path, arecibo_HI_data_path,
-                   c_hi_analysispath, paper1_figures_path,
-                   data_path, paper1_tables_path)
+from paths import (fourteenB_HI_data_path, fourteenB_HI_file_dict,
+                   allfigs_path, alltables_path)
 
-from constants import (lwidth_name, rotsub_cube_name,
-                       rotsub_mask_name, hi_freq,
-                       centroidsub_cube_name, centroidsub_mask_name,
-                       peakvelsub_cube_name, peakvelssub_mask_name,
-                       peaktemps_name)
+from constants import hi_freq
 
 from plotting_styles import default_figure, onecolumn_figure
 
 
-hi_cube = SpectralCube.read(fourteenB_HI_data_path(rotsub_cube_name))
-hi_mask = fits.open(fourteenB_HI_data_path(rotsub_mask_name))[0]
+hi_cube = SpectralCube.read(fourteenB_HI_file_dict["RotSub_Cube"])
+hi_mask = fits.open(fourteenB_HI_file_dict["RotSub_Mask"])[0]
 hi_cube = hi_cube.with_mask(hi_mask.data > 0)
 
-hi_cube_cent = SpectralCube.read(fourteenB_HI_data_path(centroidsub_cube_name))
-hi_mask_cent = fits.open(fourteenB_HI_data_path(centroidsub_mask_name))[0]
+hi_cube_cent = SpectralCube.read(fourteenB_HI_file_dict["CentSub_Cube"])
+hi_mask_cent = fits.open(fourteenB_HI_file_dict["CentSub_Mask"])[0]
 hi_cube_cent = hi_cube_cent.with_mask(hi_mask_cent.data > 0)
 
-hi_cube_peakvel = SpectralCube.read(fourteenB_HI_data_path(peakvelsub_cube_name))
-hi_mask_peakvel = fits.open(fourteenB_HI_data_path(peakvelssub_mask_name))[0]
+hi_cube_peakvel = SpectralCube.read(fourteenB_HI_file_dict["PeakSub_Cube"])
+hi_mask_peakvel = fits.open(fourteenB_HI_file_dict["PeakSub_Mask"])[0]
 hi_cube_peakvel = hi_cube_cent.with_mask(hi_mask_peakvel.data > 0)
 
-hi_peaktemp_hdu = fits.open(fourteenB_HI_data_path(peaktemps_name))[0]
+hi_peaktemp_hdu = fits.open(fourteenB_HI_file_dict["PeakTemp"])[0]
 hi_peaktemp = Projection.from_hdu(hi_peaktemp_hdu)
 
 hi_beam = average_beams(hi_cube.beams)
@@ -84,6 +80,10 @@ peakvel_stack = SpectralCube(data=total_spectrum_hi_peak_peakvel.T.reshape((1178
                              wcs=hi_cube.wcs)
 
 # Now save all of these for future use.
+stacked_folder = fourteenB_HI_data_path("stacked_spectra", no_check=True)
+if os.path.exists(stacked_folder):
+    os.mkdir(stacked_folder)
+
 wstring = "{}percentile".format(int(dperc))
 rot_stack.write(fourteenB_HI_data_path("stacked_spectra/rotation_stacked_peak_{}.fits".format(wstring),
                                        no_check=True), overwrite=True)
@@ -159,7 +159,7 @@ for col in hi_params.keys():
 
 hi_peak_fits = DataFrame(hi_params, index=bin_names)
 
-hi_peak_fits.to_latex(paper1_tables_path("hi_gaussian_totalprof_fits_peak_{}.tex".format(wstring)))
+hi_peak_fits.to_latex(alltables_path("hi_gaussian_totalprof_fits_peak_{}.tex".format(wstring)))
 hi_peak_fits.to_csv(fourteenB_HI_data_path("tables/hi_gaussian_totalprof_fits_peak_{}.csv".format(wstring),
                                            no_check=True))
 
@@ -182,8 +182,8 @@ p.xlabel("Peak Temperature (K)")
 p.grid()
 p.tight_layout()
 
-p.savefig(paper1_figures_path("hi_veldisp_peak_stackedfits.png"))
-p.savefig(paper1_figures_path("hi_veldisp_peak_stackedfits.pdf"))
+p.savefig(allfigs_path("hi_veldisp_peak_stackedfits.png"))
+p.savefig(allfigs_path("hi_veldisp_peak_stackedfits.pdf"))
 p.close()
 
 p.errorbar(hi_peak_fits['bin_center'], hi_peak_fits['rotsub_mean'],
@@ -201,6 +201,8 @@ p.xlabel("Peak Temperature (K)")
 p.grid()
 p.tight_layout()
 
-p.savefig(paper1_figures_path("hi_centroid_peak_stackedfits.png"))
-p.savefig(paper1_figures_path("hi_centroid_peak_stackedfits.pdf"))
+p.savefig(allfigs_path("hi_centroid_peak_stackedfits.png"))
+p.savefig(allfigs_path("hi_centroid_peak_stackedfits.pdf"))
 p.close()
+
+default_figure()

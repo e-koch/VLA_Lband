@@ -37,7 +37,7 @@ peakvel_vlaonly = fourteenB_HI_data_path("diskfit_peakvels_noasymm_noradial_nowa
 mom1_feath = fourteenB_HI_data_wGBT_path("diskfit_noasymm_noradial_nowarp_output/rad.out.csv")
 peakvel_feath = fourteenB_HI_data_wGBT_path("diskfit_peakvels_noasymm_noradial_nowarp_output/rad.out.csv")
 
-
+print(argh)
 # onecolumn_figure(font_scale=1.0)
 twocolumn_figure()
 
@@ -115,9 +115,10 @@ plt.close()
 # Use the peak velocity model from the feathered cube. It's essentially
 # identical to the VLA-only peak velocity curve.
 
-# load in the Corbelli curve for comparison
+# load in the Corbelli and Kam curves for comparison
 onecolumn_figure()
 corbelli = Table.read(c_hi_analysispath("rotation_curves/corbelli_rotation_curve.csv"))
+kam = Table.read(c_hi_analysispath("rotation_curves/kam_rotation_curve.csv"))
 
 data = Table.read(peakvel_feath)
 
@@ -134,6 +135,11 @@ plt.errorbar(corbelli["R"][corbelli["R"] <= 8.0],
              yerr=corbelli["dVr"][corbelli["R"] <= 8.0],
              fmt='--', label="Corbelli et al. (2014)",
              drawstyle='steps-mid')
+plt.errorbar(kam["R"][kam["R"] <= 8.0],
+             kam["Vr"][kam["R"] <= 8.0],
+             yerr=kam["dVr"][kam["R"] <= 8.0],
+             fmt=':', label="Kam et al. (2017)",
+             drawstyle='steps-mid')
 plt.ylabel(r"Circular Velocity (km / s)")
 plt.xlabel(r"Radius (kpc)")
 plt.legend(loc='lower right', frameon=True)
@@ -141,8 +147,8 @@ plt.grid()
 
 plt.tight_layout()
 
-plt.savefig(paper1_figures_path("M33_vrot_feathered_peakvels_wCorbelli.pdf"))
-plt.savefig(paper1_figures_path("M33_vrot_feathered_peakvels_wCorbelli.png"))
+plt.savefig(paper1_figures_path("M33_vrot_feathered_peakvels_wCorbelli_Kam.pdf"))
+plt.savefig(paper1_figures_path("M33_vrot_feathered_peakvels_wCorbelli_Kam.png"))
 
 plt.close()
 

@@ -3,7 +3,6 @@ from spectral_cube import SpectralCube
 import numpy as np
 import astropy.units as u
 from astropy.io import fits
-from spectral_cube.cube_utils import average_beams
 from astropy.modeling import models, fitting
 from pandas import DataFrame
 from astropy.coordinates import Angle
@@ -30,7 +29,7 @@ hi_cube_peakvel = SpectralCube.read(fourteenB_HI_file_dict["PeakSub_Cube"])
 hi_mask_peakvel = fits.open(fourteenB_HI_file_dict["PeakSub_Mask"])[0]
 hi_cube_peakvel = hi_cube_cent.with_mask(hi_mask_peakvel.data > 0)
 
-hi_beam = average_beams(hi_cube.beams)
+hi_beam = hi_cube.beam
 
 hi_radius = gal.radius(header=hi_cube.header)
 hi_pas = gal.position_angles(header=hi_cube.header)

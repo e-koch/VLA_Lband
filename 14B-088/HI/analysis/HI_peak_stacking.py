@@ -4,7 +4,6 @@ import numpy as np
 import astropy.units as u
 from astropy.io import fits
 
-from spectral_cube.cube_utils import average_beams
 from astropy.modeling import models, fitting
 from pandas import DataFrame
 import matplotlib.pyplot as p

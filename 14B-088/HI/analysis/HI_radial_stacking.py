@@ -7,29 +7,27 @@ from spectral_cube.cube_utils import average_beams
 from astropy.modeling import models, fitting
 from pandas import DataFrame
 from astropy.coordinates import Angle
+import os
 
 from cube_analysis.spectral_stacking import total_profile
 
-from paths import (fourteenB_HI_data_path, arecibo_HI_data_path,
-                   c_hi_analysispath, paper1_tables_path)
+from paths import (fourteenB_HI_data_path, fourteenB_HI_file_dict,
+                   alltables_path)
 
-from constants import (rotsub_cube_name, rotsub_mask_name, hi_freq,
-                       centroidsub_cube_name, centroidsub_mask_name,
-                       peakvelsub_cube_name, peakvelssub_mask_name)
+from constants import hi_freq
 
 from galaxy_params import gal
-from plotting_styles import default_figure, onecolumn_figure
 
-hi_cube = SpectralCube.read(fourteenB_HI_data_path(rotsub_cube_name))
-hi_mask = fits.open(fourteenB_HI_data_path(rotsub_mask_name))[0]
+hi_cube = SpectralCube.read(fourteenB_HI_file_dict["RotSub_Cube"])
+hi_mask = fits.open(fourteenB_HI_file_dict["RotSub_Mask"])[0]
 hi_cube = hi_cube.with_mask(hi_mask.data > 0)
 
-hi_cube_cent = SpectralCube.read(fourteenB_HI_data_path(centroidsub_cube_name))
-hi_mask_cent = fits.open(fourteenB_HI_data_path(centroidsub_mask_name))[0]
+hi_cube_cent = SpectralCube.read(fourteenB_HI_file_dict["CentSub_Cube"])
+hi_mask_cent = fits.open(fourteenB_HI_file_dict["CentSub_Mask"])[0]
 hi_cube_cent = hi_cube_cent.with_mask(hi_mask_cent.data > 0)
 
-hi_cube_peakvel = SpectralCube.read(fourteenB_HI_data_path(peakvelsub_cube_name))
-hi_mask_peakvel = fits.open(fourteenB_HI_data_path(peakvelssub_mask_name))[0]
+hi_cube_peakvel = SpectralCube.read(fourteenB_HI_file_dict["PeakSub_Cube"])
+hi_mask_peakvel = fits.open(fourteenB_HI_file_dict["PeakSub_Mask"])[0]
 hi_cube_peakvel = hi_cube_cent.with_mask(hi_mask_peakvel.data > 0)
 
 hi_beam = average_beams(hi_cube.beams)
@@ -135,6 +133,10 @@ peakvel_stack = SpectralCube(data=total_spectrum_hi_radial_peakvel.T.reshape((11
                              wcs=hi_cube.wcs)
 
 # Now save all of these for future use.
+stacked_folder = fourteenB_HI_data_path("stacked_spectra", no_check=True)
+if not os.path.exists(stacked_folder):
+    os.mkdir(stacked_folder)
+
 wstring = "{0}{1}".format(int(dr.value), dr.unit)
 rot_stack_n.write(fourteenB_HI_data_path("stacked_spectra/rotation_stacked_radial_north_{}.fits".format(wstring),
                                          no_check=True), overwrite=True)
@@ -157,17 +159,17 @@ peakvel_stack_s.write(fourteenB_HI_data_path("stacked_spectra/peakvel_stacked_ra
 peakvel_stack.write(fourteenB_HI_data_path("stacked_spectra/peakvel_stacked_radial_{}.fits".format(wstring),
                                            no_check=True), overwrite=True)
 
-rot_stack_n = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/rotation_stacked_radial_north_100pc.fits"))
-rot_stack_s = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/rotation_stacked_radial_south_100pc.fits"))
-rot_stack = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/rotation_stacked_radial_100pc.fits"))
+rot_stack_n = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/rotation_stacked_radial_north_{}.fits".format(wstring)))
+rot_stack_s = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/rotation_stacked_radial_south_{}.fits".format(wstring)))
+rot_stack = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/rotation_stacked_radial_{}.fits".format(wstring)))
 
-cent_stack_n = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/centroid_stacked_radial_north_100pc.fits"))
-cent_stack_s = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/centroid_stacked_radial_south_100pc.fits"))
-cent_stack = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/centroid_stacked_radial_100pc.fits"))
+cent_stack_n = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/centroid_stacked_radial_north_{}.fits".format(wstring)))
+cent_stack_s = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/centroid_stacked_radial_south_{}.fits".format(wstring)))
+cent_stack = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/centroid_stacked_radial_{}.fits".format(wstring)))
 
-peakvel_stack_n = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/peakvel_stacked_radial_north_100pc.fits"))
-peakvel_stack_s = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/peakvel_stacked_radial_south_100pc.fits"))
-peakvel_stack = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/peakvel_stacked_radial_100pc.fits"))
+peakvel_stack_n = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/peakvel_stacked_radial_north_{}.fits".format(wstring)))
+peakvel_stack_s = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/peakvel_stacked_radial_south_{}.fits".format(wstring)))
+peakvel_stack = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/peakvel_stacked_radial_{}.fits".format(wstring)))
 
 
 # Finally, fit Gaussian models and save the fit results
@@ -241,8 +243,6 @@ for col in hi_params.keys():
 hi_radial_fits = DataFrame(hi_params, index=bin_names)
 
 bin_string = "{0}{1}".format(int(dr.value), dr.unit)
-hi_radial_fits.to_latex(paper1_tables_path("hi_gaussian_totalprof_fits_radial_{}.tex".format(bin_string)))
+hi_radial_fits.to_latex(alltables_path("hi_gaussian_totalprof_fits_radial_{}.tex".format(bin_string)))
 hi_radial_fits.to_csv(fourteenB_HI_data_path("tables/hi_gaussian_totalprof_fits_radial_{}.csv".format(bin_string),
                                              no_check=True))
-
-default_figure()

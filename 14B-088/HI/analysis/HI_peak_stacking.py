@@ -35,7 +35,7 @@ hi_cube_peakvel = hi_cube_cent.with_mask(hi_mask_peakvel.data > 0)
 hi_peaktemp_hdu = fits.open(fourteenB_HI_file_dict["PeakTemp"])[0]
 hi_peaktemp = Projection.from_hdu(hi_peaktemp_hdu)
 
-hi_beam = average_beams(hi_cube.beams)
+hi_beam = hi_cube.beam
 
 dperc = 5
 unit = hi_peaktemp.unit

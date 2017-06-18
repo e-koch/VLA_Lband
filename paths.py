@@ -86,6 +86,7 @@ proposal_figures_path = lambda x: os.path.join(varfig_path, x)
 # All figures
 fig_path = os.path.expanduser("~/Dropbox/Various Plots/M33/")
 allfigs_path = lambda x: os.path.join(fig_path, x)
+alltables_path = lambda x: os.path.join(fig_path, "tables", x)
 
 
 def find_dataproduct_names(path):
@@ -102,11 +103,11 @@ def find_dataproduct_names(path):
                    "PeakTemp": "peaktemps",
                    "PeakVels": "peakvels.",
                    "Cube": "masked.fits",
-                   "Source_Mask": "masked_source_mask",
+                   "Source_Mask": "masked_source_mask.fits",
                    "CentSub_Cube": "masked.centroid_corrected",
                    "CentSub_Mask": "masked_source_mask.centroid_corrected",
-                   "RotSub_Cube": "masked.rotsub",
-                   "RotSub_Mask": "masked_source_mask.rotsub",
+                   "RotSub_Cube": "masked.rotation_corrected",
+                   "RotSub_Mask": "masked_source_mask.rotation_corrected",
                    "PeakSub_Cube": "masked.peakvels_corrected",
                    "PeakSub_Mask": "masked_source_mask.peakvels_corrected"}
 

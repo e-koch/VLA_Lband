@@ -242,6 +242,6 @@ for col in hi_params.keys():
 hi_radial_fits = DataFrame(hi_params, index=bin_names)
 
 bin_string = "{0}{1}".format(int(dr.value), dr.unit)
-hi_radial_fits.to_latex(alltables_path("hi_gaussian_totalprof_fits_radial_{}.tex".format(bin_string)))
-hi_radial_fits.to_csv(fourteenB_HI_data_wGBT_path("tables/hi_gaussian_totalprof_fits_radial_{}.csv".format(bin_string),
+hi_radial_fits.to_latex(alltables_path("hi_gaussian_totalprof_fits_radial_{}_feather.tex".format(bin_string)))
+hi_radial_fits.to_csv(fourteenB_HI_data_wGBT_path("tables/hi_gaussian_totalprof_fits_radial_{}_feather.csv".format(bin_string),
                                                   no_check=True))

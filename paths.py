@@ -71,6 +71,9 @@ gbt_HI_data_path = \
 
 iram_co21_data_path = partial(name_return_check,
                               path=os.path.join(data_path, "co21/"))
+iram_co21_14B088_reproj_data_path = \
+    partial(name_return_check,
+            path=os.path.join(data_path, "co21/14B-088_reproj/"))
 
 # Paper figures path
 papers_path = os.path.expanduser("~/Dropbox/My_Papers/")

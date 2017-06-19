@@ -1,5 +1,5 @@
 
-from spectral_cube import SpectralCube, Projection
+from spectral_cube import SpectralCube, Projection, BooleanArrayMask
 import numpy as np
 import astropy.units as u
 from astropy.io import fits
@@ -69,14 +69,16 @@ for ctr, (p0, p1) in enumerate(zip(inneredge,
 
 # We'll make mock SpectralCubes from these so it's easy to calculate
 # moments and such from
+mask = BooleanArrayMask(np.ones((1178, inneredge.size, 1), dtype=bool),
+                        hi_cube.wcs)
 rot_stack = SpectralCube(data=total_spectrum_hi_peak.T.reshape((1178, inneredge.size, 1)),
-                         wcs=hi_cube.wcs)
+                         wcs=hi_cube.wcs, mask=mask)
 
 cent_stack = SpectralCube(data=total_spectrum_hi_peak_cent.T.reshape((1178, inneredge.size, 1)),
-                          wcs=hi_cube.wcs)
+                          wcs=hi_cube.wcs, mask=mask)
 
 peakvel_stack = SpectralCube(data=total_spectrum_hi_peak_peakvel.T.reshape((1178, inneredge.size, 1)),
-                             wcs=hi_cube.wcs)
+                             wcs=hi_cube.wcs, mask=mask)
 
 # Now save all of these for future use.
 stacked_folder = fourteenB_HI_data_wGBT_path("stacked_spectra", no_check=True)
@@ -158,8 +160,8 @@ for col in hi_params.keys():
 
 hi_peak_fits = DataFrame(hi_params, index=bin_names)
 
-hi_peak_fits.to_latex(alltables_path("hi_gaussian_totalprof_fits_peak_{}.tex".format(wstring)))
-hi_peak_fits.to_csv(fourteenB_HI_data_wGBT_path("tables/hi_gaussian_totalprof_fits_peak_{}.csv".format(wstring),
+hi_peak_fits.to_latex(alltables_path("hi_gaussian_totalprof_fits_peak_{}_feather.tex".format(wstring)))
+hi_peak_fits.to_csv(fourteenB_HI_data_wGBT_path("tables/hi_gaussian_totalprof_fits_peak_{}_feather.csv".format(wstring),
                                                 no_check=True))
 
 # Let's plot some properties.

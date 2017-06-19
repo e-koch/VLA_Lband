@@ -80,7 +80,7 @@ peakvel_stack = SpectralCube(data=total_spectrum_hi_peak_peakvel.T.reshape((1178
 
 # Now save all of these for future use.
 stacked_folder = fourteenB_HI_data_wGBT_path("stacked_spectra", no_check=True)
-if os.path.exists(stacked_folder):
+if not os.path.exists(stacked_folder):
     os.mkdir(stacked_folder)
 
 wstring = "{}percentile".format(int(dperc))

@@ -64,7 +64,7 @@ for ctr, (p0, p1) in enumerate(zip(inneredge,
         total_profile(hi_cube_cent, mask, num_cores=4).to(u.K, equivalencies=hi_beam.jtok_equiv(hi_freq))
 
     total_spectrum_hi_peak_peakvel[ctr] = \
-        total_profile(hi_cube_peakvel, mask).to(u.K, equivalencies=hi_beam.jtok_equiv(hi_freq))
+        total_profile(hi_cube_peakvel, mask, num_cores=4).to(u.K, equivalencies=hi_beam.jtok_equiv(hi_freq))
 
 
 # We'll make mock SpectralCubes from these so it's easy to calculate

@@ -50,8 +50,7 @@ ax.add_patch(beam.ellipse_to_plot(int(0.05 * moment0.shape[0]),
                                   int(0.05 * moment0.shape[1]), pixscale))
 
 ax.contour(np.isfinite(co_moment0.data).astype(float), levels=[0.5],
-           colors=sb.color_palette('viridis')[:1])#,
-           # linewidths=0.5)
+           colors=sb.color_palette('viridis')[:1])
 ax.contour(co_moment0.data,
            levels=np.linspace(np.nanpercentile(co_moment0.data, 70),
                               np.nanpercentile(co_moment0.data, 95), 4),

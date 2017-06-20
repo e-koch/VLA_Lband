@@ -148,7 +148,7 @@ centroid_co = fits.open(iram_co21_14B088_reproj_data_path("m33.co21_iram.14B-088
 
 log.info("Shifting with the CO peak velocity.")
 cube_shifter(cube, peakvels_co, gal.vsys, save_shifted=True,
-             save_name=iram_co21_14B088_reproj_data_path("m33.co21_iram.14B-088_HI_reproj_source_mask.co_peakvels_corrected.fits",
+             save_name=iram_co21_14B088_reproj_data_path("m33.co21_iram.14B-088_HI_reproj.co_peakvels_corrected.fits",
                                                          no_check=True),
              return_spectra=False, verbose=True,
              num_cores=num_cores, chunk_size=chunk_size)

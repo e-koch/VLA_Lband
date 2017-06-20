@@ -10,7 +10,7 @@ import emcee
 import numpy as np
 import math
 import aplpy
-import fish
+# import fish
 
 # from matplotlib import pyplot as plt
 import matplotlib.pyplot as plt
@@ -22,6 +22,7 @@ from astropy import wcs
 from astropy.table.table import Column
 from astropy.table import Table
 from astropy.coordinates import SkyCoord
+from astropy.utils.console import ProgressBar
 
 
 def clean_hd2d(hd):
@@ -162,7 +163,8 @@ def harmdec(data, hd, props, order=1, blind=False):
     vmod = np.zeros(vobs.shape)
     rotmod = np.zeros(vobs.shape)
 
-    peixe = fish.ProgressFish(total=jmax)
+    # peixe = fish.ProgressFish(total=jmax)
+    peixe = ProgressBar(jmax)
 
     if not blind:
 
@@ -182,7 +184,8 @@ def harmdec(data, hd, props, order=1, blind=False):
 
     while rmaj < rmax:
 
-        peixe.animate(amount=j)
+        # peixe.animate(amount=j)
+        peixe.update(j)
 
         # Select the ring
         idx = (rr > rmin) & (rr <= rmaj)
@@ -241,9 +244,9 @@ def harmdec(data, hd, props, order=1, blind=False):
                                                   incl, order],
                                             threads=1)
 
-            pos, prob, state = sampler.run_mcmc(p0, 10)
+            pos, prob, state = sampler.run_mcmc(p0, 500, thin=5)
             sampler.reset()
-            pos, prob, state = sampler.run_mcmc(pos, 20)
+            pos, prob, state = sampler.run_mcmc(pos, 4000, thin=5)
 
             """
             axf0.plot(sampler.flatchain[:,0])
@@ -317,21 +320,40 @@ def harmdec(data, hd, props, order=1, blind=False):
 
 if __name__ == "__main__":
 
-    path = '/mnt/MyRAID/M33/VLA/14B-088/HI/full_imaging_noSD/'
+    from galaxy_params import gal_feath as gal
+    from constants import ang_to_phys
+
+    # path = '/mnt/MyRAID/M33/VLA/14B-088/HI/full_imaging_noSD/'
+    # filename = os.path.join(
+    #     path, 'M33_14B-088_HI.clean.image.pbcov_gt_0.5_masked.mom1.fits')
+    # out_path = os.path.join(path, "harmdec")
+    # out_name = "M33_14B-088_HI.clean.image.pbcov_gt_0.5_masked.mom1"
+
+    # path = '/mnt/MyRAID/M33/VLA/14B-088/HI/full_imaging_wGBT/'
+    path = '/mnt/bigdata/ekoch/M33/VLA/14B-088/HI/full_imaging_wGBT/'
     filename = os.path.join(
-        path, 'M33_14B-088_HI.clean.image.pbcov_gt_0.5_masked.mom1.fits')
+        path, 'M33_14B-088_HI.clean.image.GBT_feathered.pbcov_gt_0.5_masked.mom1.fits')
     out_path = os.path.join(path, "harmdec")
-    out_name = "M33_14B-088_HI.clean.image.pbcov_gt_0.5_masked.mom1"
+    out_name = "M33_14B-088_HI.clean.image.GBT_feathered.pbcov_gt_0.5_masked.mom1"
+
+    if not os.path.exists(out_path):
+        os.mkdir(out_path)
+
     beam = 18.9  # in arcsec
     dist = 840e3  # in pc
-    vsys = -179.56  # in km/s
-    pa = 200.66  # in deg
-    incl = 58.  # in deg
-    ra0 = 23.4575 # of the center
-    dec0 = 30.6586  # of the center
+    # vsys = -179.56  # in km/s
+    vsys = gal.vsys.to(u.km / u.s).value
+    # pa = 200.66  # in deg
+    pa = gal.position_angle.value  # in deg
+    # incl = 58.  # in deg
+    incl = gal.inclination.value  # in deg
+    # ra0 = 23.4575 # of the center
+    ra0 = gal.center_position.ra.value
+    # dec0 = 30.6586  # of the center
+    dec0 = gal.center_position.dec.value
     # ra0 = 15 * (1. + 33. / 60 + 50.9 / 3600)  # of the center
     # dec0 = 30. + 39. / 60 + 39. / 3600  # of the center
-    rmax = 1800.  # in arcsec
+    rmax = 1980.  # in arcsec
     as2pc = (np.pi / 180) * np.asarray(dist) / 3600.
 
     mom1 = fits.open(filename)[0]
@@ -341,11 +363,12 @@ if __name__ == "__main__":
 
     data = data / 1000. - vsys  # everything in km/s with subtracted vsys
 
-    order = 1  # harmonic decomposition order
+    order = 5  # harmonic decomposition order
 
     props = [ra0, dec0, dist, incl, pa, 0., rmax, beam]
-    rads, hds, ephds, emhds, mask, rec, rotmod = \
-        harmdec(data, hd, props, order=order, blind=True)
+    # rads, hds, ephds, emhds, mask, rec, rotmod = \
+    #     harmdec(data, hd, props, order=order, blind=True)
+    out = harmdec(data, hd, props, order=order, blind=True)
 
     rec[rec == 0] = np.nan
     print filename, "Residual = ", np.nanmedian(data - rec)

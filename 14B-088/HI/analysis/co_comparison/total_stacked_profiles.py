@@ -21,6 +21,11 @@ from plotting_styles import *
 Create profiles of HI and CO after subtracting velocity surfaces.
 '''
 
+num_cores = 4
+chunk_size = 10000
+verbose = True
+dr = 500 * u.pc
+max_radius = (7.0 * u.kpc).to(u.pc)
 
 co_cube = SpectralCube.read(iram_co21_14B088_reproj_data_path("m33.co21_iram.14B-088_HI_reproj.rotation_corrected.fits"))
 co_cube_cent = \
@@ -49,10 +54,6 @@ hi_radius = gal.radius(header=hi_cube.header)
 co_radius = gal.radius(header=co_cube.header)
 
 # Perform the same analysis split up into radial bins
-dr = 500 * u.pc
-
-max_radius = (6.0 * u.kpc).to(u.pc)
-
 nbins = np.int(np.floor(max_radius / dr))
 
 inneredge = np.linspace(0, max_radius - dr, nbins)
@@ -82,30 +83,55 @@ for ctr, (r0, r1) in enumerate(zip(inneredge,
                                  co_radius < r1)
 
     total_spectrum_hi_radial[ctr] = \
-        total_profile(hi_cube, hi_rad_mask).to(u.K, equivalencies=hi_beam.jtok_equiv(hi_freq))
+        total_profile(hi_cube, hi_rad_mask,
+                      num_cores=num_cores,
+                      chunk_size=chunk_size,
+                      verbose=verbose).to(u.K, equivalencies=hi_beam.jtok_equiv(hi_freq))
 
     total_spectrum_hi_radial_cent[ctr] = \
-        total_profile(hi_cube_cent, hi_rad_mask).to(u.K, equivalencies=hi_beam.jtok_equiv(hi_freq))
+        total_profile(hi_cube_cent, hi_rad_mask,
+                      num_cores=num_cores,
+                      chunk_size=chunk_size,
+                      verbose=verbose).to(u.K, equivalencies=hi_beam.jtok_equiv(hi_freq))
 
     total_spectrum_hi_radial_peakvel[ctr] = \
-        total_profile(hi_cube_peakvel, hi_rad_mask).to(u.K, equivalencies=hi_beam.jtok_equiv(hi_freq))
+        total_profile(hi_cube_peakvel, hi_rad_mask,
+                      num_cores=num_cores,
+                      chunk_size=chunk_size,
+                      verbose=verbose).to(u.K, equivalencies=hi_beam.jtok_equiv(hi_freq))
 
-    total_spectrum_co_radial[ctr] = total_profile(co_cube, co_rad_mask)
+    total_spectrum_co_radial[ctr] = total_profile(co_cube, co_rad_mask,
+                                                  num_cores=num_cores,
+                                                  chunk_size=chunk_size,
+                                                  verbose=verbose)
 
     total_spectrum_co_radial_cent[ctr] = \
-        total_profile(co_cube_cent, co_rad_mask)
+        total_profile(co_cube_cent, co_rad_mask, num_cores=num_cores,
+                      chunk_size=chunk_size,
+                      verbose=verbose)
     total_spectrum_co_radial_peakvel[ctr] = \
-        total_profile(co_cube_peakvel, co_rad_mask)
+        total_profile(co_cube_peakvel, co_rad_mask, num_cores=num_cores,
+                      chunk_size=chunk_size,
+                      verbose=verbose)
 
 # Need to get portions of HI emission beyond 6 kpc.
 total_spectrum_hi = \
-    total_profile(hi_cube).to(u.K, equivalencies=hi_beam.jtok_equiv(hi_freq))
+    total_profile(hi_cube,
+                  num_cores=num_cores,
+                  chunk_size=chunk_size,
+                  verbose=verbose).to(u.K, equivalencies=hi_beam.jtok_equiv(hi_freq))
 
 total_spectrum_hi_cent = \
-    total_profile(hi_cube_cent).to(u.K, equivalencies=hi_beam.jtok_equiv(hi_freq))
+    total_profile(hi_cube_cent,
+                  num_cores=num_cores,
+                  chunk_size=chunk_size,
+                  verbose=verbose).to(u.K, equivalencies=hi_beam.jtok_equiv(hi_freq))
 
 total_spectrum_hi_peakvel = \
-    total_profile(hi_cube_peakvel).to(u.K, equivalencies=hi_beam.jtok_equiv(hi_freq))
+    total_profile(hi_cube_peakvel,
+                  num_cores=num_cores,
+                  chunk_size=chunk_size,
+                  verbose=verbose).to(u.K, equivalencies=hi_beam.jtok_equiv(hi_freq))
 
 # Significant CO emission is limited to within about 6 kpc
 total_spectrum_co = total_spectrum_co_radial.sum(0)
@@ -334,7 +360,7 @@ co_param_df.to_csv(iram_co21_14B088_reproj_data_path("tables/co_gaussian_totalpr
 
 # Per radial bin spectra
 Nrows = 4
-Ncols = 3
+Ncols = 4
 
 twocolumn_figure(font_scale=1.3)
 p.figure(1, figsize=(8.4, 11)).clf()

@@ -47,7 +47,14 @@ if not os.path.exists(out_folder):
 # Now smooth the noise map
 co21_noise_smoothed = co21_noise.convolve_to(large_beam)
 co21_noise_smoothed = co21_noise_smoothed.reproject(vla_cube[0].header)
-smooth_noise_name = iram_co21_data_path("14B-088/m33.rms.14B-088_HI.fits", no_check=True)
+reproj_mask = co21_noise_smoothed < np.nanmin(co21_noise) / 2.
+# Dilate a bit to get the lowered edges from convolving
+reproj_mask = mo.dilation(reproj_mask, mo.square(7))
+
+co21_noise_smoothed[reproj_mask] = np.NaN
+
+smooth_noise_name = iram_co21_data_path("14B-088/m33.rms.14B-088_HI.fits",
+                                        no_check=True)
 co21_noise_smoothed.write(smooth_noise_name, overwrite=True)
 
 reproject_cube(iram_co21_data_path("m33.co21_iram.fits"),

@@ -32,11 +32,11 @@ if not os.path.exists(allfigs_path(figure_folder)):
 dr = 500 * u.pc
 max_radius = (7.0 * u.kpc).to(u.pc)
 
-co_cube = SpectralCube.read(iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI_reproj.rotation_corrected.fits"))
+co_cube = SpectralCube.read(iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI.rotation_corrected.fits"))
 co_cube_cent = \
-    SpectralCube.read(iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI_reproj.centroid_corrected.fits"))
+    SpectralCube.read(iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI.centroid_corrected.fits"))
 co_cube_peakvel = \
-    SpectralCube.read(iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI_reproj.peakvels_corrected.fits"))
+    SpectralCube.read(iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI.peakvels_corrected.fits"))
 
 hi_cube = SpectralCube.read(fourteenB_wGBT_HI_file_dict["RotSub_Cube"])
 # hi_mask = fits.open(fourteenB_wGBT_HI_file_dict["RotSub_Mask"])[0]

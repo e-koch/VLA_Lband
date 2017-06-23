@@ -263,8 +263,8 @@ for spectrum, label, file_label in zip(spectra, labels, file_labels):
     p.subplots_adjust(hspace=0)
 
     filename = "total_profile_corrected_velocity_{}_hi_fit".format(file_label)
-    p.savefig(allfigs_path(filename + ".pdf"))
-    p.savefig(allfigs_path(filename + ".png"))
+    p.savefig(allfigs_path(join(figure_folder, filename + ".pdf")))
+    p.savefig(allfigs_path(join(figure_folder, filename + ".png")))
     # raw_input("Next plot?")
     p.close()
 
@@ -325,8 +325,8 @@ for spectrum, label, file_label in zip(spectra, labels, file_labels):
     p.subplots_adjust(hspace=0)
 
     filename = "total_profile_corrected_velocity_{}_co21_fit".format(file_label)
-    p.savefig(allfigs_path(filename + ".pdf"))
-    p.savefig(allfigs_path(filename + ".png"))
+    p.savefig(allfigs_path(join(figure_folder, filename + ".pdf")))
+    p.savefig(allfigs_path(join(figure_folder, filename + ".png")))
     # raw_input("Next plot?")
     p.close()
 

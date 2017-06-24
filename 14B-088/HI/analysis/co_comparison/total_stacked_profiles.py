@@ -55,6 +55,9 @@ else:
 hi_radius = gal.radius(header=hi_cube.header)
 co_radius = gal.radius(header=co_cube.header)
 
+# These should be on the spatial grid!!
+assert np.all(hi_radius.value == co_radius.value)
+
 # Perform the same analysis split up into radial bins
 nbins = np.int(np.floor(max_radius / dr))
 
@@ -81,8 +84,6 @@ for ctr, (r0, r1) in enumerate(zip(inneredge,
 
     hi_rad_mask = np.logical_and(hi_radius >= r0,
                                  hi_radius < r1)
-    co_rad_mask = np.logical_and(co_radius >= r0,
-                                 co_radius < r1)
 
     total_spectrum_hi_radial[ctr] = \
         total_profile(hi_cube, hi_rad_mask).to(u.K, hi_beam.jtok_equiv(hi_freq)).quantity
@@ -93,12 +94,12 @@ for ctr, (r0, r1) in enumerate(zip(inneredge,
     total_spectrum_hi_radial_peakvel[ctr] = \
         total_profile(hi_cube_peakvel, hi_rad_mask).to(u.K, hi_beam.jtok_equiv(hi_freq)).quantity
 
-    total_spectrum_co_radial[ctr] = total_profile(co_cube, co_rad_mask).quantity
+    total_spectrum_co_radial[ctr] = total_profile(co_cube, hi_rad_mask).quantity
 
     total_spectrum_co_radial_cent[ctr] = \
-        total_profile(co_cube_cent, co_rad_mask).quantity
+        total_profile(co_cube_cent, hi_rad_mask).quantity
     total_spectrum_co_radial_peakvel[ctr] = \
-        total_profile(co_cube_peakvel, co_rad_mask).quantity
+        total_profile(co_cube_peakvel, hi_rad_mask).quantity
 
 # Need to get portions of HI emission beyond 6 kpc.
 total_spectrum_hi = \
@@ -117,6 +118,9 @@ total_spectrum_co_cent = total_spectrum_co_radial_cent.sum(0)
 
 total_spectrum_co_peakvel = total_spectrum_co_radial_peakvel.sum(0)
 
+# Define the shifted CO velocity axis
+co_specaxis = (co_cube.spectral_axis - gal.vsys).to(u.km / u.s)
+
 twocolumn_twopanel_figure()
 # Plot the profiles.
 fig, ax = p.subplots(1, 3, sharey=True)
@@ -126,7 +130,7 @@ p.subplots_adjust(hspace=0.1,
 ax[0].plot(hi_cube.spectral_axis.to(u.km / u.s).value,
            (total_spectrum_hi / total_spectrum_hi.max()).value,
            'b-', drawstyle='steps-mid', label="HI")
-ax[0].plot(co_cube.spectral_axis.to(u.km / u.s).value,
+ax[0].plot(co_specaxis.value,
            (total_spectrum_co / total_spectrum_co.max()).value,
            'g--', drawstyle='steps-mid', label="CO(2-1)")
 ax[0].set_xlabel("Velocity (km/s)")
@@ -141,7 +145,7 @@ ax[0].grid()
 ax[1].plot(hi_cube_cent.spectral_axis.to(u.km / u.s).value,
            (total_spectrum_hi_cent / total_spectrum_hi_cent.max()).value,
            'b-', drawstyle='steps-mid')
-ax[1].plot(co_cube.spectral_axis.to(u.km / u.s).value,
+ax[1].plot(co_specaxis.value,
            (total_spectrum_co_cent / total_spectrum_co_cent.max()).value,
            'g--', drawstyle='steps-mid')
 # ax[1].set_title("Centroid subtracted")
@@ -156,7 +160,7 @@ ax[1].grid()
 ax[2].plot(hi_cube_peakvel.spectral_axis.to(u.km / u.s).value,
            (total_spectrum_hi_peakvel / total_spectrum_hi_peakvel.max()).value,
            'b-', drawstyle='steps-mid', label="HI")
-ax[2].plot(co_cube.spectral_axis.to(u.km / u.s).value,
+ax[2].plot(co_specaxis.value,
            (total_spectrum_co_peakvel / total_spectrum_co_peakvel.max()).value,
            'g--', drawstyle='steps-mid', label="CO(2-1)")
 # ax[2].set_title("Centroid subtracted")
@@ -170,13 +174,11 @@ ax[2].legend(frameon=True)
 ax[2].grid()
 
 p.tight_layout()
-p.draw()
 
 fig.savefig(allfigs_path(join(figure_folder, "total_profile_corrected_velocity_HI_CO21.pdf")))
 fig.savefig(allfigs_path(join(figure_folder, "total_profile_corrected_velocity_HI_CO21.png")))
 
 p.close()
-# raw_input("Next plot?")
 
 # Total CO mass. Using 6.7 Msol / pc^2 / K km s^-1\
 pixscale = gal.distance.to(u.pc) * (np.pi / 180.) * \
@@ -284,7 +286,7 @@ spectra = [total_spectrum_co, total_spectrum_co_cent,
            total_spectrum_co_peakvel]
 co_fit_vals = {}
 
-co_vels = co_cube.spectral_axis.to(u.km / u.s).value
+co_vels = co_specaxis.value
 
 for spectrum, label, file_label in zip(spectra, labels, file_labels):
 
@@ -369,7 +371,7 @@ for ctr, (r0, r1) in enumerate(zip(inneredge,
                   norm_hi,
                   'b-', drawstyle='steps-mid', label="HI", alpha=0.7)
     # There's a 1 channel offset from my rotation subtraction in the cube
-    ax[r, c].plot(co_cube.spectral_axis.to(u.km / u.s).value,
+    ax[r, c].plot(co_specaxis.value,
                   norm_co,
                   'g--', drawstyle='steps-mid', label="CO(2-1)", alpha=0.7)
     ax[r, c].set_ylim([-0.02, 1.1])
@@ -466,7 +468,7 @@ for ctr, (r0, r1) in enumerate(zip(inneredge,
 
         fit_g = fitting.LevMarLSQFitter()
 
-        co_vels = co_cube.spectral_axis.to(u.km / u.s).value
+        co_vels = co_specaxis.value
         norm_co_intens = (spectrum / spectrum.max()).value
         g_CO = fit_g_co(g_CO_init, co_vels, norm_co_intens, maxiter=1000)
 

@@ -36,6 +36,7 @@ c_path = os.path.join(root, '14B-088')
 archival_path = os.path.join(root, 'AT0206')
 a_path = os.path.join(root, '16B')
 archival_12_path = os.path.join(root, '12A-403')
+ancillary_path = os.path.join(root, 'ancillary_data')
 
 c_hi_analysispath = \
     partial(name_return_check, path=os.path.join(c_path, 'HI/analysis'))

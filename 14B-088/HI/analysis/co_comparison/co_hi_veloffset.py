@@ -29,9 +29,11 @@ if not exists(fig_path):
 
 hi_mom1 = fits.open(fourteenB_HI_file_dict['Moment1'])[0].data / 1000.
 hi_peakvels = fits.open(fourteenB_HI_file_dict['PeakVels'])[0].data / 1000.
+hi_peaktemp = fits.open(fourteenB_HI_file_dict['PeakTemp'])[0].data
 
 hi_feath_mom1 = fits.open(fourteenB_wGBT_HI_file_dict['Moment1'])[0].data / 1000.
 hi_feath_peakvels = fits.open(fourteenB_wGBT_HI_file_dict['PeakVels'])[0].data / 1000.
+hi_feath_peaktemp = fits.open(fourteenB_wGBT_HI_file_dict['PeakTemp'])[0].data
 
 co_mom1 = fits.open(iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI.mom1.fits"))[0].data / 1000.
 co_peakvels = fits.open(iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI.peakvels.fits"))[0].data / 1000.
@@ -48,8 +50,6 @@ hist2d(np.abs((co_mom1 - hi_mom1)[good_pts]), co_peaktemp[good_pts],
        bins=16, data_kwargs={"alpha": 0.6},
        range=[(0.0, 30.0),
               (0.0, 1.05 * np.max(co_peaktemp[good_pts]))])
-# p.hlines(co_avg_noise.to(u.K).value * min_snr, 0.0, 30.0, color='r',
-#          linestyle='--')
 plt.ylabel(r"T$_\mathrm{peak, CO}$ (K)")
 plt.xlabel(r"|V$_\mathrm{cent, CO}$ - V$_\mathrm{cent, HI}$| (km/s)")
 plt.grid()
@@ -59,14 +59,25 @@ plt.savefig(allfigs_path(join(fig_path, "co21_Tpeak_centroid_velocity_offset.pdf
 plt.savefig(allfigs_path(join(fig_path, "co21_Tpeak_centroid_velocity_offset.png")))
 plt.close()
 
+hist2d(np.abs((co_mom1 - hi_mom1)[good_pts]), hi_peaktemp[good_pts],
+       bins=16, data_kwargs={"alpha": 0.6},
+       range=[(0.0, 30.0),
+              (0.0, 1.05 * np.max(hi_peaktemp[good_pts]))])
+plt.ylabel(r"T$_\mathrm{peak, HI}$ (K)")
+plt.xlabel(r"|V$_\mathrm{cent, CO}$ - V$_\mathrm{cent, HI}$| (km/s)")
+plt.grid()
+plt.tight_layout()
+
+plt.savefig(allfigs_path(join(fig_path, "hi_Tpeak_centroid_velocity_offset.pdf")))
+plt.savefig(allfigs_path(join(fig_path, "hi_Tpeak_centroid_velocity_offset.png")))
+plt.close()
+
 # Feathered Mom1 comparisons
 hist2d(np.abs((co_mom1 - hi_feath_mom1)[good_pts_feath]),
        co_peaktemp[good_pts_feath],
        bins=16, data_kwargs={"alpha": 0.6},
        range=[(0.0, 50.0),
               (0.0, 1.05 * np.max(co_peaktemp[good_pts_feath]))])
-# p.hlines(co_avg_noise.to(u.K).value * min_snr, 0.0, 30.0, color='r',
-#          linestyle='--')
 plt.ylabel(r"T$_\mathrm{peak, CO}$ (K)")
 plt.xlabel(r"|V$_\mathrm{cent, CO}$ - V$_\mathrm{cent, HI}$| (km/s)")
 plt.grid()
@@ -74,6 +85,20 @@ plt.tight_layout()
 
 plt.savefig(allfigs_path(join(fig_path, "co21_Tpeak_centroid_velocity_offset_feather.pdf")))
 plt.savefig(allfigs_path(join(fig_path, "co21_Tpeak_centroid_velocity_offset_feather.png")))
+plt.close()
+
+hist2d(np.abs((co_mom1 - hi_feath_mom1)[good_pts_feath]),
+       hi_feath_peaktemp[good_pts_feath],
+       bins=16, data_kwargs={"alpha": 0.6},
+       range=[(0.0, 30.0),
+              (0.0, 1.05 * np.max(hi_peaktemp[good_pts]))])
+plt.ylabel(r"T$_\mathrm{peak, HI}$ (K)")
+plt.xlabel(r"|V$_\mathrm{cent, CO}$ - V$_\mathrm{cent, HI}$| (km/s)")
+plt.grid()
+plt.tight_layout()
+
+plt.savefig(allfigs_path(join(fig_path, "hi_Tpeak_centroid_velocity_offset_feather.pdf")))
+plt.savefig(allfigs_path(join(fig_path, "hi_Tpeak_centroid_velocity_offset_feather.png")))
 plt.close()
 
 # Peak Velocity Comparisons
@@ -90,7 +115,21 @@ plt.savefig(allfigs_path(join(fig_path, "co21_Tpeak_peakvel_velocity_offset.pdf"
 plt.savefig(allfigs_path(join(fig_path, "co21_Tpeak_peakvel_velocity_offset.png")))
 plt.close()
 
-# Feathered Mom1 comparisons
+hist2d(np.abs((co_peakvels - hi_peakvels)[good_pts]), hi_peaktemp[good_pts],
+       bins=16, data_kwargs={"alpha": 0.6},
+       range=[(0.0, 50.0),
+              (0.0, 1.05 * np.max(hi_peaktemp[good_pts]))])
+plt.ylabel(r"T$_\mathrm{peak, HI}$ (K)")
+plt.xlabel(r"|V$_\mathrm{peak, CO}$ - V$_\mathrm{peak, HI}$| (km/s)")
+plt.grid()
+plt.tight_layout()
+
+plt.savefig(allfigs_path(join(fig_path, "hi_Tpeak_peakvel_velocity_offset.pdf")))
+plt.savefig(allfigs_path(join(fig_path, "hi_Tpeak_peakvel_velocity_offset.png")))
+plt.close()
+
+
+# Feathered peak vels comparisons
 hist2d(np.abs((co_peakvels - hi_feath_peakvels)[good_pts_feath]),
        co_peaktemp[good_pts_feath],
        bins=16, data_kwargs={"alpha": 0.6},
@@ -103,6 +142,20 @@ plt.tight_layout()
 
 plt.savefig(allfigs_path(join(fig_path, "co21_Tpeak_peakvel_velocity_offset_feather.pdf")))
 plt.savefig(allfigs_path(join(fig_path, "co21_Tpeak_peakvel_velocity_offset_feather.png")))
+plt.close()
+
+hist2d(np.abs((co_peakvels - hi_feath_peakvels)[good_pts_feath]),
+       hi_feath_peaktemp[good_pts_feath],
+       bins=16, data_kwargs={"alpha": 0.6},
+       range=[(0.0, 50.0),
+              (0.0, 1.05 * np.max(hi_feath_peaktemp[good_pts]))])
+plt.ylabel(r"T$_\mathrm{peak, HI}$ (K)")
+plt.xlabel(r"|V$_\mathrm{peak, CO}$ - V$_\mathrm{peak, HI}$| (km/s)")
+plt.grid()
+plt.tight_layout()
+
+plt.savefig(allfigs_path(join(fig_path, "hi_Tpeak_peakvel_velocity_offset_feather.pdf")))
+plt.savefig(allfigs_path(join(fig_path, "hi_Tpeak_peakvel_velocity_offset_feather.png")))
 plt.close()
 
 # Where do the outliers occur

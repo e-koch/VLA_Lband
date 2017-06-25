@@ -1,36 +1,33 @@
 
-from spectral_cube import SpectralCube
-from spectral_cube.cube_utils import largest_beam
+from cube_analysis.reprojection import reproject_cube
 
-from paths import iram_co21_data_path, fourteenB_HI_data_path
-from constants import cube_name, regridco_cube_name
+from paths import (iram_co21_data_path, fourteenB_HI_data_path,
+                   fourteenB_HI_data_wGBT_path, fourteenB_HI_file_dict,
+                   fourteenB_wGBT_HI_file_dict)
 
 '''
-Regrid the HI data to match the CO.
+Regrid the 14B-088 HI data to match the CO in the celestial dimensions.
 '''
 
-cube = SpectralCube.read(iram_co21_data_path("m33.co21_iram.fits"))
-del cube._header[""]
+reproject_cube(fourteenB_HI_file_dict["Cube"],
+               iram_co21_data_path("m33.co21_iram.fits"),
+               "M33_14B-088_HI.clean.image.co21_iram_regrid.fits",
+               output_folder=fourteenB_HI_data_path("", no_check=True),
+               reproject_type='spatial',
+               save_spectral=False,
+               is_huge=True,
+               common_beam=False,
+               verbose=True,
+               chunk=80)
 
-hi_cube = SpectralCube.read(fourteenB_HI_data_path(cube_name))
 
-# Find the largest HI beam
-hi_beam = largest_beam(hi_cube.beams)
-
-hi_conv_cube = hi_cube.convolve_to(hi_beam)
-
-hi_conv_cube = hi_conv_cube.spectral_interpolate(cube.spectral_axis)
-
-hi_conv_cube = hi_conv_cube.reproject(cube.header)
-
-# Cut the velocity axis to the extrema of the original cube.
-hi_conv_cube = hi_conv_cube.spectral_slab(*hi_cube.spectral_extrema)
-
-# For some reason, the velocity axis in the data needs to be flipped.
-# Look into where this is happening in spectral_cube
-hi_hdu = hi_conv_cube.hdu.copy()
-hi_hdu.data = hi_hdu.data[::-1]
-
-new_hi_conv_cube = SpectralCube.read(hi_hdu)
-
-new_hi_conv_cube.write(fourteenB_HI_data_path(regridco_cube_name, no_check=True))
+reproject_cube(fourteenB_wGBT_HI_file_dict["Cube"],
+               iram_co21_data_path("m33.co21_iram.fits"),
+               "M33_14B-088_HI.clean.image.GBT_feathered.co21_iram_regrid.fits",
+               output_folder=fourteenB_HI_data_wGBT_path("", no_check=True),
+               reproject_type='spatial',
+               save_spectral=False,
+               is_huge=True,
+               common_beam=False,
+               verbose=True,
+               chunk=80)

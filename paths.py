@@ -42,6 +42,10 @@ c_hi_analysispath = \
     partial(name_return_check, path=os.path.join(c_path, 'HI/analysis'))
 archival_hi_analysispath = os.path.join(archival_path, 'AT0206/Analysis')
 
+iram_co21_analysispath = \
+    partial(name_return_check,
+            path=os.path.join(ancillary_path, 'IRAM30m_CO21'))
+
 # Pipeline paths
 fourteenB_pipe_path = os.path.join(c_path, "Cal_Scripts/EVLA_pipeline1.3.0") + "/"
 sixteenB_pipe_path = os.path.join(a_path, "pipeline4.7.1_custom") + "/"

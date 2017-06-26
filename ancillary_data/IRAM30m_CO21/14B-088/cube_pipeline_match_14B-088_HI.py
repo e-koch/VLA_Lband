@@ -81,3 +81,9 @@ run_pipeline(os.path.join(out_folder, "m33.co21_iram.14B-088_HI.fits"),
                              },
              moment_kwargs={"num_cores": 6,
                             "verbose": True})
+
+# We'll also make a smoothed, non-reprojected version.
+co_cube = SpectralCube.read(iram_co21_data_path("m33.co21_iram.fits"))
+co_cube = co_cube.convolve_to(large_beam)
+co_cube.write(iram_co21_data_path("14B-088/m33.co21_iram.14B-088_HI.smoothonly.fits"),
+              overwrite=True)

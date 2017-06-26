@@ -6,8 +6,8 @@ None                               # 5 VELS + FITS:file name for velocity uncert
 1  1  777  1251                 # 6 FITS region to fit: (xlow,ylow) & (xrange,yrange)
 100.0  20.00  0.45  6 3.0           # 7 FITS sampling: regrad, regpa, regeps, istepout, pixscale
 'diskfit_peakvels_output/rad.out'    # 8 file name for output parameters
-T T T                              # 9 Disk toggles: fit for PA, eps & cen
-20.00  0.42                        #10 initial guess for disk PA and eps=(1-b/a)
+F T T                              # 9 Disk toggles: fit for PA, eps & cen
+201.12  0.42                        #10 initial guess for disk PA and eps=(1-b/a)
 399.0  623.0                      #11 initial guess for disk center
 F T 45.00 2                        #12 VELS: non-circ. flow + flow PA fit toggle, initial flow PA, order m
 T F                                #13 VELS: inner interpolation + radial flows fit toggles
@@ -102,16 +102,3 @@ F                                  #19 Verbose toggle
 489.0
 495.0
 501.0
-507.0
-513.0
-519.0
-525.0
-531.0
-537.0
-543.0
-549.0
-555.0
-561.0
-567.0
-573.0
-579.0

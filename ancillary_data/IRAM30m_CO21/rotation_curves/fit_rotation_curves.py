@@ -8,7 +8,6 @@ from astropy.io import fits
 from astropy import log
 import numpy as np
 import os
-from threading import Thread
 from galaxies import Galaxy
 
 from cube_analysis.rotation_curves import run_diskfit
@@ -51,22 +50,14 @@ param_file = iram_co21_analysispath("rotation_curves/diskfit_params_moment1.inp"
 data_path = iram_co21_data_path("", no_check=True)
 fits_for_wcs = iram_co21_data_path("m33.co21_iram.mom1.fits")
 
-thr1 = Thread(target=run_diskfit, args=(param_file, data_path, fits_for_wcs),
-              kwargs={"fit_model": True, "gal": gal})
 log.info("Starting Centroid DiskFit run")
-thr1.start()
+run_diskfit(param_file, data_path, fits_for_wcs, fit_model=True, gal=gal)
+log.info("Finished Centroid DiskFit run")
 
 
 param_file = iram_co21_analysispath("rotation_curves/diskfit_params_peakvels.inp")
 data_path = iram_co21_data_path("", no_check=True)
 fits_for_wcs = iram_co21_data_path("m33.co21_iram.peakvels.fits")
-
-thr2 = Thread(target=run_diskfit, args=(param_file, data_path, fits_for_wcs),
-              kwargs={"fit_model": True, "gal": gal})
 log.info("Starting Peak Velocity DiskFit run")
-thr2.start()
-
-thr1.join()
-log.info("Finished Centroid DiskFit run")
-thr2.join()
+run_diskfit(param_file, data_path, fits_for_wcs, fit_model=True, gal=gal)
 log.info("Finished Peak Velocity DiskFit run")

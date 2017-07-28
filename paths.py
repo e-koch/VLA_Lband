@@ -31,6 +31,9 @@ elif "nmpost" in socket.gethostname():
 elif "segfault" == socket.gethostname():
     root = os.path.expanduser("~/Dropbox/code_development/VLA_Lband/")
     data_path = "/mnt/bigdata/ekoch/M33"
+elif "cedar.computecanada" in socket.gethostname():
+    root = "/home/ekoch/code/VLA_Lband/"
+    data_path = "/home/ekoch/project/ekoch/"
 
 c_path = os.path.join(root, '14B-088')
 archival_path = os.path.join(root, 'AT0206')

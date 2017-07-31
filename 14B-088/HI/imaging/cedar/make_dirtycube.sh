@@ -6,7 +6,7 @@
 #SBATCH --output=casa-m33_dirtycube-%J.out
 export OMP_NUM_THREADS=$SLURM_JOB_CPUS_PER_NODE
 
-module restory my_default
+module restore my_default
 
 source /home/ekoch/.bashrc
 source /home/ekoch/preload.bash

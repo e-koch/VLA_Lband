@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -t 1-00:00
+#SBATCH -t 4-00:00
 #SBATCH --mem=512GB
 #SBATCH --ntasks=32
 #SBATCH --job-name=M33_dirty_cube

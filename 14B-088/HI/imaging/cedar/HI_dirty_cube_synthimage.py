@@ -24,7 +24,7 @@ paramList = \
                      imsize=[2560, 2560],
                      cell='3arcsec',
                      specmode='cube',
-                     start=1,
+                     start=400,
                      width=1,
                      nchan=-1,
                      startmodel=None,
@@ -39,7 +39,7 @@ paramList = \
                      usemask='pb',
                      mask=None,
                      deconvolver='hogbom',
-                     pbcor=False,
+                     dopbcorr=False,
                      chanchunks=-1
                      )
 

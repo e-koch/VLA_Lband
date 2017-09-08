@@ -143,14 +143,17 @@ plt.close()
 mask = np.isfinite(tab["CO21"]) & (tab['CO10'] > 0)
 # mask = np.isfinite(tab["CO21"]) & (tab["CO21"] > 0.8) & (tab['CO10'] > 0)
 
+gamma = tab['GAMMA'][mask]
+gamma[gamma == 0.0] = 1e-5
+
 # Make a corner plot
 corner(np.array([tab["CO21"][mask], tab["CO10"][mask], tab["HI"][mask],
-                 tab["UMIN"][mask]]).T,
+                 tab["UMIN"][mask], np.log10(gamma)]).T,
        bins=12, data_kwargs={"alpha": 0.7},
-       labels=['CO21', 'CO10', 'HI', 'UMIN'])
+       labels=['CO21', 'CO10', 'HI', 'UMIN', "log10 GAMMA"])
 plt.subplots_adjust(hspace=.03, wspace=.03)
-plt.savefig(osjoin(fig_path, "umin_intensity_per_Rgal.png"))
-plt.savefig(osjoin(fig_path, "umin_intensity_per_Rgal.pdf"))
+plt.savefig(osjoin(fig_path, "umin_intensity_corner.png"))
+plt.savefig(osjoin(fig_path, "umin_intensity_corner.pdf"))
 plt.close()
 
 

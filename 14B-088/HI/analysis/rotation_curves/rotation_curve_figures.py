@@ -10,6 +10,7 @@ from astropy.table import Table
 from astropy import wcs
 from astropy.io import fits
 import astropy.units as u
+import os
 
 from cube_analysis.rotation_curves import generate_vrot_model
 from cube_analysis.rotation_curves.curve_fitting import vcirc
@@ -23,6 +24,8 @@ from constants import ang_to_phys
 from plotting_styles import (default_figure, onecolumn_figure,
                              twocolumn_figure, twocolumn_twopanel_figure)
 
+if not os.path.exists(allfigs_path("rotcurves")):
+    os.mkdir(allfigs_path("rotcurves"))
 
 gal = Galaxy("M33")
 
@@ -37,7 +40,6 @@ peakvel_vlaonly = fourteenB_HI_data_path("diskfit_peakvels_noasymm_noradial_nowa
 mom1_feath = fourteenB_HI_data_wGBT_path("diskfit_noasymm_noradial_nowarp_output/rad.out.csv")
 peakvel_feath = fourteenB_HI_data_wGBT_path("diskfit_peakvels_noasymm_noradial_nowarp_output/rad.out.csv")
 
-print(argh)
 # onecolumn_figure(font_scale=1.0)
 twocolumn_figure()
 
@@ -77,8 +79,8 @@ for ax, fname, label in zip(axes.ravel(), tables, labels):
 
 plt.tight_layout()
 
-plt.savefig(allfigs_path("M33_vrot_models_wfit.pdf"))
-plt.savefig(allfigs_path("M33_vrot_models_wfit.png"))
+plt.savefig(allfigs_path("rotcurves/M33_vrot_models_wfit.pdf"))
+plt.savefig(allfigs_path("rotcurves/M33_vrot_models_wfit.png"))
 plt.close()
 
 # Plot all four rotation curves in one panel, and then they're fits in the
@@ -108,8 +110,8 @@ ax[1].set_xlabel(r"Radius (kpc)")
 ax[0].legend(loc='lower right', frameon=True)
 plt.tight_layout()
 
-plt.savefig(allfigs_path("M33_vrot_models_wfit_comparisons.pdf"))
-plt.savefig(allfigs_path("M33_vrot_models_wfit_comparisons.png"))
+plt.savefig(allfigs_path("rotcurves/M33_vrot_models_wfit_comparisons.pdf"))
+plt.savefig(allfigs_path("rotcurves/M33_vrot_models_wfit_comparisons.png"))
 plt.close()
 
 # Use the peak velocity model from the feathered cube. It's essentially
@@ -147,8 +149,8 @@ plt.grid()
 
 plt.tight_layout()
 
-plt.savefig(paper1_figures_path("M33_vrot_feathered_peakvels_wCorbelli_Kam.pdf"))
-plt.savefig(paper1_figures_path("M33_vrot_feathered_peakvels_wCorbelli_Kam.png"))
+plt.savefig(allfigs_path("rotcurves/M33_vrot_feathered_peakvels_wCorbelli_Kam.pdf"))
+plt.savefig(allfigs_path("rotcurves/M33_vrot_feathered_peakvels_wCorbelli_Kam.png"))
 
 plt.close()
 

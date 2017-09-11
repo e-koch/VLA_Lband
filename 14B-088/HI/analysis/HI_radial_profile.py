@@ -15,7 +15,7 @@ import os
 from cube_analysis.profiles import surfdens_radial_profile
 
 from paths import (arecibo_HI_data_path, gbt_HI_data_path,
-                   c_hi_analysispath, paper1_figures_path,
+                   c_hi_analysispath, allfigs_path,
                    data_path, fourteenB_wGBT_HI_file_dict,
                    fourteenB_HI_file_dict)
 
@@ -30,6 +30,9 @@ mom0 = Projection.from_hdu(mom0_hdu)
 # And the feathered version
 mom0_feath_hdu = fits.open(fourteenB_wGBT_HI_file_dict["Moment0"])[0]
 mom0_feath = Projection.from_hdu(mom0_feath_hdu)
+
+if not os.path.exists(allfigs_path("HI_properties")):
+    os.mkdir(allfigs_path("HI_properties"))
 
 # Bin size in pc
 dr = 100 * u.pc
@@ -119,8 +122,8 @@ p.xlabel(r"Radius (kpc)")
 p.legend(loc='best', frameon=True)
 p.grid("on")
 p.tight_layout()
-p.savefig(paper1_figures_path("M33_surfdens_profile_w_GBT.pdf"))
-p.savefig(paper1_figures_path("M33_surfdens_profile_w_GBT.png"))
+p.savefig(allfigs_path("HI_properties/M33_surfdens_profile_w_GBT.pdf"))
+p.savefig(allfigs_path("HI_properties/M33_surfdens_profile_w_GBT.png"))
 p.close()
 
 # W/ archival VLA
@@ -138,8 +141,6 @@ p.plot(rs_gbt.value, sd_gbt.value, "--", drawstyle='steps-mid',
 p.errorbar(rs_arch.value, sd_arch.value, yerr=sd_sigma_arec.value,
            fmt=":", drawstyle='steps-mid',
            label="Archival VLA")
-
-color_cycle = ax._get_lines.color_cycle
 
 ax.add_patch(patches.Rectangle((1.9, 0.3), 2.9, 1.4, facecolor='w',
                                edgecolor='k'))
@@ -161,16 +162,16 @@ p.legend(loc='upper right', frameon=True)
 p.grid("on")
 p.tight_layout()
 
-p.savefig(paper1_figures_path("M33_Sigma_profile_w_GBT_archival.pdf"))
-p.savefig(paper1_figures_path("M33_Sigma_profile_w_GBT_archival.png"))
+p.savefig(allfigs_path("HI_properties/M33_Sigma_profile_w_GBT_archival.pdf"))
+p.savefig(allfigs_path("HI_properties/M33_Sigma_profile_w_GBT_archival.png"))
 p.close()
 
 # Show the north vs south profiles
-p.plot(rs.value, sd.value, "b",
+p.plot(rs.value, sd.value,
        drawstyle='steps-mid', label="Total")
-p.plot(rs_n.value, sd_n.value, "r-.", label="North",
+p.plot(rs_n.value, sd_n.value, "-.", label="North",
        drawstyle='steps-mid')
-p.plot(rs_s.value, sd_s.value, "g--", label="South",
+p.plot(rs_s.value, sd_s.value, "--", label="South",
        drawstyle='steps-mid')
 # p.errorbar(rs_n.value, sd_n.value, yerr=sd_sigma_n.value, fmt="D-",
 #            color="b", label="North")
@@ -183,25 +184,25 @@ p.grid("on")
 p.ylim([0, 8])
 p.xlim([0, 10])
 p.tight_layout()
-p.savefig(paper1_figures_path("M33_Sigma_profile_N_S.pdf"))
-p.savefig(paper1_figures_path("M33_Sigma_profile_N_S.png"))
+p.savefig(allfigs_path("HI_properties/M33_Sigma_profile_N_S.pdf"))
+p.savefig(allfigs_path("HI_properties/M33_Sigma_profile_N_S.png"))
 p.close()
 
-p.plot(rs_feath.value, sd_feath.value, "b",
+p.plot(rs_feath.value, sd_feath.value,
        drawstyle='steps-mid', label="Total")
-p.plot(rs_feath_n.value, sd_feath_n.value, "r-.", label="North",
+p.plot(rs_feath_n.value, sd_feath_n.value, "-.", label="North",
        drawstyle='steps-mid')
-p.plot(rs_feath_s.value, sd_feath_s.value, "g--", label="South",
+p.plot(rs_feath_s.value, sd_feath_s.value, "--", label="South",
        drawstyle='steps-mid')
 p.ylabel(r"$\Sigma_{\rm HI}$ (M$_{\odot}$ pc$^{-2}$)")
 p.xlabel(r"Radius (kpc)")
 p.legend(loc='best', frameon=True)
 p.grid("on")
-p.ylim([0, 10])
+p.ylim([0, 10.5])
 p.xlim([0, 10])
 p.tight_layout()
-p.savefig(paper1_figures_path("M33_feathered_Sigma_profile_N_S.pdf"))
-p.savefig(paper1_figures_path("M33_feathered_Sigma_profile_N_S.png"))
+p.savefig(allfigs_path("HI_properties/M33_feathered_Sigma_profile_N_S.pdf"))
+p.savefig(allfigs_path("HI_properties/M33_feathered_Sigma_profile_N_S.png"))
 p.close()
 
 # Compare to the surface density profile in Corbelli
@@ -224,8 +225,8 @@ p.xlabel(r"Radius (kpc)")
 p.legend(loc='best', frameon=True)
 p.grid()
 p.tight_layout()
-p.savefig(paper1_figures_path("M33_Sigma_profile_w_Corbelli.pdf"))
-p.savefig(paper1_figures_path("M33_Sigma_profile_w_Corbelli.png"))
+p.savefig(allfigs_path("HI_properties/M33_Sigma_profile_w_Corbelli.pdf"))
+p.savefig(allfigs_path("HI_properties/M33_Sigma_profile_w_Corbelli.png"))
 p.close()
 
 default_figure()

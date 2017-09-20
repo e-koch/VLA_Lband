@@ -163,14 +163,14 @@ plt.close()
 # Make another of just the unsubtracted data
 fig = plt.figure(figsize=(8.4, 2.4))
 
-fig1 = FITSFigure(major.hdu, figure=fig, subplot=(1, 1, 1))
+major_K = fits.PrimaryHDU(major.value * jybeam_to_K.value, major.header)
+
+fig1 = FITSFigure(major_K, figure=fig, subplot=(1, 1, 1))
 fig1.show_grayscale(invert=True, stretch='arcsinh')  # , vmax=0.005)
 
 contour_levels = major_std * [2, 4, 5]
-fig1.show_contour(major.hdu,
-                  levels=[1 / jybeam_to_K.value,
-                          2 / jybeam_to_K.value,
-                          3 / jybeam_to_K.value],
+fig1.show_contour(major_K,
+                  levels=[1, 2, 3],
                   smooth=3)
 fig1.show_markers(dist.value, rot_vel_pts.value, edgecolor='g', facecolor='g',
                   marker='^', s=40)
@@ -183,6 +183,10 @@ fig1._ax1.axvline(major.shape[1] / 2, color='k', linestyle='-.',
 fig1._ax1.set_yticklabels(np.array([-300000, -250000, -200000,
                                     -150000, -100000]) / 1000)
 fig1.set_axis_labels(ylabel='Velocity (km/s)', xlabel="Offset (deg)")
+
+fig1.add_colorbar()
+fig1.colorbar.set_location('top')
+fig1.colorbar.set_label_properties(size=11)
 
 plt.tight_layout()
 

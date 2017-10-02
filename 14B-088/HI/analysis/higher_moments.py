@@ -12,8 +12,9 @@ from astropy.visualization import AsinhStretch
 from astropy.visualization.mpl_normalize import ImageNormalize
 from corner import hist2d
 
-from analysis.paths import (fourteenB_HI_data_path, paper1_figures_path,
-                            iram_co21_data_path, data_path)
+from paths import (fourteenB_HI_file_dict, fourteenB_wGBT_HI_file_dict,
+                   allfigs_path,
+                   iram_co21_14B088_data_path, data_path)
 from constants import (hi_freq, cube_name, moment0_name, lwidth_name,
                        skew_name, kurt_name, mask_name, moment1_name,
                        peaktemps_name, peakvels_name,
@@ -25,8 +26,12 @@ from plotting_styles import (twocolumn_figure, onecolumn_figure,
 Investigating skewness and kurtosis in the 14B-088 cube.
 '''
 
-cube = SpectralCube.read(fourteenB_HI_data_path(cube_name))
-mask = fits.open(fourteenB_HI_data_path(mask_name))[0].data > 0
+if not os.path.exists(allfigs_path("HI_maps")):
+    os.mkdir(allfigs_path("HI_maps"))
+
+
+cube = SpectralCube.read(fourteenB_HI_file_dict["Cube"])
+mask = fits.open(fourteenB_HI_file_dict["Source_Mask"])[0].data > 0
 cube = cube.with_mask(mask)
 
 # Checked whether these variations in the spectra are driven by rotation
@@ -35,29 +40,36 @@ cube = cube.with_mask(mask)
 # mask = fits.open(fourteenB_HI_data_path(rotsub_mask_name))[0].data > 0
 # cube = cube.with_mask(mask)
 
-mom0_hdu = fits.open(fourteenB_HI_data_path(moment0_name))[0]
+mom0_hdu = fits.open(fourteenB_HI_file_dict['Moment0'])[0]
 mom0 = Projection.from_hdu(mom0_hdu)
 
-mom1_hdu = fits.open(fourteenB_HI_data_path(moment1_name))[0]
+mom1_hdu = fits.open(fourteenB_HI_file_dict['Moment1'])[0]
 mom1 = Projection.from_hdu(mom1_hdu)
 
-lwidth_hdu = fits.open(fourteenB_HI_data_path(lwidth_name))[0]
+lwidth_hdu = fits.open(fourteenB_HI_file_dict["LWidth"])[0]
 lwidth = Projection.from_hdu(lwidth_hdu)
 
-skew_hdu = fits.open(fourteenB_HI_data_path(skew_name))[0]
+skew_hdu = fits.open(fourteenB_HI_file_dict['Skewness'])[0]
 skew = Projection.from_hdu(skew_hdu)
 
-kurt_hdu = fits.open(fourteenB_HI_data_path(kurt_name))[0]
+kurt_hdu = fits.open(fourteenB_HI_file_dict['Kurtosis'])[0]
 kurt = Projection.from_hdu(kurt_hdu)
 
-peaktemps_hdu = fits.open(fourteenB_HI_data_path(peaktemps_name))[0]
+peaktemps_hdu = fits.open(fourteenB_HI_file_dict["PeakTemp"])[0]
 peaktemps = Projection.from_hdu(peaktemps_hdu)
 
-peakvels_hdu = fits.open(fourteenB_HI_data_path(peakvels_name))[0]
+peakvels_hdu = fits.open(fourteenB_HI_file_dict['PeakVels'])[0]
 peakvels = Projection.from_hdu(peakvels_hdu)
 
+# Feathered Skew and Kurt
+skew_feather_hdu = fits.open(fourteenB_wGBT_HI_file_dict['Skewness'])[0]
+skew_feather = Projection.from_hdu(skew_feather_hdu)
+
+kurt_feather_hdu = fits.open(fourteenB_wGBT_HI_file_dict['Kurtosis'])[0]
+kurt_feather = Projection.from_hdu(skew_feather_hdu)
+
 # CO and 3.6 um for comparison
-co_hdu = fits.open(iram_co21_data_path("m33.ico.hireprojection.fits"))[0]
+co_hdu = fits.open(iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI.mom0.fits"))[0]
 co_map = Projection(co_hdu.data, wcs=WCS(co_hdu.header), unit=u.K)
 
 irac1_hdu = fits.open(os.path.join(data_path, "Spitzer/irac1_3.6um/ch1_122_bgsub.fits"))[0]
@@ -68,7 +80,7 @@ irac1_map = Projection(irac1_reproj, wcs=mom0.wcs, unit=u.MJy / u.sr)
 twocolumn_figure(fig_ratio=0.5)
 ax = p.subplot(121, projection=skew.wcs)
 im = ax.imshow(skew.value,
-               origin='lower', vmin=-2, vmax=2,
+               origin='lower', vmin=-3, vmax=3,
                interpolation='nearest', cmap='seismic')
 # ax.set_title("Skewness")
 ax.set_ylabel("DEC (J2000)")
@@ -87,12 +99,35 @@ cbar2.set_label("Kurtosis")
 
 p.tight_layout()
 
-p.savefig(paper1_figures_path("skew_kurt_maps.pdf"))
-p.savefig(paper1_figures_path("skew_kurt_maps.png"))
-
-raw_input("Next plot?")
+p.savefig(allfigs_path("HI_maps/skew_kurt_maps.pdf"))
+p.savefig(allfigs_path("HI_maps/skew_kurt_maps.png"))
 p.close()
 
+# And another with the feathered data
+ax = p.subplot(121, projection=skew_feather.wcs)
+im = ax.imshow(skew_feather.value,
+               origin='lower', vmin=-3, vmax=3,
+               interpolation='nearest', cmap='seismic')
+# ax.set_title("Skewness")
+ax.set_ylabel("DEC (J2000)")
+ax.set_xlabel("RA (J2000)")
+cbar = p.colorbar(im)
+cbar.set_label("Skewness")
+
+ax2 = p.subplot(122, projection=kurt_feather.wcs)
+im2 = ax2.imshow(kurt_feather.value, vmin=-3, vmax=3,
+                 origin='lower', interpolation='nearest', cmap='seismic')
+ax2.set_xlabel("RA (J2000)")
+lat = ax2.coords[1]
+lat.set_ticklabel_visible(False)
+cbar2 = p.colorbar(im2)
+cbar2.set_label("Kurtosis")
+
+p.tight_layout()
+
+p.savefig(allfigs_path("HI_maps/skew_kurt_feather_maps.pdf"))
+p.savefig(allfigs_path("HI_maps/skew_kurt_feather_maps.png"))
+p.close()
 
 # Interesting regions:
 
@@ -219,8 +254,8 @@ for i, (slices, posns) in enumerate(zip(slicer, spec_posns)):
     p.subplots_adjust(hspace=0.02, wspace=0.02)
     p.draw()
 
-    p.savefig(paper1_figures_path("{}_moments.png").format(names[i]))
-    p.savefig(paper1_figures_path("{}_moments.pdf").format(names[i]))
+    p.savefig(allfigs_path("HI_maps/{}_moments.png").format(names[i]))
+    p.savefig(allfigs_path("HI_maps/{}_moments.pdf").format(names[i]))
 
     # raw_input("Next plot?")
     p.clf()
@@ -298,8 +333,8 @@ for posns, cuts, name, dist in zip(spec_posns, spectral_cuts, names, dists):
 
     # raw_input("Continue ?")
 
-    p.savefig(paper1_figures_path("{}_spectra.png").format(name))
-    p.savefig(paper1_figures_path("{}_spectra.pdf").format(name))
+    p.savefig(allfigs_path("HI_maps/{}_spectra.png").format(name))
+    p.savefig(allfigs_path("HI_maps/{}_spectra.pdf").format(name))
 
     p.close()
 

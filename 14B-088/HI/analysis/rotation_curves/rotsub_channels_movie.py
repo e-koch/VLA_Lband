@@ -1,21 +1,16 @@
 import numpy as np
-import os
 import matplotlib.pyplot as p
 from spectral_cube import SpectralCube
 from spectral_cube.cube_utils import average_beams
-from astropy import coordinates
 from astropy.utils.console import ProgressBar
 from astropy import units as u
-from astropy.io import fits
-from astropy import wcs
-from astropy import log
 from astropy.visualization import AsinhStretch
 from astropy.visualization.mpl_normalize import ImageNormalize
 import warnings
 import matplotlib.animation as anim
 
-from analysis.paths import fourteenB_HI_data_path, paper1_figures_path
-from analysis.constants import hi_freq, rotsub_cube_name
+from paths import fourteenB_HI_data_wGBT_path, allfigs_path, fourteenB_wGBT_HI_file_dict
+from constants import hi_freq
 
 '''
 Channel plots of the rotation subtracted HI cube combined into a movie!
@@ -24,32 +19,35 @@ Borrowing code from @keflavich:
 https://github.com/keflavich/paper_w51_evla/blob/master/plot_codes/h77a_layers.py
 '''
 
-cube_file = fourteenB_HI_data_path(rotsub_cube_name)
-
-cube = SpectralCube.read(cube_file)
+cube = SpectralCube.read(fourteenB_wGBT_HI_file_dict['RotSube_Cube'])
 
 # Begin channel map code here
 
 # integrate over velocities to make channel maps of a set width
-vstart = 308  # channels
-vend = 788
+vstart = 0  # channels
+vend = cube.shape[0]
 vstep = 10
 all_slabs = np.arange(vstart, vend + vstep, vstep, dtype=int)
 
 # Define the average beam
-beam = average_beams(cube.beams)
+try:
+    beam = cube.beam
+except AttributeError:
+    beam = average_beams(cube.beams)
 
 layers = \
     [cube[start:end].moment0().value *
      beam.jtok(hi_freq) / 1000. * u.km / u.s
-     for start, end in zip(all_slabs[:-1], all_slabs[1:])]
+     for start, end in
+     ProgressBar(zip(all_slabs[:-1], all_slabs[1:]))]
 
 # Scale all to the maximum
+
 mx = np.max([np.nanmax(x).value for x in layers])
 
 spec_axis = cube.spectral_axis.to(u.km / u.s).value
 
-center_vels = [(spec_axis[start] + spec_axis[end]) / 2. for start, end in
+center_vels = [(spec_axis[start] + spec_axis[min(end, cube.shape[0] - 1)]) / 2. for start, end in
                zip(all_slabs[:-1], all_slabs[1:])]
 
 pb = ProgressBar(len(center_vels))
@@ -82,7 +80,5 @@ def updater(i):
 ani = anim.FuncAnimation(fig, updater, range(len(center_vels)))
 # p.show()
 
-p.ioff()
-writer = anim.writers['ffmpeg'](fps=3)
-ani.save(paper1_figures_path("m33_rotsub_movie.mp4"), writer=writer, dpi=300)
-p.ion()
+writer = anim.writers['ffmpeg'](fps=4)
+ani.save(allfigs_path("m33_rotsub_movie.mp4"), writer=writer, dpi=300)

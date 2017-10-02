@@ -45,7 +45,7 @@ cube_shifter(cube, mom1, gal.vsys, save_shifted=True,
              save_name=fourteenB_HI_data_path(centroidsub_cube_name,
                                               no_check=True),
              return_spectra=False, verbose=True, num_cores=num_cores,
-             chunk_size=chunk_size)
+             chunk_size=chunk_size, pad_edges=True)
 
 # Also shift the signal mask to match those shifted here.
 log.info("Shifting mask w/ centroid")
@@ -54,7 +54,7 @@ cube_shifter(mask_cube, mom1, gal.vsys, save_shifted=True,
              save_name=fourteenB_HI_data_path(centroidsub_mask_name,
                                               no_check=True),
              return_spectra=False, verbose=True, num_cores=num_cores,
-             is_mask=True, chunk_size=chunk_size)
+             is_mask=True, chunk_size=chunk_size, pad_edges=True)
 
 # Shift wrt. peak velocities
 log.info("Shifting w/ peak velocity")
@@ -63,7 +63,7 @@ cube_shifter(cube, peakvels, gal.vsys, save_shifted=True,
              save_name=fourteenB_HI_data_path(peakvelsub_cube_name,
                                               no_check=True),
              return_spectra=False, verbose=True, num_cores=num_cores,
-             chunk_size=chunk_size)
+             chunk_size=chunk_size, pad_edges=True)
 
 # Also shift the signal mask to match those shifted here.
 log.info("Shifting mask w/ peak velocity")
@@ -72,7 +72,7 @@ cube_shifter(mask_cube, peakvels, gal.vsys, save_shifted=True,
              save_name=fourteenB_HI_data_path(peakvelsub_mask_name,
                                               no_check=True),
              return_spectra=False, verbose=True, num_cores=num_cores,
-             is_mask=True, chunk_size=chunk_size)
+             is_mask=True, chunk_size=chunk_size, pad_edges=True)
 
 # Shift with the rotation model
 log.info("Shifting w/ rotation velocity")
@@ -81,7 +81,7 @@ cube_shifter(cube, rot_model, gal.vsys, save_shifted=True,
              save_name=fourteenB_HI_data_path(rotsub_cube_name,
                                               no_check=True),
              return_spectra=False, verbose=True, num_cores=num_cores,
-             chunk_size=chunk_size)
+             chunk_size=chunk_size, pad_edges=True)
 
 # Also shift the signal mask to match those shifted here.
 log.info("Shifting mask w/ rotation velocity")
@@ -90,4 +90,4 @@ cube_shifter(mask_cube, rot_model, gal.vsys, save_shifted=True,
              save_name=fourteenB_HI_data_path(rotsub_mask_name,
                                               no_check=True),
              return_spectra=False, verbose=True, num_cores=num_cores,
-             is_mask=True, chunk_size=chunk_size)
+             is_mask=True, chunk_size=chunk_size, pad_edges=True)

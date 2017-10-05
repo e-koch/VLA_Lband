@@ -83,26 +83,26 @@ for ctr, (r0, r1) in enumerate(zip(inneredge,
     hi_mask_s = np.logical_and(hi_rad_mask, hi_pa_mask_s)
 
     total_spectrum_hi_radial_n[ctr] = \
-        total_profile(hi_cube, hi_mask_n, num_cores=4).to(u.K, equivalencies=hi_beam.jtok_equiv(hi_freq))
+        total_profile(hi_cube, hi_mask_n).to(u.K, equivalencies=hi_beam.jtok_equiv(hi_freq))
     total_spectrum_hi_radial_s[ctr] = \
-        total_profile(hi_cube, hi_mask_s, num_cores=4).to(u.K, equivalencies=hi_beam.jtok_equiv(hi_freq))
+        total_profile(hi_cube, hi_mask_s).to(u.K, equivalencies=hi_beam.jtok_equiv(hi_freq))
 
     total_spectrum_hi_radial[ctr] = \
         total_spectrum_hi_radial_n[ctr] + total_spectrum_hi_radial_s[ctr]
 
     total_spectrum_hi_radial_cent_n[ctr] = \
-        total_profile(hi_cube_cent, hi_mask_n, num_cores=4).to(u.K, equivalencies=hi_beam.jtok_equiv(hi_freq))
+        total_profile(hi_cube_cent, hi_mask_n).to(u.K, equivalencies=hi_beam.jtok_equiv(hi_freq))
     total_spectrum_hi_radial_cent_s[ctr] = \
-        total_profile(hi_cube_cent, hi_mask_s, num_cores=4).to(u.K, equivalencies=hi_beam.jtok_equiv(hi_freq))
+        total_profile(hi_cube_cent, hi_mask_s).to(u.K, equivalencies=hi_beam.jtok_equiv(hi_freq))
 
     total_spectrum_hi_radial_cent[ctr] = \
         total_spectrum_hi_radial_cent_n[ctr] + \
         total_spectrum_hi_radial_cent_s[ctr]
 
     total_spectrum_hi_radial_peakvel_n[ctr] = \
-        total_profile(hi_cube_peakvel, hi_mask_n, num_cores=4).to(u.K, equivalencies=hi_beam.jtok_equiv(hi_freq))
+        total_profile(hi_cube_peakvel, hi_mask_n).to(u.K, equivalencies=hi_beam.jtok_equiv(hi_freq))
     total_spectrum_hi_radial_peakvel_s[ctr] = \
-        total_profile(hi_cube_peakvel, hi_mask_s, num_cores=4).to(u.K, equivalencies=hi_beam.jtok_equiv(hi_freq))
+        total_profile(hi_cube_peakvel, hi_mask_s).to(u.K, equivalencies=hi_beam.jtok_equiv(hi_freq))
 
     total_spectrum_hi_radial_peakvel[ctr] = \
         total_spectrum_hi_radial_peakvel_n[ctr] + \

@@ -22,7 +22,7 @@ thetas = np.arange(0, 180, 5) * u.deg
 
 pv_width = 40 * u.arcsec
 
-max_rad = 9. * u.kpc
+max_rad = 11. * u.kpc
 
 save_name = fourteenB_HI_data_wGBT_path("downsamp_1kms/M33_14B-088_HI.clean.image.GBT_feathered.1kms",
                                         no_check=True)

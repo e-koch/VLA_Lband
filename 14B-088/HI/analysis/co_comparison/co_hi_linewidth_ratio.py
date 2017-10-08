@@ -15,6 +15,7 @@ from astropy.io import fits
 from astropy.convolution import Box1DKernel
 from astropy.table import Table
 import astropy.units as u
+from astropy.utils.console import ProgressBar
 import os
 import seaborn as sb
 
@@ -79,7 +80,7 @@ inc = np.cos(gal.inclination)
 # 30 m beam efficiency
 beam_eff = 0.75
 
-for i, (y, x) in enumerate(zip(yposns, xposns)):
+for i, (y, x) in enumerate(ProgressBar(zip(yposns, xposns))):
 
     co_spectrum = co_cube[:, y, x]
     # First beam is the largest. Change is far far smaller than 1 pixel

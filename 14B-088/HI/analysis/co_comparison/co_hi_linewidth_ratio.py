@@ -70,7 +70,8 @@ results = {"amp_CO": np.zeros((yposns.shape)) * u.K,
            "coldens_HI_FWHM": np.zeros((yposns.shape)) * u.solMass / u.pc**2,
            "coldens_CO_FWHM": np.zeros((yposns.shape)) * u.solMass / u.pc**2,
            "coldens_HI_gauss": np.zeros((yposns.shape)) * u.solMass / u.pc**2,
-           "coldens_CO_gauss": np.zeros((yposns.shape)) * u.solMass / u.pc**2}
+           "coldens_CO_gauss": np.zeros((yposns.shape)) * u.solMass / u.pc**2,
+           "multicomp_flag": np.zeros(yposns.shape, dtype=bool)}
 
 # Correct for the disk inclincation
 inc = np.cos(gal.inclination)
@@ -101,17 +102,29 @@ for i, (y, x) in enumerate(zip(yposns, xposns)):
     results["sigma_stderr_CO"][i] = np.sqrt(co_stderrs[2]**2 +
                                             (co_chanwidth / 2.)**2) * u.m / u.s
 
-    # Make a mask centered around the CO peak with 4x the CO FWHM
+    # Make a mask centered around the CO peak with 5x the CO FWHM
     # This will hopefully help centre the HI fit to the CO if there is
     # a brighter velocity component.
     co_hwhm = co_params[-1] * np.sqrt(2 * np.log(2))
-    co_mask = np.logical_and(hi_specaxis.value >= co_params[1] - 4 * co_hwhm,
-                             hi_specaxis.value <= co_params[1] + 4 * co_hwhm)
+    co_mask = np.logical_and(hi_specaxis.value >= co_params[1] - 5 * co_hwhm,
+                             hi_specaxis.value <= co_params[1] + 5 * co_hwhm)
 
     # Limit the HI fitting to the peak. Smooth the HI spectrum to get a good
     # HWHM estimate
-    hi_sigest, hi_hwhm = find_hwhm(hi_specaxis[co_mask],
-                                   hi_spectrum.spectral_smooth(kern)[co_mask])[:2]
+    # This will fail for spectra with multiple components blended together.
+    # Flag those that fail and make some rough estimates instead.
+    try:
+        hi_sigest, hi_hwhm = find_hwhm(hi_specaxis[co_mask],
+                                       hi_spectrum.spectral_smooth(kern)[co_mask])[:2]
+        results["multicomp_flag"][i] = False
+    except ValueError:
+        # Just adopt some typical values
+        hi_sigest = 7000.
+        hwhm_factor = np.sqrt(2 * np.log(2))
+        peak_posn = np.nanargmax(hi_spectrum.spectral_smooth(kern)[co_mask])
+        hi_hwhm = np.array([hi_specaxis[co_mask][peak_posn].value - hi_sigest * hwhm_factor,
+                            hi_specaxis[co_mask][peak_posn].value + hi_sigest * hwhm_factor])
+        results["multicomp_flag"][i] = True
 
     hwhm_mask = np.logical_and(hi_specaxis.value >= hi_hwhm[0] - mask_pad,
                                hi_specaxis.value <= hi_hwhm[1] + mask_pad)

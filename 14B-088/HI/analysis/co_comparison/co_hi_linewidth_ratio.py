@@ -89,6 +89,9 @@ for i, (y, x) in enumerate(zip(yposns, xposns)):
         fit_gaussian(co_specaxis,
                      co_spectrum.quantity)
 
+    if np.isnan(co_cov).any():
+        results["multicomp_flag"][i] = True
+
     co_stderrs = np.sqrt(np.diag(co_cov))
 
     results["amp_CO"][i] = co_params[0] * u.K
@@ -116,7 +119,6 @@ for i, (y, x) in enumerate(zip(yposns, xposns)):
     try:
         hi_sigest, hi_hwhm = find_hwhm(hi_specaxis[co_mask],
                                        hi_spectrum.spectral_smooth(kern)[co_mask])[:2]
-        results["multicomp_flag"][i] = False
     except ValueError:
         # Just adopt some typical values
         hi_sigest = 7000.
@@ -136,6 +138,9 @@ for i, (y, x) in enumerate(zip(yposns, xposns)):
     hi_params, hi_cov, hi_parnames, hi_model = \
         fit_gaussian(hi_specaxis[hwhm_mask],
                      hi_spectrum.quantity[hwhm_mask], p0=p0)
+
+    if np.isnan(hi_cov).any():
+        results["multicomp_flag"][i] = True
 
     hi_stderrs = np.sqrt(np.diag(hi_cov))
 

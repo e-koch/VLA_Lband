@@ -220,7 +220,7 @@ skycoord_pts = skycoord_grid[yposns, xposns]
 ra_pts = skycoord_pts.ra
 dec_pts = skycoord_pts.dec
 
-results["Rgal"] = radii
+results["Rgal"] = radii_pts
 results["PAgal"] = pang_pts
 results["RA"] = ra_pts
 results["Dec"] = dec_pts

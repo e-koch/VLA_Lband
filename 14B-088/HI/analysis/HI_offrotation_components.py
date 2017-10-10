@@ -120,6 +120,8 @@ for n in range(5):
                 bbox_inches="tight")
     plt.clf()
 
+plt.close()
+
 # Now focus on individual features
 
 # Linear feature in south of galaxy
@@ -192,5 +194,6 @@ fig.savefig(allfigs_path("HI_maps/M33_offrot_mom0_maps.pdf"),
             bbox_inches="tight")
 fig.savefig(allfigs_path("HI_maps/M33_offrot_mom0_maps.png"),
             bbox_inches="tight")
+plt.close()
 
 default_figure()

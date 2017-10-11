@@ -72,7 +72,8 @@ results = {"amp_CO": np.zeros((yposns.shape)) * u.K,
            "coldens_CO_FWHM": np.zeros((yposns.shape)) * u.solMass / u.pc**2,
            "coldens_HI_gauss": np.zeros((yposns.shape)) * u.solMass / u.pc**2,
            "coldens_CO_gauss": np.zeros((yposns.shape)) * u.solMass / u.pc**2,
-           "multicomp_flag": np.zeros(yposns.shape, dtype=bool)}
+           "multicomp_flag_HI": np.zeros(yposns.shape, dtype=bool),
+           "multicomp_flag_CO": np.zeros(yposns.shape, dtype=bool)}
 
 # Correct for the disk inclincation
 inc = np.cos(gal.inclination)
@@ -80,6 +81,12 @@ inc = np.cos(gal.inclination)
 # 30 m beam efficiency
 beam_eff = 0.75
 
+
+# rand_ord = np.random.choice(np.arange(len(yposns)), size=len(yposns),
+#                             replace=False)
+
+# for i, (y, x) in enumerate(ProgressBar(zip(yposns[rand_ord],
+#                                            xposns[rand_ord]))):
 for i, (y, x) in enumerate(ProgressBar(zip(yposns, xposns))):
 
     co_spectrum = co_cube[:, y, x]
@@ -91,7 +98,7 @@ for i, (y, x) in enumerate(ProgressBar(zip(yposns, xposns))):
                      co_spectrum.quantity)
 
     if np.isnan(co_cov).any():
-        results["multicomp_flag"][i] = True
+        results["multicomp_flag_CO"][i] = True
 
     co_stderrs = np.sqrt(np.diag(co_cov))
 
@@ -110,8 +117,8 @@ for i, (y, x) in enumerate(ProgressBar(zip(yposns, xposns))):
     # This will hopefully help centre the HI fit to the CO if there is
     # a brighter velocity component.
     co_hwhm = co_params[-1] * np.sqrt(2 * np.log(2))
-    co_mask = np.logical_and(hi_specaxis.value >= co_params[1] - 5 * co_hwhm,
-                             hi_specaxis.value <= co_params[1] + 5 * co_hwhm)
+    co_mask = np.logical_and(hi_specaxis.value >= co_params[1] - 3 * co_hwhm,
+                             hi_specaxis.value <= co_params[1] + 3 * co_hwhm)
 
     # Limit the HI fitting to the peak. Smooth the HI spectrum to get a good
     # HWHM estimate
@@ -121,19 +128,21 @@ for i, (y, x) in enumerate(ProgressBar(zip(yposns, xposns))):
         hi_sigest, hi_hwhm = find_hwhm(hi_specaxis[co_mask],
                                        hi_spectrum.spectral_smooth(kern)[co_mask])[:2]
     except ValueError:
-        # Just adopt some typical values
+        # Just adopt some typical values if the estimate fails. We'll assign
+        # those failures to blended profiles
         hi_sigest = 7000.
         hwhm_factor = np.sqrt(2 * np.log(2))
         peak_posn = np.nanargmax(hi_spectrum.spectral_smooth(kern)[co_mask])
         hi_hwhm = np.array([hi_specaxis[co_mask][peak_posn].value - hi_sigest * hwhm_factor,
                             hi_specaxis[co_mask][peak_posn].value + hi_sigest * hwhm_factor])
-        results["multicomp_flag"][i] = True
+        results["multicomp_flag_HI"][i] = True
 
     hwhm_mask = np.logical_and(hi_specaxis.value >= hi_hwhm[0] - mask_pad,
                                hi_specaxis.value <= hi_hwhm[1] + mask_pad)
 
     # Give some initial guesses
-    p0 = (np.nanmax(hi_spectrum), hi_specaxis[np.nanargmax(hi_spectrum)],
+    p0 = (np.nanmax(hi_spectrum[hwhm_mask]),
+          hi_specaxis[hwhm_mask][np.nanargmax(hi_spectrum[hwhm_mask])],
           hi_sigest)
 
     hi_params, hi_cov, hi_parnames, hi_model = \
@@ -141,7 +150,23 @@ for i, (y, x) in enumerate(ProgressBar(zip(yposns, xposns))):
                      hi_spectrum.quantity[hwhm_mask], p0=p0)
 
     if np.isnan(hi_cov).any():
-        results["multicomp_flag"][i] = True
+        results["multicomp_flag_HI"][i] = True
+
+    # Catch bad HI fits where the fitted peak falls outside of the mask
+    max_mask = hi_specaxis.value[np.where(hwhm_mask)[0][0]]
+    min_mask = hi_specaxis.value[np.where(hwhm_mask)[0][-1]]
+    if hi_params[1] < min_mask or hi_params[1] > max_mask:
+        results['multicomp_flag_HI'][i] = True
+
+    # By-eye, HI profiles with 1 major component have line widths of ~8 km/s
+    # Let's assume those above 12 are due to bad fits.
+    if hi_params[2] > 12000:
+        results['multicomp_flag_HI'][i] = True
+
+    # Use a similar criterion for the CO fits too. They have widths of ~3 to
+    # 5 km /s. Set the cut-off at 8 km/s
+    if co_params[2] > 8000:
+        results['multicomp_flag_CO'][i] = True
 
     hi_stderrs = np.sqrt(np.diag(hi_cov))
 
@@ -189,20 +214,34 @@ for i, (y, x) in enumerate(ProgressBar(zip(yposns, xposns))):
 
     if plot_spectra:
         # Plot to see how it's doing
-        ax1 = pl.subplot(111)
+        ax1 = pl.subplot(311)
         ax2 = ax1.twinx()
-        ax1.plot(hi_specaxis, hi_spectrum.value, drawstyle='steps-mid')
-        ax2.plot(co_specaxis, co_spectrum.value, drawstyle='steps-mid')
         ax2.plot(hi_specaxis, co_model(hi_specaxis.value), label='CO model')
         ax1.plot(hi_specaxis, hi_model(hi_specaxis.value), label='HI model')
+        # pl.legend(frameon=True)
+        pl.xlim([np.min(hi_specaxis.value), np.max(hi_specaxis.value)])
+
+        ax3 = pl.subplot(312)
+        ax3.plot(co_specaxis, co_spectrum.value, drawstyle='steps-mid')
+        ax3.plot(hi_specaxis, co_model(hi_specaxis.value), label='CO model')
+        pl.axvline(co_params[1] - co_hwhm)
+        pl.axvline(co_params[1] + co_hwhm)
+        pl.xlim([np.min(hi_specaxis.value), np.max(hi_specaxis.value)])
+
+        ax4 = pl.subplot(313)
+        ax4.plot(hi_specaxis, hi_spectrum.value, drawstyle='steps-mid')
+        ax4.plot(hi_specaxis, hi_model(hi_specaxis.value), label='HI model')
         pl.axvline(hi_hwhm[0])
         pl.axvline(hi_hwhm[1])
-        pl.legend(frameon=True)
+        pl.xlim([np.min(hi_specaxis.value), np.max(hi_specaxis.value)])
 
         pl.draw()
 
-        raw_input("{0}, {1}: {2}, {3}".format(y, x, round(co_params[-1]),
-                                              round(hi_params[-1])))
+        raw_input("{0}, {1}: {2}, {3}. Flagged: {5}: {4}"
+                  .format(y, x, round(co_params[-1]),
+                          round(hi_params[-1]),
+                          results['multicomp_flag_HI'][i],
+                          results['multicomp_flag_CO'][i]))
 
         pl.clf()
 

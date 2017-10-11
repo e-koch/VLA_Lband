@@ -1,5 +1,4 @@
 
-import matplotlib.pyplot as p
 import seaborn as sb
 
 '''
@@ -10,6 +9,7 @@ Set style for figures.
 def default_figure(font_scale=1.0):
     sb.set(font='Times New Roman', style='ticks')
     sb.set_context("poster", font_scale=font_scale)
+    sb.set_palette("colorblind")
 
 
 def twocolumn_figure(fig_ratio=None, font_scale=1.25):

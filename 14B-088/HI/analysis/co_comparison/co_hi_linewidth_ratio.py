@@ -18,6 +18,7 @@ import astropy.units as u
 from astropy.utils.console import ProgressBar
 import os
 import seaborn as sb
+from scipy.special import erf
 
 from cube_analysis.spectral_stacking_models import find_hwhm, fit_gaussian
 
@@ -185,13 +186,18 @@ for i, (y, x) in enumerate(ProgressBar(zip(yposns, xposns))):
     # 1) within the FWHM of each spectra,
     # 2) from the integral of the gaussian models
 
+    # 1) These are divided by erf(sqrt(ln(2))) to account for the area outside
+    # the FWHM
+
+    fwhm_area_factor = erf(np.sqrt(np.log(2)))
     hi_hwhm_model = hi_params[-1] * np.sqrt(2 * np.log(2))
     hi_fwhm_mask = \
         np.logical_and(hi_specaxis.value >= hi_params[1] - hi_hwhm_model,
                        hi_specaxis.value <= hi_params[1] + hi_hwhm_model)
     results["coldens_HI_FWHM"][i] = \
         np.nansum(hi_spectrum[hi_fwhm_mask]) * \
-        (hi_chanwidth / 1000. * u.km / u.s) * inc * hi_mass_conversion
+        (hi_chanwidth / 1000. * u.km / u.s) * inc * hi_mass_conversion \
+        / fwhm_area_factor
 
     co_fwhm_mask = \
         np.logical_and(co_specaxis.value >= co_params[1] - co_hwhm,
@@ -199,7 +205,7 @@ for i, (y, x) in enumerate(ProgressBar(zip(yposns, xposns))):
     results["coldens_CO_FWHM"][i] = \
         np.nansum(co_spectrum[co_fwhm_mask]) * \
         (co_chanwidth / 1000. * u.km / u.s) * \
-        inc * co21_mass_conversion / beam_eff
+        inc * co21_mass_conversion / beam_eff / fwhm_area_factor
 
     # 2)
 

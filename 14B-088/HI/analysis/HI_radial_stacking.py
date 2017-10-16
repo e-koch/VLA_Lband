@@ -16,10 +16,6 @@ from galaxy_params import gal
 
 hi_cube = SpectralCube.read(fourteenB_HI_file_dict["RotSub_Cube"],
                             memmap=True)
-hi_mask = fits.open(fourteenB_HI_file_dict["RotSub_Mask"])[0]
-hi_cube = hi_cube.with_mask(hi_mask.data > 0)
-
-del hi_mask
 
 hi_beam = hi_cube.beam
 jybm_to_K = hi_beam.jtok_equiv(hi_freq)
@@ -44,6 +40,11 @@ pa_bounds_s = Angle([-0.5 * np.pi * u.rad, 0.5 * np.pi * u.rad])
 hi_pa_mask_s = np.logical_and(hi_pas >= pa_bounds_s[0],
                               hi_pas < pa_bounds_s[1])
 
+
+hi_mask = fits.open(fourteenB_HI_file_dict["RotSub_Mask"])[0]
+hi_cube = hi_cube.with_mask(hi_mask.data > 0)
+
+del hi_mask
 
 rot_shape = hi_cube.shape[0]
 

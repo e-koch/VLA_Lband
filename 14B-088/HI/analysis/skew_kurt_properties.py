@@ -10,6 +10,8 @@ import matplotlib.pyplot as p
 from astropy.io import fits
 import astropy.units as u
 from astropy.coordinates import Angle
+import os
+from os.path import join as osjoin
 
 from cube_analysis.profiles import (radial_profile, surfdens_radial_profile)
 
@@ -23,6 +25,15 @@ from plotting_styles import (twocolumn_figure, onecolumn_figure,
                              onecolumn_Npanel_figure)
 
 from galaxy_params import gal_feath as gal
+
+
+prop_figure_folder = allfigs_path("HI_properties")
+if not os.path.exists(prop_figure_folder):
+    os.mkdir(allfigs_path(prop_figure_folder))
+
+stack_figure_folder = allfigs_path("stacked_profiles")
+if not os.path.exists(stack_figure_folder):
+    os.mkdir(allfigs_path(stack_figure_folder))
 
 
 mom0_hdu = fits.open(fourteenB_HI_file_dict["Moment0"])[0]
@@ -102,8 +113,8 @@ ax[1].set_xlabel("Radius (kpc)")
 ax[1].set_ylabel("Kurtosis")
 
 p.tight_layout()
-fig.savefig(allfigs_path("hi_skew_kurt_profile_n_s.png"))
-fig.savefig(allfigs_path("hi_skew_kurt_profile_n_s.pdf"))
+fig.savefig(osjoin(prop_figure_folder, "hi_skew_kurt_profile_n_s.png"))
+fig.savefig(osjoin(prop_figure_folder, "hi_skew_kurt_profile_n_s.pdf"))
 p.close()
 
 # Make a 4-panel stack of avg. profiles w/ mom0 and lwidth for comparison.
@@ -196,8 +207,8 @@ ax[3].set_ylabel("Kurtosis")
 
 p.tight_layout()
 
-fig.savefig(allfigs_path("hi_skew_kurt_sd_lwidth_profile_n_s.png"))
-fig.savefig(allfigs_path("hi_skew_kurt_sd_lwidth_profile_n_s.pdf"))
+fig.savefig(osjoin(prop_figure_folder, "hi_skew_kurt_sd_lwidth_profile_n_s.png"))
+fig.savefig(osjoin(prop_figure_folder, "hi_skew_kurt_sd_lwidth_profile_n_s.pdf"))
 p.close()
 
 
@@ -271,8 +282,8 @@ ax[1].set_ylabel("Kurtosis")
 
 p.tight_layout()
 
-fig.savefig(allfigs_path("hi_skew_kurt_profile_n_s_w_cent_stacked.png"))
-fig.savefig(allfigs_path("hi_skew_kurt_profile_n_s_w_cent_stacked.pdf"))
+fig.savefig(osjoin(stack_figure_folder, "hi_skew_kurt_profile_n_s_w_cent_stacked.png"))
+fig.savefig(osjoin(stack_figure_folder, "hi_skew_kurt_profile_n_s_w_cent_stacked.pdf"))
 p.close()
 
 onecolumn_twopanel_figure(font_scale=1.0)
@@ -326,8 +337,8 @@ ax[1].set_ylabel("Kurtosis")
 
 p.tight_layout()
 
-fig.savefig(allfigs_path("hi_skew_kurt_stacked_comparison.png"))
-fig.savefig(allfigs_path("hi_skew_kurt_stacked_comparison.pdf"))
+fig.savefig(osjoin(stack_figure_folder, "hi_skew_kurt_stacked_comparison.png"))
+fig.savefig(osjoin(stack_figure_folder, "hi_skew_kurt_stacked_comparison.pdf"))
 p.close()
 
 # Now the feathered version
@@ -464,8 +475,8 @@ ax[0].set_xlim([0, 8])
 
 p.tight_layout()
 
-fig.savefig(allfigs_path("hi_skew_kurt_sd_lwidth_profile_n_s_feather.png"))
-fig.savefig(allfigs_path("hi_skew_kurt_sd_lwidth_profile_n_s_feather.pdf"))
+fig.savefig(osjoin(stack_figure_folder, "hi_skew_kurt_sd_lwidth_profile_n_s_feather.png"))
+fig.savefig(osjoin(stack_figure_folder, "hi_skew_kurt_sd_lwidth_profile_n_s_feather.pdf"))
 p.close()
 
 cent_stack_n = SpectralCube.read(fourteenB_HI_data_wGBT_path("stacked_spectra/centroid_stacked_radial_north_100pc.fits"))
@@ -516,8 +527,8 @@ ax[1].set_ylabel("Kurtosis")
 ax[0].set_xlim([0, 14])
 
 p.tight_layout()
-fig.savefig(allfigs_path("hi_skew_kurt_profile_n_s_w_cent_stacked_feather.png"))
-fig.savefig(allfigs_path("hi_skew_kurt_profile_n_s_w_cent_stacked_feather.pdf"))
+fig.savefig(osjoin(stack_figure_folder, "hi_skew_kurt_profile_n_s_w_cent_stacked_feather.png"))
+fig.savefig(osjoin(stack_figure_folder, "hi_skew_kurt_profile_n_s_w_cent_stacked_feather.pdf"))
 p.close()
 
 onecolumn_twopanel_figure(font_scale=1.0)
@@ -571,8 +582,8 @@ ax[1].set_ylabel("Kurtosis")
 
 p.tight_layout()
 
-fig.savefig(allfigs_path("hi_skew_kurt_stacked_comparison_feather.png"))
-fig.savefig(allfigs_path("hi_skew_kurt_stacked_comparison_feather.pdf"))
+fig.savefig(osjoin(stack_figure_folder, "hi_skew_kurt_stacked_comparison_feather.png"))
+fig.savefig(osjoin(stack_figure_folder, "hi_skew_kurt_stacked_comparison_feather.pdf"))
 p.close()
 
 default_figure()

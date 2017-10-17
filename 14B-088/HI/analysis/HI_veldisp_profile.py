@@ -18,9 +18,13 @@ from galaxy_params import gal_feath as gal
 from plotting_styles import (default_figure, onecolumn_figure,
                              twocolumn_twopanel_figure)
 
-figure_folder = allfigs_path("stacked_profiles")
-if not os.path.exists(figure_folder):
-    os.mkdir(allfigs_path(figure_folder))
+stack_figure_folder = allfigs_path("stacked_profiles")
+if not os.path.exists(stack_figure_folder):
+    os.mkdir(allfigs_path(stack_figure_folder))
+
+props_figure_folder = allfigs_path("HI_properties")
+if not os.path.exists(props_figure_folder):
+    os.mkdir(allfigs_path(props_figure_folder))
 
 lwidth_hdu = fits.open(fourteenB_HI_file_dict["LWidth"])[0]
 lwidth = Projection.from_hdu(lwidth_hdu).to(u.km / u.s)
@@ -46,8 +50,8 @@ p.ylabel("HI Velocity Dispersion (km/s)")
 p.legend(loc='lower left', frameon=True)
 p.grid()
 p.tight_layout()
-p.savefig(osjoin(figure_folder, "hi_veldisp_profile.png"))
-p.savefig(osjoin(figure_folder, "hi_veldisp_profile.pdf"))
+p.savefig(osjoin(props_figure_folder, "hi_veldisp_profile.png"))
+p.savefig(osjoin(props_figure_folder, "hi_veldisp_profile.pdf"))
 p.close()
 
 # Create the North and South portions.
@@ -71,8 +75,8 @@ p.ylabel("HI Velocity Dispersion (km/s)")
 p.grid()
 p.legend(frameon=True)
 p.tight_layout()
-p.savefig(osjoin(figure_folder, "hi_veldisp_profile_n_s.png"))
-p.savefig(osjoin(figure_folder, "hi_veldisp_profile_n_s.pdf"))
+p.savefig(osjoin(props_figure_folder, "hi_veldisp_profile_n_s.png"))
+p.savefig(osjoin(props_figure_folder, "hi_veldisp_profile_n_s.pdf"))
 p.close()
 
 rs_n, sd_n, sd_sigma_n = \
@@ -95,8 +99,8 @@ p.ylabel("HI Velocity Dispersion (km/s)")
 p.grid()
 p.legend(frameon=True)
 p.tight_layout()
-p.savefig(osjoin(figure_folder, "hi_veldisp_profile_n_s_feather.png"))
-p.savefig(osjoin(figure_folder, "hi_veldisp_profile_n_s_feather.pdf"))
+p.savefig(osjoin(props_figure_folder, "hi_veldisp_profile_n_s_feather.png"))
+p.savefig(osjoin(props_figure_folder, "hi_veldisp_profile_n_s_feather.pdf"))
 p.close()
 
 
@@ -153,8 +157,8 @@ ax[1].text(6.5, 14, "VLA + GBT",
 
 p.tight_layout()
 
-p.savefig(osjoin(figure_folder, "hi_veldisp_w_stackedfits.png"))
-p.savefig(osjoin(figure_folder, "hi_veldisp_w_stackedfits.pdf"))
+p.savefig(osjoin(stack_figure_folder, "hi_veldisp_w_stackedfits.png"))
+p.savefig(osjoin(stack_figure_folder, "hi_veldisp_w_stackedfits.pdf"))
 p.close()
 
 
@@ -201,8 +205,8 @@ ax[2].text(5, 11.5, "Peak Vel.\nsubtracted",
 ax[2].grid()
 ax[2].set_xlabel("Radius (kpc)")
 p.tight_layout()
-fig.savefig(osjoin(figure_folder, "hi_veldisp_avg_vs_stackedfits.png"))
-fig.savefig(osjoin(figure_folder, "hi_veldisp_avg_vs_stackedfits.pdf"))
+fig.savefig(osjoin(stack_figure_folder, "hi_veldisp_avg_vs_stackedfits.png"))
+fig.savefig(osjoin(stack_figure_folder, "hi_veldisp_avg_vs_stackedfits.pdf"))
 p.close()
 
 rot_stack = SpectralCube.read(fourteenB_HI_data_wGBT_path("stacked_spectra/rotation_stacked_radial_100pc.fits"))
@@ -247,8 +251,8 @@ ax[2].grid()
 ax[2].set_xlabel("Radius (kpc)")
 ax[2].set_ylim([5, 17])
 p.tight_layout()
-fig.savefig(osjoin(figure_folder, "hi_veldisp_avg_vs_stackedfits_feath.png"))
-fig.savefig(osjoin(figure_folder, "hi_veldisp_avg_vs_stackedfits_feath.pdf"))
+fig.savefig(osjoin(stack_figure_folder, "hi_veldisp_avg_vs_stackedfits_feath.png"))
+fig.savefig(osjoin(stack_figure_folder, "hi_veldisp_avg_vs_stackedfits_feath.pdf"))
 p.close()
 
 default_figure()

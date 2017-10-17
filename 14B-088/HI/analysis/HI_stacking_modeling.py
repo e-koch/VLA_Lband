@@ -459,6 +459,9 @@ for ctr, (r0, r1) in enumerate(zip(inneredge,
 bin_names = ["{}-{}".format(r0.value, r1)
              for r0, r1 in zip(inneredge, outeredge)]
 
+bin_cents = (outeredge - dr / 2.).to(u.kpc).value
+hi_params["bin_center"] = bin_cents
+
 hi_radial_fits = DataFrame(hi_params, index=bin_names)
 
 hi_radial_fits.to_latex(alltables_path("hi_gaussian_hwhm_totalprof_fits_radial.tex"))
@@ -467,8 +470,6 @@ hi_radial_fits.to_csv(fourteenB_HI_data_path("tables/hi_gaussian_hwhm_totalprof_
 
 # Plot comparisons of these fits -- showing f_wings, kappa, asymm
 #
-bin_cents = (outeredge - dr / 2.).to(u.kpc).value
-
 twocolumn_figure()
 
 fig, ax = p.subplots(2, 3, sharex=True)

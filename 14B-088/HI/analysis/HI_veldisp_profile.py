@@ -165,8 +165,8 @@ peakvel_stack = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/peakve
 twocolumn_twopanel_figure(font_scale=1.2)
 fig, ax = p.subplots(1, 3, sharey=True)
 ax[0].errorbar(hi_radial_fits['bin_center'],
-               hi_radial_fits['rotsub_stddev'],
-               yerr=hi_radial_fits['rotsub_stddev_stderr_w_chanwidth'],
+               hi_radial_fits['rotsub_sigma'],
+               yerr=hi_radial_fits['rotsub_sigma_stderr'],
                fmt='D', label='Gaussian Fit', alpha=0.5)
 ax[0].plot(hi_radial_fits['bin_center'],
            rot_stack.linewidth_sigma().value / 1000.,
@@ -179,8 +179,8 @@ ax[0].grid()
 ax[0].set_ylabel("HI Velocity Dispersion (km/s)")
 ax[0].set_xlabel("Radius (kpc)")
 ax[1].errorbar(hi_radial_fits['bin_center'],
-               hi_radial_fits['centsub_stddev'],
-               yerr=hi_radial_fits['centsub_stddev_stderr_w_chanwidth'],
+               hi_radial_fits['centsub_sigma'],
+               yerr=hi_radial_fits['centsub_sigma_stderr'],
                fmt='D', label='Gaussian Fit', alpha=0.5)
 ax[1].plot(hi_radial_fits['bin_center'],
            cent_stack.linewidth_sigma().value / 1000.,
@@ -190,8 +190,8 @@ ax[1].text(5, 11.5, "Centroid\nsubtracted",
 ax[1].grid()
 ax[1].set_xlabel("Radius (kpc)")
 ax[2].errorbar(hi_radial_fits['bin_center'],
-               hi_radial_fits['peaksub_stddev'],
-               yerr=hi_radial_fits['peaksub_stddev_stderr_w_chanwidth'],
+               hi_radial_fits['peaksub_sigma'],
+               yerr=hi_radial_fits['peaksub_sigma_stderr'],
                fmt='D', label='Gaussian Fit', alpha=0.5)
 ax[2].plot(hi_radial_fits['bin_center'],
            cent_stack.linewidth_sigma().value / 1000.,
@@ -209,11 +209,11 @@ rot_stack = SpectralCube.read(fourteenB_HI_data_wGBT_path("stacked_spectra/rotat
 cent_stack = SpectralCube.read(fourteenB_HI_data_wGBT_path("stacked_spectra/centroid_stacked_radial_100pc.fits"))
 peakvel_stack = SpectralCube.read(fourteenB_HI_data_wGBT_path("stacked_spectra/peakvel_stacked_radial_100pc.fits"))
 fig, ax = p.subplots(1, 3, sharey=True)
-ax[0].errorbar(hi_radial_fits_feath['bin_center'],
-               hi_radial_fits_feath['rotsub_stddev'],
-               yerr=hi_radial_fits_feath['rotsub_stddev_stderr_w_chanwidth'],
+ax[0].errorbar(hi_radial_fits['bin_center'],
+               hi_radial_fits['rotsub_feath_sigma'],
+               yerr=hi_radial_fits['rotsub_feath_sigma_stderr'],
                fmt='D', label='Gaussian Fit', alpha=0.5)
-ax[0].plot(hi_radial_fits_feath['bin_center'],
+ax[0].plot(hi_radial_fits['bin_center'],
            rot_stack.linewidth_sigma().value / 1000.,
            label="Moment")
 ax[0].text(4.75, 14.5, "Rotation\nsubtracted",
@@ -223,29 +223,29 @@ ax[0].grid()
 # ax[0].set_xticklabels([])
 ax[0].set_ylabel("HI Velocity Dispersion (km/s)")
 ax[0].set_xlabel("Radius (kpc)")
-ax[1].errorbar(hi_radial_fits_feath['bin_center'],
-               hi_radial_fits_feath['centsub_stddev'],
-               yerr=hi_radial_fits_feath['centsub_stddev_stderr_w_chanwidth'],
+ax[1].errorbar(hi_radial_fits['bin_center'],
+               hi_radial_fits['centsub_feath_sigma'],
+               yerr=hi_radial_fits['centsub_feath_sigma_stderr'],
                fmt='D', label='Gaussian Fit', alpha=0.5)
-ax[1].plot(hi_radial_fits_feath['bin_center'],
+ax[1].plot(hi_radial_fits['bin_center'],
            cent_stack.linewidth_sigma().value / 1000.,
            label="Moment")
 ax[1].text(4.75, 14.5, "Centroid\nsubtracted",
            bbox={"boxstyle": "square", "facecolor": "w"})
 ax[1].grid()
 ax[1].set_xlabel("Radius (kpc)")
-ax[2].errorbar(hi_radial_fits_feath['bin_center'],
-               hi_radial_fits_feath['peaksub_stddev'],
-               yerr=hi_radial_fits_feath['peaksub_stddev_stderr_w_chanwidth'],
+ax[2].errorbar(hi_radial_fits['bin_center'],
+               hi_radial_fits['peaksub_feath_sigma'],
+               yerr=hi_radial_fits['peaksub_feath_sigma_stderr'],
                fmt='D', label='Gaussian Fit', alpha=0.5)
-ax[2].plot(hi_radial_fits_feath['bin_center'],
+ax[2].plot(hi_radial_fits['bin_center'],
            cent_stack.linewidth_sigma().value / 1000.,
            label="Moment")
 ax[2].text(4.75, 14.5, "Peak Vel.\nsubtracted",
            bbox={"boxstyle": "square", "facecolor": "w"})
 ax[2].grid()
 ax[2].set_xlabel("Radius (kpc)")
-ax[2].set_ylim([7, 17])
+ax[2].set_ylim([5, 17])
 p.tight_layout()
 fig.savefig(osjoin(figure_folder, "hi_veldisp_avg_vs_stackedfits_feath.png"))
 fig.savefig(osjoin(figure_folder, "hi_veldisp_avg_vs_stackedfits_feath.pdf"))

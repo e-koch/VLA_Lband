@@ -5,6 +5,8 @@ import numpy as np
 import astropy.units as u
 from astropy.coordinates import Angle
 from astropy.io import fits
+import os
+from os.path import join as osjoin
 
 from cube_analysis.profiles import radial_profile
 
@@ -15,6 +17,10 @@ from paths import (fourteenB_HI_data_path, fourteenB_HI_file_dict,
 from galaxy_params import gal_feath as gal
 from plotting_styles import (default_figure, onecolumn_figure,
                              twocolumn_twopanel_figure)
+
+figure_folder = allfigs_path("stacked_profiles")
+if not os.path.exists(figure_folder):
+    os.mkdir(allfigs_path(figure_folder))
 
 lwidth_hdu = fits.open(fourteenB_HI_file_dict["LWidth"])[0]
 lwidth = Projection.from_hdu(lwidth_hdu).to(u.km / u.s)
@@ -40,8 +46,8 @@ p.ylabel("HI Velocity Dispersion (km/s)")
 p.legend(loc='lower left', frameon=True)
 p.grid()
 p.tight_layout()
-p.savefig(allfigs_path("hi_veldisp_profile.png"))
-p.savefig(allfigs_path("hi_veldisp_profile.pdf"))
+p.savefig(osjoin(figure_folder, "hi_veldisp_profile.png"))
+p.savefig(osjoin(figure_folder, "hi_veldisp_profile.pdf"))
 p.close()
 
 # Create the North and South portions.
@@ -65,8 +71,8 @@ p.ylabel("HI Velocity Dispersion (km/s)")
 p.grid()
 p.legend(frameon=True)
 p.tight_layout()
-p.savefig(allfigs_path("hi_veldisp_profile_n_s.png"))
-p.savefig(allfigs_path("hi_veldisp_profile_n_s.pdf"))
+p.savefig(osjoin(figure_folder, "hi_veldisp_profile_n_s.png"))
+p.savefig(osjoin(figure_folder, "hi_veldisp_profile_n_s.pdf"))
 p.close()
 
 rs_n, sd_n, sd_sigma_n = \
@@ -89,67 +95,68 @@ p.ylabel("HI Velocity Dispersion (km/s)")
 p.grid()
 p.legend(frameon=True)
 p.tight_layout()
-p.savefig(allfigs_path("hi_veldisp_profile_n_s_feather.png"))
-p.savefig(allfigs_path("hi_veldisp_profile_n_s_feather.pdf"))
+p.savefig(osjoin(figure_folder, "hi_veldisp_profile_n_s_feather.png"))
+p.savefig(osjoin(figure_folder, "hi_veldisp_profile_n_s_feather.pdf"))
 p.close()
 
 
 # Now load in the line stacking fits with the same bin size
 hi_radial_fits = \
-    read_csv(fourteenB_HI_data_path("tables/hi_gaussian_totalprof_fits_radial_100pc.csv"))
-onecolumn_figure(font_scale=1.)
-p.errorbar(rs.value, sd.value,
-           yerr=sd_sigma.value, fmt="-",
-           drawstyle='steps-mid', label='Averaged Line Width')
-p.xlabel("Radius (kpc)")
-p.ylabel("HI Velocity Dispersion (km/s)")
+    read_csv(fourteenB_HI_data_path("tables/hi_gaussian_hwhm_totalprof_fits_radial.csv"))
+twocolumn_twopanel_figure(font_scale=1.)
+
+fig, ax = p.subplots(1, 2, sharex=True, sharey=True)
+
+ax[0].errorbar(rs.value, sd.value,
+               yerr=sd_sigma.value, fmt="-",
+               drawstyle='steps-mid', label='Averaged Line Width')
+ax[0].set_xlabel("Radius (kpc)")
+ax[0].set_ylabel("HI Velocity Dispersion (km/s)")
 # Now the stacked fits
-p.errorbar(hi_radial_fits['bin_center'],
-           hi_radial_fits['rotsub_stddev'],
-           yerr=hi_radial_fits['rotsub_stddev_stderr_w_chanwidth'],
-           fmt='D', label='Rotation Stacked Fit', alpha=0.5)
-p.errorbar(hi_radial_fits['bin_center'],
-           hi_radial_fits['centsub_stddev'],
-           yerr=hi_radial_fits['centsub_stddev_stderr_w_chanwidth'],
-           fmt='o', label='Centroid Stacked Fit', alpha=0.5)
-p.errorbar(hi_radial_fits['bin_center'],
-           hi_radial_fits['peaksub_stddev'],
-           yerr=hi_radial_fits['peaksub_stddev_stderr_w_chanwidth'],
-           fmt='^', label='Peak Stacked Fit', alpha=0.5)
-p.grid()
-p.legend(frameon=True)
+ax[0].errorbar(hi_radial_fits['bin_center'],
+               hi_radial_fits['rotsub_sigma'],
+               yerr=hi_radial_fits['rotsub_sigma_stderr'],
+               fmt='D', label='Rotation Stacked Fit', alpha=0.5)
+ax[0].errorbar(hi_radial_fits['bin_center'],
+               hi_radial_fits['centsub_sigma'],
+               yerr=hi_radial_fits['centsub_sigma_stderr'],
+               fmt='o', label='Centroid Stacked Fit', alpha=0.5)
+ax[0].errorbar(hi_radial_fits['bin_center'],
+               hi_radial_fits['peaksub_sigma'],
+               yerr=hi_radial_fits['peaksub_sigma_stderr'],
+               fmt='^', label='Peak Stacked Fit', alpha=0.5)
+ax[0].grid()
+ax[0].legend(frameon=True)
+ax[0].text(0, 14, "VLA",
+           bbox={"boxstyle": "square", "facecolor": "w"})
+
+ax[1].errorbar(rs.value, sd_feath.value,
+               yerr=sd_feath_sigma.value, fmt="-",
+               drawstyle='steps-mid', label='Averaged Line Width')
+ax[1].set_xlabel("Radius (kpc)")
+# Now the stacked fits
+ax[1].errorbar(hi_radial_fits['bin_center'],
+               hi_radial_fits['rotsub_sigma'],
+               yerr=hi_radial_fits['rotsub_sigma_stderr'],
+               fmt='D', label='Rotation Stacked Fit', alpha=0.5)
+ax[1].errorbar(hi_radial_fits['bin_center'],
+               hi_radial_fits['centsub_sigma'],
+               yerr=hi_radial_fits['centsub_sigma_stderr'],
+               fmt='o', label='Centroid Stacked Fit', alpha=0.5)
+ax[1].errorbar(hi_radial_fits['bin_center'],
+               hi_radial_fits['peaksub_sigma'],
+               yerr=hi_radial_fits['peaksub_sigma_stderr'],
+               fmt='^', label='Peak Stacked Fit', alpha=0.5)
+ax[1].grid()
+ax[1].text(6.5, 14, "VLA + GBT",
+           bbox={"boxstyle": "square", "facecolor": "w"})
+
 p.tight_layout()
-p.savefig(allfigs_path("hi_veldisp_w_stackedfits.png"))
-p.savefig(allfigs_path("hi_veldisp_w_stackedfits.pdf"))
+
+p.savefig(osjoin(figure_folder, "hi_veldisp_w_stackedfits.png"))
+p.savefig(osjoin(figure_folder, "hi_veldisp_w_stackedfits.pdf"))
 p.close()
 
-hi_radial_fits_feath = \
-    read_csv(fourteenB_HI_data_wGBT_path("tables/hi_gaussian_totalprof_fits_radial_100pc_feather.csv"))
-onecolumn_figure(font_scale=1.)
-p.errorbar(rs_feath.value, sd_feath.value,
-           yerr=sd_feath_sigma.value, fmt="-",
-           drawstyle='steps-mid', label='Averaged Line Width')
-p.xlabel("Radius (kpc)")
-p.ylabel("HI Velocity Dispersion (km/s)")
-# Now the stacked fits
-p.errorbar(hi_radial_fits_feath['bin_center'],
-           hi_radial_fits_feath['rotsub_stddev'],
-           yerr=hi_radial_fits_feath['rotsub_stddev_stderr_w_chanwidth'],
-           fmt='D', label='Rotation Stacked Fit', alpha=0.5)
-p.errorbar(hi_radial_fits_feath['bin_center'],
-           hi_radial_fits_feath['centsub_stddev'],
-           yerr=hi_radial_fits_feath['centsub_stddev_stderr_w_chanwidth'],
-           fmt='o', label='Centroid Stacked Fit', alpha=0.5)
-p.errorbar(hi_radial_fits_feath['bin_center'],
-           hi_radial_fits_feath['peaksub_stddev'],
-           yerr=hi_radial_fits_feath['peaksub_stddev_stderr_w_chanwidth'],
-           fmt='^', label='Peak Stacked Fit', alpha=0.5)
-p.grid()
-p.legend(frameon=True)
-p.tight_layout()
-p.savefig(allfigs_path("hi_veldisp_w_stackedfits_feath.png"))
-p.savefig(allfigs_path("hi_veldisp_w_stackedfits_feath.pdf"))
-p.close()
 
 # Let's compare the line width from the second moment to the Gaussian width
 rot_stack = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/rotation_stacked_radial_100pc.fits"))
@@ -194,8 +201,8 @@ ax[2].text(5, 11.5, "Peak Vel.\nsubtracted",
 ax[2].grid()
 ax[2].set_xlabel("Radius (kpc)")
 p.tight_layout()
-fig.savefig(allfigs_path("hi_veldisp_avg_vs_stackedfits.png"))
-fig.savefig(allfigs_path("hi_veldisp_avg_vs_stackedfits.pdf"))
+fig.savefig(osjoin(figure_folder, "hi_veldisp_avg_vs_stackedfits.png"))
+fig.savefig(osjoin(figure_folder, "hi_veldisp_avg_vs_stackedfits.pdf"))
 p.close()
 
 rot_stack = SpectralCube.read(fourteenB_HI_data_wGBT_path("stacked_spectra/rotation_stacked_radial_100pc.fits"))
@@ -240,8 +247,8 @@ ax[2].grid()
 ax[2].set_xlabel("Radius (kpc)")
 ax[2].set_ylim([7, 17])
 p.tight_layout()
-fig.savefig(allfigs_path("hi_veldisp_avg_vs_stackedfits_feath.png"))
-fig.savefig(allfigs_path("hi_veldisp_avg_vs_stackedfits_feath.pdf"))
+fig.savefig(osjoin(figure_folder, "hi_veldisp_avg_vs_stackedfits_feath.png"))
+fig.savefig(osjoin(figure_folder, "hi_veldisp_avg_vs_stackedfits_feath.pdf"))
 p.close()
 
 default_figure()

@@ -243,8 +243,8 @@ ax[0, 1].axvline(hwhm_models['centsub'].mean - hwhm_models['centsub'].stddev *
                  np.sqrt(2 * np.log(2)), linestyle='--', color=cpal[1])
 ax[0, 1].text(-45, 0.88, "Centroid\nsubtracted",
               bbox={"boxstyle": "square", "facecolor": "w"})
-ax[0, 1].text(25, 0.88, "VLA",
-              bbox={"boxstyle": "square", "facecolor": "w"})
+# ax[0, 1].text(25, 0.88, "VLA",
+#               bbox={"boxstyle": "square", "facecolor": "w"})
 ax[0, 1].set_ylim([-0.02, 1.1])
 ax[0, 1].set_xlim([-50, 50])
 ax[0, 1].grid()
@@ -263,8 +263,8 @@ ax[0, 2].axvline(hwhm_models['peaksub'].mean - hwhm_models['peaksub'].stddev *
                  np.sqrt(2 * np.log(2)), linestyle='--', color=cpal[1])
 ax[0, 2].text(-45, 0.88, "Peak Vel.\nsubtracted",
               bbox={"boxstyle": "square", "facecolor": "w"})
-ax[0, 2].text(25, 0.88, "VLA",
-              bbox={"boxstyle": "square", "facecolor": "w"})
+# ax[0, 2].text(25, 0.88, "VLA",
+#               bbox={"boxstyle": "square", "facecolor": "w"})
 ax[0, 2].set_ylim([-0.02, 1.1])
 ax[0, 2].set_xlim([-50, 50])
 ax[0, 2].legend(frameon=True)
@@ -304,8 +304,8 @@ ax[1, 1].axvline(hwhm_models['centsub_feath'].mean - hwhm_models['centsub_feath'
                  np.sqrt(2 * np.log(2)), linestyle='--', color=cpal[1])
 ax[1, 1].text(-45, 0.88, "Centroid\nsubtracted",
               bbox={"boxstyle": "square", "facecolor": "w"})
-ax[1, 1].text(15, 0.88, "VLA+GBT",
-              bbox={"boxstyle": "square", "facecolor": "w"})
+# ax[1, 1].text(15, 0.88, "VLA+GBT",
+#               bbox={"boxstyle": "square", "facecolor": "w"})
 ax[1, 1].set_xlabel("Velocity (km/s)")
 ax[1, 1].set_ylim([-0.02, 1.1])
 ax[1, 1].set_xlim([-50, 50])
@@ -325,8 +325,8 @@ ax[1, 2].axvline(hwhm_models['peaksub_feath'].mean - hwhm_models['peaksub_feath'
                  np.sqrt(2 * np.log(2)), linestyle='--', color=cpal[1])
 ax[1, 2].text(-45, 0.88, "Peak Vel.\nsubtracted",
               bbox={"boxstyle": "square", "facecolor": "w"})
-ax[1, 2].text(15, 0.88, "VLA+GBT",
-              bbox={"boxstyle": "square", "facecolor": "w"})
+# ax[1, 2].text(15, 0.88, "VLA+GBT",
+#               bbox={"boxstyle": "square", "facecolor": "w"})
 ax[1, 2].set_ylim([-0.02, 1.1])
 ax[1, 2].set_xlim([-50, 50])
 ax[1, 2].legend(frameon=True)
@@ -493,7 +493,7 @@ ax[0, 0].fill_between([0, 0.5], -0.1, 0.37, facecolor='gray', alpha=0.5)
 ax[0, 0].set_ylim([-0.1, 0.37])
 ax[0, 0].set_xlim([0, 8])
 ax[0, 0].grid()
-ax[0, 0].text(3.3, -0.06, "VLA",
+ax[0, 0].text(6., -0.06, "VLA",
               bbox={"boxstyle": "square", "facecolor": "w"})
 
 # ax[0].set_ylim([0.25, 15])
@@ -519,7 +519,7 @@ ax[1, 0].grid()
 ax[1, 0].set_ylabel(r"f$_{\rm wings}$")
 ax[1, 0].fill_between([0, 0.5], -0.1, 0.37, facecolor='gray', alpha=0.5)
 ax[1, 0].set_ylim([-0.1, 0.37])
-ax[1, 0].text(2.2, -0.06, "VLA + GBT",
+ax[1, 0].text(3.8, -0.06, "VLA + GBT",
               bbox={"boxstyle": "square", "facecolor": "w"})
 
 # kappa

@@ -107,28 +107,28 @@ p.close()
 # Now load in the line stacking fits with the same bin size
 hi_radial_fits = \
     read_csv(fourteenB_HI_data_path("tables/hi_gaussian_hwhm_totalprof_fits_radial.csv"))
-twocolumn_twopanel_figure(font_scale=1.)
+twocolumn_twopanel_figure(font_scale=1.25)
 
 fig, ax = p.subplots(1, 2, sharex=True, sharey=True)
 
 ax[0].errorbar(rs.value, sd.value,
                yerr=sd_sigma.value, fmt="-",
-               drawstyle='steps-mid', label='Averaged Line Width')
+               drawstyle='steps-mid', label='Avg. Line Width')
 ax[0].set_xlabel("Radius (kpc)")
 ax[0].set_ylabel("HI Velocity Dispersion (km/s)")
 # Now the stacked fits
 ax[0].errorbar(hi_radial_fits['bin_center'],
                hi_radial_fits['rotsub_sigma'],
                yerr=hi_radial_fits['rotsub_sigma_stderr'],
-               fmt='D', label='Rotation Stacked Fit', alpha=0.5)
+               fmt='D', label='Rot. Stack', alpha=0.5)
 ax[0].errorbar(hi_radial_fits['bin_center'],
                hi_radial_fits['centsub_sigma'],
                yerr=hi_radial_fits['centsub_sigma_stderr'],
-               fmt='o', label='Centroid Stacked Fit', alpha=0.5)
+               fmt='o', label='Cent. Stack', alpha=0.5)
 ax[0].errorbar(hi_radial_fits['bin_center'],
                hi_radial_fits['peaksub_sigma'],
                yerr=hi_radial_fits['peaksub_sigma_stderr'],
-               fmt='^', label='Peak Stacked Fit', alpha=0.5)
+               fmt='^', label='Peak Stack', alpha=0.5)
 ax[0].grid()
 ax[0].legend(frameon=True)
 ax[0].text(0, 14, "VLA",
@@ -142,17 +142,17 @@ ax[1].set_xlabel("Radius (kpc)")
 ax[1].errorbar(hi_radial_fits['bin_center'],
                hi_radial_fits['rotsub_sigma'],
                yerr=hi_radial_fits['rotsub_sigma_stderr'],
-               fmt='D', label='Rotation Stacked Fit', alpha=0.5)
+               fmt='D', label='Rot. Stack', alpha=0.5)
 ax[1].errorbar(hi_radial_fits['bin_center'],
                hi_radial_fits['centsub_sigma'],
                yerr=hi_radial_fits['centsub_sigma_stderr'],
-               fmt='o', label='Centroid Stacked Fit', alpha=0.5)
+               fmt='o', label='Cent. Stack', alpha=0.5)
 ax[1].errorbar(hi_radial_fits['bin_center'],
                hi_radial_fits['peaksub_sigma'],
                yerr=hi_radial_fits['peaksub_sigma_stderr'],
-               fmt='^', label='Peak Stacked Fit', alpha=0.5)
+               fmt='^', label='Peak Stack', alpha=0.5)
 ax[1].grid()
-ax[1].text(6.5, 14, "VLA + GBT",
+ax[1].text(6.1, 14, "VLA + GBT",
            bbox={"boxstyle": "square", "facecolor": "w"})
 
 p.tight_layout()

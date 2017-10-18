@@ -70,6 +70,19 @@ rs_skew_s, sd_skew_s, sd_skew_sigma_s = \
                    pa_bounds=Angle([-0.5 * np.pi * u.rad,
                                     0.5 * np.pi * u.rad]))
 
+# Rename these so I can do a SD w/ and w/o comparison at the end
+radii_skew_noSD = radii_skew.copy()
+sdprof_skew_noSD = sdprof_skew.copy()
+sdprof_sigma_skew_noSD = sdprof_sigma_skew.copy()
+
+radii_skew_n_noSD = rs_skew_n.copy()
+sdprof_skew_n_noSD = sd_skew_n.copy()
+sdprof_sigma_skew_n_noSD = sd_skew_sigma_n.copy()
+
+radii_skew_s_noSD = rs_skew_s.copy()
+sdprof_skew_s_noSD = sd_skew_s.copy()
+sdprof_sigma_skew_s_noSD = sd_skew_sigma_s.copy()
+
 radii_kurt, sdprof_kurt, sdprof_sigma_kurt = \
     radial_profile(gal, kurt, dr=dr, max_rad=8 * u.kpc)
 
@@ -475,8 +488,8 @@ ax[0].set_xlim([0, 8])
 
 p.tight_layout()
 
-fig.savefig(osjoin(stack_figure_folder, "hi_skew_kurt_sd_lwidth_profile_n_s_feather.png"))
-fig.savefig(osjoin(stack_figure_folder, "hi_skew_kurt_sd_lwidth_profile_n_s_feather.pdf"))
+fig.savefig(osjoin(prop_figure_folder, "hi_skew_kurt_sd_lwidth_profile_n_s_feather.png"))
+fig.savefig(osjoin(prop_figure_folder, "hi_skew_kurt_sd_lwidth_profile_n_s_feather.pdf"))
 p.close()
 
 cent_stack_n = SpectralCube.read(fourteenB_HI_data_wGBT_path("stacked_spectra/centroid_stacked_radial_north_100pc.fits"))
@@ -585,5 +598,58 @@ p.tight_layout()
 fig.savefig(osjoin(stack_figure_folder, "hi_skew_kurt_stacked_comparison_feather.png"))
 fig.savefig(osjoin(stack_figure_folder, "hi_skew_kurt_stacked_comparison_feather.pdf"))
 p.close()
+
+
+# Finally, make a 2-panel plot of just the skewness profiles to highlight the
+# N/S features
+twocolumn_twopanel_figure()
+
+fig, ax = p.subplots(1, 2, sharex=True, sharey=True)
+
+ax[0].errorbar(radii_skew_noSD.value, sdprof_skew_noSD.value,
+               yerr=sdprof_sigma_skew_noSD.value,
+               drawstyle='steps-mid', label="Total", zorder=-1,
+               alpha=0.5)
+ax[0].errorbar(radii_skew_n_noSD.value, sdprof_skew_n_noSD.value,
+               yerr=sdprof_sigma_skew_n_noSD.value,
+               drawstyle='steps-mid', label="North",
+               linestyle='--')
+ax[0].errorbar(radii_skew_s_noSD.value, sdprof_skew_s_noSD.value,
+               yerr=sdprof_sigma_skew_s_noSD.value,
+               drawstyle='steps-mid', label="South",
+               linestyle='-.')
+ax[0].grid()
+ax[0].legend(frameon=True, loc='best')
+ax[0].text(8, 0.65, "VLA",
+           horizontalalignment='right',
+           verticalalignment='top',
+           bbox={"boxstyle": "square", "facecolor": "w"})
+
+ax[0].set_ylabel("Skewness")
+ax[0].set_xlabel("Radius (kpc)")
+
+ax[1].errorbar(radii_skew.value, sdprof_skew.value,
+               yerr=sdprof_sigma_skew.value,
+               drawstyle='steps-mid', label="Total", zorder=-1,
+               alpha=0.5)
+ax[1].errorbar(rs_skew_n.value, sd_skew_n.value, yerr=sd_skew_sigma_n.value,
+               drawstyle='steps-mid', label="North",
+               linestyle='--')
+ax[1].errorbar(rs_skew_s.value, sd_skew_s.value, yerr=sd_skew_sigma_s.value,
+               drawstyle='steps-mid', label="South",
+               linestyle='-.')
+ax[1].grid()
+ax[1].text(8, 0.65, "VLA+GBT",
+           horizontalalignment='right',
+           verticalalignment='top',
+           bbox={"boxstyle": "square", "facecolor": "w"})
+ax[1].set_xlabel("Radius (kpc)")
+
+p.tight_layout()
+
+fig.savefig(osjoin(prop_figure_folder, "hi_skew_profile_both_n_s.png"))
+fig.savefig(osjoin(prop_figure_folder, "hi_skew_profile_both_n_s.pdf"))
+p.close()
+
 
 default_figure()

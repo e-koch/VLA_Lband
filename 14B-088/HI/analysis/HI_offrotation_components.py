@@ -11,12 +11,13 @@ import matplotlib.pyplot as plt
 from aplpy import FITSFigure
 from astropy.visualization import AsinhStretch
 from astropy.visualization.mpl_normalize import ImageNormalize
+import scipy.ndimage as nd
 
 # from cube_analysis.masking import ppv_connectivity_masking
 
 from paths import (fourteenB_HI_data_wGBT_path,
                    allfigs_path)
-from constants import hi_freq
+from constants import hi_freq, hi_mass_conversion_Jy, distance
 from plotting_styles import default_figure, twocolumn_twopanel_figure
 
 
@@ -124,8 +125,16 @@ plt.close()
 
 # Now focus on individual features
 
+# The noise level in one pixel in the original cube is 2.8 K. These are
+# averaged over ~5 channels, so divide that by sqrt(5). In the moment maps,
+# the error is the sum over the number of channels in each slab. Then multiply
+# by the number of pixels in each mask.
+sigma_noise = 2.8 / np.sqrt(5) * u.K
+sigma_noise_Jybm = sigma_noise.to(u.Jy, beam.jtok_equiv(hi_freq))
+
 # Linear feature in south of galaxy
 rotsub_slab1 = rotsub_cube.spectral_slab(-150 * u.km / u.s, -60 * u.km / u.s)
+rotsub_slab1 = rotsub_slab1.with_mask(rotsub_slab1 > sigma_noise_Jybm)
 
 # Make a signal mask
 # masked_slab1, mask_slab1 = \
@@ -143,6 +152,7 @@ mom0_linfeat._unit = u.K * u.km / u.s
 
 # Northern blob
 rotsub_slab2 = rotsub_cube.spectral_slab(52 * u.km / u.s, 140 * u.km / u.s)
+rotsub_slab2 = rotsub_slab2.with_mask(rotsub_slab2 > sigma_noise_Jybm)
 
 # masked_slab2 = \
 #     ppv_connectivity_masking(rotsub_slab2, smooth_chans=5, min_chan=5,
@@ -196,4 +206,64 @@ fig.savefig(allfigs_path("HI_maps/M33_offrot_mom0_maps.png"),
             bbox_inches="tight")
 plt.close()
 
-default_figure()
+# default_figure()
+chan_width = np.abs(np.diff(rotsub_slab1.spectral_axis[:2])[0]).to(u.km / u.s)
+
+linfeat_spatmask = rotsub_slab1.mask.include().sum(0)[100:850, 300:1200]
+
+linfeat_mask = mom0_linfeat[100:850, 300:1200].value > \
+    (linfeat_spatmask * sigma_noise_Jybm * chan_width *
+     beam.jtok(hi_freq)).value
+linfeat_mask = np.logical_and(linfeat_spatmask > 30, linfeat_mask)
+
+# Require things in the mask be at least the beam size
+beam_kernel = beam.as_tophat_kernel(mom0_ncloud.header['CDELT2']).array > 0
+
+linfeat_mask = nd.binary_opening(linfeat_mask, beam_kernel)
+linfeat_mask = nd.binary_closing(linfeat_mask, beam_kernel)
+
+pix_area_sr = ((mom0_linfeat.header['CDELT2'] * u.deg)**2).to(u.sr)
+beams_per_pix = pix_area_sr / beam.sr
+
+linfeat_intens = np.nansum(mom0_linfeat[100:850, 300:1200][linfeat_mask]) / \
+    beam.jtok(hi_freq) * u.Jy
+
+linfeat_mass = linfeat_intens * hi_mass_conversion_Jy * \
+    distance.to(u.Mpc)**2 * beams_per_pix
+
+linfeat_mass_stddev = (sigma_noise_Jybm * 1. * u.km / u.s * linfeat_mask *
+                       linfeat_spatmask).sum() * \
+    hi_mass_conversion_Jy * \
+    distance.to(u.Mpc)**2 * beams_per_pix
+
+ncloud_spatmask = rotsub_slab2.mask.include().sum(0)[750:1500, 100:1000]
+
+ncloud_mask = mom0_ncloud[750:1500, 100:1000].value > \
+    (ncloud_spatmask * sigma_noise_Jybm * chan_width *
+     beam.jtok(hi_freq)).value
+ncloud_mask = np.logical_and(ncloud_spatmask > 30, ncloud_mask)
+
+
+# Require things in the mask be at least the beam size
+ncloud_mask = nd.binary_opening(ncloud_mask, beam_kernel)
+ncloud_mask = nd.binary_closing(ncloud_mask, beam_kernel)
+
+ncloud_intens = \
+    np.nansum(mom0_ncloud[750:1500, 100:1000][ncloud_mask])
+
+ncloud_intens = np.nansum(mom0_ncloud[750:1500, 100:1000][ncloud_mask]) / \
+    beam.jtok(hi_freq) * u.Jy
+
+ncloud_mass = ncloud_intens * hi_mass_conversion_Jy * \
+    distance.to(u.Mpc)**2 * beams_per_pix
+
+ncloud_mass_stddev = (sigma_noise_Jybm * 1. * u.km / u.s * ncloud_mask *
+                      ncloud_spatmask).sum() * \
+    hi_mass_conversion_Jy * \
+    distance.to(u.Mpc)**2 * beams_per_pix
+
+
+print("Blue-shifted mass: {0}+/-{1}"
+      .format(linfeat_mass.value, linfeat_mass_stddev))
+print("Red-shifted mass: {0}+/-{1}"
+      .format(ncloud_mass.value, ncloud_mass_stddev))

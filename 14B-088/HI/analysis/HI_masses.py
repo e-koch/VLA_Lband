@@ -80,7 +80,7 @@ print("VLA + GBT HI Total Mass: {0}+\-{1}".format(feath_mass,
 
 df = DataFrame({"VLA Mass": [vla_mass.value, vla_mass_stddev.value],
                 "GBT Mass": [gbt_mass.value, gbt_mass_stddev.value],
-                "VLA+GBT Mass": [feath_mass.value, feath_mass_stddev]})
+                "VLA+GBT Mass": [feath_mass.value, feath_mass_stddev.value]})
 df.to_latex(alltables_path("hi_masses_from_mom0.tex"))
 df.to_csv(fourteenB_HI_data_wGBT_path("tables/hi_masses_from_mom0.csv",
                                       no_check=True))

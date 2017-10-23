@@ -140,16 +140,16 @@ ax[1].errorbar(rs.value, sd_feath.value,
 ax[1].set_xlabel("Radius (kpc)")
 # Now the stacked fits
 ax[1].errorbar(hi_radial_fits['bin_center'],
-               hi_radial_fits['rotsub_sigma'],
-               yerr=hi_radial_fits['rotsub_sigma_stderr'],
+               hi_radial_fits['rotsub_feath_sigma'],
+               yerr=hi_radial_fits['rotsub_feath_sigma_stderr'],
                fmt='D', label='Rot. Stack', alpha=0.5)
 ax[1].errorbar(hi_radial_fits['bin_center'],
-               hi_radial_fits['centsub_sigma'],
-               yerr=hi_radial_fits['centsub_sigma_stderr'],
+               hi_radial_fits['centsub_feath_sigma'],
+               yerr=hi_radial_fits['centsub_feath_sigma_stderr'],
                fmt='o', label='Cent. Stack', alpha=0.5)
 ax[1].errorbar(hi_radial_fits['bin_center'],
-               hi_radial_fits['peaksub_sigma'],
-               yerr=hi_radial_fits['peaksub_sigma_stderr'],
+               hi_radial_fits['peaksub_feath_sigma'],
+               yerr=hi_radial_fits['peaksub_feath_sigma_stderr'],
                fmt='^', label='Peak Stack', alpha=0.5)
 ax[1].grid()
 ax[1].text(6.1, 14, "VLA + GBT",

@@ -15,10 +15,7 @@ from corner import hist2d
 from paths import (fourteenB_HI_file_dict, fourteenB_wGBT_HI_file_dict,
                    allfigs_path,
                    iram_co21_14B088_data_path, data_path)
-from constants import (hi_freq, cube_name, moment0_name, lwidth_name,
-                       skew_name, kurt_name, mask_name, moment1_name,
-                       peaktemps_name, peakvels_name,
-                       rotsub_cube_name, rotsub_mask_name)
+from constants import hi_freq
 from plotting_styles import (twocolumn_figure, onecolumn_figure,
                              default_figure)
 
@@ -66,7 +63,7 @@ skew_feather_hdu = fits.open(fourteenB_wGBT_HI_file_dict['Skewness'])[0]
 skew_feather = Projection.from_hdu(skew_feather_hdu)
 
 kurt_feather_hdu = fits.open(fourteenB_wGBT_HI_file_dict['Kurtosis'])[0]
-kurt_feather = Projection.from_hdu(skew_feather_hdu)
+kurt_feather = Projection.from_hdu(kurt_feather_hdu)
 
 # CO and 3.6 um for comparison
 co_hdu = fits.open(iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI.mom0.fits"))[0]

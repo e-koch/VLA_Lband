@@ -56,6 +56,8 @@ ax.contour(co_moment0.data,
                               np.nanpercentile(co_moment0.data, 95), 4),
            cmap='viridis')
 
+# CO levels at: 877,  1370,  1862,  2354 K m/s
+
 cbar = plt.colorbar(im)
 cbar.set_label(r"HI Column Density (cm$^{-2}$)")
 

@@ -7,14 +7,15 @@ import numpy as np
 from spectral_cube.lower_dimensional_structures import Projection
 from astropy.table import Table
 import os
-from os.path import join, exists
+from os.path import exists
+from os.path import join as osjoin
 
 from cube_analysis.profiles import surfdens_radial_profile
 
-from paths import (iram_co21_14B088_data_path, fourteenB_HI_data_path,
+from paths import (iram_co21_14B088_data_path,
                    fourteenB_HI_data_wGBT_path,
                    allfigs_path, c_hi_analysispath,
-                   fourteenB_HI_file_dict, fourteenB_wGBT_HI_file_dict)
+                   fourteenB_wGBT_HI_file_dict)
 from constants import co21_mass_conversion, hi_mass_conversion
 from galaxy_params import gal_feath as gal
 from plotting_styles import onecolumn_figure, default_figure
@@ -24,9 +25,13 @@ Create the surface density profile in CO(2-1), assuming a factor to convert
 to the H2 mass.
 '''
 
-fig_path = join(allfigs_path(""), "co_vs_hi")
+fig_path = osjoin(allfigs_path(""), "co_vs_hi")
 if not exists(fig_path):
     os.mkdir(fig_path)
+
+fig_co_path = osjoin(allfigs_path(""), "CO21_properties")
+if not exists(fig_co_path):
+    os.mkdir(fig_co_path)
 
 # IRAM beam efficiency
 beam_eff = 0.75
@@ -38,8 +43,7 @@ dr = 100 * u.pc
 co_mom0 = Projection.from_hdu(fits.open(iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI.mom0.fits"))[0])
 co_mom0 = co_mom0.to(u.K * u.km / u.s) / beam_eff
 
-hi_mom0 = Projection.from_hdu(fits.open(fourteenB_HI_file_dict["Moment0"])[0])
-hi_mom0_feath = \
+hi_mom0 = \
     Projection.from_hdu(fits.open(fourteenB_wGBT_HI_file_dict["Moment0"])[0])
 
 rs, sd, sd_sigma = surfdens_radial_profile(gal, mom0=co_mom0,
@@ -69,10 +73,11 @@ p.ylabel(r" log $\Sigma$ (M$_{\odot}$ pc$^{-2}$)")
 p.xlabel(r"Radius (kpc)")
 p.grid("on")
 
-p.savefig(allfigs_path(join(fig_path, "M33_Sigma_profile_co21_dr_{}pc.pdf".format(int(dr.value)))))
-p.savefig(allfigs_path(join(fig_path, "M33_Sigma_profile_co21_dr_{}pc.png".format(int(dr.value)))))
+p.tight_layout()
+
+p.savefig(osjoin(fig_co_path, "M33_Sigma_profile_co21_dr_{}pc.pdf".format(int(dr.value))))
+p.savefig(osjoin(fig_co_path, "M33_Sigma_profile_co21_dr_{}pc.png".format(int(dr.value))))
 p.close()
-# p.show()
 
 # Show the north vs south profiles
 p.plot(rs.value, np.log10(sd.value), "-.", drawstyle='steps-mid',
@@ -91,8 +96,8 @@ p.xlabel(r"Radius (kpc)")
 p.legend(loc='best', frameon=True)
 p.grid("on")
 
-p.savefig(allfigs_path(join(fig_path, "M33_Sigma_profile_co21_N_S_dr_{}pc.pdf".format(int(dr.value)))))
-p.savefig(allfigs_path(join(fig_path, "M33_Sigma_profile_co21_N_S_dr_{}pc.png".format(int(dr.value)))))
+p.savefig(osjoin(fig_co_path, "M33_Sigma_profile_co21_N_S_dr_{}pc.pdf".format(int(dr.value))))
+p.savefig(osjoin(fig_co_path, "M33_Sigma_profile_co21_N_S_dr_{}pc.png".format(int(dr.value))))
 p.close()
 
 # p.show()
@@ -101,11 +106,6 @@ p.close()
 rs_hi, sd_hi, sd_sigma_hi = \
     surfdens_radial_profile(gal,
                             mom0=hi_mom0,
-                            max_rad=7 * u.kpc, dr=dr,
-                            mass_conversion=hi_mass_conversion)
-rs_feath_hi, sd_feath_hi, sd_sigma_feath_hi = \
-    surfdens_radial_profile(gal,
-                            mom0=hi_mom0_feath,
                             max_rad=7 * u.kpc, dr=dr,
                             mass_conversion=hi_mass_conversion)
 
@@ -122,40 +122,18 @@ p.legend(loc='best', frameon=True)
 p.grid("on")
 p.tight_layout()
 
-p.savefig(allfigs_path(join(fig_path, "M33_Sigma_profile_hi_co21_dr_{}pc.pdf".format(int(dr.value)))))
-p.savefig(allfigs_path(join(fig_path, "M33_Sigma_profile_hi_co21_dr_{}pc.png".format(int(dr.value)))))
-p.close()
-
-p.errorbar(rs.value, np.log10(sd.value),
-           yerr=0.434 * sd_sigma.value / sd.value, fmt="-",
-           label=r"H$_2$", drawstyle='steps-mid')
-p.errorbar(rs_feath_hi.value, np.log10(sd_feath_hi.value),
-           yerr=0.434 * sd_sigma_feath_hi.value / sd_feath_hi.value, fmt="--",
-           label=r"HI", drawstyle='steps-mid')
-p.ylabel(r" log $\Sigma$ (M$_{\odot}$ pc$^{-2}$)")
-p.xlabel(r"Radius (kpc)")
-p.legend(loc='best', frameon=True)
-p.grid("on")
-p.tight_layout()
-
-p.savefig(allfigs_path(join(fig_path, "M33_Sigma_profile_hi_co21_dr_{}pc_feath.pdf".format(int(dr.value)))))
-p.savefig(allfigs_path(join(fig_path, "M33_Sigma_profile_hi_co21_dr_{}pc_feath.png".format(int(dr.value)))))
+p.savefig(osjoin(fig_path, "M33_Sigma_profile_hi_co21_dr_{}pc.pdf".format(int(dr.value))))
+p.savefig(osjoin(fig_path, "M33_Sigma_profile_hi_co21_dr_{}pc.png".format(int(dr.value))))
 p.close()
 
 # Save the radial profiles in a FITS table
 table = Table([rs, sd, sd_sigma, sd_hi, sd_sigma_hi],
               names=('Radius', "CO_Sigma", "CO_Sigma_std", "HI_Sigma",
                      "HI_Sigma_std"))
-table.write(fourteenB_HI_data_path("tables/co21_hi_radialprofiles_{}pc.fits".format(int(dr.value)),
-                                   no_check=True),
-            overwrite=True)
-
-table = Table([rs, sd, sd_sigma, sd_hi, sd_sigma_hi],
-              names=('Radius', "CO_Sigma", "CO_Sigma_std", "HI_Sigma",
-                     "HI_Sigma_std"))
-table.write(fourteenB_HI_data_wGBT_path("tables/co21_hi_radialprofiles_{}pc_feather.fits".format(int(dr.value)),
+table.write(fourteenB_HI_data_wGBT_path("tables/co21_hi_radialprofiles_{}pc.fits".format(int(dr.value)),
                                         no_check=True),
             overwrite=True)
+
 
 
 # Also plot the total gas surface density against the stellar surface density
@@ -175,11 +153,11 @@ p.legend(loc='best', frameon=True)
 p.grid()
 p.tight_layout()
 
-p.savefig(allfigs_path(join(fig_path, "M33_Sigma_profile_gas_stars_corbelli_{}pc.pdf".format(int(dr.value)))))
-p.savefig(allfigs_path(join(fig_path, "M33_Sigma_profile_gas_stars_corbelli_{}pc.png".format(int(dr.value)))))
+p.savefig(osjoin(fig_path, "M33_Sigma_profile_gas_stars_corbelli_{}pc.pdf".format(int(dr.value))))
+p.savefig(osjoin(fig_path, "M33_Sigma_profile_gas_stars_corbelli_{}pc.png".format(int(dr.value))))
 p.close()
 
-# Finally, let's calculate some clumping factors a la Leroy+13
+# Finally, let's calculate some clumping factors as in Leroy+13
 # rs_m, sd_m, sd_sigma_m = surfdens_radial_profile(gal, mom0=co_mom0,
 #                                                  max_rad=7 * u.kpc, dr=dr,
 #                                                  weight_type='mass',
@@ -206,8 +184,8 @@ p.close()
 # p.ylim([0.25, 1.9])
 # p.xlim([-2.1, 1.4])
 # p.legend(loc='upper left', frameon=True)
-# p.savefig(allfigs_path(join(fig_path, "hi_co_area_weighted_vs_mass_weighted_dr_{}pc.pdf".format(int(dr.value)))))
-# p.savefig(allfigs_path(join(fig_path, "hi_co_area_weighted_vs_mass_weighted_dr_{}pc.png".format(int(dr.value)))))
+# p.savefig(allfigs_path(osjoin(fig_path, "hi_co_area_weighted_vs_mass_weighted_dr_{}pc.pdf".format(int(dr.value)))))
+# p.savefig(allfigs_path(osjoin(fig_path, "hi_co_area_weighted_vs_mass_weighted_dr_{}pc.png".format(int(dr.value)))))
 # p.tight_layout()
 # p.close()
 # The H2 (ie CO) is all over the place, and HI is clustered together and hard
@@ -224,8 +202,8 @@ p.close()
 # p.xlim([0.65, 0.9])
 # p.tight_layout()
 
-# p.savefig(allfigs_path(join(fig_path, "area_weighted_vs_mass_weighted_dr_{}pc.pdf".format(int(dr.value)))))
-# p.savefig(allfigs_path(join(fig_path, "area_weighted_vs_mass_weighted_dr_{}pc.png".format(int(dr.value)))))
+# p.savefig(allfigs_path(osjoin(fig_path, "area_weighted_vs_mass_weighted_dr_{}pc.pdf".format(int(dr.value)))))
+# p.savefig(allfigs_path(osjoin(fig_path, "area_weighted_vs_mass_weighted_dr_{}pc.png".format(int(dr.value)))))
 # p.close()
 
 # clump_co = sd_m / sd

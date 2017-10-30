@@ -8,11 +8,12 @@ import os
 import sys
 from subprocess import call
 
-from analysis.paths import c_hi_analysispath, fourteenB_HI_data_path
+from paths import (c_hi_analysispath, fourteenB_HI_data_path,
+                   fourteenB_HI_data_wGBT_path, fourteenB_HI_file_dict,
+                   fourteenB_wGBT_HI_file_dict)
 from analysis.constants import moment1_name
 
 os.sys.path.insert(0, c_hi_analysispath(""))
-
 # os.chdir(c_hi_analysispath(""))
 
 #################

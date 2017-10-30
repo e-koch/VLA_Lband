@@ -12,19 +12,22 @@ import os
 
 from cube_analysis.spectral_stacking import total_profile
 
-from paths import (fourteenB_HI_file_dict, iram_co21_14B088_data_path,
-                   allfigs_path, alltables_path, fourteenB_HI_data_path)
+from paths import (fourteenB_wGBT_HI_file_dict,
+                   iram_co21_14B088_data_path,
+                   allfigs_path, alltables_path, fourteenB_HI_data_wGBT_path)
 from constants import co21_mass_conversion, hi_freq
 from galaxy_params import gal_feath as gal
 from plotting_styles import *
 
 '''
-Create profiles of HI and CO after subtracting velocity surfaces.
+Create profiles of HI and CO after subtracting velocity surfaces, this time
+with the feathered HI data.
 '''
 
 figure_folder = "stacked_profiles"
 if not os.path.exists(allfigs_path(figure_folder)):
     os.mkdir(allfigs_path(figure_folder))
+
 
 dr = 500 * u.pc
 max_radius = (7.0 * u.kpc).to(u.pc)
@@ -35,16 +38,16 @@ co_cube_cent = \
 co_cube_peakvel = \
     SpectralCube.read(iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI.peakvels_corrected.fits"))
 
-hi_cube = SpectralCube.read(fourteenB_HI_file_dict["RotSub_Cube"])
-hi_mask = fits.open(fourteenB_HI_file_dict["RotSub_Mask"])[0]
+hi_cube = SpectralCube.read(fourteenB_wGBT_HI_file_dict["RotSub_Cube"])
+hi_mask = fits.open(fourteenB_wGBT_HI_file_dict["RotSub_Mask"])[0]
 hi_cube = hi_cube.with_mask(hi_mask.data > 0)
 
-hi_cube_cent = SpectralCube.read(fourteenB_HI_file_dict["CentSub_Cube"])
-hi_mask_cent = fits.open(fourteenB_HI_file_dict["CentSub_Mask"])[0]
+hi_cube_cent = SpectralCube.read(fourteenB_wGBT_HI_file_dict["CentSub_Cube"])
+hi_mask_cent = fits.open(fourteenB_wGBT_HI_file_dict["CentSub_Mask"])[0]
 hi_cube_cent = hi_cube_cent.with_mask(hi_mask_cent.data > 0)
 
-hi_cube_peakvel = SpectralCube.read(fourteenB_HI_file_dict["PeakSub_Cube"])
-hi_mask_peakvel = fits.open(fourteenB_HI_file_dict["PeakSub_Mask"])[0]
+hi_cube_peakvel = SpectralCube.read(fourteenB_wGBT_HI_file_dict["PeakSub_Cube"])
+hi_mask_peakvel = fits.open(fourteenB_wGBT_HI_file_dict["PeakSub_Mask"])[0]
 hi_cube_peakvel = hi_cube_cent.with_mask(hi_mask_peakvel.data > 0)
 
 if hasattr(hi_cube, "beams"):
@@ -86,20 +89,20 @@ for ctr, (r0, r1) in enumerate(zip(inneredge,
                                  hi_radius < r1)
 
     total_spectrum_hi_radial[ctr] = \
-        total_profile(hi_cube, hi_rad_mask).to(u.K, hi_beam.jtok_equiv(hi_freq)).quantity
+        total_profile(hi_cube, spatial_mask=hi_rad_mask).to(u.K, hi_beam.jtok_equiv(hi_freq)).quantity
 
     total_spectrum_hi_radial_cent[ctr] = \
-        total_profile(hi_cube_cent, hi_rad_mask).to(u.K, hi_beam.jtok_equiv(hi_freq)).quantity
+        total_profile(hi_cube_cent, spatial_mask=hi_rad_mask).to(u.K, hi_beam.jtok_equiv(hi_freq)).quantity
 
     total_spectrum_hi_radial_peakvel[ctr] = \
-        total_profile(hi_cube_peakvel, hi_rad_mask).to(u.K, hi_beam.jtok_equiv(hi_freq)).quantity
+        total_profile(hi_cube_peakvel, spatial_mask=hi_rad_mask).to(u.K, hi_beam.jtok_equiv(hi_freq)).quantity
 
-    total_spectrum_co_radial[ctr] = total_profile(co_cube, hi_rad_mask).quantity
+    total_spectrum_co_radial[ctr] = total_profile(co_cube, spatial_mask=hi_rad_mask).quantity
 
     total_spectrum_co_radial_cent[ctr] = \
-        total_profile(co_cube_cent, hi_rad_mask).quantity
+        total_profile(co_cube_cent, spatial_mask=hi_rad_mask).quantity
     total_spectrum_co_radial_peakvel[ctr] = \
-        total_profile(co_cube_peakvel, hi_rad_mask).quantity
+        total_profile(co_cube_peakvel, spatial_mask=hi_rad_mask).quantity
 
 # Need to get portions of HI emission beyond 6 kpc.
 total_spectrum_hi = \
@@ -117,6 +120,7 @@ total_spectrum_co = total_spectrum_co_radial.sum(0)
 total_spectrum_co_cent = total_spectrum_co_radial_cent.sum(0)
 
 total_spectrum_co_peakvel = total_spectrum_co_radial_peakvel.sum(0)
+
 
 # Define the shifted CO velocity axis
 co_specaxis = (co_cube.spectral_axis - gal.vsys).to(u.km / u.s)
@@ -175,10 +179,11 @@ ax[2].grid()
 
 p.tight_layout()
 
-fig.savefig(allfigs_path(join(figure_folder, "total_profile_corrected_velocity_HI_CO21.pdf")))
-fig.savefig(allfigs_path(join(figure_folder, "total_profile_corrected_velocity_HI_CO21.png")))
+fig.savefig(allfigs_path(join(figure_folder, "total_profile_corrected_velocity_HI_CO21_feather.pdf")))
+fig.savefig(allfigs_path(join(figure_folder, "total_profile_corrected_velocity_HI_CO21_feather.png")))
 
 p.close()
+# raw_input("Next plot?")
 
 # Total CO mass. Using 6.7 Msol / pc^2 / K km s^-1\
 pixscale = gal.distance.to(u.pc) * (np.pi / 180.) * \
@@ -225,8 +230,7 @@ onecolumn_figure(fig_ratio=0.8)
 
 for spectrum, label, file_label in zip(spectra, labels, file_labels):
 
-    norm_intens = (spectrum / np.nanmax(spectrum)).value
-
+    norm_intens = (spectrum / spectrum.max()).value
     g_HI = fit_g(g_HI_init, vels, norm_intens)
 
     # The covariance matrix is hidden away... tricksy
@@ -264,17 +268,16 @@ for spectrum, label, file_label in zip(spectra, labels, file_labels):
     p.tight_layout()
     p.subplots_adjust(hspace=0)
 
-    filename = "total_profile_corrected_velocity_{}_hi_fit".format(file_label)
+    filename = "total_profile_corrected_velocity_{}_hi_fit_feather".format(file_label)
     p.savefig(allfigs_path(join(figure_folder, filename + ".pdf")))
     p.savefig(allfigs_path(join(figure_folder, filename + ".png")))
-    # raw_input("Next plot?")
     p.close()
 
 # Save parameter table
 hi_param_df = DataFrame(hi_fit_vals, index=parnames)
-hi_param_df.to_latex(alltables_path("hi_gaussian_totalprof_fits.tex"))
-hi_param_df.to_csv(fourteenB_HI_data_path("tables/hi_gaussian_totalprof_fits.csv",
-                                          no_check=True))
+hi_param_df.to_latex(alltables_path("hi_gaussian_totalprof_fits_feather.tex"))
+hi_param_df.to_csv(fourteenB_HI_data_wGBT_path("tables/hi_gaussian_totalprof_fits_feather.csv",
+                                               no_check=True))
 
 # CO model
 
@@ -326,7 +329,7 @@ for spectrum, label, file_label in zip(spectra, labels, file_labels):
     p.tight_layout()
     p.subplots_adjust(hspace=0)
 
-    filename = "total_profile_corrected_velocity_{}_co21_fit".format(file_label)
+    filename = "total_profile_corrected_velocity_{}_co21_fit_feather".format(file_label)
     p.savefig(allfigs_path(join(figure_folder, filename + ".pdf")))
     p.savefig(allfigs_path(join(figure_folder, filename + ".png")))
     # raw_input("Next plot?")
@@ -334,8 +337,8 @@ for spectrum, label, file_label in zip(spectra, labels, file_labels):
 
 # Save table of parameters
 co_param_df = DataFrame(co_fit_vals, index=g_CO.param_names)
-co_param_df.to_latex(alltables_path("co_gaussian_totalprof_fits.tex"))
-co_param_df.to_csv(iram_co21_14B088_data_path("tables/co_gaussian_totalprof_fits.csv",
+co_param_df.to_latex(alltables_path("co_gaussian_totalprof_fits_feather.tex"))
+co_param_df.to_csv(iram_co21_14B088_data_path("tables/co_gaussian_totalprof_fits_feather.csv",
                                               no_check=True))
 
 # Per radial bin spectra
@@ -392,8 +395,8 @@ for r in range(Nrows):
             ax[r, c].set_xticklabels(ax[r, c].xaxis.get_majorticklabels(),
                                      rotation=45)
 
-fig.savefig(allfigs_path(join(figure_folder, "total_profile_velocity_rotsub_hi_co_radial.pdf")))
-fig.savefig(allfigs_path(join(figure_folder, "total_profile_velocity_rotsub_hi_co_radial.png")))
+fig.savefig(allfigs_path(join(figure_folder, "total_profile_velocity_rotsub_hi_co_radial_feather.pdf")))
+fig.savefig(allfigs_path(join(figure_folder, "total_profile_velocity_rotsub_hi_co_radial_feather.png")))
 
 p.close()
 
@@ -488,12 +491,12 @@ bin_names = ["{}-{}".format(r0.value, r1)
 co_radial_fits = DataFrame(co_params, index=bin_names)
 hi_radial_fits = DataFrame(hi_params, index=bin_names)
 
-co_radial_fits.to_latex(alltables_path("co_gaussian_totalprof_fits_radial.tex"))
-co_radial_fits.to_csv(iram_co21_14B088_data_path("tables/co_gaussian_totalprof_fits_radial.csv",
-                                                 no_check=True))
+co_radial_fits.to_latex(alltables_path("co_gaussian_totalprof_fits_radial_feather.tex"))
+co_radial_fits.to_csv(iram_co21_14B088_data_path("tables/co_gaussian_totalprof_fits_radial_feather.csv",
+                                                        no_check=True))
 
-hi_radial_fits.to_latex(alltables_path("hi_gaussian_totalprof_fits_radial.tex"))
-hi_radial_fits.to_csv(fourteenB_HI_data_path("tables/hi_gaussian_totalprof_fits_radial.csv",
+hi_radial_fits.to_latex(alltables_path("hi_gaussian_totalprof_fits_radial_feather.tex"))
+hi_radial_fits.to_csv(fourteenB_HI_data_wGBT_path("tables/hi_gaussian_totalprof_fits_radial_feather.csv",
                                              no_check=True))
 
 # Plot comparisons of these fits
@@ -521,8 +524,8 @@ ax[0].errorbar(bin_cents, co_params["rotsub_stddev"],
                drawstyle='steps-mid')
 ax[0].legend(loc='lower left', frameon=True)
 ax[0].grid()
-ax[0].set_ylim([0.25, 15])
-ax[0].text(1.3, 13.5, "Rotation subtracted",
+ax[0].set_ylim([0.25, 16])
+ax[0].text(1.3, 14, "Rotation subtracted",
            bbox={"boxstyle": "square", "facecolor": "w"})
 ax[0].set_xlabel("Radius (kpc)")
 ax[0].set_ylabel("Fitted Gaussian Width (km/s)")
@@ -537,7 +540,7 @@ ax[1].errorbar(bin_cents, co_params["centsub_stddev"],
                drawstyle='steps-mid')
 ax[1].grid()
 ax[1].set_xlabel("Radius (kpc)")
-ax[1].text(1.3, 13.5, "Centroid subtracted",
+ax[1].text(1.3, 14, "Centroid subtracted",
            bbox={"boxstyle": "square", "facecolor": "w"})
 
 ax[2].errorbar(bin_cents, hi_params["peaksub_stddev"],
@@ -550,14 +553,14 @@ ax[2].errorbar(bin_cents, co_params["peaksub_stddev"],
                drawstyle='steps-mid')
 ax[2].grid()
 ax[2].set_xlabel("Radius (kpc)")
-ax[2].text(1.3, 13.5, "Peak Vel. subtracted",
+ax[2].text(1.3, 14, "Peak Vel. subtracted",
            bbox={"boxstyle": "square", "facecolor": "w"})
 p.tight_layout()
 p.subplots_adjust(hspace=0.05,
                   wspace=0.05)
 
-fig.savefig(allfigs_path(join(figure_folder, "total_profile_radial_widths_HI_CO21.pdf")))
-fig.savefig(allfigs_path(join(figure_folder, "total_profile_radial_widths_HI_CO21.png")))
+fig.savefig(allfigs_path(join(figure_folder, "total_profile_radial_widths_HI_CO21_feather.pdf")))
+fig.savefig(allfigs_path(join(figure_folder, "total_profile_radial_widths_HI_CO21_feather.png")))
 
 p.close()
 

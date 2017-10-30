@@ -26,59 +26,61 @@ mask = SpectralCube.read(iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI_so
 
 valid_mask = mask.sum(0).value > 0
 
-mom1 = fits.open(fourteenB_HI_file_dict["Moment1"])[0].data * u.m / u.s
-mom1[~valid_mask] = np.NaN
-peakvels = \
-    fits.open(fourteenB_HI_file_dict["PeakVels"])[0].data * u.m / u.s
-peakvels[~valid_mask] = np.NaN
-rotmod_name = fourteenB_HI_data_path("diskfit_peakvels_noasymm_noradial_nowarp_output/rad.fitmod.fits")
-rot_model = fits.open(rotmod_name)[0].data * u.m / u.s
-# Don't bother using points outside of the cube mask.
-rot_model[~valid_mask] = np.NaN
+# Leave out running on the VLA-only data
 
-log.info("Shifting with the VLA-only velocity maps.")
+# mom1 = fits.open(fourteenB_HI_file_dict["Moment1"])[0].data * u.m / u.s
+# mom1[~valid_mask] = np.NaN
+# peakvels = \
+#     fits.open(fourteenB_HI_file_dict["PeakVels"])[0].data * u.m / u.s
+# peakvels[~valid_mask] = np.NaN
+# rotmod_name = fourteenB_HI_data_path("diskfit_peakvels_noasymm_noradial_nowarp_output/rad.fitmod.fits")
+# rot_model = fits.open(rotmod_name)[0].data * u.m / u.s
+# # Don't bother using points outside of the cube mask.
+# rot_model[~valid_mask] = np.NaN
 
-# Shift with the first moment
-log.info("Shifting with HI centroid.")
-cube_shifter(cube, mom1, gal.vsys, save_shifted=True,
-             save_name=iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI.centroid_corrected.fits",
-                                                  no_check=True),
-             return_spectra=False, verbose=True,
-             num_cores=num_cores, chunk_size=chunk_size)
-log.info("Shifting mask with HI centroid.")
-cube_shifter(mask, mom1, gal.vsys, save_shifted=True,
-             save_name=iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI_source_mask.centroid_corrected.fits",
-                                                  no_check=True),
-             return_spectra=False, verbose=True, is_mask=True,
-             num_cores=num_cores, chunk_size=chunk_size)
+# log.info("Shifting with the VLA-only velocity maps.")
 
-# Shift with the HI peak velocities
-log.info("Shifting with HI peak velocity.")
-cube_shifter(cube, peakvels, gal.vsys, save_shifted=True,
-             save_name=iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI.peakvels_corrected.fits",
-                                                  no_check=True),
-             return_spectra=False, verbose=True,
-             num_cores=num_cores, chunk_size=chunk_size)
-log.info("Shifting mask with HI peak velocity.")
-cube_shifter(mask, peakvels, gal.vsys, save_shifted=True,
-             save_name=iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI_source_mask.peakvels_corrected.fits",
-                                                  no_check=True),
-             return_spectra=False, verbose=True, is_mask=True,
-             num_cores=num_cores, chunk_size=chunk_size)
+# # Shift with the first moment
+# log.info("Shifting with HI centroid.")
+# cube_shifter(cube, mom1, gal.vsys, save_shifted=True,
+#              save_name=iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI.centroid_corrected.fits",
+#                                                   no_check=True),
+#              return_spectra=False, verbose=True,
+#              num_cores=num_cores, chunk_size=chunk_size)
+# log.info("Shifting mask with HI centroid.")
+# cube_shifter(mask, mom1, gal.vsys, save_shifted=True,
+#              save_name=iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI_source_mask.centroid_corrected.fits",
+#                                                   no_check=True),
+#              return_spectra=False, verbose=True, is_mask=True,
+#              num_cores=num_cores, chunk_size=chunk_size)
 
-# Shift with the rotation curve
-log.info("Shifting with HI rotation model.")
-cube_shifter(cube, rot_model, gal.vsys, save_shifted=True,
-             save_name=iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI.rotation_corrected.fits",
-                                                  no_check=True),
-             return_spectra=False, verbose=True,
-             num_cores=num_cores, chunk_size=chunk_size)
-log.info("Shifting mask with HI rotation model.")
-cube_shifter(mask, rot_model, gal.vsys, save_shifted=True,
-             save_name=iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI_source_mask.rotation_corrected.fits",
-                                                  no_check=True),
-             return_spectra=False, verbose=True, is_mask=True,
-             num_cores=num_cores, chunk_size=chunk_size)
+# # Shift with the HI peak velocities
+# log.info("Shifting with HI peak velocity.")
+# cube_shifter(cube, peakvels, gal.vsys, save_shifted=True,
+#              save_name=iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI.peakvels_corrected.fits",
+#                                                   no_check=True),
+#              return_spectra=False, verbose=True,
+#              num_cores=num_cores, chunk_size=chunk_size)
+# log.info("Shifting mask with HI peak velocity.")
+# cube_shifter(mask, peakvels, gal.vsys, save_shifted=True,
+#              save_name=iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI_source_mask.peakvels_corrected.fits",
+#                                                   no_check=True),
+#              return_spectra=False, verbose=True, is_mask=True,
+#              num_cores=num_cores, chunk_size=chunk_size)
+
+# # Shift with the rotation curve
+# log.info("Shifting with HI rotation model.")
+# cube_shifter(cube, rot_model, gal.vsys, save_shifted=True,
+#              save_name=iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI.rotation_corrected.fits",
+#                                                   no_check=True),
+#              return_spectra=False, verbose=True,
+#              num_cores=num_cores, chunk_size=chunk_size)
+# log.info("Shifting mask with HI rotation model.")
+# cube_shifter(mask, rot_model, gal.vsys, save_shifted=True,
+#              save_name=iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI_source_mask.rotation_corrected.fits",
+#                                                   no_check=True),
+#              return_spectra=False, verbose=True, is_mask=True,
+#              num_cores=num_cores, chunk_size=chunk_size)
 
 # Make the same versions using the feathered HI data
 mom1 = fits.open(fourteenB_wGBT_HI_file_dict["Moment1"])[0].data * u.m / u.s

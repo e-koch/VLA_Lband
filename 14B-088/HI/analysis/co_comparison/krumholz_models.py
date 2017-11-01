@@ -698,12 +698,4 @@ if __name__ == "__main__":
     #     if i == 2 or i == 3:
     #         ax.set_xlabel("$\Sigma_{\mathrm{Gas}}$ (M$_{\odot}$ pc$^{-2}$)")
 
-    # Save the lists of points in a table
-    tab = Table([skycoord_pts.ra, skycoord_pts.dec, radii_pts, pang_pts,
-                 hi_coldens, co_coldens, total_sd_pix, gas_ratio_pix,
-                 ypts, xpts],
-                names=["RA", "Dec", "Radius", "PA", "Sigma_HI", "Sigma_H2",
-                       "Sigma_Total", "Ratio", "xpix", "ypix"])
-    tab.write(fourteenB_HI_data_wGBT_path("tables/column_densities_perpix.fits", no_check=True))
-
     default_figure()

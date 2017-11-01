@@ -2,6 +2,17 @@
 '''
 Run entire analysis. The cube should already have been exported into a FITS
 file from CASA.
+
+This script includes deriving the signal mask and moment arrays for the VLA
+and VLA + GBT HI cubes.  The feathering and comparisons should already have
+been run.
+
+Paper 1 investigates the ensemble of HI properties:
+ - using diskfit to fit rotation models to the VLA and VLA + GBT peak velocity
+ - relations to the skewness and kurtosis
+ - effect of centering with the rotation model, centroid, and peak velocity
+ - line shapes of stacked profiles
+ - comparing estimates of the line width
 '''
 
 import os
@@ -111,43 +122,6 @@ execfile(c_hi_analysispath("total_profiles.py"))
 
 # Run filament analysis on zeroth moment
 execfile(c_hi_analysispath("run_filfinder.py"))
-
-#################
-# CO comparison
-#################
-
-# Reproject the integrated CO intensity onto the HI grid.
-execfile(c_hi_analysispath("co_comparison/co_reproject.py"))
-
-# Subtract the rotation curve from the CO data.
-execfile(c_hi_analysispath("co_comparison/co_subtract_rotation.py"))
-
-# Plot where cprops thinks there are clouds.
-execfile(c_hi_analysispath("co_comparison/cloud_catalog.py"))
-
-# Radial profiles w/ CO
-execfile(c_hi_analysispath("co_comparison/co_radial_profile.py"))
-
-execfile(c_hi_analysispath("co_comparison/co_veldisp_profile.py"))
-
-# Adaptive thresholding mask comparison
-execfile(c_hi_analysispath("co_comparison/co_vs_hi_boundaries.py"))
-
-# Rotation subtracted total spectra
-execfile(c_hi_analysispath("co_comparison/total_rotsub_profiles.py"))
-
-# HI and CO spectra at the GMC locations
-execfile(c_hi_analysispath("co_comparison/co_hi_cloud_spectra.py"))
-
-# Tpeak of CO vs. the velocity offset of the HI rotation model and the peak
-# CO velocity,
-execfile(c_hi_analysispath("co_comparison/co_hi_peakoffset.py"))
-
-# Make a HI version regridded to the CO cube.CO
-execfile(c_hi_analysispath("co_comparison/hi_regrid_to_co.py"))
-
-# Make a point-by-point comparison between HI and CO temperatures.
-execfile(c_hi_analysispath("co_comparison/co_vs_hi_brightness.py"))
 
 ########
 # Other

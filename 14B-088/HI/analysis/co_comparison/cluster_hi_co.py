@@ -13,11 +13,14 @@ from sklearn.cluster import AgglomerativeClustering
 from paths import fourteenB_wGBT_HI_file_dict, iram_co21_14B088_data_path
 from plotting_styles import default_figure, onecolumn_figure, twocolumn_figure
 
-cube = SpectralCube.read(fourteenB_wGBT_HI_file_dict['PeakSub_Cube'])
+# cube = SpectralCube.read(fourteenB_wGBT_HI_file_dict['PeakSub_Cube'])
+cube = SpectralCube.read(fourteenB_wGBT_HI_file_dict['Cube'])
+co_cube = SpectralCube.read(iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI.fits"))
+# co_cube = SpectralCube.read(iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI_feather.peakvels_corrected.fits"))
 
 co_mask = fits.open(iram_co21_14B088_data_path(
     "m33.co21_iram.14B-088_HI_source_mask.fits"))[0].data
-co_mask = co_mask.sum(0) > 0
+co_mask = co_mask.sum(0) > 3
 yposns, xposns = np.where(co_mask)
 
 spectra = np.vstack([cube[:, y, x].value for y, x in zip(yposns, xposns)])

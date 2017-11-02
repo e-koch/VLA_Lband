@@ -15,6 +15,7 @@ import os
 from os.path import exists
 from os.path import join as osjoin
 from corner import hist2d
+from astropy.visualizations import hist as astro_hist
 
 from paths import (iram_co21_14B088_data_path, fourteenB_HI_data_wGBT_path,
                    fourteenB_wGBT_HI_file_dict,
@@ -64,6 +65,11 @@ beam = Beam.from_fits_header(hi_mom0.header)
 # Convert to K km/s
 hi_mom0_data = hi_mom0.data * beam.jtok(hi_freq).value / 1000.
 hi_mom0_data = hi_mom0_data * u.K * u.km / u.s
+
+hi_lwidth = fits.open(fourteenB_wGBT_HI_file_dict['LWidth'])[0].data
+hi_skew = fits.open(fourteenB_wGBT_HI_file_dict['Skewness'])[0].data
+hi_kurt = fits.open(fourteenB_wGBT_HI_file_dict['Kurtosis'])[0].data
+hi_peaktemp = fits.open(fourteenB_wGBT_HI_file_dict['PeakTemp'])[0].data
 
 mom0_reproj = fits.open(iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI.mom0.fits"))[0]
 mom0_reproj = (mom0_reproj.data / 1000.) * u.K * u.km / u.s
@@ -268,13 +274,39 @@ for low, high in zip(bins[:-1], bins[1:]):
     co_fraction.append(num_co.sum() / float(num_total.sum()))
 
 co_fraction = np.array(co_fraction)
-p.plot(bin_cents, co_fraction)
-p.grid()
-p.xlabel("$\Sigma_{\mathrm{HI}}$ (M$_{\odot}$ pc$^{-2}$)")
-p.ylabel("CO Detection Fraction")
+
+# Now do the same for the peak HI temperature
+bins_peak = np.linspace(hi_peaktemp[all_hi_pts].min(),
+                        hi_peaktemp[all_hi_pts].max())
+bin_cents_peak = (bins_peak[:-1] + bins_peak[1:]) / 2.
+
+co_fraction_peak = []
+for low, high in zip(bins_peak[:-1], bins_peak[1:]):
+    num_co = np.logical_and(hi_peaktemp[good_pts] > low,
+                            hi_peaktemp[good_pts] <= high)
+    num_total = np.logical_and(hi_peaktemp[all_hi_pts] > low,
+                               hi_peaktemp[all_hi_pts] <= high)
+
+    co_fraction_peak.append(num_co.sum() / float(num_total.sum()))
+
+co_fraction_peak = np.array(co_fraction_peak)
+
+twocolumn_twopanel_figure()
+
+fig, ax = p.subplots(1, 2, sharey=True)
+
+ax[0].plot(bin_cents, co_fraction)
+ax[0].grid()
+ax[0].set_xlabel("$\Sigma_{\mathrm{HI}}$ (M$_{\odot}$ pc$^{-2}$)")
+ax[0].set_ylabel("CO Detection Fraction")
+
+ax[1].plot(bin_cents_peak, co_fraction_peak)
+ax[1].grid()
+ax[1].set_xlabel(r"T$_{\rm HI}$ (K)")
+
 p.tight_layout()
 
-save_name = "sigma_HI_perpix_CO_detection_fraction"
+save_name = "sigma_peak_HI_perpix_CO_detection_fraction"
 p.savefig(osjoin(fig_path, "{0}.pdf".format(save_name)))
 p.savefig(osjoin(fig_path, "{0}.png".format(save_name)))
 p.close()
@@ -377,5 +409,43 @@ p.close()
 #                       " \Sigma_{\mathrm{HI}}$")
 #     if i == 2 or i == 3:
 #         ax.set_xlabel("$\Sigma_{\mathrm{Gas}}$ (M$_{\odot}$ pc$^{-2}$)")
+
+# Are there other HI line properties that correlate with CO detections?
+
+# L Width (from 2nd moment)
+# _ = astro_hist(hi_lwidth[np.isfinite(hi_lwidth)] / 1000., bins='scott',
+#                alpha=0.7, normed=True)
+# _ = astro_hist(hi_lwidth[good_pts] / 1000., bins='scott', alpha=0.7,
+#                normed=True)
+
+# The distributions are basically indistinguishable. Not surprising given how
+# inaccurate the HI line width is
+
+# Skewness
+# _ = astro_hist(hi_skew[np.isfinite(hi_skew)], bins='scott',
+#                alpha=0.7, normed=True)
+# _ = astro_hist(hi_skew[good_pts], bins='scott', alpha=0.7,
+#                normed=True)
+
+# Same. Slight preference for small negative skew, but that's probably
+# unassociated with the CO
+
+# Kurtosis
+# _ = astro_hist(hi_kurt[np.isfinite(hi_kurt)], bins='scott',
+#                alpha=0.7, normed=True)
+# _ = astro_hist(hi_kurt[good_pts], bins='scott', alpha=0.7,
+#                normed=True)
+
+# Distinct preference for positive kurtosis. Now check if this is driven
+# by kurtosis - HI peak correlation
+
+# Peak temperature
+# _ = astro_hist(hi_peaktemp[np.isfinite(hi_peaktemp)], bins='scott',
+#                alpha=0.7, normed=True)
+# _ = astro_hist(hi_peaktemp[good_pts], bins='scott', alpha=0.7,
+#                normed=True)
+
+# Most definitely! So the kurtosis population difference isn't saying anything
+# about the line shape around the CO component.
 
 default_figure()

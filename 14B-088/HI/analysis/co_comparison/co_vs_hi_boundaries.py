@@ -1,27 +1,27 @@
 from basics import BubbleFinder2D
 from basics.utils import sig_clip
 from spectral_cube import SpectralCube
-from spectral_cube.lower_dimensional_structures import Projection
-from spectral_cube.cube_utils import average_beams
 import astropy.units as u
 import matplotlib.pyplot as p
 import scipy.ndimage as nd
 from scipy.stats import binned_statistic
 import numpy as np
-from reproject import reproject_interp
 from skimage.segmentation import find_boundaries
 from skimage.morphology import medial_axis
 from astropy.utils.console import ProgressBar
 from corner import hist2d
+import os
+from os.path import join as osjoin
+import seaborn as sb
 
-from analysis.paths import (fourteenB_HI_data_path, iram_co21_data_path,
-                            paper1_figures_path)
-from analysis.constants import rotsub_cube_name, hi_freq
-from analysis.galaxy_params import gal
-from analysis.plotting_styles import (default_figure, twocolumn_figure,
-                                      onecolumn_figure,
-                                      twocolumn_twopanel_figure,
-                                      align_yaxis)
+from paths import (fourteenB_HI_data_wGBT_path,
+                   iram_co21_14B088_data_path,
+                   allfigs_path)
+from constants import hi_freq
+from galaxy_params import gal_feath as gal
+from plotting_styles import (default_figure, twocolumn_figure,
+                             onecolumn_figure,
+                             twocolumn_twopanel_figure)
 
 
 default_figure()
@@ -30,10 +30,12 @@ default_figure()
 Calculate the intensities of HI and CO as a function of distance from the
 edges of the adap. thresh mask.
 
-To avoid a whole cube regrid, I use the rotation subtracted cubes and extract
-zeroth moments from spectral slabs.
-
 '''
+
+fig_path = allfigs_path("co_vs_hi")
+if not os.path.exists(fig_path):
+    os.mkdir(fig_path)
+
 
 np.random.seed(34678953)
 
@@ -43,15 +45,14 @@ verbose = False
 slicer = (slice(None), slice(None))
 
 # Load in the rotation subtracted cubes
-hi_cube = SpectralCube.read(fourteenB_HI_data_path(rotsub_cube_name))
-co_cube = SpectralCube.read(iram_co21_data_path("m33.co21_iram.rotsub.fits"))
+hi_cube = SpectralCube.read(fourteenB_HI_data_wGBT_path("downsamp_to_co/M33_14B-088_HI.clean.image.GBT_feathered.2.6kms.fits"))
+co_cube = SpectralCube.read(iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI.fits"))
 
-start_vel = - 30 * u.km / u.s
-end_vel = 30 * u.km / u.s
-del_vel = 3. * u.km / u.s
+co_cube = co_cube.spectral_slab(hi_cube.spectral_extrema[0],
+                                hi_cube.spectral_extrema[1])
 
-vels = np.arange(start_vel.value, end_vel.value + del_vel.value,
-                 del_vel.value) * u.km / u.s
+# Skip the first 7 channels and the last 15 channels
+vels = co_cube.spectral_axis.to(u.km / u.s)[7:-15]
 
 # Get the radius array so we can cut to where the CO data is valid
 radii = gal.radius(header=hi_cube[0].header)
@@ -66,30 +67,30 @@ skeleton_dists = []
 skeleton_dists_pix = []
 skeleton_widths = []
 
-hi_beam = average_beams(hi_cube.beams)
+masks = []
+
+hi_beam = hi_cube.beam
 
 # Estimate the noise level in an equivalent slab
-hi_mom0 = hi_cube.spectral_slab(-180 * u.km / u.s, -183 * u.km / u.s).moment0()
+hi_mom0 = hi_cube[-1]
 sigma = sig_clip(hi_mom0.value, nsig=10) * \
     hi_beam.jtok(hi_freq).value
 
-for i, (end, start) in enumerate(ProgressBar(zip(vels[1:], vels[:-1]))):
+# Skip the first 7 channels
+i_offset = 7
 
-    hi_slab = hi_cube.spectral_slab(start, end)
-    hi_mom0 = hi_slab.moment0() * hi_beam.jtok(hi_freq) / u.Jy
+for i, vel in enumerate(ProgressBar(vels)):
 
-    # Make the CO slab, then reproject onto the HI grid
-    co_mom0 = co_cube.spectral_slab(start, end).moment0()
-    co_mom0_reproj = reproject_interp(co_mom0.hdu, hi_mom0.header)[0]
-    co_mom0 = Projection(co_mom0_reproj, wcs=hi_mom0.wcs)
+    hi_chan = hi_cube[i + i_offset] * hi_beam.jtok(hi_freq) / u.Jy
+    co_chan = co_cube[i + i_offset]
 
     # Need a mask from the HI
     # Adjust the sigma in a single channel to the moment0 in the slab
     # sigma = 0.00152659 * hi_slab.shape[0] * \
     #     np.abs((hi_slab.spectral_axis[1] - hi_slab.spectral_axis[0]).value)
 
-    bub = BubbleFinder2D(hi_mom0, auto_cut=False, sigma=sigma)
-    bub.create_mask(bkg_nsig=30, region_min_nsig=60, mask_clear_border=False)
+    bub = BubbleFinder2D(hi_chan, auto_cut=False, sigma=sigma)
+    bub.create_mask(bkg_nsig=5, region_min_nsig=10, mask_clear_border=False)
 
     skeleton, dists = medial_axis(~bub.mask, return_distance=True)
     skeleton_dists.append(skeleton * dists)
@@ -118,35 +119,38 @@ for i, (end, start) in enumerate(ProgressBar(zip(vels[1:], vels[:-1]))):
 
     all_dists.extend(list(dist_trans[radial_cut]))
     all_radii.extend(list(radii.value[radial_cut]))
-    all_vals_hi.extend(list(hi_mom0.value[radial_cut] / 1000.))
-    all_vals_co.extend(list(co_mom0.value[radial_cut] / 1000.))
+    all_vals_hi.extend(list(hi_chan.value[radial_cut]))
+    all_vals_co.extend(list(co_chan.value[radial_cut]))
 
     # Track the width of the mask
     skeleton_widths.extend(list((skeleton * dists)[radial_cut]))
     # Also record all of the distances from the centre of the skeletons
     skeleton_dists_pix.extend(list(nd.distance_transform_edt(~skeleton)[radial_cut]))
 
-    if verbose:
-        print("Velocities: {} to {}".format(start, end))
-        ax = p.subplot(121, projection=hi_mom0.wcs)
-        p.imshow(np.arctan(hi_mom0[slicer].value /
-                           np.nanpercentile(hi_mom0.value, 85)),
-                 origin='lower')
-        # p.contour(skeleton, colors='b')
-        p.contour(edge_mask[slicer], colors='g')
+    masks.append(~bub.mask)
 
-        ax2 = p.subplot(122, projection=hi_mom0.wcs)
-        # p.imshow(hole_mask, origin='lower')
-        p.imshow(np.arctan(co_mom0.value[slicer] /
-                           np.nanpercentile(co_mom0.value, 95)),
-                 origin='lower')
-        # p.imshow(co_mom0.value, origin='lower')
+    if verbose:
+        print("Velocity: {}".format(vel))
+
+        fig, ax = p.subplots(1, 2, sharex=True, sharey=True,
+                             subplot_kw=dict(projection=hi_chan.wcs))
+
+        ax[0].imshow(np.arctan(hi_chan[slicer].value /
+                               np.nanpercentile(hi_chan.value, 85)),
+                     origin='lower', vmin=0)
         # p.contour(skeleton, colors='b')
-        p.contour(edge_mask[slicer], colors='g')
-        p.draw()
-        lat = ax2.coords[1]
+        ax[0].contour(edge_mask[slicer], colors='g')
+
+        # p.imshow(hole_mask, origin='lower')
+        ax[1].imshow(co_chan.value[slicer],
+                     origin='lower', vmin=0.01, vmax=0.1)
+        # p.imshow(co_chan.value, origin='lower')
+        # p.contour(skeleton, colors='b')
+        ax[1].contour(edge_mask[slicer], colors='g')
+        lat = ax[1].coords[1]
         lat.set_ticklabel_visible(False)
 
+        p.draw()
         raw_input("Next plot?")
         p.clf()
 
@@ -207,10 +211,10 @@ onecolumn_figure()
 
 p.errorbar(bin_centers, hi_vals / np.nanmax(hi_vals),
            yerr=hi_errs / np.nanmax(hi_vals), fmt="D-",
-           color="b", label="HI")
+           label="HI")
 p.errorbar(bin_centers, co_vals / np.nanmax(co_vals),
            yerr=co_errs / np.nanmax(co_vals), fmt="o-",
-           color="r", label="CO(2-1)")
+           label="CO(2-1)")
 
 # p.plot(bin_centers, hi_vals / np.nanmax(hi_vals), 'bD-',
 #        label="HI")
@@ -227,22 +231,22 @@ p.grid()
 p.tight_layout()
 p.draw()
 
-p.savefig(paper1_figures_path("mask_edge_radial_profiles.pdf"))
-p.savefig(paper1_figures_path("mask_edge_radial_profiles.png"))
+p.savefig(osjoin(fig_path, "mask_edge_radial_profiles.pdf"))
+p.savefig(osjoin(fig_path, "mask_edge_radial_profiles.png"))
 
 # raw_input("Next plot?")
 p.close()
 
 # Show the total number of elements in each distance bin
 
-p.semilogy(bin_centers, binned_elements, 'bD-')
+p.semilogy(bin_centers, binned_elements, 'D-')
 p.xlabel("Distance from mask edge (pc)")
 p.ylabel("Number of pixels")
 p.grid()
 p.tight_layout()
 
-p.savefig(paper1_figures_path("mask_edge_radial_profiles_numbin.pdf"))
-p.savefig(paper1_figures_path("mask_edge_radial_profiles_numbin.png"))
+p.savefig(osjoin(fig_path, "mask_edge_radial_profiles_numbin.pdf"))
+p.savefig(osjoin(fig_path, "mask_edge_radial_profiles_numbin.png"))
 
 # raw_input("Next plot?")
 p.close()
@@ -284,21 +288,21 @@ p.close()
 pos_hi = all_vals_hi[all_dists > 0]
 pos_co = all_vals_co[all_dists > 0]
 
-# Using argsort since
-p.plot(np.sort(pos_hi), np.cumsum(np.sort(pos_hi)) / np.sum(pos_hi), "b-",
+onecolumn_figure()
+
+p.plot(np.sort(pos_hi), np.cumsum(np.sort(pos_hi)) / np.sum(pos_hi), "-",
        label="HI")
 p.plot(np.sort(pos_hi), np.cumsum(pos_co[np.argsort(pos_hi)]) / np.sum(pos_co),
-       "g--", label="CO")
-p.legend(loc='upper left')
+       "--", label="CO")
+p.legend(loc='upper left', frameon=True)
 p.grid()
 p.ylim([-0.05, 1.05])
 p.ylabel("CDF")
-p.xlabel("HI Integrated Intensity (K km/s)")
+p.xlabel("HI Intensity (K)")
 p.tight_layout()
-p.draw()
 
-p.savefig(paper1_figures_path("inmask_hi_co_cdfs.pdf"))
-p.savefig(paper1_figures_path("inmask_hi_co_cdfs.png"))
+p.savefig(osjoin(fig_path, "inmask_hi_co_cdfs.pdf"))
+p.savefig(osjoin(fig_path, "inmask_hi_co_cdfs.png"))
 p.close()
 
 # Perform the same analysis split up into radial bins
@@ -373,11 +377,11 @@ for ctr, (r0, r1) in enumerate(zip(inneredge,
     ax[r, c].errorbar(bin_centers, hi_vals / np.nanmax(hi_vals),
                       yerr=hi_errs / np.nanmax(hi_vals),
                       fmt="-",
-                      color="b", label="HI")
+                      label="HI")
     ax[r, c].errorbar(bin_centers, co_vals / np.nanmax(co_vals),
                       yerr=co_errs / np.nanmax(co_vals),
                       fmt="--",
-                      color="r", label="CO(2-1)")
+                      label="CO(2-1)")
     ax[r, c].annotate("{0} to {1}".format(r0.to(u.kpc).value, r1.to(u.kpc)),
                       xy=(-360, 0.65),
                       color='k',
@@ -400,8 +404,8 @@ for ctr, (r0, r1) in enumerate(zip(inneredge,
 #             ax[r, c].set_xticklabels(ax[r, c].xaxis.get_majorticklabels(),
 #                                      rotation=45)
 
-fig.savefig(paper1_figures_path("mask_edge_radial_profiles_byradius.pdf"))
-fig.savefig(paper1_figures_path("mask_edge_radial_profiles_byradius.png"))
+fig.savefig(osjoin(fig_path, "mask_edge_radial_profiles_byradius.pdf"))
+fig.savefig(osjoin(fig_path, "mask_edge_radial_profiles_byradius.png"))
 
 p.close()
 
@@ -429,15 +433,15 @@ p.plot(all_radii[skeleton_widths > 0] / 1000.,
        'ko', alpha=0.1, ms=3.0, zorder=-1)
 
 p.errorbar(bin_centers / 1000., dists * phys_conv.value,
-           yerr=dist_std * phys_conv.value, color='r',
+           yerr=dist_std * phys_conv.value,
            marker='', linestyle='-', linewidth=2, elinewidth=2)
 p.ylabel("Width of mask regions (pc)")
 p.xlabel("Radius (kpc)")
 
 p.tight_layout()
 
-p.savefig(paper1_figures_path("mask_width_byradius.pdf"))
-p.savefig(paper1_figures_path("mask_width_byradius.png"))
+p.savefig(osjoin(fig_path, "mask_width_byradius.pdf"))
+p.savefig(osjoin(fig_path, "mask_width_byradius.png"))
 p.close()
 
 # Let's take some other views of this data, while we're at it.
@@ -447,21 +451,23 @@ twocolumn_twopanel_figure()
 fig, ax = p.subplots(1, 2, sharex=True)
 
 hist2d(skeleton_widths[skeleton_widths > 0] * phys_conv.value,
-       all_vals_co[skeleton_widths > 0],
+       all_vals_co[skeleton_widths > 0], bins=10,
        ax=ax[1], data_kwargs={"alpha": 0.6})
 ax[1].set_xlabel("Mask Width (pc)")
-ax[1].set_ylabel(r"CO Int. Intensity (K km s$^{-1}$)")
+ax[1].set_ylabel(r"CO Intensity (K)")
+ax[1].grid()
 
 hist2d(skeleton_widths[skeleton_widths > 0] * phys_conv.value,
-       all_vals_hi[skeleton_widths > 0],
+       all_vals_hi[skeleton_widths > 0], bins=10,
        ax=ax[0], data_kwargs={"alpha": 0.6})
 ax[0].set_xlabel("Mask Width (pc)")
-ax[0].set_ylabel(r"HI Int. Intensity (K km s$^{-1}$)")
+ax[0].set_ylabel(r"HI Intensity (K)")
+ax[0].grid()
 
 p.tight_layout()
 
-p.savefig(paper1_figures_path("mask_widthvsintensity.pdf"))
-p.savefig(paper1_figures_path("mask_widthvsintensity.png"))
+p.savefig(osjoin(fig_path, "mask_widthvsintensity.pdf"))
+p.savefig(osjoin(fig_path, "mask_widthvsintensity.png"))
 p.close()
 
 # HI vs. CO with all skeleton distances (not just on the skeleton like above)
@@ -508,36 +514,42 @@ ax[1].plot(skeleton_dists_pix[selector_pts] * phys_conv.value,
            all_vals_co[selector_pts], 'ko', ms=2.0, alpha=0.6,
            rasterized=True, zorder=-1)
 ax[1].set_xlabel("Distance from Mask Centre (pc)")
-ax[1].set_ylabel(r"CO Int. Intensity (K km s$^{-1}$)")
+ax[1].set_ylabel(r"CO Intensity (K)")
+ax[1].grid()
 
 ax[0].plot(skeleton_dists_pix[selector_pts] * phys_conv.value,
            all_vals_hi[selector_pts], 'ko', ms=2.0, alpha=0.6,
            rasterized=True, zorder=-1)
 ax[0].set_xlabel("Distance from Mask Centre (pc)")
-ax[0].set_ylabel(r"HI Int. Intensity (K km s$^{-1}$)")
+ax[0].set_ylabel(r"HI Intensity (K)")
+ax[0].grid()
 
 p.tight_layout()
 
-p.savefig(paper1_figures_path("mask_intensity_vs_skeldist.pdf"))
-p.savefig(paper1_figures_path("mask_intensity_vs_skeldist.png"))
+p.savefig(osjoin(fig_path, "mask_intensity_vs_skeldist.pdf"))
+p.savefig(osjoin(fig_path, "mask_intensity_vs_skeldist.png"))
 p.close()
 
 onecolumn_figure()
+
+col_pal = sb.color_palette()
+
 ax = p.subplot(111)
-pl1 = ax.plot(bin_centers * phys_conv.value, hi_mean, "bD-",
+pl1 = ax.plot(bin_centers * phys_conv.value, hi_mean, "D-",
               label='HI')
 # ax.errorbar(bin_centers * phys_conv.value, hi_mean,
 #             yerr=[hi_mean - hi_15, hi_85 - hi_mean], color='b',
 #             marker='D', linestyle='-', linewidth=2, elinewidth=2)
 ax.set_xlabel("Distance from Mask Centre (pc)")
-ax.set_ylabel(r"HI Int. Intensity (K km s$^{-1}$)")
+ax.set_ylabel(r"HI Mean Intensity (K)")
 
 ax_2 = ax.twinx()
-pl2 = ax_2.plot(bin_centers * phys_conv.value, co_mean, "ro--", label='CO')
+pl2 = ax_2.plot(bin_centers * phys_conv.value, co_mean, "o--",
+                label='CO', color=col_pal[1])
 # ax_2.errorbar(bin_centers * phys_conv.value, co_mean,
 #               yerr=[co_mean - co_15, co_85 - co_mean], color='r',
 #               marker='o', linestyle='--', linewidth=2, elinewidth=2)
-ax_2.set_ylabel(r"CO Int. Intensity (K km s$^{-1}$)")
+ax_2.set_ylabel(r"CO Mean Intensity (K)")
 # align_yaxis(ax, 0, ax_2, 0)
 
 pls = pl1 + pl2
@@ -548,8 +560,8 @@ ax.grid()
 
 p.tight_layout()
 
-p.savefig(paper1_figures_path("mask_intensity_vs_skeldist_mean.pdf"))
-p.savefig(paper1_figures_path("mask_intensity_vs_skeldist_mean.png"))
+p.savefig(osjoin(fig_path, "mask_intensity_vs_skeldist_mean.pdf"))
+p.savefig(osjoin(fig_path, "mask_intensity_vs_skeldist_mean.png"))
 p.close()
 
 

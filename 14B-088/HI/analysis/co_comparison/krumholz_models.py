@@ -228,7 +228,7 @@ if __name__ == "__main__":
     # their entire sample, with a lot of scatter
     sds = np.arange(1, 40, 0.2)
 
-    onecolumn_figure(font_scale=1.0, fig_ratio=1.0)
+    onecolumn_figure(font_scale=1.0)
     # p.semilogy(total_sd, gas_ratio, 'bD')
     p.errorbar(total_sd, np.log10(gas_ratio), yerr=log_gas_ratio_sigma,
                xerr=total_sd_sigma, alpha=0.6, fmt='D')

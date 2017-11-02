@@ -31,6 +31,9 @@ fig_path = allfigs_path("co_vs_hi")
 if not os.path.exists(fig_path):
     os.mkdir(fig_path)
 
+fig_path_models = allfigs_path("co_vs_hi/h2_formation_models")
+if not os.path.exists(fig_path):
+    os.mkdir(fig_path)
 
 # Start with checking the column densities from the fitting.
 
@@ -157,7 +160,7 @@ def bayes_linear(x, y, x_err, y_err, nWalkers=10, nBurn=100, nSample=1000,
     return params, error_intervals, sampler
 
 
-# slope, slope_ci, sampler = \
+slope, slope_ci, sampler = \
 params, cis, sampler = \
     bayes_linear(tab['sigma_HI'][good_pts], tab['sigma_CO'][good_pts],
                  tab['sigma_stderr_HI'][good_pts],
@@ -366,8 +369,6 @@ plt.savefig(osjoin(fig_path, "coldens_fit_vs_moment_check.png"))
 plt.savefig(osjoin(fig_path, "coldens_fit_vs_moment_check.pdf"))
 plt.close()
 
-print(argh)
-
 # Create the log ratio vs. total Sigma plots
 twocolumn_twopanel_figure()
 
@@ -427,10 +428,9 @@ handles, labels = plt.gca().get_legend_handles_labels()
 ax2.legend(handles[1:], labels[1:], loc='lower right', frameon=True)
 
 plt.tight_layout()
-
 save_name = "ratio_totalsigma_w_krumholzmodel_perpix_feather_moment_vs_fit"
-plt.savefig(osjoin(fig_path, "{}.pdf".format(save_name)))
-plt.savefig(osjoin(fig_path, "{}.png".format(save_name)))
+plt.savefig(osjoin(fig_path_models, "{}.pdf".format(save_name)))
+plt.savefig(osjoin(fig_path_models, "{}.png".format(save_name)))
 plt.close()
 
 
@@ -474,7 +474,7 @@ hist2d(mom_tab["Sigma_Total"][overlap_mask],
        data_kwargs={"alpha": 0.6},
        ax=ax2, label='_nolegend_')
 ax2.set_xlabel(r"$\Sigma_{\mathrm{Total}}$ (M$_{\odot}$ pc$^{-2}$)")
-ax2.set_ylabel(r"log $\Sigma_{\mathrm{H2}} / \Sigma_{\mathrm{HI}}$")
+ax2.set_ylabel(r"$\Sigma_{\mathrm{HI}}$")
 
 
 ax2.axhline(krumholz_maxhi_sigma(Z=1.0, c=1).value,
@@ -504,8 +504,8 @@ ax2.legend(handles[1:], labels[1:], loc='lower right', frameon=True, ncol=2)
 plt.tight_layout()
 
 save_name = "sigmahi_totalsigma_w_krumholzmodel_perpix_feather_moment_vs_fit"
-plt.savefig(osjoin(fig_path, "{}.pdf".format(save_name)))
-plt.savefig(osjoin(fig_path, "{}.png".format(save_name)))
+plt.savefig(osjoin(fig_path_models, "{}.pdf".format(save_name)))
+plt.savefig(osjoin(fig_path_models, "{}.png".format(save_name)))
 plt.close()
 
 default_figure()

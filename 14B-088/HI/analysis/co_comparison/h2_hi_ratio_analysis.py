@@ -280,6 +280,34 @@ plt.savefig(osjoin(fig_path, "peak_HI_vs_CO_fit.png"))
 plt.savefig(osjoin(fig_path, "peak_HI_vs_CO_fit.pdf"))
 plt.close()
 
+# CO width vs. CO peak
+
+hist2d(tab['sigma_CO'][good_pts] / 1000.,
+       tab['amp_CO'][good_pts],
+       bins=23,
+       data_kwargs={"alpha": 0.5})
+plt.grid()
+plt.xlabel(r"$\sigma_{\rm CO}$ (km/s)")
+plt.ylabel(r"T$_{\rm CO}$ (K)")
+plt.tight_layout()
+plt.savefig(osjoin(fig_path, "sigma_CO_vs_peak_CO_fit.png"))
+plt.savefig(osjoin(fig_path, "sigma_CO_vs_peak_CO_fit.pdf"))
+plt.close()
+
+# HI width vs CO peak
+
+hist2d(tab['sigma_HI'][good_pts] / 1000.,
+       tab['amp_CO'][good_pts],
+       bins=23,
+       data_kwargs={"alpha": 0.5})
+plt.grid()
+plt.xlabel(r"$\sigma_{\rm HI}$ (km/s)")
+plt.ylabel(r"T$_{\rm CO}$ (K)")
+plt.tight_layout()
+plt.savefig(osjoin(fig_path, "sigma_HI_vs_peak_CO_fit.png"))
+plt.savefig(osjoin(fig_path, "sigma_HI_vs_peak_CO_fit.pdf"))
+plt.close()
+
 # Load in the column density estimate from the moment arrays
 mom_tab = Table.read(fourteenB_HI_data_wGBT_path("tables/column_densities_perpix.fits"))
 

@@ -47,3 +47,6 @@ execfile(c_hi_analysispath("co_comparisons/h2_hi_ratios.py"))
 
 # Comparisons to the Krumholz models and other population studies
 execfile(c_hi_analysispath("co_comparisons/krumholz_models.py"))
+
+# HI properties w/ and w/o CO detected
+execfile(c_hi_analysispath("co_comparisons/hi_props_vs_co_detection.py"))

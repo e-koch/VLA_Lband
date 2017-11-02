@@ -559,7 +559,6 @@ if __name__ == "__main__":
                                                       int(dr.value))))
     p.close()
 
-
     # Nothing interesting vs. position angle
 
     # fig, ax = p.subplots(1, 2)
@@ -574,7 +573,6 @@ if __name__ == "__main__":
     #            ms=3.0, mec=None, alpha=0.8)
     # ax[1].set_ylabel("$\Sigma_{\mathrm{Gas}}$ (M$_{\odot}$ pc$^{-2}$)")
     # ax[1].set_xlabel("Position Angle (deg)")
-
 
     # Something interesting of the above plot is the difference in HI
     # properties between the HI azimuthal average and the HI where CO
@@ -595,6 +593,28 @@ if __name__ == "__main__":
     p.tight_layout()
 
     save_name = "sigma_HI_perpix_wCO_and_all"
+    p.savefig(osjoin(fig_path, "{0}.pdf".format(save_name)))
+    p.savefig(osjoin(fig_path, "{0}.png".format(save_name)))
+    p.close()
+
+    # Calculate the fraction of LOS w/ CO as function of HI column density
+    bins = np.linspace(0, hi_coldens_all.max())
+    bin_cents = (bins[:-1] + bins[1:]) / 2.
+    co_fraction = []
+    for low, high in zip(bins[:-1], bins[1:]):
+        num_co = np.logical_and(hi_coldens > low, hi_coldens <= high)
+        num_total = np.logical_and(hi_coldens_all > low, hi_coldens_all <= high)
+
+        co_fraction.append(num_co.sum() / float(num_total.sum()))
+
+    co_fraction = np.array(co_fraction)
+    p.plot(bin_cents, co_fraction)
+    p.grid()
+    p.xlabel("$\Sigma_{\mathrm{HI}}$ (M$_{\odot}$ pc$^{-2}$)")
+    p.ylabel("CO Detection Fraction")
+    p.tight_layout()
+
+    save_name = "sigma_HI_perpix_CO_detection_fraction"
     p.savefig(osjoin(fig_path, "{0}.pdf".format(save_name)))
     p.savefig(osjoin(fig_path, "{0}.png".format(save_name)))
     p.close()

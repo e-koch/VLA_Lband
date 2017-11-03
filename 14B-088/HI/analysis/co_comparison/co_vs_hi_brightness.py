@@ -47,7 +47,9 @@ all_vals = np.vstack([hi_vals.value[nan_vals],
 
 # Estimates of the noise level.
 hi_std = mad_std(hi_vals[hi_vals < 0])
-co_std = mad_std(co_vals[co_vals < 0])
+# co_std = mad_std(co_vals[co_vals < 0])
+# Use the noise level reported in Druard+14
+co_std = 20.e-3 * u.K
 
 default_figure()
 sb.set_context("paper", rc={"figure.figsize": np.array([6.4, 5.8])},

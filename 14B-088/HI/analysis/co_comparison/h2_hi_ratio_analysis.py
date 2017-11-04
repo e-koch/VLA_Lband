@@ -97,75 +97,88 @@ plt.close()
 # adapted from TurbuStat and fixes the intercept at the origin.
 
 def bayes_linear(x, y, x_err, y_err, nWalkers=10, nBurn=100, nSample=1000,
-                 nThin=5,
-                 conf_interval=[15.9, 84.1]):
+                 nThin=5, conf_interval=[15.9, 84.1], fix_intercept=False):
     '''
     Fit a line w/ the intercept set to 0.
     '''
 
-    # def _logprob(p, x, y, x_err, y_err):
-    #     theta = p[0]
-    #     if np.abs(theta - np.pi / 4) > np.pi / 4:
-    #         return -np.inf
+    if fix_intercept:
+        def _logprob(p, x, y, x_err, y_err):
+            theta = p[0]
+            if np.abs(theta - np.pi / 4) > np.pi / 4:
+                return -np.inf
 
-    #     Delta = (np.cos(theta) * y - np.sin(theta) * x)**2
-    #     Sigma = np.sin(theta)**2 * x_err**2 + np.cos(theta)**2 * y_err**2
-    #     lp = -0.5 * np.nansum(Delta / Sigma) - 0.5 * np.nansum(np.log(Sigma))
-    #     return lp
+            Delta = (np.cos(theta) * y - np.sin(theta) * x)**2
+            Sigma = np.sin(theta)**2 * x_err**2 + np.cos(theta)**2 * y_err**2
+            lp = -0.5 * np.nansum(Delta / Sigma) - \
+                0.5 * np.nansum(np.log(Sigma))
+            return lp
 
-    # ndim = 2
+        ndim = 2
 
-    # p0 = np.zeros((nWalkers, ndim))
-    # p0[:, 0] = np.pi / 4 + np.random.randn(nWalkers) * 0.1
+        p0 = np.zeros((nWalkers, ndim))
+        p0[:, 0] = np.pi / 4 + np.random.randn(nWalkers) * 0.1
 
-    def _logprob(p, x, y, x_err, y_err):
-        theta, b = p[0], p[1]
-        if np.abs(theta - np.pi / 4) > np.pi / 4:
-            return -np.inf
-        Delta = (np.cos(theta) * y - np.sin(theta) * x - b * np.cos(theta))**2
-        Sigma = (np.sin(theta))**2 * x_err**2 + (np.cos(theta))**2 * y_err**2
-        lp = -0.5 * np.nansum(Delta / Sigma) - 0.5 * np.nansum(np.log(Sigma))
+    else:
+        def _logprob(p, x, y, x_err, y_err):
+            theta, b = p[0], p[1]
+            if np.abs(theta - np.pi / 4) > np.pi / 4:
+                return -np.inf
+            Delta = (np.cos(theta) * y - np.sin(theta) * x - b * np.cos(theta))**2
+            Sigma = (np.sin(theta))**2 * x_err**2 + (np.cos(theta))**2 * y_err**2
+            lp = -0.5 * np.nansum(Delta / Sigma) - 0.5 * np.nansum(np.log(Sigma))
 
-        return lp
+            return lp
 
-    ndim = 2
-    p0 = np.zeros((nWalkers, ndim))
-    p0[:, 0] = np.pi / 4 + np.random.randn(nWalkers) * 0.1
-    p0[:, 1] = np.random.randn(nWalkers) * y.std() + y.mean()
+        ndim = 2
+        p0 = np.zeros((nWalkers, ndim))
+        p0[:, 0] = np.pi / 4 + np.random.randn(nWalkers) * 0.1
+        p0[:, 1] = np.random.randn(nWalkers) * y.std() + y.mean()
 
     sampler = emcee.EnsembleSampler(nWalkers, ndim, _logprob,
                                     args=[x, y, x_err, y_err])
     pos, prob, state = sampler.run_mcmc(p0, nBurn)
     sampler.reset()
     sampler.run_mcmc(pos, nSample, thin=nThin)
-    # slopes = np.tan(sampler.flatchain[:, 0])
-    # slope = np.median(slopes)
-    # # Use the percentiles given in conf_interval
-    # error_interval = np.percentile(slopes, conf_interval)
 
-    slopes = np.tan(sampler.flatchain[:, 0])
-    intercepts = sampler.flatchain[:, 1]
+    if fix_intercept:
+        slopes = np.tan(sampler.flatchain[:, 0])
+        slope = np.median(slopes)
+        params = np.array([slope])
+        # Use the percentiles given in conf_interval
+        error_intervals = np.percentile(slopes, conf_interval)
 
-    slope = np.median(slopes)
-    intercept = np.median(intercepts)
+    else:
+        slopes = np.tan(sampler.flatchain[:, 0])
+        intercepts = sampler.flatchain[:, 1]
 
-    params = np.array([slope, intercept])
+        slope = np.median(slopes)
+        intercept = np.median(intercepts)
 
-    # Use the percentiles given in conf_interval
-    error_intervals = np.empty((2, 2))
-    error_intervals[0] = np.percentile(slopes, conf_interval)
-    error_intervals[1] = np.percentile(intercepts, conf_interval)
+        params = np.array([slope, intercept])
 
-    # return slope, error_interval, sampler
+        # Use the percentiles given in conf_interval
+        error_intervals = np.empty((2, 2))
+        error_intervals[0] = np.percentile(slopes, conf_interval)
+        error_intervals[1] = np.percentile(intercepts, conf_interval)
+
     return params, error_intervals, sampler
 
 
-slope, slope_ci, sampler = \
+# Fit an intercept
 params, cis, sampler = \
     bayes_linear(tab['sigma_HI'][good_pts], tab['sigma_CO'][good_pts],
                  tab['sigma_stderr_HI'][good_pts],
                  tab['sigma_stderr_CO'][good_pts],
-                 nBurn=1000, nSample=5000, nThin=2)
+                 nBurn=500, nSample=2000, nThin=2)
+
+# Just fit ratio (intercept is 0)
+slope_ratio, slope_ratio_ci, sampler_ratio = \
+    bayes_linear(tab['sigma_HI'][good_pts], tab['sigma_CO'][good_pts],
+                 tab['sigma_stderr_HI'][good_pts],
+                 tab['sigma_stderr_CO'][good_pts],
+                 nBurn=500, nSample=2000, nThin=2,
+                 fix_intercept=True)
 
 onecolumn_figure()
 hist2d(tab['sigma_HI'][good_pts] / 1000.,
@@ -185,10 +198,11 @@ plt.fill_between([4, 12], [4. * slope_ci[0] + inter_cis[0],
                   12. * slope_ci[1] + inter_cis[1]],
                  facecolor=sb.color_palette()[0],
                  alpha=0.5)
-plt.plot([4, 12], [4, 12], '--', linewidth=3, alpha=0.8)
-# plt.fill_between([4, 12], [4. * slope_ci[0], 12. * slope_ci[0]],
-#                  [4. * slope_ci[1], 12. * slope_ci[1]], facecolor='gray',
-#                  alpha=0.5)
+plt.plot([4, 12], [4. * slope_ratio[0], 12. * slope_ratio[0]],
+         '--', color=sb.color_palette()[1], linewidth=3)
+
+plt.plot([4, 12], [4, 12], '-.', linewidth=3, alpha=0.8,
+         color=sb.color_palette()[2])
 
 plt.tight_layout()
 plt.savefig(osjoin(fig_path, "sigma_HI_vs_H2_w_fit.png"))
@@ -199,6 +213,8 @@ print("Slope: {0} {1}".format(slope, slope_ci))
 print("Intercept: {0} {1}".format(inter, inter_cis))
 # Slope: 0.845577294464 [ 0.83733223  0.8538308 ]
 # Intercept: -1.82822168673 [-1.89184967 -1.76575023]
+print("Ratio Slope: {0} {1}".format(slope_ratio, slope_ratio_ci))
+# Ratio Slope: [ 0.61079832] [ 0.60904237  0.61256217]
 
 # What does this relation look like for line widths from the second moment
 co_lwidth = Projection.from_hdu(fits.open(iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI.lwidth.fits"))[0])
@@ -383,6 +399,8 @@ ax1.set_xlabel(r"$\Sigma_{\mathrm{Total}}$ (M$_{\odot}$ pc$^{-2}$)")
 
 # Overplot the Krumholz 2013 model
 sigma_t = np.linspace(5, 70, 100)
+ax1.plot(sigma_t, np.log10(krumholz2013_ratio_model(sigma_t, c=1, Z=0.5)), "-",
+         label="c=1, Z=0.5")
 ax1.plot(sigma_t, np.log10(krumholz2013_ratio_model(sigma_t, c=1, Z=1.0)), "--",
          label="c=1, Z=1.0")
 ax1.plot(sigma_t, np.log10(krumholz2013_ratio_model(sigma_t, c=2, Z=0.5)), "-.",
@@ -407,6 +425,8 @@ hist2d(mom_tab["Sigma_Total"][overlap_mask],
 ax2.set_xlabel(r"$\Sigma_{\mathrm{Total}}$ (M$_{\odot}$ pc$^{-2}$)")
 ax2.set_ylabel(r"log $\Sigma_{\mathrm{H2}} / \Sigma_{\mathrm{HI}}$")
 
+ax2.plot(sigma_t, np.log10(krumholz2013_ratio_model(sigma_t, c=1, Z=0.5)), "-",
+         label="c=1, Z=0.5")
 ax2.plot(sigma_t, np.log10(krumholz2013_ratio_model(sigma_t, c=1, Z=1.0)), "--",
          label="c=1, Z=1.0")
 ax2.plot(sigma_t, np.log10(krumholz2013_ratio_model(sigma_t, c=2, Z=0.5)), "-.",
@@ -418,6 +438,7 @@ ax2.plot(sigma_t, np.log10(krumholz2013_ratio_model(sigma_t, c=3, Z=1.0)), "-",
 
 ax2.grid()
 ax2.set_ylim([-1.2, 0.9])
+ax2.set_xlim([5, 70])
 
 ax2.annotate("Moment", (0.15, 0.88),
              xycoords='axes fraction', color='k',
@@ -461,6 +482,8 @@ ax1.axhline(krumholz_maxhi_sigma(Z=1., c=3.).value,
             linestyle='--', label='Z=1.0, c=3',
             c=cpal[3])
 
+ax1.plot([5, 26], [5, 26], '-', linewidth=4, alpha=0.6, color=cpal[5])
+
 ax1.grid()
 
 ax1.annotate("Gaussian Fit", (0.7, 0.88),
@@ -490,8 +513,11 @@ ax2.axhline(krumholz_maxhi_sigma(Z=1., c=3.).value,
             linestyle='--', label='Z=1.0, c=3',
             c=cpal[3])
 
+ax2.plot([5, 26], [5, 26], '-', linewidth=4, alpha=0.6, color=cpal[5])
+
 ax2.grid()
 ax2.set_ylim([-2, 26])
+ax2.set_xlim([5, 70])
 
 ax2.annotate("Moment", (0.79, 0.88),
              xycoords='axes fraction', color='k',

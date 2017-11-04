@@ -169,15 +169,12 @@ def krumholz_maxhi_sigma(c=1.0, Z=1.0):
 if __name__ == "__main__":
 
     import matplotlib.pyplot as p
-    import astropy.io.fits as fits
     from astropy.table import Table
-    from radio_beam import Beam
-    from scipy.stats import binned_statistic
-    from scipy import ndimage as nd
     import os
     from os.path import exists
     from os.path import join as osjoin
     from corner import hist2d
+    import seaborn as sb
 
     from paths import (iram_co21_14B088_data_path, fourteenB_HI_data_wGBT_path,
                        fourteenB_wGBT_HI_file_dict,
@@ -355,59 +352,17 @@ if __name__ == "__main__":
                                                       int(dr.value))))
     p.close()
 
-    # What are the clumping factors on a per pixel basis?
+    # What are the properties like on a per pixel basis?
 
-    # Now load in the zeroth moments.
+    # Load in the per-pixel column densities
+    tab = Table.read(fourteenB_HI_data_wGBT_path("tables/column_densities_perpix.fits"))
 
-    hi_mom0 = fits.open(fourteenB_wGBT_HI_file_dict["Moment0"])[0]
-    # hi_mom0 = fits.open(fourteenB_HI_file_dict["Moment0"])[0]
-    beam = Beam.from_fits_header(hi_mom0.header)
-    # Convert to K km/s
-    hi_mom0_data = hi_mom0.data * beam.jtok(hi_freq).value / 1000.
-    hi_mom0_data = hi_mom0_data * u.K * u.km / u.s
-
-    mom0_reproj = fits.open(iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI.mom0.fits"))[0]
-    mom0_reproj = (mom0_reproj.data / 1000.) * u.K * u.km / u.s
-
-    good_pts = np.where(np.isfinite(mom0_reproj))
-
-    # Make a radius array
-    radii = gal.radius(header=hi_mom0.header).to(u.kpc)
-    radii_pts = radii[good_pts]
-
-    # And the position angles
-    pang = gal.position_angles(header=hi_mom0.header).to(u.deg)
-    pang_pts = pang[good_pts]
-
-    skycoord_grid = gal.skycoord_grid(header=hi_mom0.header)
-    skycoord_pts = skycoord_grid[good_pts]
-
-    # Correct for the disk inclincation
-    inc = np.cos(gal.inclination)
-
-    # 30 m beam efficiency
-    beam_eff = 0.75
-
-    # Convert the integrated intensities to surface densities.
-    # hi_coldens = hi_mom0_reproj[good_pts] * hi_mass_conversion * inc
-    hi_coldens = hi_mom0_data[good_pts] * hi_mass_conversion * inc
-
-    # co_coldens = mom0[good_pts] * co21_mass_conversion * inc / beam_eff
-    co_coldens = mom0_reproj[good_pts] * co21_mass_conversion * inc / beam_eff
-
-    # Remove any NaNs in either
-    nans = np.logical_or(np.isnan(hi_coldens), np.isnan(co_coldens))
-
-    hi_coldens = hi_coldens[~nans]
-    co_coldens = co_coldens[~nans]
-    radii_pts = radii_pts[~nans]
-    pang_pts = pang_pts[~nans]
-    skycoord_pts = skycoord_pts[~nans]
-    ypts = good_pts[0][~nans]
-    xpts = good_pts[1][~nans]
-
-    gas_ratio_pix = co_coldens / hi_coldens
-    total_sd_pix = co_coldens + hi_coldens
+    hi_coldens = tab['Sigma_HI'] * u.solMass / u.pc**2
+    co_coldens = tab['Sigma_H2'] * u.solMass / u.pc**2
+    radii_pts = tab['Radius'] * u.kpc
+    pang_pts = tab['PA'] * u.deg
+    gas_ratio_pix = tab['Ratio'] * u.dimensionless_unscaled
+    total_sd_pix = tab['Sigma_Total'] * u.solMass / u.pc**2
 
     sds = np.arange(0.1, 65, 0.2)
 
@@ -416,34 +371,102 @@ if __name__ == "__main__":
     hist2d(total_sd_pix.value, np.log10(gas_ratio_pix.value),
            data_kwargs={"alpha": 0.3})
     p.xlim([0, 65])
-    p.ylim([-1.8, 0.7])
+    p.ylim([-1.6, 0.7])
     p.xlabel("$\Sigma_{\mathrm{Gas}}$ (M$_{\odot}$ pc$^{-2}$)")
     p.ylabel("log H$_2$-to-HI Ratio $\Sigma_{\mathrm{H2}} /"
              " \Sigma_{\mathrm{HI}}$")
-    # p.errorbar(total_sd, np.log10(gas_ratio), yerr=log_gas_ratio_sigma,
-    #            xerr=total_sd_sigma, color='b', alpha=0.6, fmt='D',
-    #            label='100 pc radial bins')
 
+    p.plot(sds, np.log10(krumholz2013_ratio_model(sds, c=1, Z=0.5)), "-",
+           label="c=1, Z=0.5", linewidth=2, alpha=0.95)
     p.plot(sds, np.log10(krumholz2013_ratio_model(sds, c=1, Z=1.0)), "--",
-           label="c=1, Z=1.0", linewidth=2, alpha=0.85)
+           label="c=1, Z=1.0", linewidth=2, alpha=0.95)
     p.plot(sds, np.log10(krumholz2013_ratio_model(sds, c=2, Z=0.5)), "-.",
-           label="c=2, Z=0.5", linewidth=2, alpha=0.85)
+           label="c=2, Z=0.5", linewidth=2, alpha=0.95)
     p.plot(sds, np.log10(krumholz2013_ratio_model(sds, c=3, Z=0.5)), ":",
-           label="c=3, Z=0.5", linewidth=2, alpha=0.85)
+           label="c=3, Z=0.5", linewidth=2, alpha=0.95)
     p.plot(sds, np.log10(krumholz2013_ratio_model(sds, c=3, Z=1.0)), "-",
-           label="c=3, Z=1.0", linewidth=2, alpha=0.85)
+           label="c=3, Z=1.0", linewidth=2, alpha=0.95)
 
-    p.plot(sds, np.log10(krumholz2013_ratio_model(sds, c=1, Z=0.5)), "r--",
-           label="c=1, Z=0.5")
-    p.plot(sds, np.log10(krumholz2013_ratio_model(sds, c=3, Z=0.5)), "g-.",
-           label="c=3, Z=0.5", linewidth=4)
-    p.plot(sds, np.log10(krumholz2013_ratio_model(sds, c=4, Z=0.5)), "m.",
-           label="c=3, Z=0.5", linewidth=4)
-    p.plot(sds, np.log10(krumholz2013_ratio_model(sds, c=2, Z=1.0)), "b-",
-           label="c=2, Z=1.0", linewidth=4)
     p.legend(loc='lower right', frameon=True)
+    p.grid()
+
+    p.tight_layout()
 
     save_name = "ratio_totalsigma_w_krumholzmodel_perpix"
+    p.savefig(osjoin(fig_path, "{0}.pdf".format(save_name)))
+    p.savefig(osjoin(fig_path, "{0}.png".format(save_name)))
+    p.close()
+
+    # Overplot the radial averages
+
+    hist2d(total_sd_pix.value, np.log10(gas_ratio_pix.value),
+           data_kwargs={"alpha": 0.3})
+    p.xlim([0, 65])
+    p.ylim([-1.7, 0.7])
+    p.xlabel("$\Sigma_{\mathrm{Gas}}$ (M$_{\odot}$ pc$^{-2}$)")
+    p.ylabel("log H$_2$-to-HI Ratio $\Sigma_{\mathrm{H2}} /"
+             " \Sigma_{\mathrm{HI}}$")
+
+    p.plot(sds, np.log10(krumholz2013_ratio_model(sds, c=1, Z=0.5)), "-",
+           label="c=1, Z=0.5", linewidth=2, alpha=0.95)
+    p.plot(sds, np.log10(krumholz2013_ratio_model(sds, c=1, Z=1.0)), "--",
+           label="c=1, Z=1.0", linewidth=2, alpha=0.95)
+    p.plot(sds, np.log10(krumholz2013_ratio_model(sds, c=2, Z=0.5)), "-.",
+           label="c=2, Z=0.5", linewidth=2, alpha=0.95)
+    p.plot(sds, np.log10(krumholz2013_ratio_model(sds, c=3, Z=0.5)), ":",
+           label="c=3, Z=0.5", linewidth=2, alpha=0.95)
+    p.plot(sds, np.log10(krumholz2013_ratio_model(sds, c=3, Z=1.0)), "-",
+           label="c=3, Z=1.0", linewidth=2, alpha=0.95)
+
+    p.plot(total_sd, np.log10(gas_ratio), 'D', markeredgecolor='k',
+           markeredgewidth=0.25,)
+
+    p.legend(loc='lower right', frameon=True)
+    p.grid()
+
+    p.tight_layout()
+
+    save_name = "ratio_totalsigma_w_krumholzmodel_perpix_w_radavg"
+    p.savefig(osjoin(fig_path, "{0}_{1}pc.pdf".format(save_name,
+                                                      int(dr.value))))
+    p.savefig(osjoin(fig_path, "{0}_{1}pc.png".format(save_name,
+                                                      int(dr.value))))
+    p.close()
+
+    # Sigma HI vs total
+    cpal = sb.color_palette()
+
+    hist2d(total_sd_pix.value, hi_coldens.value,
+           data_kwargs={"alpha": 0.3})
+    p.xlim([0, 65])
+    p.ylim([-3, 27])
+    p.xlabel("$\Sigma_{\mathrm{Gas}}$ (M$_{\odot}$ pc$^{-2}$)")
+    p.ylabel("$\Sigma_{\mathrm{HI}}$ (M$_{\odot}$ pc$^{-2}$)")
+
+    p.axhline(krumholz_maxhi_sigma(c=1, Z=1.0).value, linestyle="--",
+              label="c=1, Z=1.0", linewidth=2, alpha=0.95,
+              color=cpal[1])
+    p.axhline(krumholz_maxhi_sigma(c=2, Z=0.5).value, linestyle="-.",
+              label="c=2, Z=0.5", linewidth=2, alpha=0.95,
+              color=cpal[2])
+    p.axhline(krumholz_maxhi_sigma(c=3, Z=0.5).value, linestyle=":",
+              label="c=3, Z=0.5", linewidth=2, alpha=0.95,
+              color=cpal[3])
+    p.axhline(krumholz_maxhi_sigma(c=3, Z=1.0).value, linestyle="-",
+              label="c=3, Z=1.0", linewidth=2, alpha=0.95,
+              color=cpal[4])
+
+    p.plot(total_sd, sd_hi, 'D', markeredgecolor='k',
+           markeredgewidth=0.25, color=cpal[0])
+
+    p.plot([0, 27], [0, 27], '-', linewidth=4, alpha=0.6, color=cpal[5])
+
+    p.legend(loc='lower right', frameon=True, ncol=2)
+    p.grid()
+
+    p.tight_layout()
+
+    save_name = "sigma_hi_vs_total_w_krumholzmodel_perpix_w_radavg"
     p.savefig(osjoin(fig_path, "{0}_{1}pc.pdf".format(save_name,
                                                       int(dr.value))))
     p.savefig(osjoin(fig_path, "{0}_{1}pc.png".format(save_name,

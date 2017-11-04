@@ -26,7 +26,10 @@ hi_mom0_data = hi_mom0_data * u.K * u.km / u.s
 mom0_reproj = fits.open(iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI.mom0.fits"))[0]
 mom0_reproj = (mom0_reproj.data / 1000.) * u.K * u.km / u.s
 
-good_pts = np.where(np.isfinite(mom0_reproj))
+co_mask = fits.open(iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI_source_mask.fits"))[0]
+
+# good_pts = np.where(np.isfinite(mom0_reproj))
+good_pts = np.where(co_mask.data.sum(0) >= 2)
 
 # Make a radius array
 radii = gal.radius(header=hi_mom0.header).to(u.kpc)

@@ -15,14 +15,16 @@ import os
 from os.path import exists
 from os.path import join as osjoin
 from corner import hist2d
-from astropy.visualizations import hist as astro_hist
+from skimage.segmentation import find_boundaries
+from astropy.visualization import hist as astro_hist
+import seaborn as sb
 
 from paths import (iram_co21_14B088_data_path, fourteenB_HI_data_wGBT_path,
                    fourteenB_wGBT_HI_file_dict,
                    allfigs_path)
 from constants import (co21_mass_conversion, hi_mass_conversion,
                        hi_freq, ang_to_phys)
-from galaxy_params import gal
+from galaxy_params import gal_feath as gal
 from plotting_styles import (onecolumn_figure, default_figure,
                              twocolumn_figure, twocolumn_twopanel_figure)
 
@@ -71,48 +73,21 @@ hi_skew = fits.open(fourteenB_wGBT_HI_file_dict['Skewness'])[0].data
 hi_kurt = fits.open(fourteenB_wGBT_HI_file_dict['Kurtosis'])[0].data
 hi_peaktemp = fits.open(fourteenB_wGBT_HI_file_dict['PeakTemp'])[0].data
 
-mom0_reproj = fits.open(iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI.mom0.fits"))[0]
-mom0_reproj = (mom0_reproj.data / 1000.) * u.K * u.km / u.s
+co_sig_mask = fits.open(iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI_source_mask.fits"))[0]
 
-good_pts = np.where(np.isfinite(mom0_reproj))
+# good_pts = np.where(np.isfinite(mom0_reproj))
+co_mask = co_sig_mask.data.sum(0) >= 2
+good_pts = np.where(co_mask)
 
-# Make a radius array
-radii = gal.radius(header=hi_mom0.header).to(u.kpc)
-radii_pts = radii[good_pts]
+# Load in the per-pixel column densities
+tab = Table.read(fourteenB_HI_data_wGBT_path("tables/column_densities_perpix.fits"))
 
-# And the position angles
-pang = gal.position_angles(header=hi_mom0.header).to(u.deg)
-pang_pts = pang[good_pts]
-
-skycoord_grid = gal.skycoord_grid(header=hi_mom0.header)
-skycoord_pts = skycoord_grid[good_pts]
-
-# Correct for the disk inclincation
-inc = np.cos(gal.inclination)
-
-# 30 m beam efficiency
-beam_eff = 0.75
-
-# Convert the integrated intensities to surface densities.
-# hi_coldens = hi_mom0_reproj[good_pts] * hi_mass_conversion * inc
-hi_coldens = hi_mom0_data[good_pts] * hi_mass_conversion * inc
-
-# co_coldens = mom0[good_pts] * co21_mass_conversion * inc / beam_eff
-co_coldens = mom0_reproj[good_pts] * co21_mass_conversion * inc / beam_eff
-
-# Remove any NaNs in either
-nans = np.logical_or(np.isnan(hi_coldens), np.isnan(co_coldens))
-
-hi_coldens = hi_coldens[~nans]
-co_coldens = co_coldens[~nans]
-radii_pts = radii_pts[~nans]
-pang_pts = pang_pts[~nans]
-skycoord_pts = skycoord_pts[~nans]
-ypts = good_pts[0][~nans]
-xpts = good_pts[1][~nans]
-
-gas_ratio_pix = co_coldens / hi_coldens
-total_sd_pix = co_coldens + hi_coldens
+hi_coldens = tab['Sigma_HI'] * u.solMass / u.pc**2
+co_coldens = tab['Sigma_H2'] * u.solMass / u.pc**2
+radii_pts = tab['Radius'] * u.kpc
+pang_pts = tab['PA'] * u.deg
+gas_ratio_pix = tab['Ratio'] * u.dimensionless_unscaled
+total_sd_pix = tab['Sigma_Total'] * u.solMass / u.pc**2
 
 
 # Compare different properties vs. radius and PA
@@ -211,8 +186,9 @@ for i, (ax, lower, upper) in enumerate(zip(axes.flatten(), inners,
     ax.text(40, -0.8, "{0} - {1} kpc".format(lower, upper),
             bbox={"boxstyle": "square", "facecolor": "w"},
             fontsize=11)
-    ax.set_xlim([0, 60])
-    ax.set_ylim([-2.1, 0.7])
+
+ax.set_xlim([0, 60])
+ax.set_ylim([-1.5, 0.7])
 
 fig.text(0.5, 0.04, "$\Sigma_{\mathrm{Gas}}$ (M$_{\odot}$ pc$^{-2}$)",
          ha='center', va='center',)
@@ -244,7 +220,9 @@ p.close()
 # properties between the HI azimuthal average and the HI where CO
 # is detected. Compare the populations of HI w/ CO and all HI
 
+inc = np.cos(gal.inclination)
 all_hi_pts = np.isfinite(hi_mom0_data)
+radii = gal.radius(header=hi_mom0.header).to(u.kpc)
 hi_coldens_all = hi_mom0_data[all_hi_pts] * hi_mass_conversion * inc
 radii_pts_all = radii[all_hi_pts]
 
@@ -252,7 +230,7 @@ onecolumn_figure()
 
 hist2d(radii_pts_all.value, hi_coldens_all.value,
        data_kwargs={"alpha": 0.6}, bins=30)
-p.scatter(radii_pts.value, hi_coldens.value, alpha=0.1)
+p.plot(radii_pts.value, hi_coldens.value, 'D', alpha=0.1)
 
 p.ylabel("$\Sigma_{\mathrm{HI}}$ (M$_{\odot}$ pc$^{-2}$)")
 p.xlabel("Radius (kpc)")
@@ -268,7 +246,8 @@ bins = np.linspace(0, hi_coldens_all.max())
 bin_cents = (bins[:-1] + bins[1:]) / 2.
 co_fraction = []
 for low, high in zip(bins[:-1], bins[1:]):
-    num_co = np.logical_and(hi_coldens > low, hi_coldens <= high)
+    num_co = np.logical_and(hi_coldens.value > low.value,
+                            hi_coldens.value <= high.value)
     num_total = np.logical_and(hi_coldens_all > low, hi_coldens_all <= high)
 
     co_fraction.append(num_co.sum() / float(num_total.sum()))
@@ -291,18 +270,25 @@ for low, high in zip(bins_peak[:-1], bins_peak[1:]):
 
 co_fraction_peak = np.array(co_fraction_peak)
 
-twocolumn_twopanel_figure()
+onecolumn_figure()
 
-fig, ax = p.subplots(1, 2, sharey=True)
+ax = p.subplot(111)
+pl1 = ax.plot(bin_cents, co_fraction, drawstyle='steps-mid',
+              label='$\Sigma_{\mathrm{HI}}$')
+ax.grid()
+ax.set_xlabel("$\Sigma_{\mathrm{HI}}$ (M$_{\odot}$ pc$^{-2}$)")
+ax.set_ylabel("CO Detection Fraction")
 
-ax[0].plot(bin_cents, co_fraction)
-ax[0].grid()
-ax[0].set_xlabel("$\Sigma_{\mathrm{HI}}$ (M$_{\odot}$ pc$^{-2}$)")
-ax[0].set_ylabel("CO Detection Fraction")
+ax2 = ax.twiny()
 
-ax[1].plot(bin_cents_peak, co_fraction_peak)
-ax[1].grid()
-ax[1].set_xlabel(r"T$_{\rm HI}$ (K)")
+pl2 = ax2.plot(bin_cents_peak, co_fraction_peak, '--',
+               color=sb.color_palette()[1], drawstyle='steps-mid',
+               label=r"T$_{\rm HI}$")
+ax2.set_xlabel(r"T$_{\rm HI}$ (K)")
+
+pls = pl1 + pl2
+labs = [l.get_label() for l in pls]
+ax.legend(pls, labs, frameon=True, loc='upper left')
 
 p.tight_layout()
 
@@ -316,9 +302,9 @@ p.close()
 # hist2d(radii_pts.value, hi_coldens.value,
 #        bins=10, data_kwargs={"alpha": 0.6})
 
-co_mask = np.isfinite(mom0_reproj)
-co_dist_mask = nd.distance_transform_edt(~co_mask)
-# co_inverse_dist_mask = nd.distance_transform_edt(co_mask)
+edge_mask = find_boundaries(co_mask, connectivity=2, mode='outer')
+co_dist_mask = nd.distance_transform_edt(~edge_mask)
+co_dist_mask[co_mask] = - co_dist_mask[co_mask]
 
 # # Include all pixels within 1 beam width
 # boundary_mask = np.logical_and(co_dist_mask > 0, co_dist_mask <= 14)
@@ -346,7 +332,9 @@ phys_scale = ang_to_phys(hi_mom0.header['CDELT2'] * u.deg)
 
 co_dists = co_dist_mask[all_hi_pts] * phys_scale.value / 1000.
 
-hist2d(co_dists, hi_coldens_all.value,
+max_rad = 0.4
+
+hist2d(co_dists[co_dists < max_rad], hi_coldens_all[co_dists < max_rad].value,
        bins=30, data_kwargs={"alpha": 0.4})
 
 # p.scatter((co_dist_mask - co_inverse_dist_mask)[all_hi_pts],
@@ -354,7 +342,7 @@ hist2d(co_dists, hi_coldens_all.value,
 #             bins=30, data_kwargs={"alpha": 0.4})
 
 # Make radial bins and find the median in each
-rad_bins = np.arange(0, 4, 0.2)
+rad_bins = np.arange(-0.2, max_rad, 0.1)
 med_ratio, bin_edges, cts = binned_statistic(co_dists,
                                              hi_coldens_all.value,
                                              bins=rad_bins,
@@ -370,6 +358,9 @@ upper_ratio = binned_statistic(co_dists,
 bin_cents = (bin_edges[1:] + bin_edges[:-1]) / 2.
 p.errorbar(bin_cents, med_ratio, fmt='o--',
            yerr=[med_ratio - lower_ratio, upper_ratio - med_ratio])
+
+p.axvline(0, color=sb.color_palette()[1],
+          linewidth=3, linestyle='--', alpha=0.8)
 
 p.xlabel("Distance from CO detection (kpc)")
 p.ylabel("$\Sigma_{\mathrm{HI}}$ (M$_{\odot}$ pc$^{-2}$)")

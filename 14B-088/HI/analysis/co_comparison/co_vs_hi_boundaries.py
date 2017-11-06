@@ -13,6 +13,8 @@ from corner import hist2d
 import os
 from os.path import join as osjoin
 import seaborn as sb
+from aplpy import FITSFigure
+from astropy.io import fits
 
 from paths import (fourteenB_HI_data_wGBT_path,
                    iram_co21_14B088_data_path,
@@ -161,6 +163,30 @@ all_vals_co = np.array(all_vals_co)
 
 skeleton_widths = np.array(skeleton_widths)
 skeleton_dists_pix = np.array(skeleton_dists_pix)
+
+# Make a figure from one of the channels to highlight the mask shape
+twocolumn_twopanel_figure()
+
+mpl_fig = p.figure()
+
+spatial_slice = (slice(720, 900), slice(350, 750))
+
+fig = FITSFigure((hi_cube[47][spatial_slice] * hi_beam.jtok(hi_freq).value).hdu,
+                 figure=mpl_fig)
+fig.show_grayscale(invert=True, vmin=None, vmax=80, stretch='sqrt')
+fig.add_colorbar()
+fig.colorbar.set_axis_label_text("HI Intensity (K)")
+fig.show_contour(co_cube[47][spatial_slice].hdu, cmap='autumn',
+                 levels=[0.05, 0.1, 0.2, 0.3])
+fig.show_contour(fits.PrimaryHDU(masks[40].astype(int), hi_cube[0].header),
+                 colors=[sb.color_palette()[-1]], levels=[0.5])
+fig.hide_axis_labels()
+
+p.tight_layout()
+
+fig.savefig(osjoin(fig_path, "mask_edge_img_vel_minus196.pdf"))
+fig.savefig(osjoin(fig_path, "mask_edge_img_vel_minus196.png"))
+fig.close()
 
 # Now bin all of the distances against the HI and CO intensities.
 bins = np.arange(-30, 30, 1)

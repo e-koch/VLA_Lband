@@ -112,6 +112,18 @@ def krumholz2013_ratio_model(Sigma, Z=0.5, c=1):
     return frac / (1 - frac)
 
 
+def krumholz2013_sigmaHI(Sigma, Z=0.5, c=1):
+    '''
+    Return the predicted HI sigma as a function of the total Sigma.
+    '''
+
+    RH2 = krumholz2013_ratio_model(Sigma, Z=Z, c=c)
+
+    SigmaHI = Sigma / (1 + RH2)
+
+    return SigmaHI
+
+
 def optimize_clump_factors(Sigma, R, Z=0.5, c_init=1.):
     '''
     Solve for the clump factor needed to intersect each point.
@@ -443,18 +455,31 @@ if __name__ == "__main__":
     p.xlabel("$\Sigma_{\mathrm{Gas}}$ (M$_{\odot}$ pc$^{-2}$)")
     p.ylabel("$\Sigma_{\mathrm{HI}}$ (M$_{\odot}$ pc$^{-2}$)")
 
-    p.axhline(krumholz_maxhi_sigma(c=1, Z=1.0).value, linestyle="--",
-              label="c=1, Z=1.0", linewidth=2, alpha=0.95,
-              color=cpal[1])
-    p.axhline(krumholz_maxhi_sigma(c=2, Z=0.5).value, linestyle="-.",
-              label="c=2, Z=0.5", linewidth=2, alpha=0.95,
-              color=cpal[2])
-    p.axhline(krumholz_maxhi_sigma(c=3, Z=0.5).value, linestyle=":",
-              label="c=3, Z=0.5", linewidth=2, alpha=0.95,
-              color=cpal[3])
-    p.axhline(krumholz_maxhi_sigma(c=3, Z=1.0).value, linestyle="-",
-              label="c=3, Z=1.0", linewidth=2, alpha=0.95,
-              color=cpal[4])
+    # p.axhline(krumholz_maxhi_sigma(c=1, Z=1.0).value, linestyle="--",
+    #           label="c=1, Z=1.0", linewidth=2, alpha=0.95,
+    #           color=cpal[1])
+    # p.axhline(krumholz_maxhi_sigma(c=2, Z=0.5).value, linestyle="-.",
+    #           label="c=2, Z=0.5", linewidth=2, alpha=0.95,
+    #           color=cpal[2])
+    # p.axhline(krumholz_maxhi_sigma(c=3, Z=0.5).value, linestyle=":",
+    #           label="c=3, Z=0.5", linewidth=2, alpha=0.95,
+    #           color=cpal[3])
+    # p.axhline(krumholz_maxhi_sigma(c=3, Z=1.0).value, linestyle="-",
+    #           label="c=3, Z=1.0", linewidth=2, alpha=0.95,
+    #           color=cpal[4])
+
+    p.plot(sds, krumholz2013_sigmaHI(sds, c=1, Z=1.0), "--",
+           label="c=1, Z=1.0", linewidth=2, alpha=0.95,
+           color=cpal[1])
+    p.plot(sds, krumholz2013_sigmaHI(sds, c=2, Z=0.5), "-.",
+           label="c=2, Z=0.5", linewidth=2, alpha=0.95,
+           color=cpal[2])
+    p.plot(sds, krumholz2013_sigmaHI(sds, c=3, Z=0.5), ":",
+           label="c=3, Z=0.5", linewidth=2, alpha=0.95,
+           color=cpal[3])
+    p.plot(sds, krumholz2013_sigmaHI(sds, c=3, Z=1.0), "-",
+           label="c=3, Z=1.0", linewidth=2, alpha=0.95,
+           color=cpal[4])
 
     p.plot(total_sd, sd_hi, 'D', markeredgecolor='k',
            markeredgewidth=0.25, color=cpal[0])

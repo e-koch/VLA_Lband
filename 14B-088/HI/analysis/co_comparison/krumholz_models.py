@@ -335,13 +335,14 @@ if __name__ == "__main__":
                                           Z=ros_sim_metallicity(rs.value),
                                           c_init=7.0)
 
-    # And from Bresolin 2011
+    # And from Bresolin 2011, Equation 1
     def bresolin_metallicity(radius):
-        return 10 ** (8.82 - 0.03 * radius - 8.8)
+        return 10 ** (8.48 - 0.042 * radius - 8.8)
+        # return 10 ** (8.82 - 0.03 * radius - 8.8)
 
     clump_bresolin = optimize_clump_factors(total_sd, gas_ratio,
                                             Z=bresolin_metallicity(rs.value),
-                                            c_init=3.)
+                                            c_init=7.)
 
     onecolumn_figure(font_scale=1.0)
 
@@ -350,7 +351,7 @@ if __name__ == "__main__":
            label="Rosolowsky \& Simon (2008)")
     p.plot(rs.value[:-1], clump_bresolin[:-1], 's-.', label="Bresolin (2011)")
     p.legend(loc='best', frameon=True)
-    p.ylim([-1, 10])
+    p.ylim([2, 8])
     p.grid()
     p.ylabel("Clumping Factor")
     p.xlabel("Radius (kpc)")
@@ -520,6 +521,9 @@ if __name__ == "__main__":
                                Z=0.5,
                                c_init=10.)
 
+    # Note that plotting the scatter of all clump factors does not show the
+    # population well, but it REALLY highlights those low SB outlier points!
+
     # Make radial bins and find the median in each
     rad_bins = np.arange(0, 7.0, 0.5)
     med_ratio, bin_edges, cts = binned_statistic(radii_pts.value,
@@ -605,7 +609,6 @@ if __name__ == "__main__":
     p.xlabel("Radius (kpc)")
 
     p.grid()
-    p.ylim([0.5, 2.])
 
     p.tight_layout()
 

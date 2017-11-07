@@ -132,6 +132,8 @@ def optimize_clump_factors(Sigma, R, Z=0.5, c_init=1.):
     ----------
     Sigma : Quantity
         Surface densities.
+    R : array
+        Surface density ratios.
     Z : float or array
         Metallicity values.
     '''
@@ -187,13 +189,10 @@ if __name__ == "__main__":
     from os.path import join as osjoin
     from corner import hist2d
     import seaborn as sb
+    from scipy.stats import binned_statistic
 
-    from paths import (iram_co21_14B088_data_path, fourteenB_HI_data_wGBT_path,
-                       fourteenB_wGBT_HI_file_dict,
+    from paths import (fourteenB_HI_data_wGBT_path,
                        allfigs_path)
-    from constants import (co21_mass_conversion, hi_mass_conversion,
-                           hi_freq, ang_to_phys)
-    from galaxy_params import gal
     from plotting_styles import (onecolumn_figure, default_figure,
                                  twocolumn_figure, twocolumn_twopanel_figure)
 
@@ -348,7 +347,7 @@ if __name__ == "__main__":
 
     p.plot(rs.value[:-1], clump_constz[:-1], 'D-', label="Z=0.5")
     p.plot(rs.value[:-1], clump_rossim[:-1], 'o--',
-           label="Rosolowsky \& Simon (2005)")
+           label="Rosolowsky \& Simon (2008)")
     p.plot(rs.value[:-1], clump_bresolin[:-1], 's-.', label="Bresolin (2011)")
     p.legend(loc='best', frameon=True)
     p.ylim([-1, 10])
@@ -496,6 +495,123 @@ if __name__ == "__main__":
                                                       int(dr.value))))
     p.savefig(osjoin(fig_path, "{0}_{1}pc.png".format(save_name,
                                                       int(dr.value))))
+    p.close()
+
+    # Can the metallicity gradient account for the variation with radius?
+    # Solve for clumping factor for every pixel.
+    # If the metallicity accounts for the variation, the clumping factors
+    # should be constant with radius, on average.
+
+    clump_per_pix_rossim = \
+        optimize_clump_factors(total_sd_pix.value,
+                               gas_ratio_pix.value,
+                               Z=ros_sim_metallicity(radii_pts.value),
+                               c_init=10.)
+
+    clump_per_pix_bresolin = \
+        optimize_clump_factors(total_sd_pix.value,
+                               gas_ratio_pix.value,
+                               Z=bresolin_metallicity(radii_pts.value),
+                               c_init=10.)
+
+    clump_per_pix_constz = \
+        optimize_clump_factors(total_sd_pix.value,
+                               gas_ratio_pix.value,
+                               Z=0.5,
+                               c_init=10.)
+
+    # Make radial bins and find the median in each
+    rad_bins = np.arange(0, 7.0, 0.5)
+    med_ratio, bin_edges, cts = binned_statistic(radii_pts.value,
+                                                 clump_per_pix_rossim,
+                                                 bins=rad_bins,
+                                                 statistic=np.median)
+    lower_ratio = binned_statistic(radii_pts.value,
+                                   clump_per_pix_rossim,
+                                   bins=rad_bins,
+                                   statistic=lambda x: np.percentile(x, 15))[0]
+    upper_ratio = binned_statistic(radii_pts.value,
+                                   clump_per_pix_rossim,
+                                   bins=rad_bins,
+                                   statistic=lambda x: np.percentile(x, 85))[0]
+    bin_cents = (bin_edges[1:] + bin_edges[:-1]) / 2.
+
+    med_ratio_bres, bin_edges_bres, cts_bres = \
+        binned_statistic(radii_pts.value, clump_per_pix_bresolin,
+                         bins=rad_bins,
+                         statistic=np.median)
+    lower_ratio_bres = binned_statistic(radii_pts.value,
+                                        clump_per_pix_bresolin,
+                                        bins=rad_bins,
+                                        statistic=lambda x: np.percentile(x, 15))[0]
+    upper_ratio_bres = binned_statistic(radii_pts.value,
+                                        clump_per_pix_bresolin,
+                                        bins=rad_bins,
+                                        statistic=lambda x: np.percentile(x, 85))[0]
+
+    med_ratio_const, bin_edges_const, cts_const = \
+        binned_statistic(radii_pts.value, clump_per_pix_constz,
+                         bins=rad_bins,
+                         statistic=np.median)
+    lower_ratio_const = binned_statistic(radii_pts.value,
+                                         clump_per_pix_constz,
+                                         bins=rad_bins,
+                                         statistic=lambda x: np.percentile(x, 15))[0]
+    upper_ratio_const = binned_statistic(radii_pts.value,
+                                         clump_per_pix_constz,
+                                         bins=rad_bins,
+                                         statistic=lambda x: np.percentile(x, 85))[0]
+
+    onecolumn_figure()
+
+    p.errorbar(bin_cents, med_ratio_const, fmt='D-',
+               yerr=[med_ratio_const - lower_ratio_const,
+                     upper_ratio_const - med_ratio_const],
+               label='Z=0.5')
+    p.errorbar(bin_cents, med_ratio, fmt='o--',
+               yerr=[med_ratio - lower_ratio, upper_ratio - med_ratio],
+               label='Rosolowsky \& Simon (2008)')
+    p.errorbar(bin_cents, med_ratio_bres, fmt='s-.',
+               yerr=[med_ratio_bres - lower_ratio_bres,
+                     upper_ratio_bres - med_ratio_bres],
+               label='Bresolin (2011)')
+
+    p.grid()
+    p.legend(frameon=True, loc='upper right')
+
+    p.ylabel("Clumping Factor")
+    p.xlabel("Radius (kpc)")
+
+    p.ylim([0.8, 6.7])
+
+    p.tight_layout()
+
+    save_name = "clumpfactor_krumholzmodel_perpix_500pc"
+    p.savefig(osjoin(fig_path, "{0}.pdf".format(save_name)))
+    p.savefig(osjoin(fig_path, "{0}.png".format(save_name)))
+    p.close()
+
+
+    # Compare the ratio of the averages. If the gradient takes into account
+    # the clump factor changes, it is accounting for the differences.
+    p.plot(bin_cents, med_ratio / med_ratio_const, 'D-',
+           label='Ros. + Simon / Const Z.')
+    p.plot(bin_cents, med_ratio_bres / med_ratio_const, 'o--',
+           label='Bresolin / Const Z.')
+
+    p.legend(frameon=True, loc='upper left')
+
+    p.ylabel("Clumping Factor Ratio")
+    p.xlabel("Radius (kpc)")
+
+    p.grid()
+    p.ylim([0.5, 2.])
+
+    p.tight_layout()
+
+    save_name = "clumpfactor_ratio_krumholzmodel_perpix_500pc"
+    p.savefig(osjoin(fig_path, "{0}.pdf".format(save_name)))
+    p.savefig(osjoin(fig_path, "{0}.png".format(save_name)))
     p.close()
 
     default_figure()

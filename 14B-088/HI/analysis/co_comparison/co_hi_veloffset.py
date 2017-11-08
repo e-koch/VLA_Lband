@@ -40,6 +40,9 @@ co_mask = fits.open(iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI_source_
 good_co_pts = co_mask.data.sum(0) >= 2
 
 good_pts = np.logical_and(np.isfinite(hi_mom1), good_co_pts)
+# Impose 3 sigma cut on the CO peaks
+good_pts = np.logical_and(good_pts, co_peaktemp > 0.06)
+
 
 onecolumn_figure(font_scale=1.1)
 
@@ -48,6 +51,7 @@ hist2d(np.abs((co_mom1 - hi_mom1)[good_pts]), co_peaktemp[good_pts],
        bins=16, data_kwargs={"alpha": 0.6},
        range=[(0.0, 25.0),
               (0.0, 1.05 * np.max(co_peaktemp[good_pts]))])
+plt.axhline(0.06, color='r', linestyle='--')
 plt.ylabel(r"T$_\mathrm{peak, CO}$ (K)")
 plt.xlabel(r"$|V_{\rm cent, CO} - V_{\rm cent, HI}|$ (km/s)")
 plt.grid()
@@ -73,8 +77,9 @@ plt.close()
 # Peak Velocity Comparisons
 hist2d(np.abs((co_peakvels - hi_peakvels)[good_pts]), co_peaktemp[good_pts],
        bins=16, data_kwargs={"alpha": 0.6},
-       range=[(0.0, 50.0),
+       range=[(0.0, 25.),
               (0.0, 1.05 * np.max(co_peaktemp[good_pts]))])
+plt.axhline(0.06, color='r', linestyle='--')
 plt.ylabel(r"T$_\mathrm{peak, CO}$ (K)")
 plt.xlabel(r"$|V_{\rm peak, CO} - V_{\rm peak, HI}|$ (km/s)")
 plt.grid()
@@ -86,7 +91,7 @@ plt.close()
 
 hist2d(np.abs((co_peakvels - hi_peakvels)[good_pts]), hi_peaktemp[good_pts],
        bins=16, data_kwargs={"alpha": 0.6},
-       range=[(0.0, 50.0),
+       range=[(0.0, 25.),
               (0.0, 1.05 * np.max(hi_peaktemp[good_pts]))])
 plt.ylabel(r"T$_\mathrm{peak, HI}$ (K)")
 plt.xlabel(r"$|V_{\rm peak, CO} - V_{\rm peak, HI}|$ (km/s)")
@@ -121,7 +126,7 @@ ax.set_xlabel("RA (J2000)")
 # Where are the velocity outliers spatially?
 # Assign colours to points based on their percentile in the distribution
 vel_diff = np.abs(co_mom1 - hi_mom1)
-percs = np.nanpercentile(vel_diff,
+percs = np.nanpercentile(vel_diff[good_pts],
                          [85, 95, 99, 99.5])
 labels = ["85\%", "95\%", "99\%", "99.5\%"]
 labels = [r"$>$ {0} km/s ({1})".format(round(perc, 1), label)
@@ -133,7 +138,7 @@ nonan_vel_diff = vel_diff.copy()
 nonan_vel_diff[np.isnan(nonan_vel_diff)] = 0.0
 
 for perc, col, label in zip(percs, cols, labels):
-    ypos, xpos = np.where(np.abs(nonan_vel_diff) > perc)
+    ypos, xpos = np.where(np.logical_and(nonan_vel_diff > perc, good_pts))
     plt.plot(xpos, ypos, col, label=label)
 
 plt.legend(loc='lower left', frameon=True)
@@ -161,9 +166,9 @@ ax.set_xlabel("RA (J2000)")
 # Where are the velocity outliers spatially?
 # Assign colours to points based on their percentile in the distribution
 vel_diff = np.abs(co_peakvels - hi_peakvels)
-percs = np.nanpercentile(vel_diff,
-                         [85, 95, 99, 99.5, 99.9])
-labels = ["85\%", "95\%", "99\%", "99.5\%", "99.9\%"]
+percs = np.nanpercentile(vel_diff[good_pts],
+                         [85, 95, 99, 99.5])
+labels = ["85\%", "95\%", "99\%", "99.5\%"]
 labels = [r"$>$ {0} km/s ({1})".format(round(perc, 1), label)
           for perc, label in zip(percs, labels)]
 
@@ -173,7 +178,7 @@ nonan_vel_diff = vel_diff.copy()
 nonan_vel_diff[np.isnan(nonan_vel_diff)] = 0.0
 
 for perc, col, label in zip(percs, cols, labels):
-    ypos, xpos = np.where(np.abs(nonan_vel_diff) > perc)
+    ypos, xpos = np.where(np.logical_and(nonan_vel_diff > perc, good_pts))
     plt.plot(xpos, ypos, col, label=label)
 
 plt.legend(loc='lower left', frameon=True)

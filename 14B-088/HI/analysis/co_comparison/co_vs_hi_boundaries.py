@@ -193,19 +193,26 @@ bins = np.arange(-30, 30, 1)
 hi_vals, bin_edges, bin_num = \
     binned_statistic(all_dists, all_vals_hi,
                      bins=bins,
-                     statistic=np.nanmean)
+                     statistic=np.mean)
 
 co_vals, bin_edges, bin_num = \
     binned_statistic(all_dists, all_vals_co,
                      bins=bins,
-                     statistic=np.nanmean)
+                     statistic=np.mean)
 
 binned_elements = \
     binned_statistic(all_dists, np.ones_like(all_dists), bins=bins,
                      statistic=np.sum)[0]
 
+# Require that there be 100 points in each bin
+bin_cutoff = binned_elements >= 100
+
 bin_width = (bin_edges[1] - bin_edges[0])
 bin_centers = bin_edges[1:] - bin_width / 2
+
+bin_centers = bin_centers[bin_cutoff]
+co_vals = co_vals[bin_cutoff]
+hi_vals = hi_vals[bin_cutoff]
 
 # Let's bootstrap to get errors in the distance bins
 niters = 100
@@ -216,12 +223,12 @@ for i in ProgressBar(niters):
     hi_samps[i] = \
         binned_statistic(all_dists, np.random.permutation(all_vals_hi),
                          bins=bins,
-                         statistic=np.nanmean)[0]
+                         statistic=np.mean)[0][bin_cutoff]
 
     co_samps[i] = \
         binned_statistic(all_dists, np.random.permutation(all_vals_co),
                          bins=bins,
-                         statistic=np.nanmean)[0]
+                         statistic=np.mean)[0][bin_cutoff]
 
 # Take the stds in the distribution for each bin
 hi_errs = np.nanstd(hi_samps, axis=0)
@@ -237,25 +244,17 @@ onecolumn_figure()
 
 p.errorbar(bin_centers, hi_vals / np.nanmax(hi_vals),
            yerr=hi_errs / np.nanmax(hi_vals), fmt="D-",
-           label="HI")
+           label="HI", drawstyle='steps-mid')
 p.errorbar(bin_centers, co_vals / np.nanmax(co_vals),
-           yerr=co_errs / np.nanmax(co_vals), fmt="o-",
-           label="CO(2-1)")
+           yerr=co_errs / np.nanmax(co_vals), fmt="o--",
+           label="CO(2-1)", drawstyle='steps-mid')
 
-# p.plot(bin_centers, hi_vals / np.nanmax(hi_vals), 'bD-',
-#        label="HI")
-# p.plot(bin_centers, co_vals / np.nanmax(co_vals), 'ro-',
-#        label="CO(2-1)")
-# p.xlim([0.0, 200])
-p.ylim([0.0, 1.1])
-p.xlim([-400, 220])
 p.xlabel("Distance from mask edge (pc)")
 p.ylabel("Normalized Intensity")
-p.vlines(0.0, 0.0, 1.1, 'k')
+p.axvline(0.0, color='k')
 p.legend(loc='upper left', frameon=True)
 p.grid()
 p.tight_layout()
-p.draw()
 
 p.savefig(osjoin(fig_path, "mask_edge_radial_profiles.pdf"))
 p.savefig(osjoin(fig_path, "mask_edge_radial_profiles.png"))
@@ -265,7 +264,9 @@ p.close()
 
 # Show the total number of elements in each distance bin
 
-p.semilogy(bin_centers, binned_elements, 'D-')
+p.semilogy(pixscale * (bin_edges[1:] - bin_width / 2),
+           binned_elements, 'D-')
+p.axhline(100, linestyle='--', color=sb.color_palette()[1])
 p.xlabel("Distance from mask edge (pc)")
 p.ylabel("Number of pixels")
 p.grid()
@@ -357,6 +358,11 @@ fig.text(0.04, 0.5, 'Normalized Intensity', va='center', rotation='vertical')
 p.subplots_adjust(hspace=0.1,
                   wspace=0.1)
 
+hi_vals_rad = []
+hi_errs_rad = []
+co_vals_rad = []
+co_errs_rad = []
+
 for ctr, (r0, r1) in enumerate(zip(inneredge,
                                    outeredge)):
 
@@ -365,20 +371,29 @@ for ctr, (r0, r1) in enumerate(zip(inneredge,
     idx = np.logical_and(all_radii >= r0.value,
                          all_radii < r1.value)
 
-    hi_vals, bin_edges, bin_num = \
+    hi_vals_bin, bin_edges, bin_num = \
         binned_statistic(all_dists[idx], all_vals_hi[idx],
                          bins=bins,
-                         statistic=np.nanmean)
+                         statistic=np.mean)
 
-    co_vals, bin_edges, bin_num = \
+    co_vals_bin, bin_edges, bin_num = \
         binned_statistic(all_dists[idx], all_vals_co[idx],
                          bins=bins,
-                         statistic=np.nanmean)
+                         statistic=np.mean)
 
     binned_elements = \
         binned_statistic(all_dists[idx], np.ones_like(all_dists)[idx],
                          bins=bins,
                          statistic=np.sum)[0]
+
+    bin_cutoff = binned_elements >= 30
+
+    bin_width = (bin_edges[1] - bin_edges[0])
+    bin_centers = bin_edges[1:] - bin_width / 2
+
+    bin_centers = bin_centers[bin_cutoff]
+    co_vals_bin = co_vals_bin[bin_cutoff]
+    hi_vals_bin = hi_vals_bin[bin_cutoff]
 
     hi_samps = np.zeros((niters, len(bin_centers)))
     co_samps = np.zeros((niters, len(bin_centers)))
@@ -388,41 +403,50 @@ for ctr, (r0, r1) in enumerate(zip(inneredge,
             binned_statistic(all_dists[idx],
                              np.random.permutation(all_vals_hi[idx]),
                              bins=bins,
-                             statistic=np.nanmean)[0]
+                             statistic=np.mean)[0][bin_cutoff]
 
         co_samps[i] = \
             binned_statistic(all_dists[idx],
                              np.random.permutation(all_vals_co[idx]),
                              bins=bins,
-                             statistic=np.nanmean)[0]
+                             statistic=np.mean)[0][bin_cutoff]
 
     # Take the stds in the distribution for each bin
-    hi_errs = np.nanstd(hi_samps, axis=0)
-    co_errs = np.nanstd(co_samps, axis=0)
+    hi_errs_bin = np.nanstd(hi_samps, axis=0)
+    co_errs_bin = np.nanstd(co_samps, axis=0)
 
-    ax[r, c].errorbar(bin_centers, hi_vals / np.nanmax(hi_vals),
-                      yerr=hi_errs / np.nanmax(hi_vals),
-                      fmt="-",
+    hi_vals_rad.append(hi_vals)
+    hi_errs_rad.append(hi_errs)
+    co_vals_rad.append(co_vals)
+    co_errs_rad.append(co_errs)
+
+    ax[r, c].errorbar(bin_centers * pixscale,
+                      hi_vals_bin / np.nanmax(hi_vals_bin),
+                      yerr=hi_errs_bin / np.nanmax(hi_vals_bin),
+                      fmt="D-", drawstyle='steps-mid',
                       label="HI")
-    ax[r, c].errorbar(bin_centers, co_vals / np.nanmax(co_vals),
-                      yerr=co_errs / np.nanmax(co_vals),
-                      fmt="--",
+    ax[r, c].errorbar(bin_centers * pixscale,
+                      co_vals_bin / np.nanmax(co_vals_bin),
+                      yerr=co_errs_bin / np.nanmax(co_vals_bin),
+                      fmt="o--", drawstyle='steps-mid',
                       label="CO(2-1)")
     ax[r, c].annotate("{0} to {1}".format(r0.to(u.kpc).value, r1.to(u.kpc)),
-                      xy=(-360, 0.65),
+                      xy=(-360, -0.3),
                       color='k',
-                      fontsize=12,
+                      fontsize=11,
                       bbox={"boxstyle": "square", "facecolor": "w"})
 
-    ax[r, c].set_ylim([0.0, 1.1])
-    ax[r, c].set_xlim([-400, 220])
+    # ax[r, c].set_ylim([0.0, 1.1])
+    # ax[r, c].set_xlim([-400, 220])
     # ax[r, c].set_xlabel("Distance from mask edge (pc)")
     # ax[r, c].set_ylabel("Normalized Intensity")
     # p.title("Radii {} to {}".format(r0, r1))
-    ax[r, c].vlines(0.0, 0.0, 1.1, 'k')
+    ax[r, c].axvline(0.0, color='k')
     if ctr == 0:
-        ax[r, c].legend(loc='upper left', fontsize=12, frameon=True)
+        ax[r, c].legend(loc='upper left', fontsize=11, frameon=True)
     ax[r, c].grid()
+
+ax[r, c].set_ylim([-0.4, 1.1])
 
 # for r in range(Nrows):
 #     for c in range(Ncols):
@@ -588,6 +612,77 @@ p.tight_layout()
 
 p.savefig(osjoin(fig_path, "mask_intensity_vs_skeldist_mean.pdf"))
 p.savefig(osjoin(fig_path, "mask_intensity_vs_skeldist_mean.png"))
+p.close()
+
+# Split the profiles by radius
+twocolumn_figure()
+p.figure(1, figsize=(8.4, 11)).clf()
+
+fig, ax = p.subplots(Nrows, Ncols,
+                     sharex=True,
+                     sharey=True, num=1)
+
+# fig.text(0.5, 0.04, 'Distance from skeleton (pc)', ha='center')
+# fig.text(0.04, 0.5, 'Normalized Intensity', va='center', rotation='vertical')
+
+p.subplots_adjust(hspace=0.1,
+                  wspace=0.1)
+
+for ctr, (r0, r1) in enumerate(zip(inneredge,
+                                   outeredge)):
+
+    r, c = np.unravel_index(ctr, (Nrows, Ncols))
+
+    idx = np.logical_and(all_radii >= r0.value,
+                         all_radii < r1.value)
+
+    idx = np.logical_and(selector_pts, idx)
+
+    hi_mean_rad, bin_edges, bin_num = \
+        binned_statistic(skeleton_dists_pix[idx],
+                         all_vals_hi[idx],
+                         bins=bins, statistic=np.mean)
+    co_mean_rad = \
+        binned_statistic(skeleton_dists_pix[idx],
+                         all_vals_co[idx],
+                         bins=bins, statistic=np.mean)[0]
+
+    bin_width = (bin_edges[1] - bin_edges[0])
+    bin_centers = bin_edges[1:] - bin_width / 2
+
+    pl1 = ax[r, c].plot(bin_centers * pixscale,
+                        hi_mean_rad,
+                        "D-", drawstyle='steps-mid',
+                        label="HI")
+    ax2 = ax[r, c].twinx()
+    pl2 = ax2.plot(bin_centers * pixscale,
+                   co_mean_rad,
+                   "o--", drawstyle='steps-mid',
+                   label="CO(2-1)", color=col_pal[1])
+    ax[r, c].annotate("{0} to {1}".format(r0.to(u.kpc).value, r1.to(u.kpc)),
+                      xy=(170, 15),
+                      color='k',
+                      fontsize=11,
+                      bbox={"boxstyle": "square", "facecolor": "w"})
+
+    # ax[r, c].set_ylim([0.0, 1.1])
+    # ax[r, c].set_xlim([-400, 220])
+    # ax[r, c].set_xlabel("Distance from mask edge (pc)")
+    # ax[r, c].set_ylabel("Normalized Intensity")
+    # p.title("Radii {} to {}".format(r0, r1))
+    ax[r, c].axvline(0.0, color='k')
+    if ctr == 0:
+        pls = pl1 + pl2
+        labs = [l.get_label() for l in pls]
+        ax[r, c].legend(pls, labs, loc='upper right', fontsize=11,
+                        frameon=True)
+    ax[r, c].grid()
+
+p.tight_layout()
+
+fig.savefig(osjoin(fig_path, "mask_intensity_vs_skeldist_mean_byradius.pdf"))
+fig.savefig(osjoin(fig_path, "mask_intensity_vs_skeldist_mean_byradius.png"))
+
 p.close()
 
 

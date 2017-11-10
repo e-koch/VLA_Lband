@@ -34,6 +34,8 @@ pixscale = np.sqrt(proj_plane_pixel_area(moment0_wcs))
 # Use the reprojected version
 co_moment0 = fits.open(iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI.mom0.fits"))[0]
 
+co_noise_map = fits.open(iram_co21_14B088_data_path("m33.rms.14B-088_HI.fits"))[0]
+
 twocolumn_figure(fig_ratio=0.95, font_scale=1.2)
 
 ax = plt.subplot(111, projection=moment0_wcs)
@@ -57,12 +59,42 @@ ax.contour(co_moment0.data,
            cmap='viridis')
 
 # CO levels at: 877,  1370,  1862,  2354 K m/s
+# <Quantity [  5.8759,  9.179 , 12.4754, 15.7718] solMass / pc2>
 
 cbar = plt.colorbar(im)
 cbar.set_label(r"HI Column Density (cm$^{-2}$)")
 
 plt.savefig(allfigs_path("HI_maps/coldens_map_14B088_w_CO21.pdf"))
 plt.savefig(allfigs_path("HI_maps/coldens_map_14B088_w_CO21.png"))
+
+plt.close()
+
+ax = plt.subplot(111, projection=moment0_wcs)
+im = ax.imshow(moment0_coldens,
+               origin='lower',
+               interpolation='nearest',
+               alpha=0.85,
+               norm=ImageNormalize(vmin=-0.001,
+                                   vmax=np.nanmax(moment0_coldens),
+                                   stretch=AsinhStretch()))
+ax.set_ylabel("DEC (J2000)")
+ax.set_xlabel("RA (J2000)")
+ax.add_patch(beam.ellipse_to_plot(int(0.05 * moment0.shape[0]),
+                                  int(0.05 * moment0.shape[1]), pixscale))
+
+ax.contour(np.isfinite(co_moment0.data).astype(float), levels=[0.5],
+           colors=sb.color_palette('viridis')[:1])
+ax.contour(co_moment0.data,
+           levels=np.linspace(np.nanpercentile(co_moment0.data, 70),
+                              np.nanpercentile(co_moment0.data, 95), 4),
+           cmap='viridis')
+ax.contour(np.isfinite(co_noise_map.data), levels=[0.5], colors=sb.color_palette()[::-1])
+
+cbar = plt.colorbar(im)
+cbar.set_label(r"HI Column Density (cm$^{-2}$)")
+
+plt.savefig(allfigs_path("HI_maps/coldens_map_14B088_w_CO21_map_edge.pdf"))
+plt.savefig(allfigs_path("HI_maps/coldens_map_14B088_w_CO21_map_edge.png"))
 
 plt.close()
 

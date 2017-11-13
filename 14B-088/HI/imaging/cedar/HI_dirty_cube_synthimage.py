@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+import pickle
 
 from imagerhelpers.imager_parallel_cube import PyParallelCubeSynthesisImager
 from imagerhelpers.input_parameters import ImagerParameters
@@ -16,17 +17,23 @@ output_path = os.path.join(scratch_path, "dirty_cube")
 if not os.path.exists(output_path):
     os.mkdir(output_path)
 
+orig_dir = os.getcwd()
+
+# Change out to the scratch directory
+os.chdir(scratch_path)
+
 paramList = \
-    ImagerParameters(msname=os.path.join(full_path, '14B-088_HI.ms.contsub'),
+    ImagerParameters(msname='14B-088_HI.ms.contsub',
                      datacolumn='data',
                      field='M33*',
-                     imagename=os.path.join(output_path, 'M33_14B-088_HI.dirty'),
+                     imagename=os.path.join(output_path[-1],
+                                            'M33_14B-088_HI.dirty'),
                      imsize=[2560, 2560],
                      cell='3arcsec',
                      specmode='cube',
-                     start=400,
+                     start=800,
                      width=1,
-                     nchan=-1,
+                     nchan=64,
                      startmodel=None,
                      gridder='mosaic',
                      weighting='natural',
@@ -62,6 +69,17 @@ imager.runMajorCycle()
 t1 = time.time()
 casalog.post("Time for major cycle: {}".format(t1 - t0))
 
+retrec = imager.getSummary()
+
 concattype = 'virtualcopy'
 imager.concatImages(type=concattype)
 imager.deleteTools()
+
+# Save the output dict
+with open(os.path.join(output_path,
+                       'M33_14B-088_HI.dirty.clean_output.pickle'),
+          'wb') as handle:
+    pickle.dump(retrec, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+# Return to original directory
+os.chdir(orig_dir)

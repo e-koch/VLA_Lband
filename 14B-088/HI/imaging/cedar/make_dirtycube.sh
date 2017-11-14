@@ -12,7 +12,7 @@ module restore my_default
 source /home/ekoch/.bashrc
 source /home/ekoch/preload.bash
 
-export scratch_path=/home/ekoch/scratch/
+export scratch_path=/home/ekoch/scratch/14B-088
 export project_path=/home/ekoch/project/ekoch/
 
 # Move to scratch space b/c casa write out the temporary files into the same folder

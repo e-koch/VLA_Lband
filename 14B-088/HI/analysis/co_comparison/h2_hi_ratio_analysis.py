@@ -19,6 +19,7 @@ import matplotlib.pyplot as plt
 from corner import hist2d
 import seaborn as sb
 import emcee
+from scipy.stats import binned_statistic
 
 from paths import (fourteenB_HI_data_wGBT_path, fourteenB_wGBT_HI_file_dict,
                    allfigs_path, iram_co21_14B088_data_path)
@@ -532,6 +533,66 @@ plt.tight_layout()
 save_name = "sigmahi_totalsigma_w_krumholzmodel_perpix_feather_moment_vs_fit"
 plt.savefig(osjoin(fig_path_models, "{}.pdf".format(save_name)))
 plt.savefig(osjoin(fig_path_models, "{}.png".format(save_name)))
+plt.close()
+
+
+# Does the line width ratio change with galactic radius?
+# Compare to the stacked widths
+co_radial_fits = Table.read(iram_co21_14B088_data_path("tables/co_hwhm_totalprof_fits_radial_500pc.csv"))
+hi_radial_fits = Table.read(fourteenB_HI_data_wGBT_path("tables/hi_hwhm_totalprof_fits_radial_500pc.csv"))
+
+
+rad_bins = np.arange(0, 7.5, 0.5)
+med_ratio, bin_edges, cts = \
+    binned_statistic(tab['Rgal'][good_pts],
+                     tab['sigma_CO'][good_pts] / tab['sigma_HI'][good_pts],
+                     bins=rad_bins,
+                     statistic=np.median)
+bin_cents = (bin_edges[1:] + bin_edges[:-1]) / 2.
+
+lower_ratio, bin_edges, cts = \
+    binned_statistic(tab['Rgal'][good_pts],
+                     tab['sigma_CO'][good_pts] / tab['sigma_HI'][good_pts],
+                     bins=rad_bins,
+                     statistic=lambda x: np.percentile(x, 15))
+
+upper_ratio, bin_edges, cts = \
+    binned_statistic(tab['Rgal'][good_pts],
+                     tab['sigma_CO'][good_pts] / tab['sigma_HI'][good_pts],
+                     bins=rad_bins,
+                     statistic=lambda x: np.percentile(x, 85))
+
+onecolumn_figure()
+
+# plt.scatter(tab['Rgal'][good_pts], tab['sigma_CO'][good_pts] / tab['sigma_HI'][good_pts],
+#             s=0.1, color='k', rasterized=True, alpha=0.4)
+
+stack_ratio = co_radial_fits['peaksub_sigma'] / hi_radial_fits['peaksub_sigma']
+stack_stderr = stack_ratio * \
+    np.sqrt((co_radial_fits['peaksub_sigma_stderr'] /
+             co_radial_fits['peaksub_sigma'])**2 +
+            (hi_radial_fits['peaksub_sigma_stderr'] /
+             hi_radial_fits['peaksub_sigma'])**2)
+plt.errorbar(bin_cents, stack_ratio, yerr=stack_stderr, label='Stack',
+             fmt='D-', drawstyle='steps-mid')
+
+plt.errorbar(bin_cents, med_ratio, fmt='o-.',
+             yerr=[med_ratio - lower_ratio,
+                   upper_ratio - med_ratio], label='Fit',
+             drawstyle='steps-mid')
+plt.axhline(0.61079832, linestyle='--', color=sb.color_palette()[2])
+# plt.axhline(slope_ratio, linestyle='--', color=sb.color_palette()[2])
+
+plt.ylabel(r"$\sigma_{\rm CO} / \sigma_{\rm HI}$")
+plt.xlabel("Radius (kpc)")
+
+plt.grid()
+plt.legend(frameon=True, loc='upper left')
+
+plt.tight_layout()
+
+plt.savefig(osjoin(fig_path, "sigma_ratio_vs_radius.png"))
+plt.savefig(osjoin(fig_path, "sigma_ratio_vs_radius.pdf"))
 plt.close()
 
 default_figure()

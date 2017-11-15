@@ -34,7 +34,7 @@ paramList = \
                      specmode='cube',
                      start=800,
                      width=1,
-                     nchan=64,
+                     nchan=128,
                      startmodel=None,
                      gridder='mosaic',
                      weighting='natural',
@@ -70,17 +70,17 @@ imager.runMajorCycle()
 t1 = time.time()
 casalog.post("Time for major cycle: {}".format(t1 - t0))
 
-retrec = imager.getSummary()
+# retrec = imager.getSummary()
 
 concattype = 'virtualcopy'
 imager.concatImages(type=concattype)
 imager.deleteTools()
 
 # Save the output dict
-with open(os.path.join(output_path,
-                       'M33_14B-088_HI.dirty.clean_output.pickle'),
-          'wb') as handle:
-    pickle.dump(retrec, handle, protocol=pickle.HIGHEST_PROTOCOL)
+# with open(os.path.join(output_path,
+#                        'M33_14B-088_HI.dirty.clean_output.pickle'),
+#           'wb') as handle:
+#     pickle.dump(retrec, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 # Return to original directory
 os.chdir(orig_dir)

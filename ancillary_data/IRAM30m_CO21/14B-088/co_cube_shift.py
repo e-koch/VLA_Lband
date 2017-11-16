@@ -8,6 +8,7 @@ from astropy.io import fits
 from astropy import log
 import astropy.units as u
 import numpy as np
+import scipy.ndimage as nd
 
 from cube_analysis.spectra_shifter import cube_shifter
 
@@ -23,8 +24,12 @@ chunk_size = 50000
 
 cube = SpectralCube.read(iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI.fits"))
 mask = SpectralCube.read(iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI_source_mask.fits"))
+rms_map = fits.open(iram_co21_14B088_data_path("m33.rms.14B-088_HI.fits"))[0]
 
-valid_mask = mask.sum(0).value > 0
+rms_mask = np.isfinite(rms_map.data)
+
+# Reduce the edges to make sure we are avoiding the severely noisy regions
+valid_mask = nd.binary_erosion(rms_mask, np.ones((3, 3)), iterations=10)
 
 # Leave out running on the VLA-only data
 

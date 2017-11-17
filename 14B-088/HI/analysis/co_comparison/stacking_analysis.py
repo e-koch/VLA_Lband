@@ -475,7 +475,7 @@ ax[0].grid()
 ax[0].set_ylim([0.25, 16])
 ax[0].text(1.3, 14, "Rotation subtracted",
            bbox={"boxstyle": "square", "facecolor": "w"})
-ax[0].set_xlabel("Radius (kpc)")
+# ax[0].set_xlabel("Radius (kpc)")
 ax[0].set_ylabel("Gaussian Width (km/s)")
 
 ax[1].errorbar(bin_cents, hi_params["centsub_sigma"],
@@ -504,7 +504,7 @@ ax[2].errorbar(bin_cents, co_params["peaksub_sigma"],
                linestyle='--', label='CO(2-1)',
                drawstyle='steps-mid')
 ax[2].grid()
-ax[2].set_xlabel("Radius (kpc)")
+# ax[2].set_xlabel("Radius (kpc)")
 ax[2].text(1.3, 14, "Peak Vel. subtracted",
            bbox={"boxstyle": "square", "facecolor": "w"})
 p.tight_layout()
@@ -591,8 +591,8 @@ ax[0].errorbar(bin_cents, co_params["rotsub_f_wings"],
                linestyle='--', label='CO(2-1)',
                drawstyle='steps-mid')
 ax[0].grid()
-ax[0].set_ylim([-0.3, 0.55])
-ax[0].text(1.3, 0.45, "Rotation subtracted",
+ax[0].set_ylim([-0.33, 0.75])
+ax[0].text(1.3, 0.58, "Rotation subtracted",
            bbox={"boxstyle": "square", "facecolor": "w"})
 # ax[0].set_xlabel("Radius (kpc)")
 ax[0].set_ylabel(r"$f_{\rm wings}$")
@@ -609,7 +609,7 @@ ax[1].errorbar(bin_cents, co_params["centsub_f_wings"],
                drawstyle='steps-mid')
 ax[1].grid()
 ax[1].set_xlabel("Radius (kpc)")
-ax[1].text(1.3, 0.45, "Centroid subtracted",
+ax[1].text(1.3, 0.58, "Centroid subtracted",
            bbox={"boxstyle": "square", "facecolor": "w"})
 
 ax[2].errorbar(bin_cents, hi_params["peaksub_f_wings"],
@@ -625,7 +625,7 @@ ax[2].errorbar(bin_cents, co_params["peaksub_f_wings"],
 ax[2].grid()
 ax[2].legend(loc='lower left', frameon=True)
 # ax[2].set_xlabel("Radius (kpc)")
-ax[2].text(1.3, 0.45, "Peak Vel. subtracted",
+ax[2].text(1.3, 0.58, "Peak Vel. subtracted",
            bbox={"boxstyle": "square", "facecolor": "w"})
 p.tight_layout()
 p.subplots_adjust(hspace=0.05,
@@ -640,7 +640,9 @@ p.close()
 # Druard stacked profiles show the same thing (I checked by-eye)
 # What does that say? Is the \co peak velocity farther from the \hi at larger
 # radii? But why would it only be in one direction?
+# The asymmetry is consistent, but not significant compared to the uncertainty
 
+twocolumn_figure(font_scale=1.3)
 fig, ax = p.subplots(1, 3, sharey=True)
 
 ax[0].errorbar(bin_cents, hi_params["rotsub_asymm"],
@@ -654,7 +656,7 @@ ax[0].errorbar(bin_cents, co_params["rotsub_asymm"],
                linestyle='--', label='CO(2-1)',
                drawstyle='steps-mid')
 ax[0].grid()
-ax[0].set_ylim([-0.6, 1.1])
+ax[0].set_ylim([-0.7, 1.1])
 ax[0].text(0.5, 0.8, "Rotation subtracted",
            bbox={"boxstyle": "square", "facecolor": "w"})
 # ax[0].set_xlabel("Radius (kpc)")
@@ -703,5 +705,157 @@ p.close()
 # sigma_wing is highly uncertain.
 # kappa are all consistent with a Gaussian shape.
 
+# Compare the N/S profiles to each other.
+
+twocolumn_figure(font_scale=1.3)
+
+ylims = [[2, 15], None, [-1, 1], None, [-0.5, 0.5], [-0.2, 0.2]]
+
+for ctr, param in enumerate(param_names):
+    p.figure(1, figsize=(8.4, 11)).clf()
+
+    fig, ax = p.subplots(3, 3,
+                         sharex=True,
+                         sharey=True, num=1)
+
+    ax[0, 0].errorbar(bin_cents, hi_params["rotsub_{}".format(param)],
+                      yerr=[hi_params["rotsub_{}_low_lim".format(param)],
+                            hi_params["rotsub_{}_up_lim".format(param)]],
+                      label='HI',
+                      drawstyle='steps-mid')
+    ax[0, 0].errorbar(bin_cents, co_params["rotsub_{}".format(param)],
+                      yerr=[co_params["rotsub_{}_low_lim".format(param)],
+                            co_params["rotsub_{}_up_lim".format(param)]],
+                      linestyle='--', label='CO(2-1)',
+                      drawstyle='steps-mid')
+    ax[0, 0].grid()
+    if ylims[ctr] is not None:
+        ax[0, 0].set_ylim(ylims[ctr])
+    # ax[0, 0].set_xlabel("Radius (kpc)")
+    ax[0, 0].set_ylabel(r"Rot. Sub. {}".format(param.replace("_", " ")))
+
+    ax[0, 0].set_xlabel('Whole')
+    ax[0, 0].xaxis.set_label_position('top')
+
+    ax[0, 1].errorbar(bin_cents, hi_params["rotsub_n_{}".format(param)],
+                      yerr=[hi_params["rotsub_n_{}_low_lim".format(param)],
+                            hi_params["rotsub_n_{}_up_lim".format(param)]],
+                      label='HI',
+                      drawstyle='steps-mid')
+    ax[0, 1].errorbar(bin_cents, co_params["rotsub_n_{}".format(param)],
+                      yerr=[co_params["rotsub_n_{}_low_lim".format(param)],
+                            co_params["rotsub_n_{}_up_lim".format(param)]],
+                      linestyle='--', label='CO(2-1)',
+                      drawstyle='steps-mid')
+    ax[0, 1].grid()
+    ax[0, 1].set_xlabel('North')
+    ax[0, 1].xaxis.set_label_position('top')
+
+    ax[0, 2].errorbar(bin_cents, hi_params["rotsub_s_{}".format(param)],
+                      yerr=[hi_params["rotsub_s_{}_low_lim".format(param)],
+                            hi_params["rotsub_s_{}_up_lim".format(param)]],
+                      label='HI',
+                      drawstyle='steps-mid')
+    ax[0, 2].errorbar(bin_cents, co_params["rotsub_s_{}".format(param)],
+                      yerr=[co_params["rotsub_s_{}_low_lim".format(param)],
+                            co_params["rotsub_s_{}_up_lim".format(param)]],
+                      linestyle='--', label='CO(2-1)',
+                      drawstyle='steps-mid')
+    ax[0, 2].grid()
+    ax[0, 2].set_xlabel('South')
+    ax[0, 2].xaxis.set_label_position('top')
+
+    ax[1, 0].errorbar(bin_cents, hi_params["centsub_{}".format(param)],
+                      yerr=[hi_params["centsub_{}_low_lim".format(param)],
+                            hi_params["centsub_{}_up_lim".format(param)]],
+                      label='HI',
+                      drawstyle='steps-mid')
+    ax[1, 0].errorbar(bin_cents, co_params["centsub_{}".format(param)],
+                      yerr=[co_params["centsub_{}_low_lim".format(param)],
+                            co_params["centsub_{}_up_lim".format(param)]],
+                      linestyle='--', label='CO(2-1)',
+                      drawstyle='steps-mid')
+    ax[1, 0].grid()
+    ax[1, 0].set_ylabel(r"Cent. Sub. {}".format(param.replace("_", " ")))
+
+    ax[1, 1].errorbar(bin_cents, hi_params["centsub_n_{}".format(param)],
+                      yerr=[hi_params["centsub_n_{}_low_lim".format(param)],
+                            hi_params["centsub_n_{}_up_lim".format(param)]],
+                      label='HI',
+                      drawstyle='steps-mid')
+    ax[1, 1].errorbar(bin_cents, co_params["centsub_n_{}".format(param)],
+                      yerr=[co_params["centsub_n_{}_low_lim".format(param)],
+                            co_params["centsub_n_{}_up_lim".format(param)]],
+                      linestyle='--', label='CO(2-1)',
+                      drawstyle='steps-mid')
+    ax[1, 1].grid()
+
+    ax[1, 2].errorbar(bin_cents, hi_params["centsub_s_{}".format(param)],
+                      yerr=[hi_params["centsub_s_{}_low_lim".format(param)],
+                            hi_params["centsub_s_{}_up_lim".format(param)]],
+                      label='HI',
+                      drawstyle='steps-mid')
+    ax[1, 2].errorbar(bin_cents, co_params["centsub_s_{}".format(param)],
+                      yerr=[co_params["centsub_s_{}_low_lim".format(param)],
+                            co_params["centsub_s_{}_up_lim".format(param)]],
+                      linestyle='--', label='CO(2-1)',
+                      drawstyle='steps-mid')
+    ax[1, 2].grid()
+
+    ax[2, 0].errorbar(bin_cents, hi_params["peaksub_{}".format(param)],
+                      yerr=[hi_params["peaksub_{}_low_lim".format(param)],
+                            hi_params["peaksub_{}_up_lim".format(param)]],
+                      label='HI',
+                      drawstyle='steps-mid')
+    ax[2, 0].errorbar(bin_cents, co_params["peaksub_{}".format(param)],
+                      yerr=[co_params["peaksub_{}_low_lim".format(param)],
+                            co_params["peaksub_{}_up_lim".format(param)]],
+                      linestyle='--', label='CO(2-1)',
+                      drawstyle='steps-mid')
+    ax[2, 0].grid()
+    ax[2, 0].legend(loc='upper left', frameon=True)
+    # ax[2, 0].set_xlabel("Radius (kpc)")
+    ax[2, 0].set_ylabel(r"Peak Sub. {}".format(param.replace("_", " ")))
+
+    ax[2, 1].errorbar(bin_cents, hi_params["peaksub_n_{}".format(param)],
+                      yerr=[hi_params["peaksub_n_{}_low_lim".format(param)],
+                            hi_params["peaksub_n_{}_up_lim".format(param)]],
+                      label='HI',
+                      drawstyle='steps-mid')
+    ax[2, 1].errorbar(bin_cents, co_params["peaksub_n_{}".format(param)],
+                      yerr=[co_params["peaksub_n_{}_low_lim".format(param)],
+                            co_params["peaksub_n_{}_up_lim".format(param)]],
+                      linestyle='--', label='CO(2-1)',
+                      drawstyle='steps-mid')
+    ax[2, 1].grid()
+    ax[2, 1].set_xlabel("Radius (kpc)")
+
+    ax[2, 2].errorbar(bin_cents, hi_params["peaksub_s_{}".format(param)],
+                      yerr=[hi_params["peaksub_s_{}_low_lim".format(param)],
+                            hi_params["peaksub_s_{}_up_lim".format(param)]],
+                      label='HI',
+                      drawstyle='steps-mid')
+    ax[2, 2].errorbar(bin_cents, co_params["peaksub_s_{}".format(param)],
+                      yerr=[co_params["peaksub_s_{}_low_lim".format(param)],
+                            co_params["peaksub_s_{}_up_lim".format(param)]],
+                      linestyle='--', label='CO(2-1)',
+                      drawstyle='steps-mid')
+    ax[2, 2].grid()
+
+    p.tight_layout()
+    p.subplots_adjust(hspace=0.05,
+                      wspace=0.05)
+
+    p.draw()
+    raw_input(param)
+
+    if param == "sigma_wing":
+        p.close()
+        continue
+
+    fig.savefig(osjoin(figure_folder, "total_profile_radial_N_S_{}_HI_CO21.pdf".format(param)))
+    fig.savefig(osjoin(figure_folder, "total_profile_radial_N_S_{}_HI_CO21.png".format(param)))
+
+    p.close()
 
 default_figure()

@@ -29,7 +29,6 @@ wstring = "{0}{1}".format(int(dr.value), dr.unit)
 maxrad_string = "{0}{1}".format(int(max_radius.value), max_radius.unit)
 
 pa_bounds_n = Angle([0.5 * np.pi * u.rad, -0.5 * np.pi * u.rad])
-pa_bounds_n = pa_bounds_n.wrap_at(0.5 * np.pi * u.rad)
 
 pa_bounds_s = Angle([-0.5 * np.pi * u.rad, 0.5 * np.pi * u.rad])
 
@@ -99,21 +98,22 @@ total_spectrum_co_radial_cent = \
                     verbose=True,
                     how='cube')[1]
 
-total_spectrum_co_radial_n_cent = \
+total_spectrum_co_radial_cent_n = \
     radial_stacking(gal, co_cube_cent, dr=dr,
                     max_radius=max_radius,
                     pa_bounds=pa_bounds_n,
                     verbose=True,
-                    how='cube')
+                    how='cube')[1]
 
-total_spectrum_co_radial_s_cent = \
+total_spectrum_co_radial_cent_s = \
     radial_stacking(gal, co_cube_cent, dr=dr,
                     max_radius=max_radius,
                     pa_bounds=pa_bounds_s,
                     verbose=True,
-                    how='cube')
+                    how='cube')[1]
 
 spec_shape = co_cube_cent.shape[0]
+
 
 cent_stack = SpectralCube(data=total_spectrum_co_radial_cent.T.reshape((spec_shape, bin_centers.size, 1)),
                           wcs=co_cube_cent.wcs)
@@ -147,19 +147,20 @@ total_spectrum_co_radial_peakvel = \
                     verbose=True,
                     how='cube')[1]
 
-total_spectrum_co_radial_n_peakvel = \
+total_spectrum_co_radial_peakvel_n = \
     radial_stacking(gal, co_cube_peakvel, dr=dr,
                     max_radius=max_radius,
                     pa_bounds=pa_bounds_n,
                     verbose=True,
-                    how='cube')
+                    how='cube')[1]
 
-total_spectrum_co_radial_s_peakvel = \
+total_spectrum_co_radial_peakvel_s = \
     radial_stacking(gal, co_cube_peakvel, dr=dr,
                     max_radius=max_radius,
                     pa_bounds=pa_bounds_s,
                     verbose=True,
-                    how='cube')
+                    how='cube')[1]
+
 spec_shape = co_cube_peakvel.shape[0]
 
 peakvel_stack = SpectralCube(data=total_spectrum_co_radial_peakvel.T.reshape((spec_shape, bin_centers.size, 1)),

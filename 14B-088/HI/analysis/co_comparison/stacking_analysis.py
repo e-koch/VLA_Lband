@@ -1,5 +1,5 @@
 import astropy.units as u
-from spectral_cube import OneDSpectrum
+from spectral_cube import OneDSpectrum, SpectralCube
 import numpy as np
 import matplotlib.pyplot as p
 from pandas import DataFrame
@@ -7,6 +7,7 @@ from astropy.io import fits
 from astropy.table import Table
 from os.path import join as osjoin
 import os
+import seaborn as sb
 
 from cube_analysis.spectral_stacking_models import fit_hwhm, fit_gaussian
 
@@ -142,17 +143,23 @@ for spectrum, label, file_label in zip(spectra, labels, file_labels):
     norm_intens = spectrum / spectrum.max()
     vels = spectrum.spectral_axis.to(u.km / u.s).value
 
+    # Restrict to +/- 50 km/s.
+    # CO data has some nasty systematics at large radii
+    vel_mask = np.logical_and(vels < 50, vels > -50)
+
     # HWHM fitting
     parvals_hwhm, parerrs_hwhm, parnames_hwhm, g_CO = \
-        fit_hwhm(vels, norm_intens,
+        fit_hwhm(vels[vel_mask], norm_intens[vel_mask],
                  sigma_noise=sigma_noise / np.nanmax(spectrum.value),
-                 nbeams=num_pix_total / npix_beam)
+                 nbeams=num_pix_total / npix_beam,
+                 niters=100)
 
     # parvals_gauss = fit_gaussian(vels, norm_intens)
     # print(parvals_hwhm[0], parvals_gauss[0])
 
     co_fit_vals[label + " Params"] = parvals_hwhm
-    co_fit_vals[label + " Errors"] = parerrs_hwhm
+    co_fit_vals[label + " Lower Limit"] = parerrs_hwhm[0]
+    co_fit_vals[label + " Upper Limit"] = parerrs_hwhm[1]
     hwhm_models[file_label] = g_CO
 
     # Better sampling for plotting
@@ -199,12 +206,182 @@ co_param_df.to_csv(iram_co21_14B088_data_path("tables/co_gaussian_totalprof_fits
 # Load in radial profiles
 
 total_spectrum_hi_radial = SpectralCube.read(comb_stackpath("rotation_stacked_radial_{}.fits".format(wstring)))
+total_spectrum_hi_radial_n = SpectralCube.read(comb_stackpath("rotation_stacked_radial_north_{}.fits".format(wstring)))
+total_spectrum_hi_radial_s = SpectralCube.read(comb_stackpath("rotation_stacked_radial_south_{}.fits".format(wstring)))
+
 total_spectrum_hi_radial_cent = SpectralCube.read(comb_stackpath("centroid_stacked_radial_{}.fits".format(wstring)))
+total_spectrum_hi_radial_cent_n = SpectralCube.read(comb_stackpath("centroid_stacked_radial_north_{}.fits".format(wstring)))
+total_spectrum_hi_radial_cent_s = SpectralCube.read(comb_stackpath("centroid_stacked_radial_south_{}.fits".format(wstring)))
+
 total_spectrum_hi_radial_peakvel = SpectralCube.read(comb_stackpath("peakvel_stacked_radial_{}.fits".format(wstring)))
+total_spectrum_hi_radial_peakvel_n = SpectralCube.read(comb_stackpath("peakvel_stacked_radial_north_{}.fits".format(wstring)))
+total_spectrum_hi_radial_peakvel_s = SpectralCube.read(comb_stackpath("peakvel_stacked_radial_south_{}.fits".format(wstring)))
 
 total_spectrum_co_radial = SpectralCube.read(co_stackpath("rotation_stacked_radial_{}.fits".format(wstring)))
+total_spectrum_co_radial_n = SpectralCube.read(co_stackpath("rotation_stacked_radial_north_{}.fits".format(wstring)))
+total_spectrum_co_radial_s = SpectralCube.read(co_stackpath("rotation_stacked_radial_south_{}.fits".format(wstring)))
+
 total_spectrum_co_radial_cent = SpectralCube.read(co_stackpath("centroid_stacked_radial_{}.fits".format(wstring)))
+total_spectrum_co_radial_cent_n = SpectralCube.read(co_stackpath("centroid_stacked_radial_north_{}.fits".format(wstring)))
+total_spectrum_co_radial_cent_s = SpectralCube.read(co_stackpath("centroid_stacked_radial_south_{}.fits".format(wstring)))
+
 total_spectrum_co_radial_peakvel = SpectralCube.read(co_stackpath("peakvel_stacked_radial_{}.fits".format(wstring)))
+total_spectrum_co_radial_peakvel_n = SpectralCube.read(co_stackpath("peakvel_stacked_radial_north_{}.fits".format(wstring)))
+total_spectrum_co_radial_peakvel_s = SpectralCube.read(co_stackpath("peakvel_stacked_radial_south_{}.fits".format(wstring)))
+
+labels = ["rotsub", "rotsub_n", "rotsub_s",
+          "centsub", "centsub_n", "centsub_s",
+          "peaksub", "peaksub_n", "peaksub_s"]
+
+# Make the bin edges
+# Convert these into kpc
+inneredge = np.arange(0, max_radius.value, dr.value) / 1000.
+outeredge = (inneredge + dr.to(u.kpc).value)
+
+# How do the model parameters change with radius?
+
+# Pixels in each radial bin
+num_pix = np.load(iram_co21_14B088_data_path("stacked_spectra/radial_stacking_pixelsinbin_{}.npy".format(wstring), no_check=True))
+num_pix_n = np.load(iram_co21_14B088_data_path("stacked_spectra/radial_stacking_pixelsinbin_north_{}.npy".format(wstring), no_check=True))
+num_pix_s = np.load(iram_co21_14B088_data_path("stacked_spectra/radial_stacking_pixelsinbin_south_{}.npy".format(wstring), no_check=True))
+
+hi_params = {}
+co_params = {}
+
+hi_models = {}
+co_models = {}
+
+param_names = ["sigma", "v_peak", "f_wings", "sigma_wing", "asymm", "kappa"]
+
+sigma_noise_hi = 2.8  # K
+
+for sub in labels:
+    for name in param_names:
+        par_name = "{0}_{1}".format(sub, name)
+        par_lowlim = "{}_low_lim".format(par_name)
+        par_uplim = "{}_up_lim".format(par_name)
+
+        hi_params[par_name] = np.zeros_like(inneredge)
+        hi_params[par_lowlim] = np.zeros_like(inneredge)
+        hi_params[par_uplim] = np.zeros_like(inneredge)
+
+        co_params[par_name] = np.zeros_like(inneredge)
+        co_params[par_lowlim] = np.zeros_like(inneredge)
+        co_params[par_uplim] = np.zeros_like(inneredge)
+
+    hi_models[sub] = []
+    co_models[sub] = []
+
+for ctr, (r0, r1) in enumerate(zip(inneredge,
+                                   outeredge)):
+    print(ctr, len(inneredge))
+    hi_spectra = [total_spectrum_hi_radial[:, ctr, 0],
+                  total_spectrum_hi_radial_n[:, ctr, 0],
+                  total_spectrum_hi_radial_s[:, ctr, 0],
+                  total_spectrum_hi_radial_cent[:, ctr, 0],
+                  total_spectrum_hi_radial_cent_n[:, ctr, 0],
+                  total_spectrum_hi_radial_cent_s[:, ctr, 0],
+                  total_spectrum_hi_radial_peakvel[:, ctr, 0],
+                  total_spectrum_hi_radial_peakvel_n[:, ctr, 0],
+                  total_spectrum_hi_radial_peakvel_s[:, ctr, 0]]
+
+    if "_n" in label:
+        pix_in_bin = num_pix_n[ctr]
+    elif "_s" in label:
+        pix_in_bin = num_pix_s[ctr]
+    else:
+        pix_in_bin = num_pix[ctr]
+
+    for spectrum, label in zip(hi_spectra, labels):
+
+        vels = spectrum.spectral_axis.to(u.km / u.s).value
+        norm_intens = (spectrum / spectrum.max()).value
+
+        vel_mask = np.logical_and(vels < 50, vels > -50)
+
+        params, stderrs, names, hwhm_mod = \
+            fit_hwhm(vels[vel_mask], spectrum[vel_mask],
+                     sigma_noise=sigma_noise_hi,
+                     nbeams=pix_in_bin / npix_beam,
+                     niters=100)
+        hi_models[label].append(hwhm_mod)
+
+        for idx, name in enumerate(names):
+            par_name = "{0}_{1}".format(label, name)
+            hi_params[par_name][ctr] = params[idx]
+            hi_params["{}_low_lim".format(par_name)][ctr] = \
+                np.abs(stderrs[0, idx])
+            hi_params["{}_up_lim".format(par_name)][ctr] = \
+                np.abs(stderrs[1, idx])
+
+    co_spectra = [total_spectrum_co_radial[:, ctr, 0],
+                  total_spectrum_co_radial_n[:, ctr, 0],
+                  total_spectrum_co_radial_s[:, ctr, 0],
+                  total_spectrum_co_radial_cent[:, ctr, 0],
+                  total_spectrum_co_radial_cent_n[:, ctr, 0],
+                  total_spectrum_co_radial_cent_s[:, ctr, 0],
+                  total_spectrum_co_radial_peakvel[:, ctr, 0],
+                  total_spectrum_co_radial_peakvel_n[:, ctr, 0],
+                  total_spectrum_co_radial_peakvel_s[:, ctr, 0]]
+
+    for spectrum, label in zip(co_spectra, labels):
+
+        vels = spectrum.spectral_axis.to(u.km / u.s).value
+        norm_intens = (spectrum / spectrum.max()).value
+
+        vel_mask = np.logical_and(vels < 50, vels > -50)
+
+        params, stderrs, names, hwhm_mod = \
+            fit_hwhm(vels[vel_mask], spectrum[vel_mask],
+                     sigma_noise=sigma_noise,
+                     nbeams=num_pix[ctr] / npix_beam,
+                     niters=100)
+
+        co_models[label].append(hwhm_mod)
+
+        for idx, name in enumerate(names):
+            par_name = "{0}_{1}".format(label, name)
+            co_params[par_name][ctr] = params[idx]
+            co_params["{}_low_lim".format(par_name)][ctr] = \
+                np.abs(stderrs[0, idx])
+            co_params["{}_up_lim".format(par_name)][ctr] = \
+                np.abs(stderrs[1, idx])
+
+bin_names = ["{}-{}".format(r0, r1)
+             for r0, r1 in zip(inneredge, outeredge)]
+
+co_radial_fits = DataFrame(co_params, index=bin_names)
+hi_radial_fits = DataFrame(hi_params, index=bin_names)
+
+co_radial_fits.to_latex(alltables_path("co_hwhm_totalprof_fits_radial_{}.tex".format(wstring)))
+co_radial_fits.to_csv(iram_co21_14B088_data_path("tables/co_hwhm_totalprof_fits_radial_{}.csv".format(wstring),
+                                                 no_check=True))
+
+hi_radial_fits.to_latex(alltables_path("hi_hwhm_totalprof_fits_radial_{}.tex".format(wstring)))
+hi_radial_fits.to_csv(fourteenB_HI_data_wGBT_path("tables/hi_hwhm_totalprof_fits_radial_{}.csv".format(wstring),
+                                                  no_check=True))
+
+# Overplot HI and CO stacks with their equivalent models
+
+co_radstacks = [total_spectrum_co_radial,
+                total_spectrum_co_radial_n,
+                total_spectrum_co_radial_s,
+                total_spectrum_co_radial_cent,
+                total_spectrum_co_radial_cent_n,
+                total_spectrum_co_radial_cent_s,
+                total_spectrum_co_radial_peakvel,
+                total_spectrum_co_radial_peakvel_n,
+                total_spectrum_co_radial_peakvel_s]
+
+hi_radstacks = [total_spectrum_hi_radial,
+                total_spectrum_hi_radial_n,
+                total_spectrum_hi_radial_s,
+                total_spectrum_hi_radial_cent,
+                total_spectrum_hi_radial_cent_n,
+                total_spectrum_hi_radial_cent_s,
+                total_spectrum_hi_radial_peakvel,
+                total_spectrum_hi_radial_peakvel_n,
+                total_spectrum_hi_radial_peakvel_s]
 
 # Per radial bin spectra
 Nrows = 4
@@ -212,19 +389,14 @@ Ncols = 4
 
 twocolumn_figure(font_scale=1.3)
 
-co_radstacks = [total_spectrum_co_radial, total_spectrum_co_radial_cent,
-                total_spectrum_co_radial_peakvel]
-hi_radstacks = [total_spectrum_hi_radial, total_spectrum_hi_radial_cent,
-                total_spectrum_hi_radial_peakvel]
-labels = ["rotsub", "centsub", "peaksub"]
-
-# Make the bin edges
-# Convert these into kpc
-inneredge = np.arange(0, max_radius.value, dr.value) / 1000.
-outeredge = (inneredge + dr.to(u.kpc).value)
+cpal = sb.color_palette()
 
 for co_stack, hi_stack, label in zip(co_radstacks, hi_radstacks, labels):
     p.figure(1, figsize=(8.4, 11)).clf()
+
+    # Grab the HWHM models
+    co_mods = co_models[label]
+    hi_mods = hi_models[label]
 
     fig, ax = p.subplots(Nrows, Ncols,
                          sharex=True,
@@ -248,13 +420,19 @@ for co_stack, hi_stack, label in zip(co_radstacks, hi_radstacks, labels):
         norm_co = (co_stack[:, ctr, 0] /
                    co_stack[:, ctr, 0].max()).value
 
+        vels = np.linspace(-70, 70, 300)
+
+        ax[r, c].plot(vels, hi_mods[ctr](vels) / hi_stack[:, ctr, 0].max().value,
+                      '-', color=cpal[0], alpha=0.5, linewidth=3,)
+        ax[r, c].plot(vels, co_mods[ctr](vels) / co_stack[:, ctr, 0].max().value,
+                      '-', color=cpal[1], alpha=0.5, linewidth=3,)
+
         ax[r, c].plot(hi_stack.spectral_axis.to(u.km / u.s).value,
-                      norm_hi,
-                      '-', drawstyle='steps-mid', label="HI", alpha=0.7)
-        # There's a 1 channel offset from my rotation subtraction in the cube
+                      norm_hi, '-', color=cpal[0],
+                      drawstyle='steps-mid', label="HI", alpha=0.9)
         ax[r, c].plot(co_stack.spectral_axis.to(u.km / u.s).value,
                       norm_co,
-                      '--', drawstyle='steps-mid', label="CO(2-1)", alpha=0.7)
+                      '--', drawstyle='steps-mid', label="CO(2-1)", alpha=0.9)
         ax[r, c].set_ylim([-0.02, 1.1])
         ax[r, c].set_xlim([-70, 70])
 
@@ -267,87 +445,13 @@ for co_stack, hi_stack, label in zip(co_radstacks, hi_radstacks, labels):
             ax[r, c].legend(loc='lower left', frameon=True, prop={"size": 8})
         ax[r, c].grid()
 
+    print(label)
+    raw_input("?")
+
     fig.savefig(osjoin(figure_folder, "total_profile_{}_hi_co_radial.pdf".format(label)))
     # fig.savefig(osjoin(figure_folder, "total_profile_{}_hi_co_radial.png".format(label)))
 
     p.close()
-
-# How do the model parameters change with radius?
-
-# Pixels in each radial bin
-num_pix = np.load(iram_co21_14B088_data_path("stacked_spectra/radial_stacking_pixelsinbin_{}.npy".format(wstring), no_check=True))
-
-hi_params = {}
-co_params = {}
-
-param_names = ["sigma", "v_peak", "f_wings", "sigma_wing", "asymm", "kappa"]
-
-sigma_noise_hi = 2.8  # K
-
-for sub in labels:
-    for name in param_names:
-        par_name = "{0}_{1}".format(sub, name)
-        par_error = "{}_stderr".format(par_name)
-
-        hi_params[par_name] = np.zeros_like(inneredge)
-        hi_params[par_error] = np.zeros_like(inneredge)
-
-        co_params[par_name] = np.zeros_like(inneredge)
-        co_params[par_error] = np.zeros_like(inneredge)
-
-
-for ctr, (r0, r1) in enumerate(zip(inneredge,
-                                   outeredge)):
-
-    hi_spectra = [total_spectrum_hi_radial[:, ctr, 0],
-                  total_spectrum_hi_radial_cent[:, ctr, 0],
-                  total_spectrum_hi_radial_peakvel[:, ctr, 0]]
-
-    for spectrum, label in zip(hi_spectra, labels):
-
-        vels = spectrum.spectral_axis.to(u.km / u.s).value
-        norm_intens = (spectrum / spectrum.max()).value
-
-        params, stderrs, names = \
-            fit_hwhm(vels, spectrum, sigma_noise=sigma_noise_hi,
-                     nbeams=num_pix[ctr] / npix_beam)[:-1]
-
-        for idx, name in enumerate(names):
-            par_name = "{0}_{1}".format(label, name)
-            hi_params[par_name][ctr] = params[idx]
-            hi_params["{}_stderr".format(par_name)][ctr] = stderrs[idx]
-
-    co_spectra = [total_spectrum_co_radial[:, ctr, 0],
-                  total_spectrum_co_radial_cent[:, ctr, 0],
-                  total_spectrum_co_radial_peakvel[:, ctr, 0]]
-
-    for spectrum, label in zip(co_spectra, labels):
-
-        vels = spectrum.spectral_axis.to(u.km / u.s).value
-        norm_intens = (spectrum / spectrum.max()).value
-
-        params, stderrs, names = \
-            fit_hwhm(vels, spectrum, sigma_noise=sigma_noise,
-                     nbeams=num_pix[ctr] / npix_beam)[:-1]
-
-        for idx, name in enumerate(names):
-            par_name = "{0}_{1}".format(label, name)
-            co_params[par_name][ctr] = params[idx]
-            co_params["{}_stderr".format(par_name)][ctr] = stderrs[idx]
-
-bin_names = ["{}-{}".format(r0, r1)
-             for r0, r1 in zip(inneredge, outeredge)]
-
-co_radial_fits = DataFrame(co_params, index=bin_names)
-hi_radial_fits = DataFrame(hi_params, index=bin_names)
-
-co_radial_fits.to_latex(alltables_path("co_hwhm_totalprof_fits_radial_{}.tex".format(wstring)))
-co_radial_fits.to_csv(iram_co21_14B088_data_path("tables/co_hwhm_totalprof_fits_radial_{}.csv".format(wstring),
-                                                 no_check=True))
-
-hi_radial_fits.to_latex(alltables_path("hi_hwhm_totalprof_fits_radial_{}.tex".format(wstring)))
-hi_radial_fits.to_csv(fourteenB_HI_data_wGBT_path("tables/hi_hwhm_totalprof_fits_radial_{}.csv".format(wstring),
-                                             no_check=True))
 
 # Plot comparisons of these fits
 bin_cents = outeredge - dr.to(u.kpc).value / 2.
@@ -357,11 +461,13 @@ twocolumn_twopanel_figure()
 fig, ax = p.subplots(1, 3, sharey=True)
 
 ax[0].errorbar(bin_cents, hi_params["rotsub_sigma"],
-               yerr=hi_params["rotsub_sigma_stderr"],
+               yerr=[hi_params["rotsub_sigma_low_lim"],
+                     hi_params["rotsub_sigma_up_lim"]],
                label='HI',
                drawstyle='steps-mid')
 ax[0].errorbar(bin_cents, co_params["rotsub_sigma"],
-               yerr=co_params["rotsub_sigma_stderr"],
+               yerr=[co_params["rotsub_sigma_low_lim"],
+                     co_params["rotsub_sigma_up_lim"]],
                linestyle='--', label='CO(2-1)',
                drawstyle='steps-mid')
 ax[0].legend(loc='lower left', frameon=True)
@@ -373,11 +479,13 @@ ax[0].set_xlabel("Radius (kpc)")
 ax[0].set_ylabel("Gaussian Width (km/s)")
 
 ax[1].errorbar(bin_cents, hi_params["centsub_sigma"],
-               yerr=hi_params["centsub_sigma_stderr"],
+               yerr=[hi_params["centsub_sigma_low_lim"],
+                     hi_params["centsub_sigma_up_lim"]],
                label='HI',
                drawstyle='steps-mid')
 ax[1].errorbar(bin_cents, co_params["centsub_sigma"],
-               yerr=co_params["centsub_sigma_stderr"],
+               yerr=[co_params["centsub_sigma_low_lim"],
+                     co_params["centsub_sigma_up_lim"]],
                linestyle='--', label='CO(2-1)',
                drawstyle='steps-mid')
 ax[1].grid()
@@ -386,11 +494,13 @@ ax[1].text(1.3, 14, "Centroid subtracted",
            bbox={"boxstyle": "square", "facecolor": "w"})
 
 ax[2].errorbar(bin_cents, hi_params["peaksub_sigma"],
-               yerr=hi_params["peaksub_sigma_stderr"],
+               yerr=[hi_params["peaksub_sigma_low_lim"],
+                     hi_params["peaksub_sigma_up_lim"]],
                label='HI',
                drawstyle='steps-mid')
 ax[2].errorbar(bin_cents, co_params["peaksub_sigma"],
-               yerr=co_params["peaksub_sigma_stderr"],
+               yerr=[co_params["peaksub_sigma_low_lim"],
+                     co_params["peaksub_sigma_up_lim"]],
                linestyle='--', label='CO(2-1)',
                drawstyle='steps-mid')
 ax[2].grid()
@@ -411,14 +521,15 @@ p.close()
 fig, ax = p.subplots(1, 3, sharey=True)
 
 ax[0].errorbar(bin_cents, hi_params["rotsub_v_peak"],
-               yerr=hi_params["rotsub_v_peak_stderr"],
+               yerr=[hi_params["rotsub_v_peak_low_lim"],
+                     hi_params["rotsub_v_peak_up_lim"]],
                label='HI',
                drawstyle='steps-mid')
 ax[0].errorbar(bin_cents, co_params["rotsub_v_peak"],
-               yerr=co_params["rotsub_v_peak_stderr"],
+               yerr=[co_params["rotsub_v_peak_low_lim"],
+                     co_params["rotsub_v_peak_up_lim"]],
                linestyle='--', label='CO(2-1)',
                drawstyle='steps-mid')
-ax[0].legend(loc='lower left', frameon=True)
 ax[0].grid()
 # ax[0].set_ylim([0.25, 16])
 ax[0].text(1.3, 10, "Rotation subtracted",
@@ -427,11 +538,13 @@ ax[0].set_xlabel("Radius (kpc)")
 ax[0].set_ylabel("Central Velocity (km/s)")
 
 ax[1].errorbar(bin_cents, hi_params["centsub_v_peak"],
-               yerr=hi_params["centsub_v_peak_stderr"],
+               yerr=[hi_params["centsub_v_peak_low_lim"],
+                     hi_params["centsub_v_peak_up_lim"]],
                label='HI',
                drawstyle='steps-mid')
 ax[1].errorbar(bin_cents, co_params["centsub_v_peak"],
-               yerr=co_params["centsub_v_peak_stderr"],
+               yerr=[co_params["centsub_v_peak_low_lim"],
+                     co_params["centsub_v_peak_up_lim"]],
                linestyle='--', label='CO(2-1)',
                drawstyle='steps-mid')
 ax[1].grid()
@@ -440,14 +553,17 @@ ax[1].text(1.3, 10, "Centroid subtracted",
            bbox={"boxstyle": "square", "facecolor": "w"})
 
 ax[2].errorbar(bin_cents, hi_params["peaksub_v_peak"],
-               yerr=hi_params["peaksub_v_peak_stderr"],
+               yerr=[hi_params["peaksub_v_peak_low_lim"],
+                     hi_params["peaksub_v_peak_up_lim"]],
                label='HI',
                drawstyle='steps-mid')
 ax[2].errorbar(bin_cents, co_params["peaksub_v_peak"],
-               yerr=co_params["peaksub_v_peak_stderr"],
+               yerr=[co_params["peaksub_v_peak_low_lim"],
+                     co_params["peaksub_v_peak_up_lim"]],
                linestyle='--', label='CO(2-1)',
                drawstyle='steps-mid')
 ax[2].grid()
+ax[2].legend(loc='lower left', frameon=True)
 ax[2].set_xlabel("Radius (kpc)")
 ax[2].text(1.3, 10, "Peak Vel. subtracted",
            bbox={"boxstyle": "square", "facecolor": "w"})
@@ -465,45 +581,51 @@ p.close()
 fig, ax = p.subplots(1, 3, sharey=True)
 
 ax[0].errorbar(bin_cents, hi_params["rotsub_f_wings"],
-               yerr=hi_params["rotsub_f_wings_stderr"],
+               yerr=[hi_params["rotsub_f_wings_low_lim"],
+                     hi_params["rotsub_f_wings_up_lim"]],
                label='HI',
                drawstyle='steps-mid')
 ax[0].errorbar(bin_cents, co_params["rotsub_f_wings"],
-               yerr=co_params["rotsub_f_wings_stderr"],
+               yerr=[co_params["rotsub_f_wings_low_lim"],
+                     co_params["rotsub_f_wings_up_lim"]],
                linestyle='--', label='CO(2-1)',
                drawstyle='steps-mid')
-ax[0].legend(loc='lower left', frameon=True)
 ax[0].grid()
-ax[0].set_ylim([-1, 1])
-ax[0].text(1.3, 0.8, "Rotation subtracted",
+ax[0].set_ylim([-0.3, 0.55])
+ax[0].text(1.3, 0.45, "Rotation subtracted",
            bbox={"boxstyle": "square", "facecolor": "w"})
-ax[0].set_xlabel("Radius (kpc)")
+# ax[0].set_xlabel("Radius (kpc)")
 ax[0].set_ylabel(r"$f_{\rm wings}$")
 
 ax[1].errorbar(bin_cents, hi_params["centsub_f_wings"],
-               yerr=hi_params["centsub_f_wings_stderr"],
+               yerr=[hi_params["centsub_f_wings_low_lim"],
+                     hi_params["centsub_f_wings_up_lim"]],
                label='HI',
                drawstyle='steps-mid')
 ax[1].errorbar(bin_cents, co_params["centsub_f_wings"],
-               yerr=co_params["centsub_f_wings_stderr"],
+               yerr=[co_params["centsub_f_wings_low_lim"],
+                     co_params["centsub_f_wings_up_lim"]],
                linestyle='--', label='CO(2-1)',
                drawstyle='steps-mid')
 ax[1].grid()
 ax[1].set_xlabel("Radius (kpc)")
-ax[1].text(1.3, 0.8, "Centroid subtracted",
+ax[1].text(1.3, 0.45, "Centroid subtracted",
            bbox={"boxstyle": "square", "facecolor": "w"})
 
 ax[2].errorbar(bin_cents, hi_params["peaksub_f_wings"],
-               yerr=hi_params["peaksub_f_wings_stderr"],
+               yerr=[hi_params["peaksub_f_wings_low_lim"],
+                     hi_params["peaksub_f_wings_up_lim"]],
                label='HI',
                drawstyle='steps-mid')
 ax[2].errorbar(bin_cents, co_params["peaksub_f_wings"],
-               yerr=co_params["peaksub_f_wings_stderr"],
+               yerr=[co_params["peaksub_f_wings_low_lim"],
+                     co_params["peaksub_f_wings_up_lim"]],
                linestyle='--', label='CO(2-1)',
                drawstyle='steps-mid')
 ax[2].grid()
-ax[2].set_xlabel("Radius (kpc)")
-ax[2].text(1.3, 0.8, "Peak Vel. subtracted",
+ax[2].legend(loc='lower left', frameon=True)
+# ax[2].set_xlabel("Radius (kpc)")
+ax[2].text(1.3, 0.45, "Peak Vel. subtracted",
            bbox={"boxstyle": "square", "facecolor": "w"})
 p.tight_layout()
 p.subplots_adjust(hspace=0.05,
@@ -514,9 +636,72 @@ fig.savefig(osjoin(figure_folder, "total_profile_radial_fwings_HI_CO21.png"))
 
 p.close()
 
-# The other parameters don't have interesting features. sigma_wing is highly
-# uncertain. The asymmetry is affected by the large velocity channels and I
-# don't trust it. kappa are all consistent with a Gaussian shape.
+# Asymmetry: this is funky. The profiles are genuinely asymmetrical, and the
+# Druard stacked profiles show the same thing (I checked by-eye)
+# What does that say? Is the \co peak velocity farther from the \hi at larger
+# radii? But why would it only be in one direction?
+
+fig, ax = p.subplots(1, 3, sharey=True)
+
+ax[0].errorbar(bin_cents, hi_params["rotsub_asymm"],
+               yerr=[hi_params["rotsub_asymm_low_lim"],
+                     hi_params["rotsub_asymm_up_lim"]],
+               label='HI',
+               drawstyle='steps-mid')
+ax[0].errorbar(bin_cents, co_params["rotsub_asymm"],
+               yerr=[co_params["rotsub_asymm_low_lim"],
+                     co_params["rotsub_asymm_up_lim"]],
+               linestyle='--', label='CO(2-1)',
+               drawstyle='steps-mid')
+ax[0].grid()
+ax[0].set_ylim([-0.6, 1.1])
+ax[0].text(0.5, 0.8, "Rotation subtracted",
+           bbox={"boxstyle": "square", "facecolor": "w"})
+# ax[0].set_xlabel("Radius (kpc)")
+ax[0].set_ylabel(r"Asymmetry")
+
+ax[1].errorbar(bin_cents, hi_params["centsub_asymm"],
+               yerr=[hi_params["centsub_asymm_low_lim"],
+                     hi_params["centsub_asymm_up_lim"]],
+               label='HI',
+               drawstyle='steps-mid')
+ax[1].errorbar(bin_cents, co_params["centsub_asymm"],
+               yerr=[co_params["centsub_asymm_low_lim"],
+                     co_params["centsub_asymm_up_lim"]],
+               linestyle='--', label='CO(2-1)',
+               drawstyle='steps-mid')
+ax[1].grid()
+ax[1].set_xlabel("Radius (kpc)")
+ax[1].text(0.5, 0.8, "Centroid subtracted",
+           bbox={"boxstyle": "square", "facecolor": "w"})
+
+ax[2].errorbar(bin_cents, hi_params["peaksub_asymm"],
+               yerr=[hi_params["peaksub_asymm_low_lim"],
+                     hi_params["peaksub_asymm_up_lim"]],
+               label='HI',
+               drawstyle='steps-mid')
+ax[2].errorbar(bin_cents, co_params["peaksub_asymm"],
+               yerr=[co_params["peaksub_asymm_low_lim"],
+                     co_params["peaksub_asymm_up_lim"]],
+               linestyle='--', label='CO(2-1)',
+               drawstyle='steps-mid')
+ax[2].grid()
+ax[2].legend(loc='lower left', frameon=True)
+# ax[2].set_xlabel("Radius (kpc)")
+ax[2].text(0.5, 0.8, "Peak Vel. subtracted",
+           bbox={"boxstyle": "square", "facecolor": "w"})
+p.tight_layout()
+p.subplots_adjust(hspace=0.05,
+                  wspace=0.05)
+
+fig.savefig(osjoin(figure_folder, "total_profile_radial_asymm_HI_CO21.pdf"))
+fig.savefig(osjoin(figure_folder, "total_profile_radial_asymm_HI_CO21.png"))
 
 p.close()
+
+# The other parameters don't have interesting features.
+# sigma_wing is highly uncertain.
+# kappa are all consistent with a Gaussian shape.
+
+
 default_figure()

@@ -569,9 +569,9 @@ onecolumn_figure()
 
 stack_ratio = co_radial_fits['peaksub_sigma'] / hi_radial_fits['peaksub_sigma']
 stack_stderr = stack_ratio * \
-    np.sqrt((co_radial_fits['peaksub_sigma_stderr'] /
+    np.sqrt((co_radial_fits['peaksub_sigma_up_lim'] /
              co_radial_fits['peaksub_sigma'])**2 +
-            (hi_radial_fits['peaksub_sigma_stderr'] /
+            (hi_radial_fits['peaksub_sigma_up_lim'] /
              hi_radial_fits['peaksub_sigma'])**2)
 plt.errorbar(bin_cents, stack_ratio, yerr=stack_stderr, label='Stack',
              fmt='D-', drawstyle='steps-mid')
@@ -580,14 +580,14 @@ plt.errorbar(bin_cents, med_ratio, fmt='o-.',
              yerr=[med_ratio - lower_ratio,
                    upper_ratio - med_ratio], label='Fit',
              drawstyle='steps-mid')
-plt.axhline(0.61079832, linestyle='--', color=sb.color_palette()[2])
-# plt.axhline(slope_ratio, linestyle='--', color=sb.color_palette()[2])
+# plt.axhline(0.61079832, linestyle='--', color=sb.color_palette()[2])
+plt.axhline(slope_ratio, linestyle='--', color=sb.color_palette()[2])
 
 plt.ylabel(r"$\sigma_{\rm CO} / \sigma_{\rm HI}$")
 plt.xlabel("Radius (kpc)")
 
 plt.grid()
-plt.legend(frameon=True, loc='upper left')
+plt.legend(frameon=True, loc='upper right')
 
 plt.tight_layout()
 

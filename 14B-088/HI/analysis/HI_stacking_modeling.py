@@ -1,25 +1,20 @@
 
 import astropy.units as u
 from spectral_cube import SpectralCube, OneDSpectrum
-from spectral_cube.cube_utils import largest_beam
 import numpy as np
 import matplotlib.pyplot as p
 from pandas import DataFrame
-from astropy.modeling import models, fitting
 from astropy.io import fits
 from os.path import join as osjoin
 import os
 import seaborn as sb
+from astropy.utils.console import ProgressBar
 
 
-from cube_analysis.spectral_stacking import total_profile
 from cube_analysis.spectral_stacking_models import fit_2gaussian, fit_hwhm
 
-from paths import (fourteenB_HI_file_dict, fourteenB_wGBT_HI_file_dict,
-                   allfigs_path, alltables_path, fourteenB_HI_data_path,
+from paths import (allfigs_path, alltables_path, fourteenB_HI_data_path,
                    fourteenB_HI_data_wGBT_path)
-from constants import hi_freq
-from galaxy_params import gal_feath as gal
 from plotting_styles import *
 
 '''
@@ -63,16 +58,17 @@ num_pix = \
              17917., 18114., 18358.])
 
 n_numpix = \
-    np.array([29., 86., 142., 200., 265., 321., 374., 430.,
-              494., 543., 603., 670., 726., 782., 836., 890.,
-              953., 1007., 1071., 1131., 1188., 1240., 1295., 1353.,
-              1420., 1478., 1531., 1585., 1650., 1703., 1753., 1815.,
-              1885., 1940., 1991., 2054., 2110., 2160., 2221., 2268.,
-              2354., 2409., 2448., 2509., 2573., 2622., 2679., 2755.,
-              2809., 2859., 2903., 2968., 3039., 3083., 3158., 3212.,
-              3270., 3309., 3376., 3435., 3496., 3554., 3620., 3664.,
-              3729., 3781., 3831., 3890., 3967., 4024., 4072., 4122.,
-              4192., 4237., 4290., 4366., 4434., 4485., 4527., 4585.])
+    np.array([59., 171., 288., 402., 528., 637., 745., 866.,
+              985., 1091., 1204., 1340., 1450., 1560., 1679., 1771.,
+              1911., 2015., 2149., 2257., 2371., 2478., 2593., 2716.,
+              2828., 2954., 3065., 3176., 3297., 3405., 3509., 3628.,
+              3779., 3875., 3986., 4091., 4221., 4336., 4436., 4548.,
+              4690., 4823., 4894., 5027., 5130., 5252., 5366., 5499.,
+              5621., 5702., 5825., 5942., 6072., 6169., 6310., 6421.,
+              6526., 6640., 6745., 6866., 6991., 7125., 7225., 7336.,
+              7449., 7553., 7687., 7775., 7940., 8026., 8155., 8246.,
+              8387., 8469., 8582., 8746., 8852., 8972., 9047., 9174.])
+
 s_numpix = \
     np.array([59., 172., 286., 404., 525., 633., 755., 863.,
               980., 1094., 1216., 1336., 1445., 1557., 1669., 1792.,
@@ -132,10 +128,12 @@ for spectrum, label, file_label in zip(spectra, labels, file_labels):
         fit_hwhm(vels, norm_intens,
                  sigma_noise=sigma_noise / np.nanmax(spectrum.value),
                  nbeams=(num_pix_feath_total / npix_beam if "feath" in
-                         file_label else num_pix_total / npix_beam))
+                         file_label else num_pix_total / npix_beam),
+                 niters=100, interp_factor=2.)
 
     hi_fit_hwhm_vals[label + " Params"] = parvals_hwhm
-    hi_fit_hwhm_vals[label + " Errors"] = parerrs_hwhm
+    hi_fit_hwhm_vals[label + " Lower Limit"] = np.abs(parerrs_hwhm[0])
+    hi_fit_hwhm_vals[label + " Upper Limit"] = np.abs(parerrs_hwhm[1])
     hwhm_models[file_label] = g_HI_hwhm
 
     # Note that the statistical errors on the mean are too small.
@@ -203,6 +201,7 @@ for spectrum, label, file_label in zip(spectra, labels, file_labels):
     # p.draw()
     # raw_input("Next plot?")
     # p.clf()
+
 
 # Plot the total profiles w/ and w/o GBT added.
 
@@ -406,15 +405,17 @@ param_names = parnames_hwhm
 for sub in file_labels:
     for name in param_names:
         par_name = "{0}_{1}".format(sub, name)
-        par_error = "{}_stderr".format(par_name)
+        par_lowlim = "{}_low_lim".format(par_name)
+        par_uplim = "{}_up_lim".format(par_name)
 
         hi_params[par_name] = np.zeros_like(inneredge.value)
-        hi_params[par_error] = np.zeros_like(inneredge.value)
+        hi_params[par_lowlim] = np.zeros_like(inneredge.value)
+        hi_params[par_uplim] = np.zeros_like(inneredge.value)
 
 
 for ctr, (r0, r1) in enumerate(zip(inneredge,
                                    outeredge)):
-
+    print("On {0} of {1}".format(ctr + 1, len(inneredge)))
     hi_spectra = [rot_stack[:, ctr, 0],
                   rot_stack_n[:, ctr, 0],
                   rot_stack_s[:, ctr, 0],
@@ -434,7 +435,7 @@ for ctr, (r0, r1) in enumerate(zip(inneredge,
                   peakvel_stack_feath_n[:, ctr, 0],
                   peakvel_stack_feath_s[:, ctr, 0]]
 
-    for spectrum, label in zip(hi_spectra, file_labels):
+    for spectrum, label in ProgressBar(zip(hi_spectra, file_labels)):
 
         vels = spectrum.spectral_axis.to(u.km / u.s).value
 
@@ -445,16 +446,21 @@ for ctr, (r0, r1) in enumerate(zip(inneredge,
         else:
             nbeams = num_pix[ctr] / npix_beam
 
+        # Fit +/- 60 km/s
+        vel_mask = np.logical_and(vels >= -60, vels <= 60)
+
         parvals_hwhm, parerrs_hwhm, parnames_hwhm, g_HI_hwhm = \
-            fit_hwhm(vels, spectrum.value, sigma_noise=sigma_noise,
-                     nbeams=nbeams)
+            fit_hwhm(vels[vel_mask], spectrum.value[vel_mask],
+                     sigma_noise=sigma_noise,
+                     nbeams=nbeams, niters=100, interp_factor=1.)
 
         for idx, name in enumerate(parnames_hwhm):
             par_name = "{0}_{1}".format(label, name)
             hi_params[par_name][ctr] = parvals_hwhm[idx]
-            hi_params["{}_stderr".format(par_name)][ctr] = \
-                parerrs_hwhm[idx]
-            #     np.sqrt(cov[idx - idx_corr, idx - idx_corr])
+            hi_params["{}_low_lim".format(par_name)][ctr] = \
+                np.abs(parerrs_hwhm[0, idx])
+            hi_params["{}_up_lim".format(par_name)][ctr] = \
+                np.abs(parerrs_hwhm[1, idx])
 
 bin_names = ["{}-{}".format(r0.value, r1)
              for r0, r1 in zip(inneredge, outeredge)]
@@ -475,17 +481,20 @@ twocolumn_figure()
 fig, ax = p.subplots(2, 3, sharex=True)
 
 ax[0, 0].errorbar(bin_cents, hi_params["rotsub_f_wings"],
-                  yerr=hi_params["rotsub_f_wings_stderr"],
+                  yerr=[hi_params["rotsub_f_wings_low_lim"],
+                        hi_params["rotsub_f_wings_up_lim"]],
                   color=cpal[0], label='Rot. Sub.',
                   linestyle='-',
                   drawstyle='steps-mid')
 ax[0, 0].errorbar(bin_cents, hi_params["centsub_f_wings"],
-                  yerr=hi_params["centsub_f_wings_stderr"],
+                  yerr=[hi_params["centsub_f_wings_low_lim"],
+                        hi_params["centsub_f_wings_up_lim"]],
                   color=cpal[1], label='Cent. Sub.',
                   linestyle='--',
                   drawstyle='steps-mid')
 ax[0, 0].errorbar(bin_cents, hi_params["peaksub_f_wings"],
-                  yerr=hi_params["peaksub_f_wings_stderr"],
+                  yerr=[hi_params["peaksub_f_wings_low_lim"],
+                        hi_params["peaksub_f_wings_up_lim"]],
                   color=cpal[2], label='Peak Sub.',
                   linestyle='-.',
                   drawstyle='steps-mid')
@@ -501,17 +510,20 @@ ax[0, 0].set_ylabel(r"f$_{\rm wings}$")
 
 
 ax[1, 0].errorbar(bin_cents, hi_params["rotsub_feath_f_wings"],
-                  yerr=hi_params["rotsub_feath_f_wings_stderr"],
+                  yerr=[hi_params["rotsub_feath_f_wings_low_lim"],
+                        hi_params["rotsub_feath_f_wings_up_lim"]],
                   color=cpal[0], label='Rot. Sub.',
                   linestyle='-',
                   drawstyle='steps-mid')
 ax[1, 0].errorbar(bin_cents, hi_params["centsub_feath_f_wings"],
-                  yerr=hi_params["centsub_feath_f_wings_stderr"],
+                  yerr=[hi_params["centsub_feath_f_wings_low_lim"],
+                        hi_params["centsub_feath_f_wings_up_lim"]],
                   color=cpal[1], label='Cent. Sub.',
                   linestyle='--',
                   drawstyle='steps-mid')
 ax[1, 0].errorbar(bin_cents, hi_params["peaksub_feath_f_wings"],
-                  yerr=hi_params["peaksub_feath_f_wings_stderr"],
+                  yerr=[hi_params["peaksub_feath_f_wings_low_lim"],
+                        hi_params["peaksub_feath_f_wings_up_lim"]],
                   color=cpal[2], label='Peak Sub.',
                   linestyle='-.',
                   drawstyle='steps-mid')
@@ -524,17 +536,20 @@ ax[1, 0].text(3.8, -0.06, "VLA + GBT",
 
 # kappa
 ax[0, 1].errorbar(bin_cents, hi_params["rotsub_kappa"],
-                  yerr=hi_params["rotsub_kappa_stderr"],
+                  yerr=[hi_params["rotsub_kappa_low_lim"],
+                        hi_params["rotsub_kappa_up_lim"]],
                   color=cpal[0], label='Rot. Sub.',
                   linestyle='-',
                   drawstyle='steps-mid')
 ax[0, 1].errorbar(bin_cents, hi_params["centsub_kappa"],
-                  yerr=hi_params["centsub_kappa_stderr"],
+                  yerr=[hi_params["centsub_kappa_low_lim"],
+                        hi_params["centsub_kappa_up_lim"]],
                   color=cpal[1], label='Cent. Sub.',
                   linestyle='--',
                   drawstyle='steps-mid')
 ax[0, 1].errorbar(bin_cents, hi_params["peaksub_kappa"],
-                  yerr=hi_params["peaksub_kappa_stderr"],
+                  yerr=[hi_params["peaksub_kappa_low_lim"],
+                        hi_params["peaksub_kappa_up_lim"]],
                   color=cpal[2], label='Peak Sub.',
                   linestyle='-.',
                   drawstyle='steps-mid')
@@ -547,17 +562,20 @@ ax[0, 1].set_ylabel(r"$\kappa$")
 
 
 ax[1, 1].errorbar(bin_cents, hi_params["rotsub_feath_kappa"],
-                  yerr=hi_params["rotsub_feath_kappa_stderr"],
+                  yerr=[hi_params["rotsub_feath_kappa_low_lim"],
+                        hi_params["rotsub_feath_kappa_up_lim"]],
                   color=cpal[0], label='Rot. Sub.',
                   linestyle='-',
                   drawstyle='steps-mid')
 ax[1, 1].errorbar(bin_cents, hi_params["centsub_feath_kappa"],
-                  yerr=hi_params["centsub_feath_kappa_stderr"],
+                  yerr=[hi_params["centsub_feath_kappa_low_lim"],
+                        hi_params["centsub_feath_kappa_up_lim"]],
                   color=cpal[1], label='Cent. Sub.',
                   linestyle='--',
                   drawstyle='steps-mid')
 ax[1, 1].errorbar(bin_cents, hi_params["peaksub_feath_kappa"],
-                  yerr=hi_params["peaksub_feath_kappa_stderr"],
+                  yerr=[hi_params["peaksub_feath_kappa_low_lim"],
+                        hi_params["peaksub_feath_kappa_up_lim"]],
                   color=cpal[2], label='Peak Sub.',
                   linestyle='-.',
                   drawstyle='steps-mid')
@@ -569,17 +587,20 @@ ax[1, 1].set_ylim([-0.09, 0.03])
 
 # kappa
 ax[0, 2].errorbar(bin_cents, hi_params["rotsub_asymm"],
-                  yerr=hi_params["rotsub_asymm_stderr"],
+                  yerr=[hi_params["rotsub_asymm_low_lim"],
+                        hi_params["rotsub_asymm_up_lim"]],
                   color=cpal[0], label='Rot. Sub.',
                   linestyle='-',
                   drawstyle='steps-mid')
 ax[0, 2].errorbar(bin_cents, hi_params["centsub_asymm"],
-                  yerr=hi_params["centsub_asymm_stderr"],
+                  yerr=[hi_params["centsub_asymm_low_lim"],
+                        hi_params["centsub_asymm_up_lim"]],
                   color=cpal[1], label='Cent. Sub.',
                   linestyle='--',
                   drawstyle='steps-mid')
 ax[0, 2].errorbar(bin_cents, hi_params["peaksub_asymm"],
-                  yerr=hi_params["peaksub_asymm_stderr"],
+                  yerr=[hi_params["peaksub_asymm_low_lim"],
+                        hi_params["peaksub_asymm_up_lim"]],
                   color=cpal[2], label='Peak Sub.',
                   linestyle='-.',
                   drawstyle='steps-mid')
@@ -592,17 +613,20 @@ ax[0, 2].set_ylim([-0.01, 0.36])
 
 
 ax[1, 2].errorbar(bin_cents, hi_params["rotsub_feath_asymm"],
-                  yerr=hi_params["rotsub_feath_asymm_stderr"],
+                  yerr=[hi_params["rotsub_feath_asymm_low_lim"],
+                        hi_params["rotsub_feath_asymm_up_lim"]],
                   color=cpal[0], label='Rot. Sub.',
                   linestyle='-',
                   drawstyle='steps-mid')
 ax[1, 2].errorbar(bin_cents, hi_params["centsub_feath_asymm"],
-                  yerr=hi_params["centsub_feath_asymm_stderr"],
+                  yerr=[hi_params["centsub_feath_asymm_low_lim"],
+                        hi_params["centsub_feath_asymm_up_lim"]],
                   color=cpal[1], label='Cent. Sub.',
                   linestyle='--',
                   drawstyle='steps-mid')
 ax[1, 2].errorbar(bin_cents, hi_params["peaksub_feath_asymm"],
-                  yerr=hi_params["peaksub_feath_asymm_stderr"],
+                  yerr=[hi_params["peaksub_feath_asymm_low_lim"],
+                        hi_params["peaksub_feath_asymm_up_lim"]],
                   color=cpal[2], label='Peak Sub.',
                   linestyle='-.',
                   drawstyle='steps-mid')

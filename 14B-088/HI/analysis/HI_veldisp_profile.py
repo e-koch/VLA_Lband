@@ -117,17 +117,18 @@ ax[0].errorbar(rs.value, sd.value,
 ax[0].set_xlabel("Radius (kpc)")
 ax[0].set_ylabel("HI Velocity Dispersion (km/s)")
 # Now the stacked fits
+# Note that low_lim == up_lim for sigma
 ax[0].errorbar(hi_radial_fits['bin_center'],
                hi_radial_fits['rotsub_sigma'],
-               yerr=hi_radial_fits['rotsub_sigma_stderr'],
+               yerr=hi_radial_fits['rotsub_sigma_low_lim'],
                fmt='D', label='Rot. Stack', alpha=0.5)
 ax[0].errorbar(hi_radial_fits['bin_center'],
                hi_radial_fits['centsub_sigma'],
-               yerr=hi_radial_fits['centsub_sigma_stderr'],
+               yerr=hi_radial_fits['centsub_sigma_low_lim'],
                fmt='o', label='Cent. Stack', alpha=0.5)
 ax[0].errorbar(hi_radial_fits['bin_center'],
                hi_radial_fits['peaksub_sigma'],
-               yerr=hi_radial_fits['peaksub_sigma_stderr'],
+               yerr=hi_radial_fits['peaksub_sigma_low_lim'],
                fmt='^', label='Peak Stack', alpha=0.5)
 ax[0].grid()
 ax[0].legend(frameon=True)
@@ -141,15 +142,15 @@ ax[1].set_xlabel("Radius (kpc)")
 # Now the stacked fits
 ax[1].errorbar(hi_radial_fits['bin_center'],
                hi_radial_fits['rotsub_feath_sigma'],
-               yerr=hi_radial_fits['rotsub_feath_sigma_stderr'],
+               yerr=hi_radial_fits['rotsub_feath_sigma_low_lim'],
                fmt='D', label='Rot. Stack', alpha=0.5)
 ax[1].errorbar(hi_radial_fits['bin_center'],
                hi_radial_fits['centsub_feath_sigma'],
-               yerr=hi_radial_fits['centsub_feath_sigma_stderr'],
+               yerr=hi_radial_fits['centsub_feath_sigma_low_lim'],
                fmt='o', label='Cent. Stack', alpha=0.5)
 ax[1].errorbar(hi_radial_fits['bin_center'],
                hi_radial_fits['peaksub_feath_sigma'],
-               yerr=hi_radial_fits['peaksub_feath_sigma_stderr'],
+               yerr=hi_radial_fits['peaksub_feath_sigma_low_lim'],
                fmt='^', label='Peak Stack', alpha=0.5)
 ax[1].grid()
 ax[1].text(6.1, 14, "VLA + GBT",
@@ -170,7 +171,7 @@ twocolumn_twopanel_figure(font_scale=1.2)
 fig, ax = p.subplots(1, 3, sharey=True)
 ax[0].errorbar(hi_radial_fits['bin_center'],
                hi_radial_fits['rotsub_sigma'],
-               yerr=hi_radial_fits['rotsub_sigma_stderr'],
+               yerr=hi_radial_fits["rotsub_sigma_low_lim"],
                fmt='D', label='Gaussian Fit', alpha=0.5)
 ax[0].plot(hi_radial_fits['bin_center'],
            rot_stack.linewidth_sigma().value / 1000.,
@@ -184,7 +185,7 @@ ax[0].set_ylabel("HI Velocity Dispersion (km/s)")
 ax[0].set_xlabel("Radius (kpc)")
 ax[1].errorbar(hi_radial_fits['bin_center'],
                hi_radial_fits['centsub_sigma'],
-               yerr=hi_radial_fits['centsub_sigma_stderr'],
+               yerr=hi_radial_fits["centsub_sigma_low_lim"],
                fmt='D', label='Gaussian Fit', alpha=0.5)
 ax[1].plot(hi_radial_fits['bin_center'],
            cent_stack.linewidth_sigma().value / 1000.,
@@ -195,7 +196,7 @@ ax[1].grid()
 ax[1].set_xlabel("Radius (kpc)")
 ax[2].errorbar(hi_radial_fits['bin_center'],
                hi_radial_fits['peaksub_sigma'],
-               yerr=hi_radial_fits['peaksub_sigma_stderr'],
+               yerr=hi_radial_fits["peaksub_sigma_low_lim"],
                fmt='D', label='Gaussian Fit', alpha=0.5)
 ax[2].plot(hi_radial_fits['bin_center'],
            cent_stack.linewidth_sigma().value / 1000.,
@@ -215,7 +216,7 @@ peakvel_stack = SpectralCube.read(fourteenB_HI_data_wGBT_path("stacked_spectra/p
 fig, ax = p.subplots(1, 3, sharey=True)
 ax[0].errorbar(hi_radial_fits['bin_center'],
                hi_radial_fits['rotsub_feath_sigma'],
-               yerr=hi_radial_fits['rotsub_feath_sigma_stderr'],
+               yerr=hi_radial_fits["rotsub_feather_sigma_low_lim"],
                fmt='D', label='Gaussian Fit', alpha=0.5)
 ax[0].plot(hi_radial_fits['bin_center'],
            rot_stack.linewidth_sigma().value / 1000.,
@@ -229,7 +230,7 @@ ax[0].set_ylabel("HI Velocity Dispersion (km/s)")
 ax[0].set_xlabel("Radius (kpc)")
 ax[1].errorbar(hi_radial_fits['bin_center'],
                hi_radial_fits['centsub_feath_sigma'],
-               yerr=hi_radial_fits['centsub_feath_sigma_stderr'],
+               yerr=hi_radial_fits["centsub_feather_sigma_low_lim"],
                fmt='D', label='Gaussian Fit', alpha=0.5)
 ax[1].plot(hi_radial_fits['bin_center'],
            cent_stack.linewidth_sigma().value / 1000.,
@@ -240,7 +241,7 @@ ax[1].grid()
 ax[1].set_xlabel("Radius (kpc)")
 ax[2].errorbar(hi_radial_fits['bin_center'],
                hi_radial_fits['peaksub_feath_sigma'],
-               yerr=hi_radial_fits['peaksub_feath_sigma_stderr'],
+               yerr=hi_radial_fits["peaksub_feather_sigma_low_lim"],
                fmt='D', label='Gaussian Fit', alpha=0.5)
 ax[2].plot(hi_radial_fits['bin_center'],
            cent_stack.linewidth_sigma().value / 1000.,

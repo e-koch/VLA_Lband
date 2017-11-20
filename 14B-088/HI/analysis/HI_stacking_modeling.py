@@ -506,7 +506,7 @@ ax[0, 0].text(6., -0.06, "VLA",
               bbox={"boxstyle": "square", "facecolor": "w"})
 
 # ax[0].set_ylim([0.25, 15])
-ax[0, 0].set_ylabel(r"f$_{\rm wings}$")
+ax[0, 0].set_ylabel(r"$f_{\rm wings}$")
 
 
 ax[1, 0].errorbar(bin_cents, hi_params["rotsub_feath_f_wings"],
@@ -528,7 +528,7 @@ ax[1, 0].errorbar(bin_cents, hi_params["peaksub_feath_f_wings"],
                   linestyle='-.',
                   drawstyle='steps-mid')
 ax[1, 0].grid()
-ax[1, 0].set_ylabel(r"f$_{\rm wings}$")
+ax[1, 0].set_ylabel(r"$f_{\rm wings}$")
 ax[1, 0].fill_between([0, 0.5], -0.1, 0.37, facecolor='gray', alpha=0.5)
 ax[1, 0].set_ylim([-0.1, 0.37])
 ax[1, 0].text(3.8, -0.06, "VLA + GBT",
@@ -609,7 +609,7 @@ ax[0, 2].legend(frameon=True)
 # ax[0].set_ylim([0.25, 15])
 ax[0, 2].set_ylabel(r"Asymmetry")
 ax[0, 2].fill_between([0, 0.5], -0.01, 0.36, facecolor='gray', alpha=0.5)
-ax[0, 2].set_ylim([-0.01, 0.36])
+ax[0, 2].set_ylim([-0.17, 0.25])
 
 
 ax[1, 2].errorbar(bin_cents, hi_params["rotsub_feath_asymm"],
@@ -633,7 +633,7 @@ ax[1, 2].errorbar(bin_cents, hi_params["peaksub_feath_asymm"],
 ax[1, 2].grid()
 ax[1, 2].set_ylabel(r"Asymmetry")
 ax[1, 2].fill_between([0, 0.5], -0.01, 0.36, facecolor='gray', alpha=0.5)
-ax[1, 2].set_ylim([-0.01, 0.36])
+ax[1, 2].set_ylim([-0.17, 0.25])
 
 p.tight_layout()
 
@@ -642,4 +642,162 @@ fig.savefig(allfigs_path(osjoin(figure_folder, "total_profile_radial_params_HI.p
 
 p.close()
 
+# VLA and VLA+GBT param comparisons
+
+onecolumn_figure()
+
+fig, ax = p.subplots(1, 1, sharex=True)
+
+ax.errorbar(bin_cents, hi_params["peaksub_f_wings"],
+               yerr=[hi_params["peaksub_f_wings_low_lim"],
+                     hi_params["peaksub_f_wings_up_lim"]],
+               color=cpal[0], label='VLA',
+               linestyle='-',
+               drawstyle='steps-mid')
+ax.errorbar(bin_cents, hi_params["peaksub_feath_f_wings"],
+               yerr=[hi_params["peaksub_feath_f_wings_low_lim"],
+                     hi_params["peaksub_feath_f_wings_up_lim"]],
+               color=cpal[1], label='VLA + GBT',
+               linestyle='--',
+               drawstyle='steps-mid')
+ax.legend(frameon=True, loc='upper center')
+ax.fill_between([0, 0.5], 0.05, 0.45, facecolor='gray', alpha=0.5)
+ax.set_xlim([0.0, 8.0])
+ax.grid()
+ax.set_ylabel(r"$f_{\rm wings}$")
+ax.set_xlabel(r"Radius (kpc)")
+ax.set_ylim([0.05, 0.45])
+
+p.tight_layout()
+
+fig.savefig(allfigs_path(osjoin(figure_folder, "total_profile_vpeak_radial_f_wings_HI.pdf")))
+fig.savefig(allfigs_path(osjoin(figure_folder, "total_profile_vpeak_radial_f_wings_HI.png")))
+
+p.close()
+
+twocolumn_figure()
+
+fig, ax = p.subplots(2, 3, sharex=True)
+
+ax[0, 0].errorbar(bin_cents, hi_params["peaksub_sigma"],
+                  yerr=[hi_params["peaksub_sigma_low_lim"],
+                        hi_params["peaksub_sigma_up_lim"]],
+                  color=cpal[0], label='VLA',
+                  linestyle='-',
+                  drawstyle='steps-mid')
+ax[0, 0].errorbar(bin_cents, hi_params["peaksub_feath_sigma"],
+                  yerr=[hi_params["peaksub_feath_sigma_low_lim"],
+                        hi_params["peaksub_feath_sigma_up_lim"]],
+                  color=cpal[1], label='VLA + GBT',
+                  linestyle='--',
+                  drawstyle='steps-mid')
+ax[0, 0].fill_between([0, 0.5], 4, 9, facecolor='gray', alpha=0.5)
+ax[0, 0].set_xlim([0.0, 8.0])
+ax[0, 0].grid()
+ax[0, 0].set_ylabel(r"$\sigma$ (km/s)")
+ax[0, 0].set_xlabel(r"Radius (kpc)")
+ax[0, 0].set_ylim([4, 9])
+
+ax[0, 1].errorbar(bin_cents, hi_params["peaksub_v_peak"],
+                  yerr=[hi_params["peaksub_v_peak_low_lim"],
+                        hi_params["peaksub_v_peak_up_lim"]],
+                  color=cpal[0], label='VLA',
+                  linestyle='-',
+                  drawstyle='steps-mid')
+ax[0, 1].errorbar(bin_cents, hi_params["peaksub_feath_v_peak"],
+                  yerr=[hi_params["peaksub_feath_v_peak_low_lim"],
+                        hi_params["peaksub_feath_v_peak_up_lim"]],
+                  color=cpal[1], label='VLA + GBT',
+                  linestyle='--',
+                  drawstyle='steps-mid')
+ax[0, 1].legend(frameon=True, loc='upper center')
+ax[0, 1].fill_between([0, 0.5], -0.7, 0.7, facecolor='gray', alpha=0.5)
+ax[0, 1].set_xlim([0.0, 8.0])
+ax[0, 1].grid()
+ax[0, 1].set_ylabel(r"$v_{\rm peak}$ (km/s)")
+ax[0, 1].set_xlabel(r"Radius (kpc)")
+ax[0, 1].set_ylim([-0.7, 0.7])
+
+ax[0, 2].errorbar(bin_cents, hi_params["peaksub_f_wings"],
+                  yerr=[hi_params["peaksub_f_wings_low_lim"],
+                        hi_params["peaksub_f_wings_up_lim"]],
+                  color=cpal[0], label='VLA',
+                  linestyle='-',
+                  drawstyle='steps-mid')
+ax[0, 2].errorbar(bin_cents, hi_params["peaksub_feath_f_wings"],
+                  yerr=[hi_params["peaksub_feath_f_wings_low_lim"],
+                        hi_params["peaksub_feath_f_wings_up_lim"]],
+                  color=cpal[1], label='VLA + GBT',
+                  linestyle='--',
+                  drawstyle='steps-mid')
+ax[0, 2].fill_between([0, 0.5], 0.05, 0.45, facecolor='gray', alpha=0.5)
+ax[0, 2].set_xlim([0.0, 8.0])
+ax[0, 2].grid()
+ax[0, 2].set_ylabel(r"$f_{\rm wings}$")
+ax[0, 2].set_xlabel(r"Radius (kpc)")
+ax[0, 2].set_ylim([0.05, 0.45])
+
+ax[1, 0].errorbar(bin_cents, hi_params["peaksub_sigma_wing"],
+                  yerr=[hi_params["peaksub_sigma_wing_low_lim"],
+                        hi_params["peaksub_sigma_wing_up_lim"]],
+                  color=cpal[0], label='VLA',
+                  linestyle='-',
+                  drawstyle='steps-mid')
+ax[1, 0].errorbar(bin_cents, hi_params["peaksub_feath_sigma_wing"],
+                  yerr=[hi_params["peaksub_feath_sigma_wing_low_lim"],
+                        hi_params["peaksub_feath_sigma_wing_up_lim"]],
+                  color=cpal[1], label='VLA + GBT',
+                  linestyle='--',
+                  drawstyle='steps-mid')
+ax[1, 0].fill_between([0, 0.5], 15, 35, facecolor='gray', alpha=0.5)
+ax[1, 0].set_xlim([0.0, 8.0])
+ax[1, 0].grid()
+ax[1, 0].set_ylabel(r"$\sigma_{\rm wings}$ (km/s)")
+ax[1, 0].set_xlabel(r"Radius (kpc)")
+ax[1, 0].set_ylim([15, 35])
+
+ax[1, 1].errorbar(bin_cents, hi_params["peaksub_asymm"],
+                  yerr=[hi_params["peaksub_asymm_low_lim"],
+                        hi_params["peaksub_asymm_up_lim"]],
+                  color=cpal[0], label='VLA',
+                  linestyle='-',
+                  drawstyle='steps-mid')
+ax[1, 1].errorbar(bin_cents, hi_params["peaksub_feath_asymm"],
+                  yerr=[hi_params["peaksub_feath_asymm_low_lim"],
+                        hi_params["peaksub_feath_asymm_up_lim"]],
+                  color=cpal[1], label='VLA + GBT',
+                  linestyle='--',
+                  drawstyle='steps-mid')
+ax[1, 1].fill_between([0, 0.5], -0.15, 0.3, facecolor='gray', alpha=0.5)
+ax[1, 1].set_xlim([0.0, 8.0])
+ax[1, 1].grid()
+ax[1, 1].set_ylabel(r"Asymm.")
+ax[1, 1].set_xlabel(r"Radius (kpc)")
+ax[1, 1].set_ylim([-0.15, 0.2])
+
+ax[1, 2].errorbar(bin_cents, hi_params["peaksub_kappa"],
+                  yerr=[hi_params["peaksub_kappa_low_lim"],
+                        hi_params["peaksub_kappa_up_lim"]],
+                  color=cpal[0], label='VLA',
+                  linestyle='-',
+                  drawstyle='steps-mid')
+ax[1, 2].errorbar(bin_cents, hi_params["peaksub_feath_kappa"],
+                  yerr=[hi_params["peaksub_feath_kappa_low_lim"],
+                        hi_params["peaksub_feath_kappa_up_lim"]],
+                  color=cpal[1], label='VLA + GBT',
+                  linestyle='--',
+                  drawstyle='steps-mid')
+ax[1, 2].fill_between([0, 0.5], -0.09, -0.02, facecolor='gray', alpha=0.5)
+ax[1, 2].set_xlim([0.0, 8.0])
+ax[1, 2].grid()
+ax[1, 2].set_ylabel(r"$\kappa$")
+ax[1, 2].set_xlabel(r"Radius (kpc)")
+ax[1, 2].set_ylim([-0.09, -0.02])
+
+p.tight_layout()
+
+fig.savefig(allfigs_path(osjoin(figure_folder, "total_profile_vpeak_radial_params_HI.pdf")))
+fig.savefig(allfigs_path(osjoin(figure_folder, "total_profile_vpeak_radial_params_HI.png")))
+
+p.close()
 default_figure()

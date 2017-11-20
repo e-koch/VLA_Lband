@@ -32,14 +32,8 @@ inneredge = np.linspace(0, max_radius - dr, nbins)
 outeredge = np.linspace(dr, max_radius, nbins)
 # Make the N and S masks
 pa_bounds_n = Angle([0.5 * np.pi * u.rad, -0.5 * np.pi * u.rad])
-pa_bounds_n = pa_bounds_n.wrap_at(0.5 * np.pi * u.rad)
-hi_pa_mask_n = np.logical_and(hi_pas.wrap_at(0.5 * np.pi * u.rad) >= pa_bounds_n[0],
-                              hi_pas.wrap_at(0.5 * np.pi * u.rad) < pa_bounds_n[1])
 
 pa_bounds_s = Angle([-0.5 * np.pi * u.rad, 0.5 * np.pi * u.rad])
-hi_pa_mask_s = np.logical_and(hi_pas >= pa_bounds_s[0],
-                              hi_pas < pa_bounds_s[1])
-
 
 hi_mask = fits.open(fourteenB_HI_file_dict["RotSub_Mask"])[0]
 hi_cube = hi_cube.with_mask(hi_mask.data > 0)

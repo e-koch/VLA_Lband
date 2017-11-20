@@ -31,7 +31,6 @@ inneredge = np.linspace(0, max_radius - dr, nbins)
 outeredge = np.linspace(dr, max_radius, nbins)
 # Make the N and S masks
 pa_bounds_n = Angle([0.5 * np.pi * u.rad, -0.5 * np.pi * u.rad])
-pa_bounds_n = pa_bounds_n.wrap_at(0.5 * np.pi * u.rad)
 
 pa_bounds_s = Angle([-0.5 * np.pi * u.rad, 0.5 * np.pi * u.rad])
 

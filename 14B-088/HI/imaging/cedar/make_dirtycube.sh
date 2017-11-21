@@ -18,6 +18,9 @@ export project_path=/home/ekoch/project/ekoch/
 # Move to scratch space b/c casa write out the temporary files into the same folder
 cd $scratch_path
 
+Xvfb :1 &
+export DISPLAY=:1
+
 $HOME/casa-release-5.1.1-5.el7/bin/mpicasa -n 64 $HOME/casa-release-5.1.1-5.el7/bin/casa --nologger --nogui --log2term --nocrashreport -c $HOME/code/VLA_Lband/14B-088/HI/imaging/cedar/HI_dirty_cube_synthimage.py $scratch_path
 
 # Copy the dirty_cube folder into project space

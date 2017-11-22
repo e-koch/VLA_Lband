@@ -17,14 +17,16 @@ from astropy.table import Table
 import astropy.units as u
 from astropy.utils.console import ProgressBar
 import os
+from os.path import join as osjoin
 import seaborn as sb
 from scipy.special import erf
 
 from cube_analysis.spectral_stacking_models import find_hwhm, fit_gaussian
 
 from paths import (fourteenB_wGBT_HI_file_dict, iram_co21_14B088_data_path,
-                   fourteenB_HI_data_wGBT_path)
-from plotting_styles import default_figure, onecolumn_figure, twocolumn_figure
+                   fourteenB_HI_data_wGBT_path, allfigs_path)
+from plotting_styles import (default_figure, onecolumn_figure,
+                             onecolumn_twopanel_figure)
 from galaxy_params import gal_feath as gal
 from constants import (co21_mass_conversion, hi_mass_conversion, hi_freq)
 
@@ -98,6 +100,19 @@ beam_eff = 0.75
 
 # Roughly constant for all pixels
 hi_err = 2.8 * u.K
+
+# Pixels to save plots of as examples
+# Order: simple both, multi-comp CO, both multi-comp,
+# HI good fit w/ multi-comp, Bad HI multi-comp,
+# HI w/ and w/o HWHM mask
+example_pix = [(454, 924), (788, 576), (954, 438), (938, 681), (774, 680),
+               (984, 523)]
+example_params = []
+
+# Make a new figures folder for these
+figure_folder = allfigs_path("co_vs_hi/example_spectra/")
+if not os.path.exists(allfigs_path(figure_folder)):
+    os.mkdir(allfigs_path(figure_folder))
 
 # rand_ord = np.random.choice(np.arange(len(yposns)), size=len(yposns),
 #                             replace=False)
@@ -229,7 +244,7 @@ for i, (y, x) in enumerate(ProgressBar(zip(yposns, xposns))):
         (hi_chanwidth / 1000. * u.km / u.s) * inc * hi_mass_conversion \
         / fwhm_area_factor
 
-    results['coldens_HI_FWHM_stderr'] = sum(hi_fwhm_mask) * hi_err * \
+    results['coldens_HI_FWHM_stderr'][i] = sum(hi_fwhm_mask) * hi_err * \
         (hi_chanwidth / 1000. * u.km / u.s) * inc * hi_mass_conversion \
         / fwhm_area_factor
 
@@ -241,7 +256,7 @@ for i, (y, x) in enumerate(ProgressBar(zip(yposns, xposns))):
         (co_chanwidth / 1000. * u.km / u.s) * \
         inc * co21_mass_conversion / beam_eff / fwhm_area_factor
 
-    results['coldens_CO_FWHM_stderr'] = sum(co_fwhm_mask) * co_err * \
+    results['coldens_CO_FWHM_stderr'][i] = sum(co_fwhm_mask) * co_err * \
         (co_chanwidth / 1000. * u.km / u.s) * inc * co21_mass_conversion \
         / beam_eff / fwhm_area_factor
 
@@ -273,45 +288,90 @@ for i, (y, x) in enumerate(ProgressBar(zip(yposns, xposns))):
         np.sqrt((results['amp_stderr_CO'][i] / results['amp_CO'][i])**2 +
                 (results['sigma_stderr_CO'][i] / results['sigma_CO'][i])**2)
 
-    if plot_spectra:
+    if plot_spectra or (y, x) in example_pix:
+
+        onecolumn_twopanel_figure()
+
+        fig, ax = pl.subplots(3, 1, sharex=True, )
+
+        vel_mask = np.logical_and(hi_specaxis.value >=
+                                  max(np.min(hi_specaxis.value), hi_params[1] - 50000),
+                                  hi_specaxis.value <=
+                                  min(np.max(hi_specaxis.value), hi_params[1] + 50000))
+
+        vel_mask_co = np.logical_and(co_specaxis.value >=
+                                     max(np.min(hi_specaxis.value), hi_params[1] - 50000),
+                                     co_specaxis.value <=
+                                     min(np.max(hi_specaxis.value), hi_params[1] + 50000))
+
         # Plot to see how it's doing
-        ax1 = pl.subplot(311)
+        ax1 = ax[0]
         ax2 = ax1.twinx()
-        ax2.plot(hi_specaxis, co_model(hi_specaxis), label='CO model')
-        ax1.plot(hi_specaxis, hi_model(hi_specaxis), label='HI model')
+        ln1 = ax2.plot(hi_specaxis[vel_mask], co_model(hi_specaxis[vel_mask]), label='CO model',
+                       color=cpal[1])
+        ln2 = ax1.plot(hi_specaxis[vel_mask], hi_model(hi_specaxis[vel_mask]), label='HI model',
+                       color=cpal[2])
+        ax1.grid()
+        ax1.set_ylabel(r"$T_{\rm HI}$ (K)")
+        ax2.set_ylabel(r"$T_{\rm CO}$ (K)")
+        lns = ln1 + ln2
+        labs = [l.get_label() for l in lns]
+        ax1.legend(lns, labs, loc='upper left', frameon=True)
         # pl.legend(frameon=True)
-        pl.xlim([np.min(hi_specaxis.value), np.max(hi_specaxis.value)])
+        # pl.xlim([np.min(hi_specaxis.value), np.max(hi_specaxis.value)])
+        ax1.set_xlim([max(np.min(hi_specaxis.value), hi_params[1] - 50000),
+                      min(np.max(hi_specaxis.value), hi_params[1] + 50000)])
 
-        ax3 = pl.subplot(312)
-        ax3.plot(co_specaxis, co_spectrum.value, drawstyle='steps-mid')
-        ax3.plot(hi_specaxis, co_model(hi_specaxis), label='CO model')
-        pl.axvline(co_params[1] - co_hwhm)
-        pl.axvline(co_params[1] + co_hwhm)
-        pl.xlim([np.min(hi_specaxis.value), np.max(hi_specaxis.value)])
+        ax3 = ax[1]
+        ax3.plot(co_specaxis[vel_mask_co], co_spectrum.value[vel_mask_co], drawstyle='steps-mid')
+        ax3.plot(hi_specaxis[vel_mask], co_model(hi_specaxis[vel_mask]), label='CO model')
+        ax3.axvline(co_params[1] - co_hwhm, color=cpal[1], linestyle='--')
+        ax3.axvline(co_params[1] + co_hwhm, color=cpal[1], linestyle='--')
+        ax3.set_ylabel(r"$T_{\rm CO}$ (K)")
+        ax3.grid()
 
-        ax4 = pl.subplot(313)
-        ax4.plot(hi_specaxis, hi_spectrum.value, drawstyle='steps-mid')
-        ax4.plot(hi_specaxis, hi_model(hi_specaxis), label='HI model')
-        ax4.plot(hi_specaxis, hi_model_nomask(hi_specaxis),
-                 label='HI model (no mask)')
-        pl.axvline(hi_hwhm[0])
-        pl.axvline(hi_hwhm[1])
-        pl.xlim([np.min(hi_specaxis.value), np.max(hi_specaxis.value)])
+        ax4 = ax[2]
+        ax4.plot(hi_specaxis[vel_mask], hi_spectrum[vel_mask].value, drawstyle='steps-mid')
+        ax4.plot(hi_specaxis[vel_mask], hi_model(hi_specaxis[vel_mask]),
+                 color=cpal[2])
+        ln_nm = ax4.plot(hi_specaxis[vel_mask], hi_model_nomask(hi_specaxis[vel_mask]),
+                         label='HI model\n(no mask)', color=cpal[3],
+                         linewidth=3, alpha=0.6, linestyle=':')
+        ax4.set_ylabel(r"$T_{\rm HI}$ (K)")
+        ax4.legend(loc='upper left', frameon=True)
+
+        ax4.axvline(hi_hwhm[0], color=cpal[2], linestyle='--')
+        ax4.axvline(hi_hwhm[1], color=cpal[2], linestyle='--')
+        ax4.grid()
+        ax4.set_xlabel("Velocity (m/s)")
+
+        pl.tight_layout()
+        pl.subplots_adjust(hspace=0.0)
 
         pl.draw()
 
-        print([(val, stderr) for val, stderr in zip(hi_params, hi_stderrs)])
-        print([(val, stderr) for val, stderr in zip(hi_params_nomask,
-                                                    hi_stderrs_nomask)])
-        print([(val, stderr) for val, stderr in zip(co_params, co_stderrs)])
+        if plot_spectra:
+            print([(val, stderr) for val, stderr in zip(hi_params, hi_stderrs)])
+            print([(val, stderr) for val, stderr in zip(hi_params_nomask,
+                                                        hi_stderrs_nomask)])
+            print([(val, stderr) for val, stderr in zip(co_params, co_stderrs)])
 
-        raw_input("{0}, {1}: {2}, {3}. Flagged: {5}: {4}"
-                  .format(y, x, round(co_params[-1]),
-                          round(hi_params[-1]),
-                          results['multicomp_flag_HI'][i],
-                          results['multicomp_flag_CO'][i]))
+            raw_input("{0}, {1}: {2}, {3}. Flagged: {5}: {4}"
+                      .format(y, x, round(co_params[-1]),
+                              round(hi_params[-1]),
+                              results['multicomp_flag_HI'][i],
+                              results['multicomp_flag_CO'][i]))
+        else:
+            # Save the examples
+            fig.savefig(osjoin(figure_folder, "co_hi_spectra_models_{0}_{1}.png").format(y, x),
+                        overwrite=True)
+            fig.savefig(osjoin(figure_folder, "co_hi_spectra_models_{0}_{1}.pdf").format(y, x),
+                        overwrite=True)
 
-        pl.clf()
+            # Record their parameters to check
+            example_params.append([hi_params, hi_params_nomask, co_params])
+
+        pl.close()
 
 
 # Make a radius array

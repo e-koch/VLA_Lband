@@ -35,6 +35,8 @@ cpal = sb.color_palette()
 # cube = SpectralCube.read(fourteenB_wGBT_HI_file_dict['PeakSub_Cube'])
 cube = SpectralCube.read(fourteenB_wGBT_HI_file_dict['Cube'])
 co_cube = SpectralCube.read(iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI.fits"))
+co_rms = fits.open(iram_co21_14B088_data_path('m33.rms.14B-088_HI.fits'))[0]
+
 
 co_mask = fits.open(iram_co21_14B088_data_path(
     "m33.co21_iram.14B-088_HI_source_mask.fits"))[0].data
@@ -69,10 +71,22 @@ results = {"amp_CO": np.zeros((yposns.shape)) * u.K,
            "amp_stderr_HI": np.zeros((yposns.shape)) * u.K,
            "mean_stderr_HI": np.zeros((yposns.shape)) * u.m / u.s,
            "sigma_stderr_HI": np.zeros((yposns.shape)) * u.m / u.s,
+           "amp_HI_nomask": np.zeros((yposns.shape)) * u.K,
+           "mean_HI_nomask": np.zeros((yposns.shape)) * u.m / u.s,
+           "sigma_HI_nomask": np.zeros((yposns.shape)) * u.m / u.s,
+           "amp_stderr_HI_nomask": np.zeros((yposns.shape)) * u.K,
+           "mean_stderr_HI_nomask": np.zeros((yposns.shape)) * u.m / u.s,
+           "sigma_stderr_HI_nomask": np.zeros((yposns.shape)) * u.m / u.s,
            "coldens_HI_FWHM": np.zeros((yposns.shape)) * u.solMass / u.pc**2,
+           "coldens_HI_FWHM_stderr": np.zeros((yposns.shape)) * u.solMass / u.pc**2,
            "coldens_CO_FWHM": np.zeros((yposns.shape)) * u.solMass / u.pc**2,
+           "coldens_CO_FWHM_stderr": np.zeros((yposns.shape)) * u.solMass / u.pc**2,
            "coldens_HI_gauss": np.zeros((yposns.shape)) * u.solMass / u.pc**2,
+           "coldens_HI_gauss_stderr": np.zeros((yposns.shape)) * u.solMass / u.pc**2,
+           "coldens_HI_gauss_nomask": np.zeros((yposns.shape)) * u.solMass / u.pc**2,
+           "coldens_HI_gauss_nomask_stderr": np.zeros((yposns.shape)) * u.solMass / u.pc**2,
            "coldens_CO_gauss": np.zeros((yposns.shape)) * u.solMass / u.pc**2,
+           "coldens_CO_gauss_stderr": np.zeros((yposns.shape)) * u.solMass / u.pc**2,
            "multicomp_flag_HI": np.zeros(yposns.shape, dtype=bool),
            "multicomp_flag_CO": np.zeros(yposns.shape, dtype=bool)}
 
@@ -82,6 +96,8 @@ inc = np.cos(gal.inclination)
 # 30 m beam efficiency
 beam_eff = 0.75
 
+# Roughly constant for all pixels
+hi_err = 2.8 * u.K
 
 # rand_ord = np.random.choice(np.arange(len(yposns)), size=len(yposns),
 #                             replace=False)
@@ -91,17 +107,19 @@ beam_eff = 0.75
 for i, (y, x) in enumerate(ProgressBar(zip(yposns, xposns))):
 
     co_spectrum = co_cube[:, y, x]
+
+    # The CO error can vary. Pull from the RMS map
+    co_err = co_rms.data[y, x] * u.K
+
     # First beam is the largest. Change is far far smaller than 1 pixel
     hi_spectrum = cube[:, y, x].to(u.K, cube.beams[0].jtok_equiv(hi_freq))
 
-    co_params, co_cov, co_parnames, co_model = \
-        fit_gaussian(co_specaxis,
-                     co_spectrum.quantity)
+    co_params, co_stderrs, co_cov, co_parnames, co_model = \
+        fit_gaussian(co_specaxis, co_spectrum.quantity,
+                     sigma=co_err)
 
     if np.isnan(co_cov).any():
         results["multicomp_flag_CO"][i] = True
-
-    co_stderrs = np.sqrt(np.diag(co_cov))
 
     results["amp_CO"][i] = co_params[0] * u.K
     results["mean_CO"][i] = co_params[1] * u.m / u.s
@@ -109,10 +127,8 @@ for i, (y, x) in enumerate(ProgressBar(zip(yposns, xposns))):
     # Adjust the mean and sigma to account for finite channel widths
     # Take to be half of the channel width.
     results["amp_stderr_CO"][i] = co_stderrs[0] * u.K
-    results["mean_stderr_CO"][i] = np.sqrt(co_stderrs[1]**2 +
-                                           (co_chanwidth / 2.)**2) * u.m / u.s
-    results["sigma_stderr_CO"][i] = np.sqrt(co_stderrs[2]**2 +
-                                            (co_chanwidth / 2.)**2) * u.m / u.s
+    results["mean_stderr_CO"][i] = co_stderrs[1] * u.m / u.s
+    results["sigma_stderr_CO"][i] = co_stderrs[2] * u.m / u.s
 
     # Make a mask centered around the CO peak with 5x the CO FWHM
     # This will hopefully help centre the HI fit to the CO if there is
@@ -146,9 +162,10 @@ for i, (y, x) in enumerate(ProgressBar(zip(yposns, xposns))):
           hi_specaxis[hwhm_mask][np.nanargmax(hi_spectrum[hwhm_mask])],
           hi_sigest)
 
-    hi_params, hi_cov, hi_parnames, hi_model = \
+    hi_params, hi_stderrs, hi_cov, hi_parnames, hi_model = \
         fit_gaussian(hi_specaxis[hwhm_mask],
-                     hi_spectrum.quantity[hwhm_mask], p0=p0)
+                     hi_spectrum.quantity[hwhm_mask], p0=p0,
+                     sigma=hi_err)
 
     if np.isnan(hi_cov).any():
         results["multicomp_flag_HI"][i] = True
@@ -169,18 +186,31 @@ for i, (y, x) in enumerate(ProgressBar(zip(yposns, xposns))):
     if co_params[2] > 8000:
         results['multicomp_flag_CO'][i] = True
 
-    hi_stderrs = np.sqrt(np.diag(hi_cov))
-
     results["amp_HI"][i] = hi_params[0] * u.K
     results["mean_HI"][i] = hi_params[1] * u.m / u.s
     results["sigma_HI"][i] = hi_params[2] * u.m / u.s
     # Adjust the mean and sigma to account for finite channel widths
     # Take to be half of the channel width.
     results["amp_stderr_HI"][i] = hi_stderrs[0] * u.K
-    results["mean_stderr_HI"][i] = np.sqrt(hi_stderrs[1]**2 +
-                                           (hi_chanwidth / 2.)**2) * u.m / u.s
-    results["sigma_stderr_HI"][i] = np.sqrt(hi_stderrs[2]**2 +
-                                            (hi_chanwidth / 2.)**2) * u.m / u.s
+    results["mean_stderr_HI"][i] = hi_stderrs[1] * u.m / u.s
+    results["sigma_stderr_HI"][i] = hi_stderrs[2] * u.m / u.s
+
+    # How different are the fits if we fit a Gaussian to the whole HI line?
+    # Good for comparing to many previous works
+
+    hi_params_nomask, hi_stderrs_nomask, hi_cov_nomask, hi_parnames, \
+        hi_model_nomask = \
+        fit_gaussian(hi_specaxis,
+                     hi_spectrum.quantity, p0=p0, sigma=hi_err)
+
+    results["amp_HI_nomask"][i] = hi_params[0] * u.K
+    results["mean_HI_nomask"][i] = hi_params[1] * u.m / u.s
+    results["sigma_HI_nomask"][i] = hi_params[2] * u.m / u.s
+    # Adjust the mean and sigma to account for finite channel widths
+    # Take to be half of the channel width.
+    results["amp_stderr_HI_nomask"][i] = hi_stderrs_nomask[0] * u.K
+    results["mean_stderr_HI_nomask"][i] = hi_stderrs_nomask[1] * u.m / u.s
+    results["sigma_stderr_HI_nomask"][i] = hi_stderrs_nomask[2] * u.m / u.s
 
     # Finally calculate column densities from:
     # 1) within the FWHM of each spectra,
@@ -199,6 +229,10 @@ for i, (y, x) in enumerate(ProgressBar(zip(yposns, xposns))):
         (hi_chanwidth / 1000. * u.km / u.s) * inc * hi_mass_conversion \
         / fwhm_area_factor
 
+    results['coldens_HI_FWHM_stderr'] = sum(hi_fwhm_mask) * hi_err * \
+        (hi_chanwidth / 1000. * u.km / u.s) * inc * hi_mass_conversion \
+        / fwhm_area_factor
+
     co_fwhm_mask = \
         np.logical_and(co_specaxis.value >= co_params[1] - co_hwhm,
                        co_specaxis.value <= co_params[1] + co_hwhm)
@@ -207,41 +241,69 @@ for i, (y, x) in enumerate(ProgressBar(zip(yposns, xposns))):
         (co_chanwidth / 1000. * u.km / u.s) * \
         inc * co21_mass_conversion / beam_eff / fwhm_area_factor
 
+    results['coldens_CO_FWHM_stderr'] = sum(co_fwhm_mask) * co_err * \
+        (co_chanwidth / 1000. * u.km / u.s) * inc * co21_mass_conversion \
+        / beam_eff / fwhm_area_factor
+
     # 2)
 
     results["coldens_HI_gauss"][i] = \
         (hi_params[0] * u.K) * np.sqrt(2 * np.pi) * \
         (hi_params[-1] / 1000. * u.km / u.s) * inc * hi_mass_conversion
 
+    results['coldens_HI_gauss_stderr'][i] = results["coldens_HI_gauss"][i] * \
+        np.sqrt((results['amp_stderr_HI'][i] / results['amp_HI'][i])**2 +
+                (results['sigma_stderr_HI'][i] / results['sigma_HI'][i])**2)
+
+    results["coldens_HI_gauss_nomask"][i] = \
+        (hi_params_nomask[0] * u.K) * np.sqrt(2 * np.pi) * \
+        (hi_params_nomask[-1] / 1000. * u.km / u.s) * inc * hi_mass_conversion
+
+    results['coldens_HI_gauss_nomask_stderr'][i] = \
+        results["coldens_HI_gauss_nomask"][i] * \
+        np.sqrt((results['amp_stderr_HI_nomask'][i] / results['amp_HI_nomask'][i])**2 +
+                (results['sigma_stderr_HI_nomask'][i] / results['sigma_HI_nomask'][i])**2)
+
     results["coldens_CO_gauss"][i] = \
         (co_params[0] * u.K) * np.sqrt(2 * np.pi) * \
         (co_params[-1] / 1000. * u.km / u.s) * \
         inc * co21_mass_conversion / beam_eff
 
+    results['coldens_CO_gauss_stderr'][i] = results["coldens_CO_gauss"][i] * \
+        np.sqrt((results['amp_stderr_CO'][i] / results['amp_CO'][i])**2 +
+                (results['sigma_stderr_CO'][i] / results['sigma_CO'][i])**2)
+
     if plot_spectra:
         # Plot to see how it's doing
         ax1 = pl.subplot(311)
         ax2 = ax1.twinx()
-        ax2.plot(hi_specaxis, co_model(hi_specaxis.value), label='CO model')
-        ax1.plot(hi_specaxis, hi_model(hi_specaxis.value), label='HI model')
+        ax2.plot(hi_specaxis, co_model(hi_specaxis), label='CO model')
+        ax1.plot(hi_specaxis, hi_model(hi_specaxis), label='HI model')
         # pl.legend(frameon=True)
         pl.xlim([np.min(hi_specaxis.value), np.max(hi_specaxis.value)])
 
         ax3 = pl.subplot(312)
         ax3.plot(co_specaxis, co_spectrum.value, drawstyle='steps-mid')
-        ax3.plot(hi_specaxis, co_model(hi_specaxis.value), label='CO model')
+        ax3.plot(hi_specaxis, co_model(hi_specaxis), label='CO model')
         pl.axvline(co_params[1] - co_hwhm)
         pl.axvline(co_params[1] + co_hwhm)
         pl.xlim([np.min(hi_specaxis.value), np.max(hi_specaxis.value)])
 
         ax4 = pl.subplot(313)
         ax4.plot(hi_specaxis, hi_spectrum.value, drawstyle='steps-mid')
-        ax4.plot(hi_specaxis, hi_model(hi_specaxis.value), label='HI model')
+        ax4.plot(hi_specaxis, hi_model(hi_specaxis), label='HI model')
+        ax4.plot(hi_specaxis, hi_model_nomask(hi_specaxis),
+                 label='HI model (no mask)')
         pl.axvline(hi_hwhm[0])
         pl.axvline(hi_hwhm[1])
         pl.xlim([np.min(hi_specaxis.value), np.max(hi_specaxis.value)])
 
         pl.draw()
+
+        print([(val, stderr) for val, stderr in zip(hi_params, hi_stderrs)])
+        print([(val, stderr) for val, stderr in zip(hi_params_nomask,
+                                                    hi_stderrs_nomask)])
+        print([(val, stderr) for val, stderr in zip(co_params, co_stderrs)])
 
         raw_input("{0}, {1}: {2}, {3}. Flagged: {5}: {4}"
                   .format(y, x, round(co_params[-1]),
@@ -278,6 +340,6 @@ if not os.path.exists(fourteenB_HI_data_wGBT_path("tables", no_check=True)):
 # Save the lists of points in a table
 tab = Table([results[key] for key in results],
             names=results.keys())
-tab.write(fourteenB_HI_data_wGBT_path("tables/hi_co_gaussfit_column_densities_perpix.fits",
+tab.write(fourteenB_HI_data_wGBT_path("tables/hi_co_gaussfit_column_densities_perpix_new.fits",
                                       no_check=True),
           overwrite=True)

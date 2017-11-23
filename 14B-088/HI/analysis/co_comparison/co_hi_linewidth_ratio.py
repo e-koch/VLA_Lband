@@ -218,9 +218,9 @@ for i, (y, x) in enumerate(ProgressBar(zip(yposns, xposns))):
         fit_gaussian(hi_specaxis,
                      hi_spectrum.quantity, p0=p0, sigma=hi_err)
 
-    results["amp_HI_nomask"][i] = hi_params[0] * u.K
-    results["mean_HI_nomask"][i] = hi_params[1] * u.m / u.s
-    results["sigma_HI_nomask"][i] = hi_params[2] * u.m / u.s
+    results["amp_HI_nomask"][i] = hi_params_nomask[0] * u.K
+    results["mean_HI_nomask"][i] = hi_params_nomask[1] * u.m / u.s
+    results["sigma_HI_nomask"][i] = hi_params_nomask[2] * u.m / u.s
     # Adjust the mean and sigma to account for finite channel widths
     # Take to be half of the channel width.
     results["amp_stderr_HI_nomask"][i] = hi_stderrs_nomask[0] * u.K

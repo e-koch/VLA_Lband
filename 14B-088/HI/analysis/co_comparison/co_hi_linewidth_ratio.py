@@ -307,9 +307,9 @@ for i, (y, x) in enumerate(ProgressBar(zip(yposns, xposns))):
         # Plot to see how it's doing
         ax1 = ax[0]
         ax2 = ax1.twinx()
-        ln1 = ax2.plot(hi_specaxis[vel_mask], co_model(hi_specaxis[vel_mask]), label='CO model',
+        ln1 = ax2.plot(hi_specaxis[vel_mask] / 1000., co_model(hi_specaxis[vel_mask]), label='CO model',
                        color=cpal[1])
-        ln2 = ax1.plot(hi_specaxis[vel_mask], hi_model(hi_specaxis[vel_mask]), label='HI model',
+        ln2 = ax1.plot(hi_specaxis[vel_mask] / 1000., hi_model(hi_specaxis[vel_mask]), label='HI model',
                        color=cpal[2])
         ax1.grid()
         ax1.set_ylabel(r"$T_{\rm HI}$ (K)")
@@ -319,31 +319,33 @@ for i, (y, x) in enumerate(ProgressBar(zip(yposns, xposns))):
         ax1.legend(lns, labs, loc='upper left', frameon=True)
         # pl.legend(frameon=True)
         # pl.xlim([np.min(hi_specaxis.value), np.max(hi_specaxis.value)])
-        ax1.set_xlim([max(np.min(hi_specaxis.value), hi_params[1] - 50000),
-                      min(np.max(hi_specaxis.value), hi_params[1] + 50000)])
+        ax1.set_xlim([max(np.min(hi_specaxis.value) / 1000.,
+                          (hi_params[1] - 50000) / 1000.),
+                      min(np.max(hi_specaxis.value) / 1000.,
+                          (hi_params[1] + 50000) / 1000.)])
 
         ax3 = ax[1]
-        ax3.plot(co_specaxis[vel_mask_co], co_spectrum.value[vel_mask_co], drawstyle='steps-mid')
-        ax3.plot(hi_specaxis[vel_mask], co_model(hi_specaxis[vel_mask]), label='CO model')
+        ax3.plot(co_specaxis[vel_mask_co] / 1000., co_spectrum.value[vel_mask_co], drawstyle='steps-mid')
+        ax3.plot(hi_specaxis[vel_mask] / 1000., co_model(hi_specaxis[vel_mask]), label='CO model')
         ax3.axvline(co_params[1] - co_hwhm, color=cpal[1], linestyle='--')
         ax3.axvline(co_params[1] + co_hwhm, color=cpal[1], linestyle='--')
         ax3.set_ylabel(r"$T_{\rm CO}$ (K)")
         ax3.grid()
 
         ax4 = ax[2]
-        ax4.plot(hi_specaxis[vel_mask], hi_spectrum[vel_mask].value, drawstyle='steps-mid')
-        ax4.plot(hi_specaxis[vel_mask], hi_model(hi_specaxis[vel_mask]),
+        ax4.plot(hi_specaxis[vel_mask] / 1000., hi_spectrum[vel_mask].value, drawstyle='steps-mid')
+        ax4.plot(hi_specaxis[vel_mask] / 1000., hi_model(hi_specaxis[vel_mask]),
                  color=cpal[2])
-        ln_nm = ax4.plot(hi_specaxis[vel_mask], hi_model_nomask(hi_specaxis[vel_mask]),
+        ln_nm = ax4.plot(hi_specaxis[vel_mask] / 1000., hi_model_nomask(hi_specaxis[vel_mask]),
                          label='HI model\n(no mask)', color=cpal[3],
-                         linewidth=3, alpha=0.6, linestyle=':')
+                         linewidth=3, alpha=0.8, linestyle=':')
         ax4.set_ylabel(r"$T_{\rm HI}$ (K)")
         ax4.legend(loc='upper left', frameon=True)
 
         ax4.axvline(hi_hwhm[0], color=cpal[2], linestyle='--')
         ax4.axvline(hi_hwhm[1], color=cpal[2], linestyle='--')
         ax4.grid()
-        ax4.set_xlabel("Velocity (m/s)")
+        ax4.set_xlabel("Velocity (km/s)")
 
         pl.tight_layout()
         pl.subplots_adjust(hspace=0.0)
@@ -400,6 +402,6 @@ if not os.path.exists(fourteenB_HI_data_wGBT_path("tables", no_check=True)):
 # Save the lists of points in a table
 tab = Table([results[key] for key in results],
             names=results.keys())
-tab.write(fourteenB_HI_data_wGBT_path("tables/hi_co_gaussfit_column_densities_perpix_new.fits",
+tab.write(fourteenB_HI_data_wGBT_path("tables/hi_co_gaussfit_column_densities_perpix.fits",
                                       no_check=True),
           overwrite=True)

@@ -597,13 +597,30 @@ plt.close()
 
 
 # Compare the HI fit properties w/ and w/o the FWHM mask when fitting
+# Fit the same relation as above
+
+params_nomask, cis_nomask, sampler_nomask = \
+    bayes_linear(tab['sigma_HI_nomask'][good_pts], tab['sigma_CO'][good_pts],
+                 tab['sigma_stderr_HI_nomask'][good_pts],
+                 tab['sigma_stderr_CO'][good_pts],
+                 nBurn=500, nSample=2000, nThin=2)
+slope = params_nomask[0]
+inter = params_nomask[1] / 1000.
+slope_ci = cis_nomask[0]
+inter_cis = cis_nomask[1] / 1000.
+
+print("HI sigma no mask vs. CO")
+print("Slope: {0} {1}".format(slope, slope_ci))
+print("Intercept: {0} {1}".format(inter, inter_cis))
+# Slope: 0.520613347981 [ 0.5125361   0.52857989]
+# Intercept: 0.161762520675 [ 0.09202867  0.22882612]
 
 onecolumn_figure()
 
-hist2d(tab['sigma_HI'][good_pts],
-       tab['sigma_HI_nomask'][good_pts],
+hist2d(tab['sigma_HI'][good_pts] / 1000.,
+       tab['sigma_HI_nomask'][good_pts] / 1000.,
        bins=18, data_kwargs={"alpha": 0.5})
-plt.plot([4000, 12000], [4000, 12000], '--', linewidth=3)
+plt.plot([4, 12], [4, 12], '--', linewidth=3)
 
 plt.grid()
 
@@ -615,5 +632,30 @@ plt.tight_layout()
 plt.savefig(osjoin(fig_path, "sigma_w_wo_masking.png"))
 plt.savefig(osjoin(fig_path, "sigma_w_wo_masking.pdf"))
 plt.close()
+
+# HI no mask vs CO
+hist2d(tab['sigma_HI_nomask'][good_pts] / 1000.,
+       tab['sigma_CO'][good_pts] / 1000.,
+       bins=18, data_kwargs={"alpha": 0.5})
+plt.plot([4, 17.5], [4, 17.5], '--', linewidth=3)
+plt.plot([4, 17.5], [4. * slope + inter, 17.5 * slope + inter])
+plt.fill_between([4, 17.5], [4. * slope_ci[0] + inter_cis[0],
+                             17.5 * slope_ci[0] + inter_cis[0]],
+                 [4. * slope_ci[1] + inter_cis[1],
+                  17.5 * slope_ci[1] + inter_cis[1]],
+                 facecolor=sb.color_palette()[0],
+                 alpha=0.5)
+
+plt.grid()
+
+plt.ylabel(r"$\sigma_{\rm CO}$ (km/s)")
+plt.xlabel(r"No mask $\sigma_{\rm HI}$ (km/s)")
+
+plt.tight_layout()
+
+plt.savefig(osjoin(fig_path, "sigma_HI_nomask_vs_H2_w_fit.png"))
+plt.savefig(osjoin(fig_path, "sigma_HI_nomask_vs_H2_w_fit.pdf"))
+plt.close()
+
 
 default_figure()

@@ -595,4 +595,25 @@ plt.savefig(osjoin(fig_path, "sigma_ratio_vs_radius.png"))
 plt.savefig(osjoin(fig_path, "sigma_ratio_vs_radius.pdf"))
 plt.close()
 
+
+# Compare the HI fit properties w/ and w/o the FWHM mask when fitting
+
+onecolumn_figure()
+
+hist2d(tab['sigma_HI'][good_pts],
+       tab['sigma_HI_nomask'][good_pts],
+       bins=18, data_kwargs={"alpha": 0.5})
+plt.plot([4000, 12000], [4000, 12000], '--', linewidth=3)
+
+plt.grid()
+
+plt.ylabel(r"No mask $\sigma_{\rm HI}$ (km/s)")
+plt.xlabel(r"FWHM mask $\sigma_{\rm HI}$ (km/s)")
+
+plt.tight_layout()
+
+plt.savefig(osjoin(fig_path, "sigma_w_wo_masking.png"))
+plt.savefig(osjoin(fig_path, "sigma_w_wo_masking.pdf"))
+plt.close()
+
 default_figure()

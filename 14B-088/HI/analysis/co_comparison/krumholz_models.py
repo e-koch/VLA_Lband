@@ -376,14 +376,14 @@ if __name__ == "__main__":
     gas_ratio_pix = tab['Ratio'] * u.dimensionless_unscaled
     total_sd_pix = tab['Sigma_Total'] * u.solMass / u.pc**2
 
-    sds = np.arange(0.1, 65, 0.2)
+    sds = np.arange(0.1, 75, 0.2)
 
     onecolumn_figure()
 
     hist2d(total_sd_pix.value, np.log10(gas_ratio_pix.value),
            data_kwargs={"alpha": 0.3})
-    p.xlim([0, 65])
-    p.ylim([-1.6, 0.7])
+    p.xlim([0, 75])
+    p.ylim([-1.4, 0.8])
     p.xlabel("$\Sigma_{\mathrm{Gas}}$ (M$_{\odot}$ pc$^{-2}$)")
     p.ylabel("log H$_2$-to-HI Ratio $\Sigma_{\mathrm{H2}} /"
              " \Sigma_{\mathrm{HI}}$")
@@ -413,8 +413,8 @@ if __name__ == "__main__":
 
     hist2d(total_sd_pix.value, np.log10(gas_ratio_pix.value),
            data_kwargs={"alpha": 0.3})
-    p.xlim([0, 65])
-    p.ylim([-1.7, 0.7])
+    p.xlim([0, 75])
+    p.ylim([-1.8, 0.8])
     p.xlabel("$\Sigma_{\mathrm{Gas}}$ (M$_{\odot}$ pc$^{-2}$)")
     p.ylabel("log H$_2$-to-HI Ratio $\Sigma_{\mathrm{H2}} /"
              " \Sigma_{\mathrm{HI}}$")
@@ -450,7 +450,7 @@ if __name__ == "__main__":
 
     hist2d(total_sd_pix.value, hi_coldens.value,
            data_kwargs={"alpha": 0.3})
-    p.xlim([0, 65])
+    p.xlim([0, 75])
     p.ylim([-3, 27])
     p.xlabel("$\Sigma_{\mathrm{Gas}}$ (M$_{\odot}$ pc$^{-2}$)")
     p.ylabel("$\Sigma_{\mathrm{HI}}$ (M$_{\odot}$ pc$^{-2}$)")

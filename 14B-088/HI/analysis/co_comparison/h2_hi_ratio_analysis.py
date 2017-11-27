@@ -212,10 +212,10 @@ plt.close()
 
 print("Slope: {0} {1}".format(slope, slope_ci))
 print("Intercept: {0} {1}".format(inter, inter_cis))
-# Slope: 0.845577294464 [ 0.83733223  0.8538308 ]
-# Intercept: -1.82822168673 [-1.89184967 -1.76575023]
+# Slope: 0.845309187275 [ 0.83697267  0.85358567]
+# Intercept: -1.82702574095 [-1.89175737 -1.76184693]
 print("Ratio Slope: {0} {1}".format(slope_ratio, slope_ratio_ci))
-# Ratio Slope: [ 0.61079832] [ 0.60904237  0.61256217]
+# Ratio Slope: [ 0.6108361] [ 0.60905739  0.61261014]
 
 # What does this relation look like for line widths from the second moment
 co_lwidth = Projection.from_hdu(fits.open(iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI.lwidth.fits"))[0])
@@ -536,6 +536,18 @@ plt.savefig(osjoin(fig_path_models, "{}.png".format(save_name)))
 plt.close()
 
 
+# What fraction of LOS are dominated by H2?
+# How does this change from the moments to fits?
+h2dom_moments = sum(mom_tab["Ratio"][overlap_mask] >= 1.) / \
+    float(overlap_mask.sum())
+h2dom_fits = sum((tab['coldens_CO_gauss'] / tab['coldens_HI_gauss'])[good_pts] >= 1.) / \
+    float(overlap_mask.sum())
+print("Fraction of LOS dominated by H2 from moments: {}".format(h2dom_moments))
+# 0.2369
+print("Fraction of LOS dominated by H2 from fits: {}".format(h2dom_fits))
+# 0.43265
+
+
 # Does the line width ratio change with galactic radius?
 # Compare to the stacked widths
 co_radial_fits = Table.read(iram_co21_14B088_data_path("tables/co_hwhm_totalprof_fits_radial_500pc.csv"))
@@ -612,8 +624,8 @@ inter_cis = cis_nomask[1] / 1000.
 print("HI sigma no mask vs. CO")
 print("Slope: {0} {1}".format(slope, slope_ci))
 print("Intercept: {0} {1}".format(inter, inter_cis))
-# Slope: 0.520613347981 [ 0.5125361   0.52857989]
-# Intercept: 0.161762520675 [ 0.09202867  0.22882612]
+# Slope: 0.521911603815 [ 0.51385501  0.52925186]
+# Intercept: 0.149811659879 [ 0.08597853  0.21841618]
 
 onecolumn_figure()
 

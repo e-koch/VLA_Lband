@@ -187,8 +187,8 @@ for i, (ax, lower, upper) in enumerate(zip(axes.flatten(), inners,
             bbox={"boxstyle": "square", "facecolor": "w"},
             fontsize=11)
 
-ax.set_xlim([0, 60])
-ax.set_ylim([-1.5, 0.7])
+ax.set_xlim([0, 75])
+ax.set_ylim([-1.5, 0.8])
 
 fig.text(0.5, 0.04, "$\Sigma_{\mathrm{Gas}}$ (M$_{\odot}$ pc$^{-2}$)",
          ha='center', va='center',)

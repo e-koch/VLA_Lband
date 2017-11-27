@@ -28,7 +28,8 @@ from paths import (fourteenB_wGBT_HI_file_dict, iram_co21_14B088_data_path,
 from plotting_styles import (default_figure, onecolumn_figure,
                              onecolumn_twopanel_figure)
 from galaxy_params import gal_feath as gal
-from constants import (co21_mass_conversion, hi_mass_conversion, hi_freq)
+from constants import (co21_mass_conversion, hi_mass_conversion, hi_freq,
+                       beam_eff_30m_druard)
 
 
 default_figure()
@@ -96,7 +97,7 @@ results = {"amp_CO": np.zeros((yposns.shape)) * u.K,
 inc = np.cos(gal.inclination)
 
 # 30 m beam efficiency
-beam_eff = 0.75
+beam_eff = beam_eff_30m_druard
 
 # Roughly constant for all pixels
 hi_err = 2.8 * u.K

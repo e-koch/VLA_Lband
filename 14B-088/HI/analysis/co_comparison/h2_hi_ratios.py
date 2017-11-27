@@ -13,7 +13,8 @@ import os
 from paths import (iram_co21_14B088_data_path, fourteenB_HI_data_path,
                    fourteenB_HI_file_dict, fourteenB_wGBT_HI_file_dict,
                    fourteenB_HI_data_wGBT_path)
-from constants import (co21_mass_conversion, hi_mass_conversion, hi_freq)
+from constants import (co21_mass_conversion, hi_mass_conversion, hi_freq,
+                       beam_eff_30m_druard)
 from galaxy_params import gal_feath as gal
 
 # Now load in the zeroth moments.
@@ -46,7 +47,7 @@ skycoord_pts = skycoord_grid[good_pts]
 inc = np.cos(gal.inclination)
 
 # 30 m beam efficiency
-beam_eff = 0.75
+beam_eff = beam_eff_30m_druard
 
 # Convert the integrated intensities to surface densities.
 # hi_coldens = hi_mom0_reproj[good_pts] * hi_mass_conversion * inc

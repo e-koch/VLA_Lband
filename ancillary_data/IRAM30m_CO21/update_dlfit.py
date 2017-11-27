@@ -16,7 +16,7 @@ from radio_beam import Beam
 from os.path import join as osjoin
 
 from paths import iram_co21_data_path, data_path, fourteenB_wGBT_HI_file_dict
-from constants import hi_freq
+from constants import hi_freq, beam_eff_30m_druard
 
 tab = Table.read(osjoin(data_path, "dlfit.fits"))
 
@@ -87,7 +87,7 @@ for i, (ra, dec) in enumerate(ProgressBar(zip(tab['RA'], tab['DEC']))):
 
 
 # Correct CO for beam efficiency
-beam_eff = 0.75
+beam_eff = beam_eff_30m_druard
 tab['CO21'] = Column(new_co21 / beam_eff)
 tab['HI'] = Column(new_hi)
 

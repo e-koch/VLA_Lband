@@ -16,7 +16,8 @@ from paths import (iram_co21_14B088_data_path,
                    fourteenB_HI_data_wGBT_path,
                    allfigs_path, c_hi_analysispath,
                    fourteenB_wGBT_HI_file_dict)
-from constants import co21_mass_conversion, hi_mass_conversion
+from constants import (co21_mass_conversion, hi_mass_conversion,
+                       beam_eff_30m_druard)
 from galaxy_params import gal_feath as gal
 from plotting_styles import onecolumn_figure, default_figure
 
@@ -34,7 +35,7 @@ if not exists(fig_co_path):
     os.mkdir(fig_co_path)
 
 # IRAM beam efficiency
-beam_eff = 0.75
+beam_eff = beam_eff_30m_druard
 
 # Set the radial disk widths to bin over
 dr = 100 * u.pc

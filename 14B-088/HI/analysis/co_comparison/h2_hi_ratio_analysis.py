@@ -547,6 +547,16 @@ print("Fraction of LOS dominated by H2 from moments: {}".format(h2dom_moments))
 print("Fraction of LOS dominated by H2 from fits: {}".format(h2dom_fits))
 # 0.43265
 
+# Median properties?
+print("Median Ratio from moments: {}".format(np.median(mom_tab["Ratio"][overlap_mask])))
+print("Median Ratio from fits: {}".format(np.median((tab['coldens_CO_gauss'] / tab['coldens_HI_gauss'])[good_pts])))
+# Median Ratio from moments: 0.661082448156
+# Median Ratio from fits: 0.917707557645
+
+print("Median Gas SD from moments: {}".format(np.median(mom_tab["Sigma_Total"][overlap_mask])))
+print("Median Gas SD from fits: {}".format(np.median((tab['coldens_CO_gauss'] + tab['coldens_HI_gauss'])[good_pts])))
+# Median Gas SD from moments: 20.3874723999
+# Median Gas SD from fits: 20.1290850074
 
 # Does the line width ratio change with galactic radius?
 # Compare to the stacked widths

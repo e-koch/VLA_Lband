@@ -169,7 +169,7 @@ fig = plt.figure()
 
 fig1 = FITSFigure(mom0_linfeat[100:850, 300:1200].hdu, figure=fig,
                   subplot=(1, 2, 1))
-fig1.show_grayscale(stretch='arcsinh', invert=True, vmin=0)
+fig1.show_grayscale(stretch='linear', invert=True, vmin=0, vmax=140)
 fig1.show_colorbar()
 fig1.ticks.set_yspacing(10 / 60.)
 fig1.ticks.set_xspacing(15 / 60.)
@@ -177,13 +177,14 @@ fig1.tick_labels.set_xformat('hh:mm:ss')
 fig1.tick_labels.set_yformat('dd:mm:ss')
 fig1.colorbar.set_ticks([0, 20, 60, 100, 140])
 fig1.colorbar.set_font(size=11)
-fig1.add_label(0.3, 0.1, '-150<v<-60 km/s ', relative=True,
+fig1.add_label(0.05, 0.05, '-150<v<-60 km/s ', relative=True,
                bbox={"boxstyle": "square", "facecolor": "w"},
-               size=10)
+               size=10, horizontalalignment='left',
+               verticalalignment='bottom')
 
 fig2 = FITSFigure(mom0_ncloud[750:1500, 100:1000].hdu, figure=fig,
                   subplot=(1, 2, 2))
-fig2.show_grayscale(stretch='arcsinh', invert=True, vmin=0)
+fig2.show_grayscale(stretch='linear', invert=True, vmin=0, vmax=140)
 fig2.show_colorbar()
 fig2.axis_labels.hide_y()
 fig2.ticks.set_yspacing(10 / 60.)
@@ -194,9 +195,10 @@ fig2.colorbar.set_axis_label_text('Integrated Intensity (K km/s)')
 fig2.colorbar.set_axis_label_font(size=11, weight='normal')
 fig2.colorbar.set_ticks([0, 20, 60, 100, 140])
 fig2.colorbar.set_font(size=11)
-fig2.add_label(0.75, 0.9, '50<v<140 km/s ', relative=True,
+fig2.add_label(0.05, 0.05, '50<v<140 km/s ', relative=True,
                bbox={"boxstyle": "square", "facecolor": "w"},
-               size=10)
+               size=10, horizontalalignment='left',
+               verticalalignment='bottom')
 
 plt.tight_layout()
 
@@ -267,3 +269,5 @@ print("Blue-shifted mass: {0}+/-{1}"
       .format(linfeat_mass.value, linfeat_mass_stddev))
 print("Red-shifted mass: {0}+/-{1}"
       .format(ncloud_mass.value, ncloud_mass_stddev))
+# Blue-shifted mass: 4983498.22324+/-2132314.62835 solMass
+# Red-shifted mass: 7819298.53279+/-3304023.51807 solMass

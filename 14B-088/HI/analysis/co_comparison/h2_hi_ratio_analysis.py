@@ -26,7 +26,7 @@ from paths import (fourteenB_HI_data_wGBT_path, fourteenB_wGBT_HI_file_dict,
 from plotting_styles import (default_figure, onecolumn_figure,
                              twocolumn_twopanel_figure)
 
-from krumholz_models import krumholz2013_ratio_model, krumholz_maxhi_sigma
+from krumholz_models import krumholz2013_ratio_model, krumholz2013_sigmaHI
 
 fig_path = allfigs_path("co_vs_hi")
 if not os.path.exists(fig_path):
@@ -70,7 +70,7 @@ ax1 = plt.subplot(121)
 hist2d(tab["coldens_CO_FWHM"][good_pts],
        tab["coldens_CO_gauss"][good_pts],
        data_kwargs={"alpha": 0.6}, ax=ax1)
-plt.plot([0, 50], [0, 50], c=cpal[0], linewidth=3, linestyle='dashed')
+plt.plot([0, 60], [0, 60], c=cpal[0], linewidth=3, linestyle='dashed')
 plt.grid()
 plt.xlabel("Gaussian Fit $\Sigma_{\mathrm{H2}}$ (M$_{\odot}$ pc$^{-2}$)")
 plt.ylabel("FWHM $\Sigma_{\mathrm{H2}}$ (M$_{\odot}$ pc$^{-2}$)")
@@ -373,12 +373,10 @@ ax2 = axs[0]
 hist2d(mom_tab["Sigma_H2"][overlap_mask],
        tab['coldens_CO_gauss'][good_pts],
        data_kwargs={"alpha": 0.6}, ax=ax2, bins=20)
-ax2.plot([0, 50], [0, 50], c=cpal[0], linewidth=3, linestyle='dashed')
+ax2.plot([0, 65], [0, 65], c=cpal[0], linewidth=3, linestyle='dashed')
 ax2.grid()
 ax2.set_xlabel("Moment $\Sigma_{\mathrm{H2}}$ (M$_{\odot}$ pc$^{-2}$)")
 ax2.set_ylabel("Gaussian Fit $\Sigma_{\mathrm{H2}}$ (M$_{\odot}$ pc$^{-2}$)")
-ax2.set_ylim([3, 50])
-ax2.set_xlim([3, 50])
 
 plt.tight_layout()
 
@@ -399,7 +397,7 @@ hist2d((tab['coldens_HI_gauss'] + tab['coldens_CO_gauss'])[good_pts],
 ax1.set_xlabel(r"$\Sigma_{\mathrm{Total}}$ (M$_{\odot}$ pc$^{-2}$)")
 
 # Overplot the Krumholz 2013 model
-sigma_t = np.linspace(5, 70, 100)
+sigma_t = np.linspace(5, 75, 100)
 ax1.plot(sigma_t, np.log10(krumholz2013_ratio_model(sigma_t, c=1, Z=0.5)), "-",
          label="c=1, Z=0.5")
 ax1.plot(sigma_t, np.log10(krumholz2013_ratio_model(sigma_t, c=1, Z=1.0)), "--",
@@ -438,8 +436,8 @@ ax2.plot(sigma_t, np.log10(krumholz2013_ratio_model(sigma_t, c=3, Z=1.0)), "-",
          label="c=3, Z=1.0")
 
 ax2.grid()
-ax2.set_ylim([-1.2, 0.9])
-ax2.set_xlim([5, 70])
+ax2.set_ylim([-1.2, 1.0])
+ax2.set_xlim([5, 80])
 
 ax2.annotate("Moment", (0.15, 0.88),
              xycoords='axes fraction', color='k',
@@ -470,18 +468,18 @@ hist2d((tab['coldens_HI_gauss'] + tab['coldens_CO_gauss'])[good_pts],
 ax1.set_xlabel(r"$\Sigma_{\mathrm{Total}}$ (M$_{\odot}$ pc$^{-2}$)")
 
 # Overplot the Krumholz 2013 model
-ax1.axhline(krumholz_maxhi_sigma(Z=1.0, c=1).value,
-            linestyle='-.', label='Z=1.0, c=1',
-            c=cpal[0])
-ax1.axhline(krumholz_maxhi_sigma(Z=0.5, c=2).value,
-            linestyle=':', label='Z=0.5, c=2',
-            c=cpal[1])
-ax1.axhline(krumholz_maxhi_sigma(Z=0.5, c=3).value,
-            linestyle='-', label='Z=0.5, c=3',
-            c=cpal[2])
-ax1.axhline(krumholz_maxhi_sigma(Z=1., c=3.).value,
-            linestyle='--', label='Z=1.0, c=3',
-            c=cpal[3])
+ax1.plot(sigma_t, krumholz2013_sigmaHI(sigma_t, c=1, Z=1.0), "-.",
+         label="c=1, Z=1.0", linewidth=2, alpha=0.95,
+         color=cpal[0])
+ax1.plot(sigma_t, krumholz2013_sigmaHI(sigma_t, c=2, Z=0.5), ":",
+         label="c=2, Z=0.5", linewidth=2, alpha=0.95,
+         color=cpal[1])
+ax1.plot(sigma_t, krumholz2013_sigmaHI(sigma_t, c=3, Z=0.5), "-",
+         label="c=3, Z=0.5", linewidth=2, alpha=0.95,
+         color=cpal[2])
+ax1.plot(sigma_t, krumholz2013_sigmaHI(sigma_t, c=3, Z=1.0), "--",
+         label="c=3, Z=1.0", linewidth=2, alpha=0.95,
+         color=cpal[3])
 
 ax1.plot([5, 26], [5, 26], '-', linewidth=4, alpha=0.6, color=cpal[5])
 
@@ -500,25 +498,25 @@ hist2d(mom_tab["Sigma_Total"][overlap_mask],
 ax2.set_xlabel(r"$\Sigma_{\mathrm{Total}}$ (M$_{\odot}$ pc$^{-2}$)")
 ax2.set_ylabel(r"$\Sigma_{\mathrm{HI}}$")
 
+ax2.plot(sigma_t, krumholz2013_sigmaHI(sigma_t, c=1, Z=1.0), "-.",
+         label="c=1, Z=1.0", linewidth=2, alpha=0.95,
+         color=cpal[0])
+ax2.plot(sigma_t, krumholz2013_sigmaHI(sigma_t, c=2, Z=0.5), ":",
+         label="c=2, Z=0.5", linewidth=2, alpha=0.95,
+         color=cpal[1])
+ax2.plot(sigma_t, krumholz2013_sigmaHI(sigma_t, c=3, Z=0.5), "-",
+         label="c=3, Z=0.5", linewidth=2, alpha=0.95,
+         color=cpal[2])
+ax2.plot(sigma_t, krumholz2013_sigmaHI(sigma_t, c=3, Z=1.0), "--",
+         label="c=3, Z=1.0", linewidth=2, alpha=0.95,
+         color=cpal[3])
 
-ax2.axhline(krumholz_maxhi_sigma(Z=1.0, c=1).value,
-            linestyle='-.', label='Z=1.0, c=1',
-            c=cpal[0])
-ax2.axhline(krumholz_maxhi_sigma(Z=0.5, c=2).value,
-            linestyle=':', label='Z=0.5, c=2',
-            c=cpal[1])
-ax2.axhline(krumholz_maxhi_sigma(Z=0.5, c=3).value,
-            linestyle='-', label='Z=0.5, c=3',
-            c=cpal[2])
-ax2.axhline(krumholz_maxhi_sigma(Z=1., c=3.).value,
-            linestyle='--', label='Z=1.0, c=3',
-            c=cpal[3])
 
 ax2.plot([5, 26], [5, 26], '-', linewidth=4, alpha=0.6, color=cpal[5])
 
 ax2.grid()
 ax2.set_ylim([-2, 26])
-ax2.set_xlim([5, 70])
+ax2.set_xlim([5, 75])
 
 ax2.annotate("Moment", (0.79, 0.88),
              xycoords='axes fraction', color='k',

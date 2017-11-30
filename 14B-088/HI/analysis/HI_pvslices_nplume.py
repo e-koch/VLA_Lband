@@ -17,8 +17,7 @@ import matplotlib.pyplot as plt
 from paths import (fourteenB_HI_data_wGBT_path, allfigs_path,
                    fourteenB_wGBT_HI_file_dict)
 
-rotsub_cube = SpectralCube.read(fourteenB_HI_data_wGBT_path("M33_14B-088_HI.clean.image.GBT_feathered.pbcov_gt_0.5_masked.rotation_corrected.padded.fits"))
-
+rotsub_cube = SpectralCube.read(fourteenB_wGBT_HI_file_dict['RotSub_Cube'])
 
 # Define perpendicular paths across the region
 

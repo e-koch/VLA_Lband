@@ -1,6 +1,5 @@
 
 from spectral_cube import SpectralCube, Projection
-from spectral_cube.cube_utils import average_beams
 import numpy as np
 import matplotlib.pyplot as p
 from astropy.io import fits
@@ -10,7 +9,6 @@ import os
 from reproject import reproject_interp
 from astropy.visualization import AsinhStretch
 from astropy.visualization.mpl_normalize import ImageNormalize
-from corner import hist2d
 
 from paths import (fourteenB_HI_file_dict, fourteenB_wGBT_HI_file_dict,
                    allfigs_path,
@@ -124,6 +122,54 @@ p.tight_layout()
 
 p.savefig(allfigs_path("HI_maps/skew_kurt_feather_maps.pdf"))
 p.savefig(allfigs_path("HI_maps/skew_kurt_feather_maps.png"))
+p.close()
+
+
+# Now figures of just skewness and just kurtosis
+
+ax = p.subplot(121, projection=skew_feather.wcs)
+im = ax.imshow(skew.value,
+               origin='lower', vmin=-3, vmax=3,
+               interpolation='nearest', cmap='seismic')
+# ax.set_title("Skewness")
+ax.set_ylabel("DEC (J2000)")
+ax.set_xlabel("RA (J2000)")
+
+ax2 = p.subplot(122, projection=kurt_feather.wcs)
+im2 = ax2.imshow(skew_feather.value, vmin=-3, vmax=3,
+                 origin='lower', interpolation='nearest', cmap='seismic')
+ax2.set_xlabel("RA (J2000)")
+lat = ax2.coords[1]
+lat.set_ticklabel_visible(False)
+cbar2 = p.colorbar(im2)
+cbar2.set_label("Skewness")
+
+p.tight_layout()
+
+p.savefig(allfigs_path("HI_maps/skew_maps.pdf"))
+p.savefig(allfigs_path("HI_maps/skew_maps.png"))
+p.close()
+
+ax = p.subplot(121, projection=skew_feather.wcs)
+im = ax.imshow(kurt.value,
+               origin='lower', vmin=-3, vmax=3,
+               interpolation='nearest', cmap='seismic')
+ax.set_ylabel("DEC (J2000)")
+ax.set_xlabel("RA (J2000)")
+
+ax2 = p.subplot(122, projection=kurt_feather.wcs)
+im2 = ax2.imshow(kurt_feather.value, vmin=-3, vmax=3,
+                 origin='lower', interpolation='nearest', cmap='seismic')
+ax2.set_xlabel("RA (J2000)")
+lat = ax2.coords[1]
+lat.set_ticklabel_visible(False)
+cbar2 = p.colorbar(im2)
+cbar2.set_label("Kurtosis")
+
+p.tight_layout()
+
+p.savefig(allfigs_path("HI_maps/kurt_maps.pdf"))
+p.savefig(allfigs_path("HI_maps/kurt_maps.png"))
 p.close()
 
 # Interesting regions:
@@ -286,7 +332,7 @@ for posns, cuts, name, dist in zip(spec_posns, spectral_cuts, names, dists):
     fig, axes = p.subplots(num_posns, 1, sharey=True, sharex=False)
     for i, (posn, ax) in enumerate(zip(posns, axes)):
         spec = cube.spectral_slab(cuts[0], cuts[1])[:, posn[0], posn[1]]
-        spec = spec.to(u.K, equivalencies=average_beams(cube.beams).jtok_equiv(hi_freq))
+        spec = spec.to(u.K, equivalencies=cube.beams.average_beam().jtok_equiv(hi_freq))
         velocities = cube.spectral_slab(cuts[0], cuts[1]).spectral_axis.to(u.km / u.s).value
         ax.plot(velocities, spec.value, 'b-', drawstyle='steps-mid')
         # ax.axvline(mom1[posn[0], posn[1]].to(u.km / u.s).value)

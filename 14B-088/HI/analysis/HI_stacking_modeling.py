@@ -129,7 +129,7 @@ for spectrum, label, file_label in zip(spectra, labels, file_labels):
                  sigma_noise=sigma_noise / np.nanmax(spectrum.value),
                  nbeams=(num_pix_feath_total / npix_beam if "feath" in
                          file_label else num_pix_total / npix_beam),
-                 niters=100, interp_factor=2.)
+                 niters=None, interp_factor=2.)
 
     hi_fit_hwhm_vals[label + " Params"] = parvals_hwhm
     hi_fit_hwhm_vals[label + " Lower Limit"] = np.abs(parerrs_hwhm[0])
@@ -198,9 +198,9 @@ for spectrum, label, file_label in zip(spectra, labels, file_labels):
     p.savefig(allfigs_path(osjoin(figure_folder, filename + ".pdf")))
     p.savefig(allfigs_path(osjoin(figure_folder, filename + ".png")))
     p.close()
-    # p.draw()
-    # raw_input("Next plot?")
-    # p.clf()
+    p.draw()
+    raw_input("Next plot?")
+    p.clf()
 
 
 # Plot the total profiles w/ and w/o GBT added.
@@ -342,6 +342,97 @@ p.subplots_adjust(hspace=0.02,
 
 fig.savefig(allfigs_path(osjoin(figure_folder, "total_profile_corrected_velocity_HI.pdf")))
 fig.savefig(allfigs_path(osjoin(figure_folder, "total_profile_corrected_velocity_HI.png")))
+p.close()
+
+# Smaller scale 2-panel plots to compare shape and the peak velocity models
+onecolumn_twopanel_figure()
+fig, ax = p.subplots(2, 1, sharey=True, sharex=True)
+
+ax[0].plot(total_spectrum_hi.spectral_axis.to(u.km / u.s).value,
+           (total_spectrum_hi / total_spectrum_hi.max()).value,
+           '-', drawstyle='steps-mid', label='Rot. Sub')
+ax[0].plot(total_spectrum_hi_cent.spectral_axis.to(u.km / u.s).value,
+           (total_spectrum_hi_cent / total_spectrum_hi_cent.max()).value,
+           '--', drawstyle='steps-mid', label='Cent. Sub')
+ax[0].plot(total_spectrum_hi_peakvel.spectral_axis.to(u.km / u.s).value,
+           (total_spectrum_hi_peakvel / total_spectrum_hi_peakvel.max()).value,
+           '-.', drawstyle='steps-mid', label='Peak. Sub')
+ax[0].legend(frameon=True)
+ax[0].set_ylim([-0.02, 1.1])
+ax[0].set_xlim([-50, 50])
+ax[0].grid()
+
+ax[1].plot(total_spectrum_hi_wGBT.spectral_axis.to(u.km / u.s).value,
+           (total_spectrum_hi_wGBT / total_spectrum_hi_wGBT.max()).value,
+           '-', drawstyle='steps-mid')
+ax[1].plot(total_spectrum_hi_cent_wGBT.spectral_axis.to(u.km / u.s).value,
+           (total_spectrum_hi_cent_wGBT / total_spectrum_hi_cent_wGBT.max()).value,
+           '--', drawstyle='steps-mid')
+ax[1].plot(total_spectrum_hi_peakvel_wGBT.spectral_axis.to(u.km / u.s).value,
+           (total_spectrum_hi_peakvel_wGBT / total_spectrum_hi_peakvel_wGBT.max()).value,
+           '-.', drawstyle='steps-mid')
+ax[1].grid()
+ax[1].set_xlabel("Velocity (km/s)")
+
+fig.text(0.01, 0.5, 'Normalized Total Intensity',
+         va='center', rotation='vertical')
+
+p.tight_layout()
+p.subplots_adjust(left=0.13, hspace=0.03)
+
+fig.savefig(allfigs_path(osjoin(figure_folder, "total_profile_compare_shape_HI.pdf")))
+fig.savefig(allfigs_path(osjoin(figure_folder, "total_profile_compare_shape_HI.png")))
+p.close()
+
+# Peak velocity comparison
+fig, ax = p.subplots(2, 1, sharey=True, sharex=True)
+
+ax[0].plot(total_spectrum_hi_peakvel.spectral_axis.to(u.km / u.s).value,
+           (total_spectrum_hi_peakvel / total_spectrum_hi_peakvel.max()).value,
+           '-', drawstyle='steps-mid')
+vels = total_spectrum_hi_peakvel.spectral_axis.to(u.km / u.s).value
+ax[0].fill_between(vels, hwhm_models['peaksub_feath'](vels),
+                   (total_spectrum_hi_peakvel / total_spectrum_hi_peakvel.max()).value,
+                   facecolor='gray',
+                   alpha=0.5)
+ax[0].axvline(hwhm_models['peaksub'].mean + hwhm_models['peaksub'].stddev *
+              np.sqrt(2 * np.log(2)), linestyle='--', color=cpal[1])
+ax[0].axvline(hwhm_models['peaksub'].mean - hwhm_models['peaksub'].stddev *
+              np.sqrt(2 * np.log(2)), linestyle='--', color=cpal[1])
+# ax[0].text(15, 0.88, "VLA+GBT",
+#               bbox={"boxstyle": "square", "facecolor": "w"})
+ax[0].set_ylim([-0.02, 1.1])
+ax[0].set_xlim([-50, 50])
+ax[0].grid()
+
+ax[1].plot(total_spectrum_hi_peakvel_wGBT.spectral_axis.to(u.km / u.s).value,
+           (total_spectrum_hi_peakvel_wGBT / total_spectrum_hi_peakvel_wGBT.max()).value,
+           '-', drawstyle='steps-mid')
+vels = total_spectrum_hi_peakvel_wGBT.spectral_axis.to(u.km / u.s).value
+ax[1].fill_between(vels, hwhm_models['peaksub_feath'](vels),
+                   (total_spectrum_hi_peakvel_wGBT / total_spectrum_hi_peakvel_wGBT.max()).value,
+                   facecolor='gray',
+                   alpha=0.5)
+ax[1].axvline(hwhm_models['peaksub_feath'].mean + hwhm_models['peaksub_feath'].stddev *
+              np.sqrt(2 * np.log(2)), linestyle='--', color=cpal[1])
+ax[1].axvline(hwhm_models['peaksub_feath'].mean - hwhm_models['peaksub_feath'].stddev *
+              np.sqrt(2 * np.log(2)), linestyle='--', color=cpal[1])
+# ax[1].text(15, 0.88, "VLA+GBT",
+#               bbox={"boxstyle": "square", "facecolor": "w"})
+ax[1].set_ylim([-0.02, 1.1])
+ax[1].set_xlim([-50, 50])
+ax[1].legend(frameon=True)
+ax[1].grid()
+ax[1].set_xlabel("Velocity (km/s)")
+
+fig.text(0.01, 0.5, 'Normalized Total Intensity',
+         va='center', rotation='vertical')
+
+p.tight_layout()
+p.subplots_adjust(left=0.13, hspace=0.03)
+
+fig.savefig(allfigs_path(osjoin(figure_folder, "total_profile_vpeakcompare_HI.pdf")))
+fig.savefig(allfigs_path(osjoin(figure_folder, "total_profile_vpeakcompare_HI.png")))
 p.close()
 
 # Save parameter table

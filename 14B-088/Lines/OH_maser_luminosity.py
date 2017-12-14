@@ -62,26 +62,35 @@ peak_lum = 4 * np.pi * peak_flux * distance**2
 
 print("Peak luminosity: {}".format(peak_lum))
 # Peak luminosity: 163810.309843 Jy kpc2
-# Fix & Mutel has a detection threshold of 1.3e4 Jy kpc^2, and this exceeds it
-# Variability or dropping 4 pi?
+# Fix & Mutel has a detection threshold of 1.3e4 Jy kpc^2 @ 720 kpc distance
+fix_mutel_5sig_lim = 1.3e4 * u.Jy * u.kpc**2 * (840 / 720.)**2
+# @ 840 kpc, 1.77e4 Jy kpc^2
+# This is NOT an isotropic value. Make it isotropic to compare with our peak
+fix_mutel_5sig_lim_iso = fix_mutel_5sig_lim * 4 * np.pi
+
+# And finally correct for the difference in channel size. They have 5.2 km/s
+fix_mutel_5sig_matched = fix_mutel_5sig_lim_iso * np.sqrt(5.2 / 1.5)
+
+# So the S/N in the Fix & Mutel data would be:
+print("Fix & Mutel S/N would be: {}".format(5 * (peak_lum / fix_mutel_5sig_matched)))
 
 # Comparison to some numbers from Walsh+16 for OH masers in W43.
 # The brightest peak is
 w43_peakflux = 24.395 * u.Jy
 # Kinematic from Heyer+09
-w43_dist = 5.7 * u.kpc
+w43_dist = 5.5 * u.kpc
 
 w43_chan_width = 0.73 * u.km / u.s
 chan_width = np.diff(cube.spectral_axis[:2])[0]
 chan_ratio = (w43_chan_width / chan_width.to(u.km / u.s))
 
-w43_luminosity = w43_peakflux * w43_dist**2
+w43_luminosity = 4 * np.pi * w43_peakflux * w43_dist**2
 
-lum_ratio = (peak_flux * distance**2 / w43_luminosity) * chan_ratio
+lum_ratio = (peak_lum / w43_luminosity) * np.sqrt(chan_ratio)
 
 print("Ratio b/w M33 peak luminosity and brightest in W43: {}"
       .format(lum_ratio))
-# Ratio b/w M33 peak luminosity and brightest in W43: 8.0040986937
+# Ratio b/w M33 peak luminosity and brightest in W43: 11.4735188765
 # So this maser is about ~10 times the brightest in W43
 
 # Quick-and-dirty search for more emission.
@@ -135,8 +144,6 @@ for i in range(num):
 # What's our luminosity threshold?
 
 peak_sigma = mad_std * u.beam
-lum_sigma = peak_sigma * distance**2
+lum_sigma = 4 * np.pi * peak_sigma * distance**2
 print("Luminosity at 1-sigma: {}".format(lum_sigma))
 # Luminosity at 1-sigma: 1232.20014071 Jy kpc2
-# Pretty much the same as Fix & Mutel
-# Not sure that makes sense...

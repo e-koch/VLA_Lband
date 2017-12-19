@@ -371,6 +371,7 @@ ax.plot(vels / 1000., mean_spec.value, drawstyle='steps-mid')
 ax.plot(vels / 1000., g_HI[0](vels), '--', label='Cloud Comp.')
 ax.plot(vels / 1000., g_HI[1](vels), '-.', label='Disk Comp.')
 ax.plot(vels / 1000., g_HI(vels), '-', alpha=0.8, label='Total Fit')
+ax.set_xlim([-100, 100])
 
 ax.set_xlabel("Velocity (km/s)")
 ax.set_ylabel("Intensity (K)")

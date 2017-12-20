@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 from constants import distance
 
 
-path = "/mnt/bigdata/ekoch/VLA/14B-088/Lines/OH/OH1665/imaging_1point5km_s"
+path = "/mnt/bigdata/ekoch/VLA/14B-088/Lines/OH/OH1665/imaging_1point5km_s_narrow"
 
 # Open the OH 1665 narrow line width cube
 
@@ -41,8 +41,8 @@ pix_size = proj_plane_pixel_area(mom0.wcs) * u.Unit(mom0.header['CUNIT2'])**2
 
 region_area = pix_size * num_pix
 
-total_flux = total_intensity * cube.beam.sr.to(u.deg**2) * u.beam / region_area
-total_flux_hz = total_intensity_hz * cube.beam.sr.to(u.deg**2) * u.beam / region_area
+total_flux = total_intensity * reg_cube.beam.sr.to(u.deg**2) * u.beam / region_area
+total_flux_hz = total_intensity_hz * reg_cube.beam.sr.to(u.deg**2) * u.beam / region_area
 
 # Convert to SI units
 
@@ -92,6 +92,8 @@ print("Ratio b/w M33 peak luminosity and brightest in W43: {}"
       .format(lum_ratio))
 # Ratio b/w M33 peak luminosity and brightest in W43: 11.4735188765
 # So this maser is about ~10 times the brightest in W43
+
+print(argh)
 
 # Quick-and-dirty search for more emission.
 # load in the flux coverage. This is a whole cube, but the coverage won't

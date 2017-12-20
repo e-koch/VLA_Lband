@@ -52,8 +52,8 @@ plt.grid(True)
 plt.ylabel("VLA-to-GBT Flux Ratio")
 plt.xlabel("Velocity (km / s)")
 plt.tight_layout()
-plt.savefig(allfigs_path("vla_gbt_flux_recovery_ratio.png"))
-plt.savefig(allfigs_path("vla_gbt_flux_recovery_ratio.pdf"))
+plt.savefig(allfigs_path("Imaging/vla_gbt_flux_recovery_ratio.png"))
+plt.savefig(allfigs_path("Imaging/vla_gbt_flux_recovery_ratio.pdf"))
 plt.close()
 
 # Plot the total spectra
@@ -69,8 +69,8 @@ plt.ylim([-10, 65])
 plt.ylabel("Total Flux (Jy)")
 plt.xlabel("Velocity (km / s)")
 plt.tight_layout()
-plt.savefig(allfigs_path("vla_gbt_flux_recovery.png"))
-plt.savefig(allfigs_path("vla_gbt_flux_recovery.pdf"))
+plt.savefig(allfigs_path("Imaging/vla_gbt_flux_recovery.png"))
+plt.savefig(allfigs_path("Imaging/vla_gbt_flux_recovery.pdf"))
 plt.close()
 
 # We've summed up most of the data already. How about a mass estimate?

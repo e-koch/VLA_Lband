@@ -80,6 +80,7 @@ for line in oh_lines:
     # Re-image with 3 different weighting choices
     # robust has 0.0 set above
     # weightings = ["natural", "briggs", "uniform"]
+
     weightings = ["natural", "uniform"]
 
     for weighting in weightings:
@@ -138,6 +139,8 @@ for line in oh_lines:
 
         # retrec = imager.getSummary()
 
+        imager.restoreImages()
+        # imager.pbcorImages()
         concattype = 'virtualcopy'
         imager.concatImages(type=concattype)
         imager.deleteTools()
@@ -150,6 +153,11 @@ for line in oh_lines:
 
         exportfits(imagename="{}.image.pbcor".format(out_image),
                    fitsimage="{}.image.pbcor.fits".format(out_image),
+                   velocity=True, overwrite=True,
+                   dropdeg=True, history=False)
+
+        exportfits(imagename="{}.pb".format(out_image),
+                   fitsimage="{}.pb.fits".format(out_image),
                    velocity=True, overwrite=True,
                    dropdeg=True, history=False)
 

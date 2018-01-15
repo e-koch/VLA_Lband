@@ -14,3 +14,5 @@ from paths import c_path
 # Make velocity corrected cubes
 execfile(osjoin(c_path, "Lines/OH_maser_luminosity.py"))
 execfile(osjoin(c_path, "Lines/OH_maser_figure.py"))
+# This creates 3 figures, which are combined into the paper version using
+# keynote

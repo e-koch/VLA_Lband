@@ -50,8 +50,10 @@ pix_size = proj_plane_pixel_area(mom0.wcs) * u.Unit(mom0.header['CUNIT2'])**2
 
 pix_per_beam = (com_beam.sr.to(u.deg**2) / pix_size) * (u.pix / u.beam)
 
-# Make a total spectrum
-sum_spec = reg_cube.sum(axis=(1, 2)) * (num_pix / pix_per_beam)
+# Make a total spectrum based on the peak location
+sum_spec = reg_cube[:, 3, 4] * u.beam
+
+mad_std = 0.0018596 * u.Jy
 
 onecolumn_figure()
 
@@ -62,7 +64,8 @@ plt.xlabel("Velocity (km/s)", fontsize=13)
 plt.xticks(fontsize=12)
 plt.yticks(fontsize=12)
 plt.grid()
-plt.xlim(-230, -190)
+plt.xlim(-212 - 12, -212 + 12)
+plt.axhline(mad_std.value, color=sb.color_palette()[1], linestyle='--')
 plt.tight_layout()
 plt.savefig(os.path.join(fig_folder, "OH1665_spectrum.png"))
 plt.savefig(os.path.join(fig_folder, "OH1665_spectrum.pdf"))
@@ -90,9 +93,9 @@ hi_fig.hide_tick_labels()
 
 x_world = 23.5009
 y_world = 30.680
-hi_fig.show_markers(x_world, y_world, marker="o",
-                    facecolor='none',
-                    s=50, edgecolor=cpal[2],
+hi_fig.show_markers(x_world, y_world, marker="D",
+                    facecolor=cpal[2],
+                    s=30, edgecolor=cpal[2],
                     linewidth=3)
 
 plt.tight_layout()

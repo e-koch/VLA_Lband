@@ -6,12 +6,17 @@ Calculate luminosity of the one OH maser detection.
 from spectral_cube import SpectralCube
 from astropy.io import fits
 import pyregion
+import regions
+from astropy.coordinates import SkyCoord
 from os.path import join as osjoin
 from astropy.wcs.utils import proj_plane_pixel_area
 import astropy.units as u
 import numpy as np
 import scipy.ndimage as nd
 import matplotlib.pyplot as plt
+from radio_beam import Beam
+from gaussfit_catalog import gaussfit_catalog
+from turbustat.statistics.vca_vcs.slice_thickness import spectral_regrid_cube
 
 from constants import distance
 
@@ -35,51 +40,70 @@ reg_cube_hz = reg_cube.spectral_slab(-220 * u.km / u.s, -200 * u.km / u.s)\
 mom0 = reg_cube.spectral_slab(-220 * u.km / u.s, -200 * u.km / u.s).moment0()
 mom0_hz = reg_cube_hz.moment0()
 
-# Integrated intensity over region
 
-num_pix = np.sum(np.isfinite(mom0)) * u.pix
-pix_size = proj_plane_pixel_area(mom0.wcs) * u.Unit(mom0.header['CUNIT2'])**2
+# Save zeroth moment
+mom0_filename = osjoin(path, "OH1665_14B-088_uniform.image.pbcor.mom0.fits")
+mom0.write(mom0_filename)
 
-pix_per_beam = (com_beam.sr.to(u.deg**2) / pix_size) * (u.pix / u.beam)
+# Fit a 2D Gaussian
+centre_coord = SkyCoord("{0} {1}".format(reg[0].params[0].text,
+                                        reg[0].params[1].text), 'fk5',
+                        unit=(u.hourangle, u.deg))
+regions_reg = regions.CircleSkyRegion(centre_coord, com_beam.major)
+regions_reg.meta['text'] = "SOURCE"
+model = gaussfit_catalog(mom0_filename, [regions_reg],
+                         radius=2 * com_beam.major.to(u.arcsec))['SOURCE']
 
-total_flux = np.nansum(mom0).quantity * (num_pix / pix_per_beam)
-total_flux_hz = np.nansum(mom0_hz).quantity * (num_pix / pix_per_beam)
+fitted_center = SkyCoord(model['center_x'], model['center_y'])
+print(fitted_center)
+# <SkyCoord (ICRS): (ra, dec) in deg
+    # ( 23.50068538,  30.67983907)>
+# This is closest to pixel 3, 4.
+
+# What's the position error?
+print(model['e_center_x'].to(u.arcsec),
+      model['e_center_y'].to(u.arcsec))
+# (<Quantity 0.3481662359328633 arcsec>, <Quantity 0.3330510981447137 arcsec>)
+
+peak_flux = np.nanmax(mom0).quantity * u.beam
+peak_flux_hz = np.nanmax(mom0_hz).quantity * u.beam
 
 # Make a total spectrum
-sum_spec = reg_cube.sum(axis=(1, 2)) * (num_pix / pix_per_beam)
+sum_spec = reg_cube[:, 3, 4] * u.beam
 
 # Convert to SI units
 
-total_flux_si = total_flux_hz.to(u.W / u.m**2)
+total_flux_si = peak_flux_hz.to(u.W / u.m**2)
 
 total_luminosity = \
     4 * np.pi * (total_flux_si * distance.to(u.m)**2).to(u.solLum)
 print("Maser luminosity of : {}".format(total_luminosity))
-# Maser luminosity of : 0.00618556389833 solLum
+# Maser luminosity of : 0.000135468337175 solLum
 print(total_luminosity.to(u.erg / u.s))
 
 # Per-channel limit to compare with Fix & Mutel 1985
 # They list things in terms of Jy kpc^2. So this is a per channel limit?
 # Take the peak intensity in the summed spectrum
-peak_flux = sum_spec.max()
-peak_lum = 4 * np.pi * peak_flux * distance**2
+peak_flux_density = sum_spec.max()
+peak_lum = 4 * np.pi * peak_flux_density * distance**2
 
 print("Peak luminosity: {}".format(peak_lum))
-# Peak luminosity: 8219629.01471 Jy kpc2
+# Peak luminosity: 213249.824353 Jy kpc2
 
 # Fix & Mutel has a detection threshold of 1.3e4 Jy kpc^2 @ 720 kpc distance
-fix_mutel_5sig_lim = 1.3e4 * u.Jy * u.kpc**2 * (840 / 720.)**2
-# @ 840 kpc, 1.77e4 Jy kpc^2
-# This is NOT an isotropic value. Make it isotropic to compare with our peak
-fix_mutel_5sig_lim_iso = fix_mutel_5sig_lim * 4 * np.pi
+# Assuming this is over one pixel in a 5.2 km/s. So smooth the spectral scale
+# to match this
 
-# And finally correct for the difference in channel size. They have 5.2 km/s
-fix_mutel_5sig_matched = fix_mutel_5sig_lim_iso * np.sqrt(5.2 / 1.5)
+lowspec_cube = spectral_regrid_cube(reg_cube, 5.2 * u.km / u.s)
+
+lowspec_peak_flux = lowspec_cube[:, 3, 4].max() * u.beam
+
+fix_mutel_5sig_lim = 25e-3 * u.Jy
 
 # So the S/N in the Fix & Mutel data would be:
-print("Fix & Mutel S/N would be: {}".format(5 * (peak_lum / fix_mutel_5sig_matched)))
-# Fix & Mutel S/N would be: 99.2703111135
-# It SHOULD have been detectable!
+print("Fix & Mutel S/N would be: {}".format(5 * (lowspec_peak_flux / fix_mutel_5sig_lim)))
+# Fix & Mutel S/N would be: 2.8186063869
+# Well below their detection threshold.
 
 # Comparison to some numbers from Walsh+16 for OH masers in W43.
 # The brightest peak is
@@ -97,8 +121,8 @@ lum_ratio = (peak_lum / w43_luminosity) * np.sqrt(chan_ratio)
 
 print("Ratio b/w M33 peak luminosity and brightest in W43: {}"
       .format(lum_ratio))
-# Ratio b/w M33 peak luminosity and brightest in W43: 618.346526462
-# So this maser is about ~600 times the brightest in W43
+# Ratio b/w M33 peak luminosity and brightest in W43: 16.0423649196
+# So this maser is about ~16 times the brightest in W43
 
 # Quick-and-dirty search for more emission.
 # load in the flux coverage. This is a whole cube, but the coverage won't
@@ -153,7 +177,7 @@ for i in range(num):
 
 # What's our luminosity threshold?
 
-peak_sigma = mad_std * (num_pix / pix_per_beam)
+peak_sigma = mad_std * u.beam
 lum_sigma = 4 * np.pi * peak_sigma * distance**2
 print("Luminosity at 1-sigma: {}".format(lum_sigma))
-# Luminosity at 1-sigma: 40202.6195055 Jy kpc2
+# Luminosity at 1-sigma: 16488.7738677 Jy kpc2

@@ -15,6 +15,7 @@ import scipy.ndimage as nd
 import matplotlib.pyplot as plt
 import os
 import seaborn as sb
+from astropy.modeling import models, fitting
 
 from constants import hi_freq
 from plotting_styles import onecolumn_figure
@@ -55,10 +56,29 @@ sum_spec = reg_cube[:, 3, 4] * u.beam
 
 mad_std = 0.0018596 * u.Jy
 
+g_init = models.Gaussian1D(amplitude=0.023, mean=-212.5, stddev=7.)
+fit_g = fitting.LevMarLSQFitter()
+g = fit_g(g_init, sum_spec.spectral_axis.to(u.km / u.s).value, sum_spec.value)
+
+stderrs = np.sqrt(np.diag(fit_g.fit_info['param_cov']))
+
+chan_width = np.abs(np.diff(sum_spec.spectral_axis[:2])) / 1000.
+width_stderr = np.sqrt(stderrs[-1]**2 + (0.5 * chan_width.value)**2)
+
+vels = np.linspace(sum_spec.spectral_axis[0].value / 1000.,
+                   sum_spec.spectral_axis[-1].value / 1000.,
+                   10000)
+
 onecolumn_figure()
+
+# plt.plot(sum_spec.spectral_axis.to(u.km / u.s), sum_spec.value -
+#          g(sum_spec.spectral_axis.to(u.km / u.s).value),
+#          drawstyle='steps-mid')
 
 plt.plot(sum_spec.spectral_axis.to(u.km / u.s), sum_spec.value,
          drawstyle='steps-mid')
+plt.plot(vels, g(vels), color=sb.color_palette()[2], linewidth=3, alpha=0.5,
+         zorder=-1)
 plt.ylabel("Flux (Jy)", fontsize=13)
 plt.xlabel("Velocity (km/s)", fontsize=13)
 plt.xticks(fontsize=12)

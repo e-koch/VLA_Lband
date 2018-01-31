@@ -11,6 +11,7 @@ import time
 
 from tasks import rmtables, impbcor, exportfits
 from imagerhelpers.imager_parallel_cube import PyParallelCubeSynthesisImager
+from imagerhelpers.imager_base import PySynthesisImager
 from imagerhelpers.input_parameters import ImagerParameters
 
 
@@ -60,7 +61,7 @@ for line in oh_lines:
     robust = 0.0
     restfreq = rest_freq
     interpolation = 'linear'
-    pblimit = 0.1
+    pblimit = 0.2
 
     spw_num = 0
     max_size = 15000
@@ -119,6 +120,7 @@ for line in oh_lines:
                              )
 
         imager = PyParallelCubeSynthesisImager(params=paramList)
+        # imager = PySynthesisImager(params=paramList)
 
         # init major cycle elements
         imager.initializeImagers()

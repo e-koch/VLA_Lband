@@ -445,8 +445,8 @@ for co_stack, hi_stack, label in zip(co_radstacks, hi_radstacks, labels):
             ax[r, c].legend(loc='lower left', frameon=True, prop={"size": 8})
         ax[r, c].grid()
 
-    print(label)
-    raw_input("?")
+    # print(label)
+    # raw_input("?")
 
     fig.savefig(osjoin(figure_folder, "total_profile_{}_hi_co_radial.pdf".format(label)))
     # fig.savefig(osjoin(figure_folder, "total_profile_{}_hi_co_radial.png".format(label)))
@@ -846,8 +846,8 @@ for ctr, param in enumerate(param_names):
     p.subplots_adjust(hspace=0.05,
                       wspace=0.05)
 
-    p.draw()
-    raw_input(param)
+    # p.draw()
+    # raw_input(param)
 
     if param == "sigma_wing":
         p.close()

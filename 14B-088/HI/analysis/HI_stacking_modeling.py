@@ -755,13 +755,13 @@ ax.errorbar(bin_cents, hi_params["peaksub_feath_f_wings"],
                color=cpal[1], label='VLA + GBT',
                linestyle='--',
                drawstyle='steps-mid')
-ax.legend(frameon=True, loc='upper center')
-ax.fill_between([0, 0.5], 0.05, 0.45, facecolor='gray', alpha=0.5)
+ax.legend(frameon=True, loc='upper left')
+ax.fill_between([0, 0.5], 0.10, 0.36, facecolor='gray', alpha=0.5)
 ax.set_xlim([0.0, 8.0])
 ax.grid()
 ax.set_ylabel(r"$f_{\rm wings}$")
 ax.set_xlabel(r"Radius (kpc)")
-ax.set_ylim([0.05, 0.45])
+ax.set_ylim([0.10, 0.36])
 
 p.tight_layout()
 

@@ -15,30 +15,13 @@ Paper 1 investigates the ensemble of HI properties:
  - comparing estimates of the line width
 '''
 
-import os
-import sys
-from subprocess import call
-
-from paths import (c_hi_analysispath, fourteenB_HI_data_path,
-                   fourteenB_HI_data_wGBT_path, fourteenB_HI_file_dict,
-                   fourteenB_wGBT_HI_file_dict)
-from analysis.constants import moment1_name
-
-os.sys.path.insert(0, c_hi_analysispath(""))
-# os.chdir(c_hi_analysispath(""))
+from paths import c_hi_analysispath
 
 #################
 # Initial masking.
 #################
 
-# Mask w/ pbcov limit.
-execfile(c_hi_analysispath("pbcov_masking.py"))
-
-# Create the source mask
-execfile(c_hi_analysispath("make_signal_mask.py"))
-
-# Create moment arrays
-execfile(c_hi_analysispath("HI_make_moments.py"))
+execfile(c_hi_analysispath("cube_pipeline.py"))
 
 # Make some moment figures
 execfile(c_hi_analysispath("HI_moment_figures.py"))
@@ -47,85 +30,76 @@ execfile(c_hi_analysispath("HI_moment_figures.py"))
 # Rotation curves
 #################
 
-# Find the rotation curve
-# Create a centroid map w/ a radial cutoff
-execfile(c_hi_analysispath("rotation_curves/make_moment1_for_rotcurve.py"))
+# There needs to be a manual step here where the centroid, rotation and peak
+# velocity maps are re-saved in a "moments_for_diskfit" as 32-bit floats.
 
-# Now run diskfit.
-
-# First using the centroids
-diskfit_script = c_hi_analysispath("rotation_curves/run_diskfit.py")
-diskfit_params = c_hi_analysispath("rotation_curves/diskfit_params/diskfit_params_nowarp_noradial_noasymm.inp")
-output_path = fourteenB_HI_data_path("", no_check=True)
-
-call("python {0} {1} {2} {3}".format(diskfit_script, diskfit_params,
-                                     output_path,
-                                     fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.5.ellip_mask.mom1.fits")),
-     shell=True)
-
-# And then using peak velocity
-diskfit_params = c_hi_analysispath("rotation_curves/diskfit_params/diskfit_params_peakvels_nowarp_noradial_noasymm.inp")
-output_path = fourteenB_HI_data_path("", no_check=True)
-
-call("python {0} {1} {2} {3}".format(diskfit_script, diskfit_params,
-                                     output_path,
-                                     fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.5.ellip_mask.mom1.fits")),
-     shell=True)
-
-# And with the peak from a Gauss-Hermite polynomial
-diskfit_params = c_hi_analysispath("rotation_curves/diskfit_params/diskfit_params_ghfit_nowarp_noradial_noasymm.inp")
-output_path = fourteenB_HI_data_path("", no_check=True)
-
-call("python {0} {1} {2} {3}".format(diskfit_script, diskfit_params,
-                                     output_path,
-                                     fourteenB_HI_data_path("M33_14B-088_HI.clean.image.pbcov_gt_0.5.ellip_mask.mom1.fits")),
-     shell=True)
+execfile(c_hi_analysispath("rotation_curves/fit_rotation_curves.py"))
+execfile(c_hi_analysispath("rotation_curves/fit_rotation_curves_feathered.py"))
 
 # Compare the three rotation curves.
-execfile(c_hi_analysispath("rotation_curves/rotation_curve_comparison.py"))
-
-# Fit the rotation curve and produce a smooth model
-call("python {0} {1}".format(c_hi_analysispath("rotation_curves/vrot_fit.py"),
-                             fourteenB_HI_data_path("diskfit_noasymm_noradial_nowarp_output")), shell=True)
+# execfile(c_hi_analysispath("rotation_curves/rotation_curve_comparison.py"))
 
 # Residual velocity figures
 execfile(c_hi_analysispath("rotation_curves/residual_velocity_surface_figure.py"))
 
-# Subtract the rotation curve from the cube and save.
-execfile(c_hi_analysispath("rotation_curves/cube_subtract_rotation.py"))
+# Figures
+execfile(c_hi_analysispath("rotation_curves/rotation_curve_figures.py"))
 
 # Rotation subtracted slab figures
-execfile(c_hi_analysispath("rotation_curves/rotsub_channels_figure.py"))
+# execfile(c_hi_analysispath("rotation_curves/rotsub_channels_figure.py"))
 
 # Movie! Turned off by default.
 # execfile(c_hi_analysispath("rotsub_channels_movie.py"))
 
-# Save the new galactic parameters value as a table for the paper
-call("python {0} {1}".format(c_hi_analysispath("rotation_curves/save_gal_params_table.py"),
-                             fourteenB_HI_data_path("diskfit_noasymm_noradial_nowarp_output")), shell=True)
+# Make velocity subtracted cubes
+execfile(c_hi_analysispath("cube_shift_spectra.py"))
+execfile(c_hi_analysispath("cube_shift_spectra_feathered.py"))
 
 #################
 # HI analysis
 #################
 
+# Data example figures
+execfile(c_hi_analysispath("HI_moment_figures.py"))
+execfile(c_hi_analysispath("HI_example_spectra_figure.py"))
+
+# Masses
+execfile(c_hi_analysispath("HI_masses.py"))
+
 # Surface Density profiles
 execfile(c_hi_analysispath("HI_radial_profile.py"))
+
+# Plots of skewness and kurtosis
+execfile(c_hi_analysispath("higher_moments.py"))
+execfile(c_hi_analysispath("skew_kurt_properties.py"))
+
+# Total galaxy profile.
+# XXX Update this path!
+execfile(c_hi_analysispath("total_profiles.py"))
+
+# Run filament analysis on zeroth moment
+# execfile(c_hi_analysispath("run_filfinder.py"))
+
+# Stacking and analysis
+execfile(c_hi_analysispath("HI_radial_stacking.py"))
+execfile(c_hi_analysispath("HI_radial_stacking_feathered.py"))
+execfile(c_hi_analysispath("HI_stacking_modeling.py"))
+execfile(c_hi_analysispath("HI_radial_stacking_NS_peak_modeling.py"))
 
 # Velocity dispersion profile
 execfile(c_hi_analysispath("HI_veldisp_profile.py"))
 
-# Plots of skewness and kurtosis
-execfile(c_hi_analysispath("higher_moments.py"))
+# PV-slices
+execfile(c_hi_analysispath("HI_pvslices.py"))
+execfile(c_hi_analysispath("HI_pvslices_figures.py"))
+execfile(c_hi_analysispath("HI_pvslices_nplume.py"))
+execfile(c_hi_analysispath("HI_pvslices_thin.py"))
+execfile(c_hi_analysispath("HI_pvslices_thin_figures.py"))
 
-# Total galaxy profile.
-execfile(c_hi_analysispath("total_profiles.py"))
-
-# Run filament analysis on zeroth moment
-execfile(c_hi_analysispath("run_filfinder.py"))
 
 ########
 # Other
 ########
 
 # Make a UV plane plot
-execfile(c_hi_analysispath("uv_plots/channel_1000_uvplot.py"))
+# execfile(c_hi_analysispath("uv_plots/channel_1000_uvplot.py"))

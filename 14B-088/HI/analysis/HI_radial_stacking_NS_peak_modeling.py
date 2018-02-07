@@ -569,3 +569,22 @@ print("Asymm: {0}+{1}-{2}".format(params_tot[2], low_err_tot[2],
 # Total: 0.254678938228+0.00690208853445-0.0100244686344
 # Symm: 0.178331243797+0.00702839040532-0.00968523782558
 # Asymm: 0.0763476944305+6.35245153629e-05-0.00027544950285
+
+vels = total_peakvel_n.spectral_axis.to(u.km / u.s).value
+
+params_tot_vla, low_err_tot_vla, up_err_tot_vla = \
+    find_linewing_asymm(vels, total_peakvel_n.value,
+                        total_peakvel_s.value,
+                        niters=100,
+                        sigma_noise_n=sigma_noise * np.sqrt(n_numpix.sum() / npix_beam),
+                        sigma_noise_s=sigma_noise * np.sqrt(s_numpix.sum() / npix_beam))
+
+print("Total: {0}+{1}-{2}".format(params_tot_vla[0], low_err_tot_vla[0],
+                                  up_err_tot_vla[0]))
+print("Symm: {0}+{1}-{2}".format(params_tot_vla[1], low_err_tot_vla[1],
+                                 up_err_tot_vla[1]))
+print("Asymm: {0}+{1}-{2}".format(params_tot_vla[2], low_err_tot_vla[2],
+                                  up_err_tot_vla[2]))
+# Total: 0.186905641003+0.00632970454644-0.0127007065516
+# Symm: 0.148370009855+0.00621136896641-0.0122276069357
+# Asymm: 0.0385356311475+0.000252790357856-0.000452460576457

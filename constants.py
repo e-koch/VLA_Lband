@@ -22,7 +22,8 @@ pb_lim = 0.5
 co21_mass_conversion = 6.7 * (u.Msun / u.pc ** 2) / (u.K * u.km / u.s)
 beam_eff_30m_druard = 56 / 92.
 
-
+# Note that the top two conversions contain a 1.4x correction for He.
+# So they will give the atomic mass, not the HI mass!
 hi_mass_conversion = 0.019 * (u.M_sun / u.pc ** 2) / (u.K * u.km / u.s)
 hi_mass_conversion_Jy = 2.36e5 * (u.M_sun / u.Mpc ** 2) / (u.Jy * u.km / u.s)
 

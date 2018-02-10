@@ -739,34 +739,53 @@ p.close()
 
 # VLA and VLA+GBT param comparisons
 
-onecolumn_figure()
+# onecolumn_figure()
+onecolumn_twopanel_figure()
 
-fig, ax = p.subplots(1, 1, sharex=True)
+fig, ax = p.subplots(2, 1, sharex=True)
 
-ax.errorbar(bin_cents, hi_params["peaksub_f_wings"],
+ax[0].errorbar(bin_cents, hi_params["peaksub_f_wings"],
                yerr=[hi_params["peaksub_f_wings_low_lim"],
                      hi_params["peaksub_f_wings_up_lim"]],
                color=cpal[0], label='VLA',
                linestyle='-',
                drawstyle='steps-mid')
-ax.errorbar(bin_cents, hi_params["peaksub_feath_f_wings"],
+ax[0].errorbar(bin_cents, hi_params["peaksub_feath_f_wings"],
                yerr=[hi_params["peaksub_feath_f_wings_low_lim"],
                      hi_params["peaksub_feath_f_wings_up_lim"]],
                color=cpal[1], label='VLA + GBT',
                linestyle='--',
                drawstyle='steps-mid')
-ax.legend(frameon=True, loc='upper left')
-ax.fill_between([0, 0.5], 0.10, 0.36, facecolor='gray', alpha=0.5)
-ax.set_xlim([0.0, 8.0])
-ax.grid()
-ax.set_ylabel(r"$f_{\rm wings}$")
-ax.set_xlabel(r"Radius (kpc)")
-ax.set_ylim([0.10, 0.36])
+ax[0].legend(frameon=True, loc='upper left')
+ax[0].fill_between([0, 0.5], 0.10, 0.36, facecolor='gray', alpha=0.5)
+ax[0].set_xlim([0.0, 8.0])
+ax[0].grid()
+ax[0].set_ylabel(r"$f_{\rm wings}$")
+ax[0].set_ylim([0.10, 0.36])
+
+ax[1].errorbar(bin_cents, hi_params["peaksub_kappa"],
+               yerr=[hi_params["peaksub_kappa_low_lim"],
+                     hi_params["peaksub_kappa_up_lim"]],
+               color=cpal[0], label='VLA',
+               linestyle='-',
+               drawstyle='steps-mid')
+ax[1].errorbar(bin_cents, hi_params["peaksub_feath_kappa"],
+               yerr=[hi_params["peaksub_feath_kappa_low_lim"],
+                     hi_params["peaksub_feath_kappa_up_lim"]],
+               color=cpal[1], label='VLA + GBT',
+               linestyle='--',
+               drawstyle='steps-mid')
+ax[1].fill_between([0, 0.5], -0.01, -0.09, facecolor='gray', alpha=0.5)
+ax[1].set_ylim([-0.085, -0.02])
+ax[1].set_xlim([0.0, 8.0])
+ax[1].grid()
+ax[1].set_ylabel(r"$\kappa$")
+ax[1].set_xlabel(r"Radius (kpc)")
 
 p.tight_layout()
 
-fig.savefig(allfigs_path(osjoin(figure_folder, "total_profile_vpeak_radial_f_wings_HI.pdf")))
-fig.savefig(allfigs_path(osjoin(figure_folder, "total_profile_vpeak_radial_f_wings_HI.png")))
+fig.savefig(allfigs_path(osjoin(figure_folder, "total_profile_vpeak_radial_f_wings_kappa_HI.pdf")))
+fig.savefig(allfigs_path(osjoin(figure_folder, "total_profile_vpeak_radial_f_wings_kappa_HI.png")))
 
 p.close()
 

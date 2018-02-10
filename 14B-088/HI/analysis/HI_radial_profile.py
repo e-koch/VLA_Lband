@@ -103,7 +103,7 @@ rs_arch, sd_arch, sd_sigma_arch = \
                             restfreq=hi_freq,
                             mass_conversion=hi_mass_conversion)
 
-onecolumn_figure(font_scale=1.)
+onecolumn_figure(font_scale=1.2)
 # Show the total radial profile VLA and Arecibo
 p.errorbar(rs.value, sd.value,
            yerr=sd_sigma.value, fmt="-",
@@ -167,12 +167,14 @@ p.savefig(allfigs_path("HI_properties/M33_Sigma_profile_w_GBT_archival.png"))
 p.close()
 
 # Show the north vs south profiles
-p.plot(rs.value, sd.value,
+cpal = sb.color_palette()
+
+p.plot(rs.value, sd.value, color='k',
        drawstyle='steps-mid', label="Total")
 p.plot(rs_n.value, sd_n.value, "-.", label="North",
-       drawstyle='steps-mid')
+       drawstyle='steps-mid', color=cpal[2])
 p.plot(rs_s.value, sd_s.value, "--", label="South",
-       drawstyle='steps-mid')
+       drawstyle='steps-mid', color=cpal[0])
 # p.errorbar(rs_n.value, sd_n.value, yerr=sd_sigma_n.value, fmt="D-",
 #            color="b", label="North")
 # p.errorbar(rs_s.value, sd_s.value, yerr=sd_sigma_s.value, fmt="o-",
@@ -184,22 +186,25 @@ p.grid("on")
 p.ylim([0, 8])
 p.xlim([0, 10])
 p.tight_layout()
+
 p.savefig(allfigs_path("HI_properties/M33_Sigma_profile_N_S.pdf"))
 p.savefig(allfigs_path("HI_properties/M33_Sigma_profile_N_S.png"))
+
 p.close()
 
-p.plot(rs_feath.value, sd_feath.value,
+p.plot(rs_feath.value, sd_feath.value, color='k',
        drawstyle='steps-mid', label="Total")
 p.plot(rs_feath_n.value, sd_feath_n.value, "-.", label="North",
-       drawstyle='steps-mid')
+       drawstyle='steps-mid', color=cpal[2])
 p.plot(rs_feath_s.value, sd_feath_s.value, "--", label="South",
-       drawstyle='steps-mid')
+       drawstyle='steps-mid', color=cpal[0])
 p.ylabel(r"$\Sigma_{\rm HI}$ (M$_{\odot}$ pc$^{-2}$)")
 p.xlabel(r"Radius (kpc)")
 p.legend(loc='best', frameon=True)
 p.grid("on")
 p.ylim([0, 10.5])
 p.xlim([0, 10])
+p.fill_between([0, 0.5], 0, 11, color='gray', alpha=0.5)
 p.tight_layout()
 p.savefig(allfigs_path("HI_properties/M33_feathered_Sigma_profile_N_S.pdf"))
 p.savefig(allfigs_path("HI_properties/M33_feathered_Sigma_profile_N_S.png"))

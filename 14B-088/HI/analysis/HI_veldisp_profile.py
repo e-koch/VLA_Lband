@@ -46,7 +46,7 @@ p.errorbar(rs_feath.value, sd_feath.value,
            yerr=sd_feath_sigma.value, fmt="--",
            drawstyle='steps-mid', label='VLA + GBT')
 p.xlabel("Radius (kpc)")
-p.ylabel("HI Velocity Dispersion (km/s)")
+p.ylabel("HI Line Width (km/s)")
 p.legend(loc='lower left', frameon=True)
 p.grid()
 p.tight_layout()
@@ -71,7 +71,7 @@ p.errorbar(rs.value, sd.value,
            yerr=sd_sigma.value, fmt="-",
            drawstyle='steps-mid', label='Total')
 p.xlabel("Radius (kpc)")
-p.ylabel("HI Velocity Dispersion (km/s)")
+p.ylabel("HI Line Width (km/s)")
 p.grid()
 p.legend(frameon=True)
 p.tight_layout()
@@ -95,7 +95,7 @@ p.errorbar(rs_feath.value, sd_feath.value,
            yerr=sd_feath_sigma.value, fmt="-",
            drawstyle='steps-mid', label='Total')
 p.xlabel("Radius (kpc)")
-p.ylabel("HI Velocity Dispersion (km/s)")
+p.ylabel("HI Line Width (km/s)")
 p.grid()
 p.legend(frameon=True)
 p.tight_layout()
@@ -115,7 +115,7 @@ ax[0].errorbar(rs.value, sd.value,
                yerr=sd_sigma.value, fmt="-",
                drawstyle='steps-mid', label='Avg. Line Width')
 ax[0].set_xlabel("Radius (kpc)")
-ax[0].set_ylabel("HI Velocity Dispersion (km/s)")
+ax[0].set_ylabel("HI Line Width (km/s)")
 # Now the stacked fits
 # Note that low_lim == up_lim for sigma
 ax[0].errorbar(hi_radial_fits['bin_center'],
@@ -131,8 +131,11 @@ ax[0].errorbar(hi_radial_fits['bin_center'],
                yerr=hi_radial_fits['peaksub_sigma_low_lim'],
                fmt='^', label='Peak Stack', alpha=0.5)
 ax[0].grid()
+ax[0].fill_between([0, 0.5], 4, 15, color='gray', alpha=0.5)
+ax[0].set_ylim([4., 15])
+ax[0].set_xlim([0, 8.2])
 ax[0].legend(frameon=True)
-ax[0].text(0, 14, "VLA",
+ax[0].text(0.2, 13.5, "VLA",
            bbox={"boxstyle": "square", "facecolor": "w"})
 
 ax[1].errorbar(rs.value, sd_feath.value,
@@ -152,8 +155,10 @@ ax[1].errorbar(hi_radial_fits['bin_center'],
                hi_radial_fits['peaksub_feath_sigma'],
                yerr=hi_radial_fits['peaksub_feath_sigma_low_lim'],
                fmt='^', label='Peak Stack', alpha=0.5)
+ax[1].fill_between([0, 0.5], 4, 15, color='gray', alpha=0.5)
+ax[1].set_ylim([4., 15])
 ax[1].grid()
-ax[1].text(6.1, 14, "VLA + GBT",
+ax[1].text(5.9, 13.5, "VLA + GBT",
            bbox={"boxstyle": "square", "facecolor": "w"})
 
 p.tight_layout()
@@ -181,7 +186,7 @@ ax[0].text(5, 11.5, "Rotation\nsubtracted",
 ax[0].legend(frameon=True, loc='lower right')
 ax[0].grid()
 # ax[0].set_xticklabels([])
-ax[0].set_ylabel("HI Velocity Dispersion (km/s)")
+ax[0].set_ylabel("HI Line Width (km/s)")
 ax[0].set_xlabel("Radius (kpc)")
 ax[1].errorbar(hi_radial_fits['bin_center'],
                hi_radial_fits['centsub_sigma'],
@@ -226,7 +231,7 @@ ax[0].text(4.75, 14.5, "Rotation\nsubtracted",
 ax[0].legend(frameon=True, loc='lower left')
 ax[0].grid()
 # ax[0].set_xticklabels([])
-ax[0].set_ylabel("HI Velocity Dispersion (km/s)")
+ax[0].set_ylabel("HI Line Width (km/s)")
 ax[0].set_xlabel("Radius (kpc)")
 ax[1].errorbar(hi_radial_fits['bin_center'],
                hi_radial_fits['centsub_feath_sigma'],
@@ -252,6 +257,9 @@ ax[2].grid()
 ax[2].set_xlabel("Radius (kpc)")
 ax[2].set_ylim([5, 17])
 p.tight_layout()
+
+print(argh)
+
 fig.savefig(osjoin(stack_figure_folder, "hi_veldisp_avg_vs_stackedfits_feath.png"))
 fig.savefig(osjoin(stack_figure_folder, "hi_veldisp_avg_vs_stackedfits_feath.pdf"))
 p.close()

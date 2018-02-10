@@ -71,15 +71,20 @@ im = ax1.imshow(moment0_coldens_feath,
 ax1.set_ylabel("")
 ax1.set_xlabel("")
 
-pixscale = np.sqrt(proj_plane_pixel_area(moment0_wcs))
-
-ax1.add_patch(beam.ellipse_to_plot(int(0.123 * moment0_feath.shape[0]),
-                                  int(0.05 * moment0_feath.shape[1]), pixscale))
-
 col_pal = sb.color_palette()
+lab_posn = [(100, 1100), (100, 800), (1130, 600), (1100, 1000)]
+props = dict(boxstyle='round', alpha=1.0, facecolor='w', pad=0.3)
 for j, (y, x) in enumerate(example_posns):
-    ax1.scatter(x, y, color=col_pal[j], edgecolor='w',
-                marker='D', s=70)
+    # ax1.scatter(x, y, color=col_pal[j], edgecolor='w',
+    #             marker='D', s=70)
+    ax1.annotate("({})".format(example_labels[j]), xy=(x, y),
+                 xytext=lab_posn[j],
+                 fontsize=14, color=col_pal[j],
+                 bbox=props,
+                 arrowprops=dict(facecolor=col_pal[j], shrink=0.01,
+                                 width=4),
+                 verticalalignment='center',
+                 horizontalalignment='center')
 
 ax2 = plt.subplot(gs[0, 2:])
 ax3 = plt.subplot(gs[1, 2:])
@@ -98,11 +103,13 @@ for i, ax in enumerate([ax2, ax3, ax4, ax5]):
     vla_spec = vla_cube[:, y, x].value * arch_cube.beam.jtok(hi_freq).value * u.K
     comb_spec = comb_cube[:, y, x].value * arch_cube.beam.jtok(hi_freq).value * u.K
 
-    ax.plot((arch_cube.spectral_axis.value - peak_vels.data[y, x]) / 1000., arch_spec.value, label='Archival',
+    ax.plot((arch_cube.spectral_axis.value - peak_vels.data[y, x]) / 1000.,
+            arch_spec.value, color='gray', alpha=0.8, label='Archival',
             drawstyle='steps-mid')
     # ax.plot(vla_cube.spectral_axis.value / 1000., vla_spec, label='VLA',
     #         drawstyle='steps-mid')
-    ax.plot((comb_cube.spectral_axis.value - peak_vels.data[y, x]) / 1000., comb_spec, label='VLA+GBT',
+    ax.plot((comb_cube.spectral_axis.value - peak_vels.data[y, x]) / 1000.,
+            comb_spec, label='VLA+GBT', color='k',
             drawstyle='steps-mid')
     ax.grid()
     ax.axhline(0, color='k', alpha=0.5, linestyle='--')
@@ -142,8 +149,6 @@ for i, ax in enumerate([ax2, ax3, ax4, ax5]):
             color=col_pal[i])
 
 plt.tight_layout()
-
-print(argh)
 
 plt.savefig(osjoin(figure_folder, "example_HI_spectra.png"))
 plt.savefig(osjoin(figure_folder, "example_HI_spectra.pdf"))

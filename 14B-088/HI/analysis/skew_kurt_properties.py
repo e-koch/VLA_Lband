@@ -103,7 +103,7 @@ onecolumn_twopanel_figure(font_scale=1.2)
 
 fig, ax = p.subplots(2, 1, sharex=True)
 ax[0].errorbar(radii_skew.value, sdprof_skew.value,
-               yerr=sdprof_sigma_skew.value, color=cpal[1],
+               yerr=sdprof_sigma_skew.value, color='k',
                drawstyle='steps-mid', label="Total", zorder=-1,
                alpha=0.5)
 ax[0].errorbar(rs_skew_n.value, sd_skew_n.value, yerr=sd_skew_sigma_n.value,
@@ -118,7 +118,7 @@ ax[0].set_ylabel("Skewness")
 ax[1].errorbar(radii_kurt.value, sdprof_kurt.value,
                yerr=sdprof_sigma_kurt.value,
                drawstyle='steps-mid', label="Total", zorder=-1,
-               alpha=0.5, color=cpal[1],)
+               alpha=0.5, color='k',)
 ax[1].errorbar(rs_kurt_n.value, sd_kurt_n.value, yerr=sd_kurt_sigma_n.value,
                drawstyle='steps-mid', label="North", color=cpal[0],)
 ax[1].errorbar(rs_kurt_s.value, sd_kurt_s.value, yerr=sd_kurt_sigma_s.value,
@@ -171,7 +171,7 @@ onecolumn_Npanel_figure(N=3, font_scale=1.0)
 fig, ax = p.subplots(4, 1, sharex=True)
 
 ax[0].errorbar(rs_surf.value, sd_surf.value,
-               yerr=sd_surf_sigma.value, color=cpal[1],
+               yerr=sd_surf_sigma.value, color='k',
                drawstyle='steps-mid', label="Total", zorder=-1,
                alpha=0.5)
 ax[0].errorbar(rs_surf_n.value, sd_surf_n.value, yerr=sd_surf_sigma_n.value,
@@ -184,7 +184,7 @@ ax[0].grid()
 ax[0].set_ylabel(r"$\Sigma_{\rm HI}$ (M$_{\odot}$ pc$^{-2}$)")
 
 ax[1].errorbar(rs_lwidth.value, sd_lwidth.value,
-               yerr=sd_lwidth_sigma.value, color=cpal[1],
+               yerr=sd_lwidth_sigma.value, color='k',
                drawstyle='steps-mid', label="Total", zorder=-1,
                alpha=0.5)
 ax[1].errorbar(rs_lwidth_n.value, sd_lwidth_n.value,
@@ -198,7 +198,7 @@ ax[1].grid()
 ax[1].set_ylabel(r"Velocity Dispersion (km s$^{-1}$)")
 
 ax[2].errorbar(radii_skew.value, sdprof_skew.value,
-               yerr=sdprof_sigma_skew.value, color=cpal[1],
+               yerr=sdprof_sigma_skew.value, color='k',
                drawstyle='steps-mid', label="Total", zorder=-1,
                alpha=0.5)
 ax[2].errorbar(rs_skew_n.value, sd_skew_n.value, yerr=sd_skew_sigma_n.value,
@@ -210,7 +210,7 @@ ax[2].grid()
 ax[2].set_ylabel("Skewness")
 
 ax[3].errorbar(radii_kurt.value, sdprof_kurt.value,
-               yerr=sdprof_sigma_kurt.value, color=cpal[1],
+               yerr=sdprof_sigma_kurt.value, color='k',
                drawstyle='steps-mid', label="Total", zorder=-1,
                alpha=0.5)
 ax[3].errorbar(rs_kurt_n.value, sd_kurt_n.value, yerr=sd_kurt_sigma_n.value,
@@ -612,7 +612,7 @@ twocolumn_twopanel_figure()
 fig, ax = p.subplots(1, 2, sharex=True, sharey=True)
 
 ax[0].errorbar(radii_skew_noSD.value, sdprof_skew_noSD.value,
-               yerr=sdprof_sigma_skew_noSD.value, color=cpal[1],
+               yerr=sdprof_sigma_skew_noSD.value, color='k',
                drawstyle='steps-mid', label="Total", zorder=-1,
                alpha=0.5)
 ax[0].errorbar(radii_skew_n_noSD.value, sdprof_skew_n_noSD.value,
@@ -623,9 +623,12 @@ ax[0].errorbar(radii_skew_s_noSD.value, sdprof_skew_s_noSD.value,
                yerr=sdprof_sigma_skew_s_noSD.value, color=cpal[2],
                drawstyle='steps-mid', label="South",
                linestyle='-.')
+ax[0].fill_between([0., 0.5], -0.75, 0.8, color='gray', alpha=0.5)
+ax[0].set_ylim([-0.7, 0.78])
+ax[0].set_xlim([0, 8])
 ax[0].grid()
 ax[0].legend(frameon=True, loc='upper center')
-ax[0].text(8, 0.65, "VLA",
+ax[0].text(7.5, 0.65, "VLA",
            horizontalalignment='right',
            verticalalignment='top',
            bbox={"boxstyle": "square", "facecolor": "w"})
@@ -634,7 +637,7 @@ ax[0].set_ylabel("Skewness")
 ax[0].set_xlabel("Radius (kpc)")
 
 ax[1].errorbar(radii_skew.value, sdprof_skew.value,
-               yerr=sdprof_sigma_skew.value, color=cpal[1],
+               yerr=sdprof_sigma_skew.value, color='k',
                drawstyle='steps-mid', label="Total", zorder=-1,
                alpha=0.5)
 ax[1].errorbar(rs_skew_n.value, sd_skew_n.value, yerr=sd_skew_sigma_n.value,
@@ -643,8 +646,11 @@ ax[1].errorbar(rs_skew_n.value, sd_skew_n.value, yerr=sd_skew_sigma_n.value,
 ax[1].errorbar(rs_skew_s.value, sd_skew_s.value, yerr=sd_skew_sigma_s.value,
                drawstyle='steps-mid', label="South",
                linestyle='-.', color=cpal[2],)
+ax[1].fill_between([0., 0.5], -0.75, 0.8, color='gray', alpha=0.5)
+ax[1].set_ylim([-0.7, 0.78])
+ax[1].set_xlim([0, 8])
 ax[1].grid()
-ax[1].text(8, 0.65, "VLA+GBT",
+ax[1].text(7.5, 0.65, "VLA+GBT",
            horizontalalignment='right',
            verticalalignment='top',
            bbox={"boxstyle": "square", "facecolor": "w"})

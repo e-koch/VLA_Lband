@@ -13,9 +13,9 @@ from astropy.wcs import WCS
 from astropy.wcs.utils import proj_plane_pixel_area
 from radio_beam import Beam
 import os
-from os.path import join as osjoin
 import seaborn as sb
 import matplotlib.gridspec as gridspec
+import matplotlib.patches as patches
 from astropy.visualization import AsinhStretch
 from astropy.visualization.mpl_normalize import ImageNormalize
 import numpy as np
@@ -70,6 +70,11 @@ im = ax1.imshow(moment0_coldens_feath,
                                     stretch=AsinhStretch()))
 ax1.set_ylabel("")
 ax1.set_xlabel("")
+
+# Add a box for the location of the N plume figure
+ax1.add_patch(patches.Rectangle((500, 1280), 250, 250, fill=False,
+                                edgecolor=col_pal[2], linewidth=2,
+                                linestyle='dashed'))
 
 col_pal = sb.color_palette()
 lab_posn = [(100, 1100), (100, 800), (1130, 600), (1100, 1000)]

@@ -167,6 +167,36 @@ p.savefig(osjoin(stack_figure_folder, "hi_veldisp_w_stackedfits.png"))
 p.savefig(osjoin(stack_figure_folder, "hi_veldisp_w_stackedfits.pdf"))
 p.close()
 
+onecolumn_figure()
+
+p.errorbar(rs.value, sd_feath.value,
+           yerr=sd_feath_sigma.value, fmt="-",
+           drawstyle='steps-mid', label='Averaged Line Width')
+p.xlabel("Radius (kpc)")
+p.ylabel("HI Line Width (km/s)")
+# Now the stacked fits
+p.errorbar(hi_radial_fits['bin_center'],
+           hi_radial_fits['rotsub_feath_sigma'],
+           yerr=hi_radial_fits['rotsub_feath_sigma_low_lim'],
+           fmt='D', label='Rot. Stack', alpha=0.5)
+p.errorbar(hi_radial_fits['bin_center'],
+           hi_radial_fits['centsub_feath_sigma'],
+           yerr=hi_radial_fits['centsub_feath_sigma_low_lim'],
+           fmt='o', label='Cent. Stack', alpha=0.5)
+p.errorbar(hi_radial_fits['bin_center'],
+           hi_radial_fits['peaksub_feath_sigma'],
+           yerr=hi_radial_fits['peaksub_feath_sigma_low_lim'],
+           fmt='^', label='Peak Stack', alpha=0.5)
+p.fill_between([0, 0.5], 4, 17, color='gray', alpha=0.5)
+p.ylim([5., 17])
+p.grid()
+p.tight_layout()
+p.xlim([0, 8.2])
+p.legend(frameon=True, ncol=2, loc='upper center')
+
+p.savefig(osjoin(stack_figure_folder, "hi_veldisp_w_stackedfits_combinedonly.png"))
+p.savefig(osjoin(stack_figure_folder, "hi_veldisp_w_stackedfits_combinedonly.pdf"))
+p.close()
 
 # Let's compare the line width from the second moment to the Gaussian width
 rot_stack = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/rotation_stacked_radial_100pc.fits"))

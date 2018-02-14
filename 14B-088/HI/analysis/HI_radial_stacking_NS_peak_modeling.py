@@ -189,118 +189,164 @@ spectra = [total_peakvel, total_peakvel_wGBT,
            total_peakvel_feath_n, total_peakvel_feath_s]
 
 # Plot comparison between total profiles
-onecolumn_Npanel_figure(N=2.)
-fig, ax = p.subplots(2, 1, sharey=False, sharex=False)
-
-# ax[0].plot(total_peakvel.spectral_axis.to(u.km / u.s).value,
-#            (total_peakvel / total_peakvel.max()).value,
-#            '-', drawstyle='steps-mid', label='Total')
-# ax[0].plot(total_peakvel_n.spectral_axis.to(u.km / u.s).value,
-#            (total_peakvel_n / total_peakvel_n.max()).value,
-#            '--', drawstyle='steps-mid', label='North')
-# ax[0].plot(total_peakvel_s.spectral_axis.to(u.km / u.s).value,
-#            (total_peakvel_s / total_peakvel_s.max()).value,
-#            '-.', drawstyle='steps-mid', label='South')
-# ax[0].text(-40, 0.88, "VLA",
-#            bbox={"boxstyle": "square", "facecolor": "w"})
-# ax[0].legend(frameon=True)
-# ax[0].set_ylim([-0.02, 1.1])
-# ax[0].set_xlim([-50, 50])
-# ax[0].grid()
+onecolumn_figure()
 
 pos_vel_mask = total_peakvel_wGBT.spectral_axis.to(u.km / u.s).value > 0.
 neg_vel_mask = total_peakvel_wGBT.spectral_axis.to(u.km / u.s).value < 0.
 
-ax[0].plot(total_peakvel_feath_n.spectral_axis.to(u.km / u.s).value,
-           (total_peakvel_feath_n / total_peakvel_feath_n.max()).value,
-           '--', drawstyle='steps-mid', label='North',
+p.plot(total_peakvel_feath_n.spectral_axis.to(u.km / u.s).value,
+       (total_peakvel_feath_n / total_peakvel_feath_n.max()).value,
+       '--', drawstyle='steps-mid', label='North',
            color=sb.color_palette()[0])
-ax[0].plot(total_peakvel_feath_s.spectral_axis.to(u.km / u.s).value,
-           (total_peakvel_feath_s / total_peakvel_feath_s.max()).value,
-           '-.', drawstyle='steps-mid', label='South',
-           color=sb.color_palette()[2])
+p.plot(total_peakvel_feath_s.spectral_axis.to(u.km / u.s).value,
+       (total_peakvel_feath_s / total_peakvel_feath_s.max()).value,
+       '-.', drawstyle='steps-mid', label='South',
+       color=sb.color_palette()[2])
 
 # Fill the differences in the line wings
-ax[0].fill_between(total_peakvel_feath_s.spectral_axis.to(u.km / u.s).value[pos_vel_mask],
-           (total_peakvel_feath_s / total_peakvel_feath_s.max()).value[pos_vel_mask],
-           (total_peakvel_feath_n / total_peakvel_feath_n.max()).value[pos_vel_mask],
-           color=sb.color_palette()[0], alpha=0.8)
-ax[0].fill_between(total_peakvel_feath_s.spectral_axis.to(u.km / u.s).value[neg_vel_mask],
-           (total_peakvel_feath_s / total_peakvel_feath_s.max()).value[neg_vel_mask],
-           (total_peakvel_feath_n / total_peakvel_feath_n.max()).value[neg_vel_mask],
-           color=sb.color_palette()[2], alpha=0.8)
-ax[0].plot(total_peakvel_wGBT.spectral_axis.to(u.km / u.s).value,
-           (total_peakvel_wGBT / total_peakvel_wGBT.max()).value,
-           '-', drawstyle='steps-mid', label='Total',
-           color='k', alpha=0.7)
+p.fill_between(total_peakvel_feath_s.spectral_axis.to(u.km / u.s).value[pos_vel_mask],
+               (total_peakvel_feath_s / total_peakvel_feath_s.max()).value[pos_vel_mask],
+               (total_peakvel_feath_n / total_peakvel_feath_n.max()).value[pos_vel_mask],
+               color=sb.color_palette()[0], alpha=0.8)
+p.fill_between(total_peakvel_feath_s.spectral_axis.to(u.km / u.s).value[neg_vel_mask],
+               (total_peakvel_feath_s / total_peakvel_feath_s.max()).value[neg_vel_mask],
+               (total_peakvel_feath_n / total_peakvel_feath_n.max()).value[neg_vel_mask],
+               color=sb.color_palette()[2], alpha=0.8)
+p.plot(total_peakvel_wGBT.spectral_axis.to(u.km / u.s).value,
+       (total_peakvel_wGBT / total_peakvel_wGBT.max()).value,
+       '-', drawstyle='steps-mid', label='Total',
+       color='k', alpha=0.7)
 
-ax[0].text(-40, 0.88, "VLA+GBT",
-           bbox={"boxstyle": "square", "facecolor": "w"})
-ax[0].set_ylim([-0.02, 1.03])
-ax[0].set_xlim([-50, 50])
-ax[0].grid()
-ax[0].legend(frameon=True, loc='upper right')
-ax[0].set_xlabel("Velocity (km/s)")
-ax[0].set_ylabel("Normalized Total Intensity")
+# p.text(-40, 0.88, "VLA+GBT",
+#          bbox={"boxstyle": "square", "facecolor": "w"})
+p.ylim([-0.02, 1.03])
+p.xlim([-50, 50])
+p.grid()
+p.legend(frameon=True, loc='upper right')
+p.xlabel("Velocity (km/s)")
+p.ylabel("Normalized Total Intensity")
+
+p.tight_layout()
+
+p.savefig(allfigs_path(osjoin(figure_folder, "total_profile_NS_comparison.pdf")))
+p.savefig(allfigs_path(osjoin(figure_folder, "total_profile_NS_comparison.png")))
+p.close()
+
+onecolumn_Npanel_figure(N=2.3)
+fig, ax = p.subplots(3, 1, sharey=False, sharex=True)
+
+ax[2].errorbar(hi_radial_fits['bin_center'],
+               hi_radial_fits['peaksub_feath_f_wings'],
+               yerr=[hi_radial_fits["peaksub_feath_f_wings_low_lim"],
+                     hi_radial_fits["peaksub_feath_f_wings_up_lim"]],
+               linestyle='-', drawstyle='steps-mid',
+               color='k', alpha=0.7)
+ax[2].errorbar(hi_radial_fits['bin_center'],
+               hi_radial_fits['peaksub_feath_n_f_wings'],
+               yerr=[hi_radial_fits["peaksub_feath_n_f_wings_low_lim"],
+                     hi_radial_fits["peaksub_feath_n_f_wings_up_lim"]],
+               linestyle='--', drawstyle='steps-mid',
+               color=sb.color_palette()[0])
+ax[2].errorbar(hi_radial_fits['bin_center'],
+               hi_radial_fits['peaksub_feath_s_f_wings'],
+               yerr=[hi_radial_fits["peaksub_feath_s_f_wings_low_lim"],
+                     hi_radial_fits["peaksub_feath_s_f_wings_up_lim"]],
+               linestyle='-.', drawstyle='steps-mid',
+               color=sb.color_palette()[2])
+
+ax[2].set_xlim([0, 8])
+ax[2].set_ylim([0.13, 0.38])
+ax[2].grid()
+ax[2].set_ylabel(r"$f_{\rm wings}$")
+ax[2].set_xlabel("Radius (kpc)")
+ax[2].fill_between([0, 0.5], 0.13, 0.38, facecolor='gray', alpha=0.5,
+                   zorder=-1)
+
+# kappa
+ax[1].errorbar(hi_radial_fits['bin_center'],
+               hi_radial_fits['peaksub_feath_kappa'],
+               yerr=[hi_radial_fits["peaksub_feath_kappa_low_lim"],
+                     hi_radial_fits["peaksub_feath_kappa_up_lim"]],
+               linestyle='-', drawstyle='steps-mid',
+               color='k', alpha=0.7)
+ax[1].errorbar(hi_radial_fits['bin_center'],
+               hi_radial_fits['peaksub_feath_n_kappa'],
+               yerr=[hi_radial_fits["peaksub_feath_n_kappa_low_lim"],
+                     hi_radial_fits["peaksub_feath_n_kappa_up_lim"]],
+               linestyle='--', drawstyle='steps-mid',
+               color=sb.color_palette()[0])
+ax[1].errorbar(hi_radial_fits['bin_center'],
+               hi_radial_fits['peaksub_feath_s_kappa'],
+               yerr=[hi_radial_fits["peaksub_feath_s_kappa_low_lim"],
+                     hi_radial_fits["peaksub_feath_s_kappa_up_lim"]],
+               linestyle='-.', drawstyle='steps-mid',
+               color=sb.color_palette()[2])
+
+ax[1].set_xlim([0, 8])
+ax[1].set_ylim([-0.09, -0.015])
+ax[1].grid()
+ax[1].set_ylabel(r"$\kappa$")
+ax[1].fill_between([0, 0.5], -0.10, -0.01, facecolor='gray', alpha=0.5,
+                   zorder=-1)
 
 # Plot the asymm parameters as function of radius
 # Horizontal lines for the asymm of the total profiles.
-ax[1].errorbar(hi_radial_fits['bin_center'],
+ax[0].errorbar(hi_radial_fits['bin_center'],
                hi_radial_fits['peaksub_feath_asymm'],
                yerr=[hi_radial_fits["peaksub_feath_asymm_low_lim"],
                      hi_radial_fits["peaksub_feath_asymm_up_lim"]],
                linestyle='-', drawstyle='steps-mid',
-               color='k', alpha=0.7)#sb.color_palette()[1])
-ax[1].errorbar(hi_radial_fits['bin_center'],
+               color='k', alpha=0.7, label='Total', zorder=-1)
+ax[0].errorbar(hi_radial_fits['bin_center'],
                hi_radial_fits['peaksub_feath_n_asymm'],
                yerr=[hi_radial_fits["peaksub_feath_n_asymm_low_lim"],
                      hi_radial_fits["peaksub_feath_n_asymm_up_lim"]],
                linestyle='--', drawstyle='steps-mid',
-               color=sb.color_palette()[0])
-ax[1].errorbar(hi_radial_fits['bin_center'],
+               color=sb.color_palette()[0], label='North')
+ax[0].errorbar(hi_radial_fits['bin_center'],
                hi_radial_fits['peaksub_feath_s_asymm'],
                yerr=[hi_radial_fits["peaksub_feath_s_asymm_low_lim"],
                      hi_radial_fits["peaksub_feath_s_asymm_up_lim"]],
                linestyle='-.', drawstyle='steps-mid',
-               color=sb.color_palette()[2])
+               color=sb.color_palette()[2], label='South')
 # Bold line for the total profile asymmetries
-ax[1].fill_between(hi_radial_fits['bin_center'],
-                   hi_fit_hwhm_vals['Feath. Peak Sub. Params'][-2] -
-                   hi_fit_hwhm_vals['Feath. Peak Sub. Lower Limit'][-2],
-                   hi_fit_hwhm_vals['Feath. Peak Sub. Params'][-2] +
-                   hi_fit_hwhm_vals['Feath. Peak Sub. Upper Limit'][-2],
-                   color='k', #sb.color_palette()[1],
-                   alpha=0.5,
-                   zorder=-1)
-ax[1].fill_between(hi_radial_fits['bin_center'],
-                   hi_fit_hwhm_vals['Feath. Peak Sub. N Params'][-2] -
-                   hi_fit_hwhm_vals['Feath. Peak Sub. N Lower Limit'][-2],
-                   hi_fit_hwhm_vals['Feath. Peak Sub. N Params'][-2] +
-                   hi_fit_hwhm_vals['Feath. Peak Sub. N Upper Limit'][-2],
-                   color=sb.color_palette()[0],
-                   alpha=0.5,
-                   zorder=-1)
-ax[1].fill_between(hi_radial_fits['bin_center'],
-                   hi_fit_hwhm_vals['Feath. Peak Sub. S Params'][-2] -
-                   hi_fit_hwhm_vals['Feath. Peak Sub. S Lower Limit'][-2],
-                   hi_fit_hwhm_vals['Feath. Peak Sub. S Params'][-2] +
-                   hi_fit_hwhm_vals['Feath. Peak Sub. S Upper Limit'][-2],
-                   color=sb.color_palette()[2],
-                   alpha=0.5,
-                   zorder=-1)
+# ax[0].fill_between(hi_radial_fits['bin_center'],
+#                    hi_fit_hwhm_vals['Feath. Peak Sub. Params'][-2] -
+#                    hi_fit_hwhm_vals['Feath. Peak Sub. Lower Limit'][-2],
+#                    hi_fit_hwhm_vals['Feath. Peak Sub. Params'][-2] +
+#                    hi_fit_hwhm_vals['Feath. Peak Sub. Upper Limit'][-2],
+#                    color='k', #sb.color_palette()[1],
+#                    alpha=0.5,
+#                    zorder=-1)
+# ax[0].fill_between(hi_radial_fits['bin_center'],
+#                    hi_fit_hwhm_vals['Feath. Peak Sub. N Params'][-2] -
+#                    hi_fit_hwhm_vals['Feath. Peak Sub. N Lower Limit'][-2],
+#                    hi_fit_hwhm_vals['Feath. Peak Sub. N Params'][-2] +
+#                    hi_fit_hwhm_vals['Feath. Peak Sub. N Upper Limit'][-2],
+#                    color=sb.color_palette()[0],
+#                    alpha=0.5,
+#                    zorder=-1)
+# ax[0].fill_between(hi_radial_fits['bin_center'],
+#                    hi_fit_hwhm_vals['Feath. Peak Sub. S Params'][-2] -
+#                    hi_fit_hwhm_vals['Feath. Peak Sub. S Lower Limit'][-2],
+#                    hi_fit_hwhm_vals['Feath. Peak Sub. S Params'][-2] +
+#                    hi_fit_hwhm_vals['Feath. Peak Sub. S Upper Limit'][-2],
+#                    color=sb.color_palette()[2],
+#                    alpha=0.5,
+#                    zorder=-1)
 
-ax[1].set_xlim([0, 8])
-ax[1].set_ylim([-0.21, 0.33])
-ax[1].grid()
-ax[1].set_xlabel("Radius (kpc)")
-ax[1].set_ylabel("Asymmetry")
-ax[1].fill_between([0, 0.5], -0.25, 0.35, facecolor='gray', alpha=0.5,
+ax[0].set_xlim([0, 8])
+ax[0].set_ylim([-0.22, 0.33])
+ax[0].grid()
+ax[0].set_ylabel("Asymmetry")
+ax[0].legend(frameon=True)
+ax[0].fill_between([0, 0.5], -0.25, 0.35, facecolor='gray', alpha=0.5,
                    zorder=-1)
 
 p.tight_layout()
 
-fig.savefig(allfigs_path(osjoin(figure_folder, "total_profile_NS_asymm_comparison.pdf")))
-fig.savefig(allfigs_path(osjoin(figure_folder, "total_profile_NS_asymm_comparison.png")))
+fig.savefig(allfigs_path(osjoin(figure_folder, "total_profile_NS_asymm_kappa_fwing_comparison.pdf")))
+fig.savefig(allfigs_path(osjoin(figure_folder, "total_profile_NS_asymm_kappa_fwing_comparison.png")))
 p.close()
 
 # Plot comparisons of these fits

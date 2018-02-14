@@ -96,7 +96,6 @@ total_spectrum_hi_wGBT = OneDSpectrum.from_hdu(fits.open(comb_stackpath("rotatio
 total_spectrum_hi_cent_wGBT = OneDSpectrum.from_hdu(fits.open(comb_stackpath("centroid_stacked.fits")))
 total_spectrum_hi_peakvel_wGBT = OneDSpectrum.from_hdu(fits.open(comb_stackpath("peakvel_stacked.fits")))
 
-
 spectra = [total_spectrum_hi, total_spectrum_hi_cent,
            total_spectrum_hi_peakvel,
            total_spectrum_hi_wGBT, total_spectrum_hi_cent_wGBT,
@@ -386,6 +385,31 @@ p.subplots_adjust(left=0.15, hspace=0.03)
 
 fig.savefig(allfigs_path(osjoin(figure_folder, "total_profile_compare_shape_HI.pdf")))
 fig.savefig(allfigs_path(osjoin(figure_folder, "total_profile_compare_shape_HI.png")))
+p.close()
+
+# Smaller scale 2-panel plots to compare shape and the peak velocity models
+onecolumn_figure()
+
+p.plot(total_spectrum_hi_wGBT.spectral_axis.to(u.km / u.s).value,
+       (total_spectrum_hi_wGBT / total_spectrum_hi_wGBT.max()).value,
+       '-', drawstyle='steps-mid', label='Rot. Sub')
+p.plot(total_spectrum_hi_cent_wGBT.spectral_axis.to(u.km / u.s).value,
+       (total_spectrum_hi_cent_wGBT / total_spectrum_hi_cent_wGBT.max()).value,
+       '--', drawstyle='steps-mid', label='Cent. Sub')
+p.plot(total_spectrum_hi_peakvel_wGBT.spectral_axis.to(u.km / u.s).value,
+       (total_spectrum_hi_peakvel_wGBT / total_spectrum_hi_peakvel_wGBT.max()).value,
+       '-.', drawstyle='steps-mid', label='Peak Sub')
+p.grid()
+p.legend(frameon=True)
+p.xlabel("Velocity (km/s)")
+p.ylabel('Normalized Total Intensity')
+p.ylim([-0.02, 1.1])
+p.xlim([-50, 50])
+
+p.tight_layout()
+
+p.savefig(allfigs_path(osjoin(figure_folder, "total_profile_compare_shape_HI_combinedonly.pdf")))
+p.savefig(allfigs_path(osjoin(figure_folder, "total_profile_compare_shape_HI_combinedonly.png")))
 p.close()
 
 # Peak velocity comparison

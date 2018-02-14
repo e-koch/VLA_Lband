@@ -229,7 +229,6 @@ fig.savefig(osjoin(prop_figure_folder, "hi_skew_kurt_sd_lwidth_profile_n_s.png")
 fig.savefig(osjoin(prop_figure_folder, "hi_skew_kurt_sd_lwidth_profile_n_s.pdf"))
 p.close()
 
-
 # Now load in the stacked in the profiles and compare
 
 cent_stack_n = SpectralCube.read(fourteenB_HI_data_path("stacked_spectra/centroid_stacked_radial_north_100pc.fits"))
@@ -497,6 +496,55 @@ fig.savefig(osjoin(prop_figure_folder, "hi_skew_kurt_sd_lwidth_profile_n_s_feath
 fig.savefig(osjoin(prop_figure_folder, "hi_skew_kurt_sd_lwidth_profile_n_s_feather.pdf"))
 p.close()
 
+# Feathered skew/kurt profiles in the N and S
+
+onecolumn_Npanel_figure(N=2, font_scale=1.2)
+
+fig, ax = p.subplots(2, 1, sharex=True)
+
+ax[0].errorbar(radii_skew.value, sdprof_skew.value,
+               yerr=sdprof_sigma_skew.value, color='k',
+               drawstyle='steps-mid', label="Total", zorder=-1,
+               alpha=1.)
+ax[0].errorbar(rs_skew_n.value, sd_skew_n.value, yerr=sd_skew_sigma_n.value,
+               drawstyle='steps-mid', label="North", color=cpal[0],
+               linestyle='--')
+ax[0].errorbar(rs_skew_s.value, sd_skew_s.value, yerr=sd_skew_sigma_s.value,
+               drawstyle='steps-mid', label="South", color=cpal[2],
+               linestyle='-.')
+ax[0].fill_between([0., 0.5], -0.75, 0.8, color='gray', alpha=0.5)
+ax[0].set_ylim([-0.7, 0.75])
+ax[0].grid()
+ax[0].legend(frameon=True)
+ax[0].axhline(0., color='gray', linestyle='dashed', linewidth=3,
+              alpha=0.7, zorder=-2)
+ax[0].set_ylabel("Skewness")
+
+ax[1].errorbar(radii_kurt.value, sdprof_kurt.value,
+               yerr=sdprof_sigma_kurt.value, color='k',
+               drawstyle='steps-mid', label="Total", zorder=-1,
+               alpha=1.)
+ax[1].errorbar(rs_kurt_n.value, sd_kurt_n.value, yerr=sd_kurt_sigma_n.value,
+               drawstyle='steps-mid', label="North", color=cpal[0],
+               linestyle='--')
+ax[1].errorbar(rs_kurt_s.value, sd_kurt_s.value, yerr=sd_kurt_sigma_s.value,
+               drawstyle='steps-mid', label="South", color=cpal[2],
+               linestyle='-.')
+ax[1].fill_between([0., 0.5], -0.75, 0.8, color='gray', alpha=0.5)
+ax[1].axhline(0., color='gray', linestyle='dashed', linewidth=3,
+              alpha=0.7, zorder=-2)
+ax[1].set_ylim([-0.6, 0.75])
+ax[1].set_xlim([0, 8])
+ax[1].grid()
+ax[1].set_xlabel("Radius (kpc)")
+ax[1].set_ylabel("Excess Kurtosis")
+
+p.tight_layout()
+
+fig.savefig(osjoin(prop_figure_folder, "hi_skew_kurt_profile_n_s_feather.png"))
+fig.savefig(osjoin(prop_figure_folder, "hi_skew_kurt_profile_n_s_feather.pdf"))
+p.close()
+
 cent_stack_n = SpectralCube.read(fourteenB_HI_data_wGBT_path("stacked_spectra/centroid_stacked_radial_north_100pc.fits"))
 cent_stack_s = SpectralCube.read(fourteenB_HI_data_wGBT_path("stacked_spectra/centroid_stacked_radial_south_100pc.fits"))
 cent_stack = SpectralCube.read(fourteenB_HI_data_wGBT_path("stacked_spectra/centroid_stacked_radial_100pc.fits"))
@@ -661,6 +709,9 @@ p.tight_layout()
 fig.savefig(osjoin(prop_figure_folder, "hi_skew_profile_both_n_s.png"))
 fig.savefig(osjoin(prop_figure_folder, "hi_skew_profile_both_n_s.pdf"))
 p.close()
+
+
+
 
 
 default_figure()

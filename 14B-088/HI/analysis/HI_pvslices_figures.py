@@ -77,7 +77,10 @@ twocolumn_figure()
 fig = plt.figure(figsize=(8.4, 4.02))
 
 # major = pvslices[0]
-major = Projection.from_hdu(fits.open(fourteenB_HI_data_wGBT_path("downsamp_1kms/M33_14B-088_HI.GBT_feathered_PA_0_pvslice_200arcsec_width.fits"))[0])
+major_hdu = fits.open(fourteenB_HI_data_wGBT_path("downsamp_1kms/M33_14B-088_HI.GBT_feathered_PA_0_pvslice_200arcsec_width.fits"))[0]
+# Adjust the offset to be in the center
+major_hdu.header['CRPIX1'] = major_hdu.header['NAXIS1'] / 2
+major = Projection.from_hdu(major_hdu)
 major_path = paths[0]
 
 major_std = mad_std(major)
@@ -109,6 +112,8 @@ rot_vel_pts = rotmod[y, x]
 # Pixels are square here
 pix_scale = np.abs(cube.header["CDELT2"]) * u.deg
 dist = np.sqrt((y - y[0])**2 + (x - x[0])**2) * pix_scale
+
+dist -= dist[-1] / 2.
 
 # fig1.show_markers(dist.value, peak_vel_pts.value, edgecolor='r',
 #                   facecolor='r',

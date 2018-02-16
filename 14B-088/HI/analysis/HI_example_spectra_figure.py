@@ -24,6 +24,7 @@ from paths import (fourteenB_HI_file_dict, fourteenB_wGBT_HI_file_dict,
                    data_path, allfigs_path)
 from plotting_styles import twocolumn_figure, default_figure
 from constants import hi_freq, hi_coldens_Kkms
+from galaxy_params import gal_feath as gal
 
 
 figure_folder = allfigs_path("HI_maps")
@@ -75,6 +76,11 @@ ax1.set_xlabel("")
 ax1.add_patch(patches.Rectangle((500, 1280), 250, 250, fill=False,
                                 edgecolor=col_pal[2], linewidth=2,
                                 linestyle='dashed'))
+
+# Add a couple radial contours
+rad = gal.radius(header=moment0_feath.header).to(u.kpc)
+ax1.contour(rad.value, levels=[2, 4], colors=col_pal[:2], linestyle='dotted',
+            linewidth=2)
 
 col_pal = sb.color_palette()
 lab_posn = [(100, 1100), (100, 800), (1130, 600), (1100, 1000)]

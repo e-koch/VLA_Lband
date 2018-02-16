@@ -103,7 +103,7 @@ fig = plt.figure()
 fig2 = FITSFigure(fits.PrimaryHDU(res_fit_feath.data / 1000.,
                                   header=res_fit_feath.header), figure=fig,
                   subplot=(1, 3, 2))
-fig2.show_colorscale(cmap='viridis', vmax=20, vmin=-20)
+fig2.show_colorscale(cmap='coolwarm', vmax=13, vmin=-13)
 fig2.hide_axis_labels()
 fig2.hide_ytick_labels()
 fig2.tick_labels.set_xformat('hh:mm')

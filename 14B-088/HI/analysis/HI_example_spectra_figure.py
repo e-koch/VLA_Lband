@@ -79,7 +79,8 @@ ax1.add_patch(patches.Rectangle((500, 1280), 250, 250, fill=False,
 
 # Add a couple radial contours
 rad = gal.radius(header=moment0_feath.header).to(u.kpc)
-ax1.contour(rad.value, levels=[2, 4], colors=col_pal[:2], linestyle='dotted',
+ax1.contour(rad.value, levels=[2, 4, 6, 8], colors=[col_pal[-1]],
+            linestyle='dotted',
             linewidth=2)
 
 col_pal = sb.color_palette()

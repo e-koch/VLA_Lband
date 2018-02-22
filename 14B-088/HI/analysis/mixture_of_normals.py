@@ -16,6 +16,9 @@ import numpy as np
 import astropy.units as u
 import astropy.constants as co
 import matplotlib.pyplot as plt
+from scipy.special import erf
+
+from cube_analysis.spectral_stacking_models import fit_hwhm
 
 
 def mix_mu(mu_samps, f=None):
@@ -123,21 +126,6 @@ def create_profile(vels, mu_samps, std_samps):
     return yvals / yvals.max()
 
 
-def hwhm_props(vels, profile):
-    '''
-    Return the width and f_wings equivalent to the HWHM model.
-    '''
-    posns = np.where(profile >= 0.5)[0]
-    sigma_hwhm = (vels[posns[-1]] - vels[posns[0]]) / np.sqrt(8 * np.log(2))
-    gauss_prof = gauss(0, sigma_hwhm)(vels)
-
-    f_wings = (np.sum((profile - gauss_prof)[vels <= vels[posns[0]]]) +
-               np.sum((profile - gauss_prof)[vels >= vels[posns[-1]]])) / \
-        np.sum(profile)
-
-    return sigma_hwhm, f_wings
-
-
 # Draw a few thousand samples according to different distributions for the mean
 # and sigma.
 nsamp = 10000
@@ -149,6 +137,7 @@ peak_centers = np.random.normal(0, 0.1, nsamp)
 rotation_centers = np.random.normal(0, 2, nsamp)
 
 uniform_temps = np.random.uniform(100., 10000., nsamp) * u.K
+# uniform_temps = np.random.uniform(1000., 10000., nsamp) * u.K
 
 uniform_lwidths = lwidth(uniform_temps).value
 
@@ -160,8 +149,8 @@ uniform_profile = create_profile(vels, peak_centers, uniform_lwidths)
 uniform_profile_rot = create_profile(vels, rotation_centers, uniform_lwidths)
 
 # What is the equivalent width we would measure with the HWHM technique?
-sigma_hwhm, f_wings = hwhm_props(vels, uniform_profile)
-sigma_hwhm_rot, f_wings_rot = hwhm_props(vels, uniform_profile_rot)
+params, _, labels, hwhm_model = fit_hwhm(vels, uniform_profile)
+params_rot, _, _, hwhm_model_rot = fit_hwhm(vels, uniform_profile_rot)
 
 # Calculate skewness and kurtosis
 uniform_skew = mix_skew(peak_centers, uniform_lwidths**2)
@@ -173,24 +162,22 @@ uniform_kurt_rot = mix_kurt(rotation_centers, uniform_lwidths**2)
 plt.subplot(211)
 plt.plot(vels, uniform_profile, label='Mixture')
 plt.plot(vels, gauss(0, stack_lwidth)(vels), label='Reference')
-plt.plot(vels, gauss(0, sigma_hwhm)(vels), label='HWHM Model')
+plt.plot(vels, hwhm_model(vels), label='HWHM Model')
 plt.legend(frameon=True)
 plt.grid()
 
 plt.subplot(212)
 plt.plot(vels, uniform_profile_rot, label='Mixture')
 plt.plot(vels, gauss(0, stack_lwidth_rot)(vels), label='Reference')
-plt.plot(vels, gauss(0, sigma_hwhm_rot)(vels), label='HWHM Model')
+plt.plot(vels, hwhm_model_rot(vels), label='HWHM Model')
 plt.grid()
 
 print("Peak Velocity Params")
-print("sigma_mix = {0}; sigma_hwhm = {1}; f_wings = {2}; mix_skew = {3}"
-      "; mix_kurt = {4}".format(stack_lwidth, sigma_hwhm, f_wings,
-                                uniform_skew, uniform_kurt))
+print("sigma_mix = {0}".format(stack_lwidth))
+print(params)
 print("Rotation Velocity Params")
-print("sigma_mix = {0}; sigma_hwhm = {1}; f_wings = {2}; mix_skew = {3}"
-      "; mix_kurt = {4}".format(stack_lwidth_rot, sigma_hwhm_rot, f_wings_rot,
-                                uniform_skew_rot, uniform_kurt_rot))
+print("sigma_mix = {0}".format(stack_lwidth_rot))
+print(params_rot)
 
 print(argh)
 
@@ -217,8 +204,8 @@ phase_profile = create_profile(vels, peak_centers, phase_lwidths)
 phase_profile_rot = create_profile(vels, rotation_centers, phase_lwidths)
 
 # What is the equivalent width we would measure with the HWHM technique?
-sigma_hwhm_phase, f_wings_phase = hwhm_props(vels, phase_profile)
-sigma_hwhm_phase_rot, f_wings_phase_rot = hwhm_props(vels, phase_profile_rot)
+params_phase = fit_hwhm(vels, phase_profile)[0]
+params_phase_rot = fit_hwhm(vels, phase_profile_rot)[0]
 
 # Calculate skewness and kurtosis
 phase_skew = mix_skew(peak_centers, phase_lwidths**2)
@@ -269,8 +256,8 @@ canon_profile = create_profile(vels, peak_centers, canon_lwidths)
 canon_profile_rot = create_profile(vels, rotation_centers, canon_lwidths)
 
 # What is the equivalent width we would measure with the HWHM technique?
-sigma_hwhm_canon, f_wings_canon = hwhm_props(vels, canon_profile)
-sigma_hwhm_canon_rot, f_wings_canon_rot = hwhm_props(vels, canon_profile_rot)
+sigma_hwhm_canon, f_wings_canon = fit_hwhm(vels, canon_profile)[0]
+sigma_hwhm_canon_rot, f_wings_canon_rot = fit_hwhm(vels, canon_profile_rot)[0]
 
 # Calculate skewness and kurtosis
 canon_skew = mix_skew(peak_centers, canon_lwidths**2)
@@ -337,7 +324,7 @@ uniform_profile_multi = create_profile(vels, peak_centers_wmulti,
                                        uniform_lwidths)
 
 # What is the equivalent width we would measure with the HWHM technique?
-sigma_hwhm_multi, f_wings_multi = hwhm_props(vels, uniform_profile_multi)
+sigma_hwhm_multi, f_wings_multi = fit_hwhm(vels, uniform_profile_multi)[0]
 
 # Calculate skewness and kurtosis
 uniform_skew_multi = mix_skew(peak_centers_wmulti, uniform_lwidths**2)

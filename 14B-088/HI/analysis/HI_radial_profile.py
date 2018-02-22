@@ -176,9 +176,9 @@ p.plot(rs.value, sd.value, color='k',
 # p.plot(rs_s.value, sd_s.value, "--", label="South",
 #        drawstyle='steps-mid', color=cpal[0])
 p.errorbar(rs_n.value, sd_n.value, yerr=sd_sigma_n.value, fmt="-.",
-           color=cpal[2], label="North", drawstyle='steps-mid')
+           color=cpal[0], label="North", drawstyle='steps-mid')
 p.errorbar(rs_s.value, sd_s.value, yerr=sd_sigma_s.value, fmt="--",
-           color=cpal[0], label="South", drawstyle='steps-mid')
+           color=cpal[2], label="South", drawstyle='steps-mid')
 p.ylabel(r"$\Sigma_{\rm HI}$ (M$_{\odot}$ pc$^{-2}$)")
 p.xlabel(r"Radius (kpc)")
 p.legend(loc='best', frameon=True)
@@ -196,10 +196,10 @@ p.plot(rs_feath.value, sd_feath.value, color='k',
        drawstyle='steps-mid', label="Total", zorder=1)
 p.errorbar(rs_feath_n.value, sd_feath_n.value,
            yerr=sd_sigma_feath_n.value, fmt="-.",
-           color=cpal[2], label="North", drawstyle='steps-mid')
+           color=cpal[0], label="North", drawstyle='steps-mid')
 p.errorbar(rs_feath_s.value, sd_feath_s.value,
            yerr=sd_sigma_feath_s.value, fmt="--",
-           color=cpal[0], label="South", drawstyle='steps-mid')
+           color=cpal[2], label="South", drawstyle='steps-mid')
 p.ylabel(r"$\Sigma_{\rm HI}$ (M$_{\odot}$ pc$^{-2}$)")
 p.xlabel(r"Radius (kpc)")
 p.legend(loc='best', frameon=True)

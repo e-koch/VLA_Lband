@@ -197,21 +197,21 @@ neg_vel_mask = total_peakvel_wGBT.spectral_axis.to(u.km / u.s).value < 0.
 p.plot(total_peakvel_feath_n.spectral_axis.to(u.km / u.s).value,
        (total_peakvel_feath_n / total_peakvel_feath_n.max()).value,
        '--', drawstyle='steps-mid', label='North',
-           color=sb.color_palette()[0])
+           color=sb.color_palette()[2])
 p.plot(total_peakvel_feath_s.spectral_axis.to(u.km / u.s).value,
        (total_peakvel_feath_s / total_peakvel_feath_s.max()).value,
        '-.', drawstyle='steps-mid', label='South',
-       color=sb.color_palette()[2])
+       color=sb.color_palette()[0])
 
 # Fill the differences in the line wings
 p.fill_between(total_peakvel_feath_s.spectral_axis.to(u.km / u.s).value[pos_vel_mask],
                (total_peakvel_feath_s / total_peakvel_feath_s.max()).value[pos_vel_mask],
                (total_peakvel_feath_n / total_peakvel_feath_n.max()).value[pos_vel_mask],
-               color=sb.color_palette()[0], alpha=0.8)
+               color=sb.color_palette()[2], alpha=0.8)
 p.fill_between(total_peakvel_feath_s.spectral_axis.to(u.km / u.s).value[neg_vel_mask],
                (total_peakvel_feath_s / total_peakvel_feath_s.max()).value[neg_vel_mask],
                (total_peakvel_feath_n / total_peakvel_feath_n.max()).value[neg_vel_mask],
-               color=sb.color_palette()[2], alpha=0.8)
+               color=sb.color_palette()[0], alpha=0.8)
 p.plot(total_peakvel_wGBT.spectral_axis.to(u.km / u.s).value,
        (total_peakvel_wGBT / total_peakvel_wGBT.max()).value,
        '-', drawstyle='steps-mid', label='Total',
@@ -246,13 +246,13 @@ ax[2].errorbar(hi_radial_fits['bin_center'],
                yerr=[hi_radial_fits["peaksub_feath_n_f_wings_low_lim"],
                      hi_radial_fits["peaksub_feath_n_f_wings_up_lim"]],
                linestyle='--', drawstyle='steps-mid',
-               color=sb.color_palette()[0])
+               color=sb.color_palette()[2])
 ax[2].errorbar(hi_radial_fits['bin_center'],
                hi_radial_fits['peaksub_feath_s_f_wings'],
                yerr=[hi_radial_fits["peaksub_feath_s_f_wings_low_lim"],
                      hi_radial_fits["peaksub_feath_s_f_wings_up_lim"]],
                linestyle='-.', drawstyle='steps-mid',
-               color=sb.color_palette()[2])
+               color=sb.color_palette()[0])
 
 ax[2].set_xlim([0, 8])
 ax[2].set_ylim([0.13, 0.38])
@@ -274,13 +274,13 @@ ax[1].errorbar(hi_radial_fits['bin_center'],
                yerr=[hi_radial_fits["peaksub_feath_n_kappa_low_lim"],
                      hi_radial_fits["peaksub_feath_n_kappa_up_lim"]],
                linestyle='--', drawstyle='steps-mid',
-               color=sb.color_palette()[0])
+               color=sb.color_palette()[2])
 ax[1].errorbar(hi_radial_fits['bin_center'],
                hi_radial_fits['peaksub_feath_s_kappa'],
                yerr=[hi_radial_fits["peaksub_feath_s_kappa_low_lim"],
                      hi_radial_fits["peaksub_feath_s_kappa_up_lim"]],
                linestyle='-.', drawstyle='steps-mid',
-               color=sb.color_palette()[2])
+               color=sb.color_palette()[0])
 
 ax[1].set_xlim([0, 8])
 ax[1].set_ylim([-0.09, -0.015])
@@ -302,13 +302,13 @@ ax[0].errorbar(hi_radial_fits['bin_center'],
                yerr=[hi_radial_fits["peaksub_feath_n_asymm_low_lim"],
                      hi_radial_fits["peaksub_feath_n_asymm_up_lim"]],
                linestyle='--', drawstyle='steps-mid',
-               color=sb.color_palette()[0], label='North')
+               color=sb.color_palette()[2], label='North')
 ax[0].errorbar(hi_radial_fits['bin_center'],
                hi_radial_fits['peaksub_feath_s_asymm'],
                yerr=[hi_radial_fits["peaksub_feath_s_asymm_low_lim"],
                      hi_radial_fits["peaksub_feath_s_asymm_up_lim"]],
                linestyle='-.', drawstyle='steps-mid',
-               color=sb.color_palette()[2], label='South')
+               color=sb.color_palette()[0], label='South')
 # Bold line for the total profile asymmetries
 # ax[0].fill_between(hi_radial_fits['bin_center'],
 #                    hi_fit_hwhm_vals['Feath. Peak Sub. Params'][-2] -
@@ -336,11 +336,11 @@ ax[0].errorbar(hi_radial_fits['bin_center'],
 #                    zorder=-1)
 
 ax[0].set_xlim([0, 8])
-ax[0].set_ylim([-0.22, 0.33])
+ax[0].set_ylim([-0.33, 0.22])
 ax[0].grid()
 ax[0].set_ylabel("Asymmetry")
 ax[0].legend(frameon=True)
-ax[0].fill_between([0, 0.5], -0.25, 0.35, facecolor='gray', alpha=0.5,
+ax[0].fill_between([0, 0.5], -0.35, 0.25, facecolor='gray', alpha=0.5,
                    zorder=-1)
 
 p.tight_layout()

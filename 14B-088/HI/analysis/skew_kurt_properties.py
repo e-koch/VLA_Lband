@@ -107,9 +107,9 @@ ax[0].errorbar(radii_skew.value, sdprof_skew.value,
                drawstyle='steps-mid', label="Total", zorder=-1,
                alpha=0.5)
 ax[0].errorbar(rs_skew_n.value, sd_skew_n.value, yerr=sd_skew_sigma_n.value,
-               drawstyle='steps-mid', label="North", color=cpal[0],)
+               drawstyle='steps-mid', label="North", color=cpal[2],)
 ax[0].errorbar(rs_skew_s.value, sd_skew_s.value, yerr=sd_skew_sigma_s.value,
-               drawstyle='steps-mid', label="South", color=cpal[2],)
+               drawstyle='steps-mid', label="South", color=cpal[0],)
 ax[0].set_ylim([-0.5, 0.4])
 ax[0].legend(frameon=True, loc='lower right')
 ax[0].grid()
@@ -120,9 +120,9 @@ ax[1].errorbar(radii_kurt.value, sdprof_kurt.value,
                drawstyle='steps-mid', label="Total", zorder=-1,
                alpha=0.5, color='k',)
 ax[1].errorbar(rs_kurt_n.value, sd_kurt_n.value, yerr=sd_kurt_sigma_n.value,
-               drawstyle='steps-mid', label="North", color=cpal[0],)
+               drawstyle='steps-mid', label="North", color=cpal[2],)
 ax[1].errorbar(rs_kurt_s.value, sd_kurt_s.value, yerr=sd_kurt_sigma_s.value,
-               drawstyle='steps-mid', label="South", color=cpal[2],)
+               drawstyle='steps-mid', label="South", color=cpal[0],)
 ax[1].set_ylim([-0.5, 0.4])
 
 ax[1].grid()
@@ -175,9 +175,9 @@ ax[0].errorbar(rs_surf.value, sd_surf.value,
                drawstyle='steps-mid', label="Total", zorder=-1,
                alpha=0.5)
 ax[0].errorbar(rs_surf_n.value, sd_surf_n.value, yerr=sd_surf_sigma_n.value,
-               drawstyle='steps-mid', label="North", color=cpal[0])
+               drawstyle='steps-mid', label="North", color=cpal[2])
 ax[0].errorbar(rs_surf_s.value, sd_surf_s.value, yerr=sd_surf_sigma_s.value,
-               drawstyle='steps-mid', label="South", color=cpal[2])
+               drawstyle='steps-mid', label="South", color=cpal[0])
 ax[0].set_ylim([2, 9])
 ax[0].legend(frameon=True, loc='lower center')
 ax[0].grid()
@@ -188,10 +188,10 @@ ax[1].errorbar(rs_lwidth.value, sd_lwidth.value,
                drawstyle='steps-mid', label="Total", zorder=-1,
                alpha=0.5)
 ax[1].errorbar(rs_lwidth_n.value, sd_lwidth_n.value,
-               yerr=sd_lwidth_sigma_n.value, color=cpal[0],
+               yerr=sd_lwidth_sigma_n.value, color=cpal[2],
                drawstyle='steps-mid', label="North", )
 ax[1].errorbar(rs_lwidth_s.value, sd_lwidth_s.value,
-               yerr=sd_lwidth_sigma_s.value, color=cpal[2],
+               yerr=sd_lwidth_sigma_s.value, color=cpal[0],
                drawstyle='steps-mid', label="South", )
 ax[1].set_ylim([4, 14])
 ax[1].grid()
@@ -202,9 +202,9 @@ ax[2].errorbar(radii_skew.value, sdprof_skew.value,
                drawstyle='steps-mid', label="Total", zorder=-1,
                alpha=0.5)
 ax[2].errorbar(rs_skew_n.value, sd_skew_n.value, yerr=sd_skew_sigma_n.value,
-               drawstyle='steps-mid', label="North", color=cpal[0], )
+               drawstyle='steps-mid', label="North", color=cpal[2], )
 ax[2].errorbar(rs_skew_s.value, sd_skew_s.value, yerr=sd_skew_sigma_s.value,
-               drawstyle='steps-mid', label="South", color=cpal[2], )
+               drawstyle='steps-mid', label="South", color=cpal[0], )
 ax[2].set_ylim([-0.5, 0.4])
 ax[2].grid()
 ax[2].set_ylabel("Skewness")
@@ -214,9 +214,9 @@ ax[3].errorbar(radii_kurt.value, sdprof_kurt.value,
                drawstyle='steps-mid', label="Total", zorder=-1,
                alpha=0.5)
 ax[3].errorbar(rs_kurt_n.value, sd_kurt_n.value, yerr=sd_kurt_sigma_n.value,
-               drawstyle='steps-mid', label="North", color=cpal[0],)
+               drawstyle='steps-mid', label="North", color=cpal[2],)
 ax[3].errorbar(rs_kurt_s.value, sd_kurt_s.value, yerr=sd_kurt_sigma_s.value,
-               drawstyle='steps-mid', label="South", color=cpal[2],)
+               drawstyle='steps-mid', label="South", color=cpal[0],)
 ax[3].set_ylim([-0.5, 0.4])
 
 ax[3].grid()
@@ -268,9 +268,9 @@ ax[0].errorbar(radii_skew.value, sdprof_skew.value,
                drawstyle='steps-mid', label="Total", zorder=-1,
                alpha=0.5)
 ax[0].errorbar(rs_skew_n.value, sd_skew_n.value, yerr=sd_skew_sigma_n.value,
-               drawstyle='steps-mid', label="North", color=cpal[0], )
+               drawstyle='steps-mid', label="North", color=cpal[2], )
 ax[0].errorbar(rs_skew_s.value, sd_skew_s.value, yerr=sd_skew_sigma_s.value,
-               drawstyle='steps-mid', label="South", color=cpal[2], )
+               drawstyle='steps-mid', label="South", color=cpal[0], )
 ax[0].plot(bin_centers, skewness(cent_stack).value, label='Total Stacked')
 ax[0].plot(bin_centers, skewness(cent_stack_n).value, label='North Stacked')
 ax[0].plot(bin_centers, skewness(cent_stack_s).value, label='South Stacked')
@@ -285,9 +285,9 @@ ax[1].errorbar(radii_kurt.value, sdprof_kurt.value,
                drawstyle='steps-mid', label="Total", zorder=-1,
                alpha=0.5)
 ax[1].errorbar(rs_kurt_n.value, sd_kurt_n.value, yerr=sd_kurt_sigma_n.value,
-               drawstyle='steps-mid', label="North", color=cpal[0],)
+               drawstyle='steps-mid', label="North", color=cpal[2],)
 ax[1].errorbar(rs_kurt_s.value, sd_kurt_s.value, yerr=sd_kurt_sigma_s.value,
-               drawstyle='steps-mid', label="South", color=cpal[2],)
+               drawstyle='steps-mid', label="South", color=cpal[0],)
 ax[1].plot(bin_centers, kurtosis(cent_stack).value, label='Total Stacked')
 ax[1].plot(bin_centers, kurtosis(cent_stack_n).value, label='North Stacked')
 ax[1].plot(bin_centers, kurtosis(cent_stack_s).value, label='South Stacked')
@@ -454,10 +454,10 @@ ax[1].errorbar(rs_lwidth.value, sd_lwidth.value,
                drawstyle='steps-mid', label="Total", zorder=-1,
                alpha=0.5)
 ax[1].errorbar(rs_lwidth_n.value, sd_lwidth_n.value,
-               yerr=sd_lwidth_sigma_n.value, color=cpal[0],
+               yerr=sd_lwidth_sigma_n.value, color=cpal[2],
                drawstyle='steps-mid', label="North", )
 ax[1].errorbar(rs_lwidth_s.value, sd_lwidth_s.value,
-               yerr=sd_lwidth_sigma_s.value, color=cpal[2],
+               yerr=sd_lwidth_sigma_s.value, color=cpal[0],
                drawstyle='steps-mid', label="South", )
 ax[1].set_ylim([8, 16])
 ax[1].grid()
@@ -468,9 +468,9 @@ ax[2].errorbar(radii_skew.value, sdprof_skew.value,
                drawstyle='steps-mid', label="Total", zorder=-1,
                alpha=0.5)
 ax[2].errorbar(rs_skew_n.value, sd_skew_n.value, yerr=sd_skew_sigma_n.value,
-               drawstyle='steps-mid', label="North", color=cpal[0],)
+               drawstyle='steps-mid', label="North", color=cpal[2],)
 ax[2].errorbar(rs_skew_s.value, sd_skew_s.value, yerr=sd_skew_sigma_s.value,
-               drawstyle='steps-mid', label="South", color=cpal[2],)
+               drawstyle='steps-mid', label="South", color=cpal[0],)
 ax[2].set_ylim([-0.7, 0.7])
 ax[2].grid()
 ax[2].set_ylabel("Skewness")
@@ -480,9 +480,9 @@ ax[3].errorbar(radii_kurt.value, sdprof_kurt.value,
                drawstyle='steps-mid', label="Total", zorder=-1,
                alpha=0.5)
 ax[3].errorbar(rs_kurt_n.value, sd_kurt_n.value, yerr=sd_kurt_sigma_n.value,
-               drawstyle='steps-mid', label="North", color=cpal[0],)
+               drawstyle='steps-mid', label="North", color=cpal[2],)
 ax[3].errorbar(rs_kurt_s.value, sd_kurt_s.value, yerr=sd_kurt_sigma_s.value,
-               drawstyle='steps-mid', label="South", color=cpal[2],)
+               drawstyle='steps-mid', label="South", color=cpal[0],)
 ax[3].set_ylim([-0.6, 0.75])
 ax[3].grid()
 ax[3].set_xlabel("Radius (kpc)")
@@ -507,13 +507,13 @@ ax[0].errorbar(radii_skew.value, sdprof_skew.value,
                drawstyle='steps-mid', label="Total", zorder=-1,
                alpha=1.)
 ax[0].errorbar(rs_skew_n.value, sd_skew_n.value, yerr=sd_skew_sigma_n.value,
-               drawstyle='steps-mid', label="North", color=cpal[0],
+               drawstyle='steps-mid', label="North", color=cpal[2],
                linestyle='--')
 ax[0].errorbar(rs_skew_s.value, sd_skew_s.value, yerr=sd_skew_sigma_s.value,
-               drawstyle='steps-mid', label="South", color=cpal[2],
+               drawstyle='steps-mid', label="South", color=cpal[0],
                linestyle='-.')
 ax[0].fill_between([0., 0.5], -0.75, 0.8, color='gray', alpha=0.5)
-ax[0].set_ylim([-0.7, 0.75])
+ax[0].set_ylim([-0.75, 0.7])
 ax[0].grid()
 ax[0].legend(frameon=True)
 ax[0].axhline(0., color='gray', linestyle='dashed', linewidth=3,
@@ -525,10 +525,10 @@ ax[1].errorbar(radii_kurt.value, sdprof_kurt.value,
                drawstyle='steps-mid', label="Total", zorder=-1,
                alpha=1.)
 ax[1].errorbar(rs_kurt_n.value, sd_kurt_n.value, yerr=sd_kurt_sigma_n.value,
-               drawstyle='steps-mid', label="North", color=cpal[0],
+               drawstyle='steps-mid', label="North", color=cpal[2],
                linestyle='--')
 ax[1].errorbar(rs_kurt_s.value, sd_kurt_s.value, yerr=sd_kurt_sigma_s.value,
-               drawstyle='steps-mid', label="South", color=cpal[2],
+               drawstyle='steps-mid', label="South", color=cpal[0],
                linestyle='-.')
 ax[1].fill_between([0., 0.5], -0.75, 0.8, color='gray', alpha=0.5)
 ax[1].axhline(0., color='gray', linestyle='dashed', linewidth=3,
@@ -565,9 +565,9 @@ ax[0].errorbar(radii_skew.value, sdprof_skew.value,
                drawstyle='steps-mid', label="Total", zorder=-1,
                alpha=0.5)
 ax[0].errorbar(rs_skew_n.value, sd_skew_n.value, yerr=sd_skew_sigma_n.value,
-               drawstyle='steps-mid', label="North", color=cpal[0],)
+               drawstyle='steps-mid', label="North", color=cpal[2],)
 ax[0].errorbar(rs_skew_s.value, sd_skew_s.value, yerr=sd_skew_sigma_s.value,
-               drawstyle='steps-mid', label="South", color=cpal[2],)
+               drawstyle='steps-mid', label="South", color=cpal[0],)
 ax[0].plot(bin_centers, skewness(cent_stack).value, label='Total Stacked')
 ax[0].plot(bin_centers, skewness(cent_stack_n).value, label='North Stacked')
 ax[0].plot(bin_centers, skewness(cent_stack_s).value, label='South Stacked')
@@ -580,9 +580,9 @@ ax[1].errorbar(radii_kurt.value, sdprof_kurt.value,
                drawstyle='steps-mid', label="Total", zorder=-1,
                alpha=0.5)
 ax[1].errorbar(rs_kurt_n.value, sd_kurt_n.value, yerr=sd_kurt_sigma_n.value,
-               drawstyle='steps-mid', label="North", color=cpal[0],)
+               drawstyle='steps-mid', label="North", color=cpal[2],)
 ax[1].errorbar(rs_kurt_s.value, sd_kurt_s.value, yerr=sd_kurt_sigma_s.value,
-               drawstyle='steps-mid', label="South", color=cpal[2],)
+               drawstyle='steps-mid', label="South", color=cpal[0],)
 ax[1].plot(bin_centers, kurtosis(cent_stack).value, label='Total Stacked')
 ax[1].plot(bin_centers, kurtosis(cent_stack_n).value, label='North Stacked')
 ax[1].plot(bin_centers, kurtosis(cent_stack_s).value, label='South Stacked')
@@ -664,11 +664,11 @@ ax[0].errorbar(radii_skew_noSD.value, sdprof_skew_noSD.value,
                drawstyle='steps-mid', label="Total", zorder=-1,
                alpha=0.5)
 ax[0].errorbar(radii_skew_n_noSD.value, sdprof_skew_n_noSD.value,
-               yerr=sdprof_sigma_skew_n_noSD.value, color=cpal[0],
+               yerr=sdprof_sigma_skew_n_noSD.value, color=cpal[2],
                drawstyle='steps-mid', label="North",
                linestyle='--')
 ax[0].errorbar(radii_skew_s_noSD.value, sdprof_skew_s_noSD.value,
-               yerr=sdprof_sigma_skew_s_noSD.value, color=cpal[2],
+               yerr=sdprof_sigma_skew_s_noSD.value, color=cpal[0],
                drawstyle='steps-mid', label="South",
                linestyle='-.')
 ax[0].fill_between([0., 0.5], -0.75, 0.8, color='gray', alpha=0.5)
@@ -690,10 +690,10 @@ ax[1].errorbar(radii_skew.value, sdprof_skew.value,
                alpha=0.5)
 ax[1].errorbar(rs_skew_n.value, sd_skew_n.value, yerr=sd_skew_sigma_n.value,
                drawstyle='steps-mid', label="North",
-               linestyle='--', color=cpal[0],)
+               linestyle='--', color=cpal[2],)
 ax[1].errorbar(rs_skew_s.value, sd_skew_s.value, yerr=sd_skew_sigma_s.value,
                drawstyle='steps-mid', label="South",
-               linestyle='-.', color=cpal[2],)
+               linestyle='-.', color=cpal[0],)
 ax[1].fill_between([0., 0.5], -0.75, 0.8, color='gray', alpha=0.5)
 ax[1].set_ylim([-0.7, 0.78])
 ax[1].set_xlim([0, 8])
@@ -709,9 +709,5 @@ p.tight_layout()
 fig.savefig(osjoin(prop_figure_folder, "hi_skew_profile_both_n_s.png"))
 fig.savefig(osjoin(prop_figure_folder, "hi_skew_profile_both_n_s.pdf"))
 p.close()
-
-
-
-
 
 default_figure()

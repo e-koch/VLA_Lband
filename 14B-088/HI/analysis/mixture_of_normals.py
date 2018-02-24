@@ -203,9 +203,8 @@ stack_lwidth_phase_rot = np.sqrt(mix_variance(rotation_centers, phase_lwidths**2
 phase_profile = create_profile(vels, peak_centers, phase_lwidths)
 phase_profile_rot = create_profile(vels, rotation_centers, phase_lwidths)
 
-# What is the equivalent width we would measure with the HWHM technique?
-params_phase = fit_hwhm(vels, phase_profile)[0]
-params_phase_rot = fit_hwhm(vels, phase_profile_rot)[0]
+phase_params, _, labels, phase_hwhm_model = fit_hwhm(vels, phase_profile)
+phase_params_rot, _, _, phase_hwhm_model_rot = fit_hwhm(vels, phase_profile_rot)
 
 # Calculate skewness and kurtosis
 phase_skew = mix_skew(peak_centers, phase_lwidths**2)
@@ -217,14 +216,14 @@ phase_kurt_rot = mix_kurt(rotation_centers, phase_lwidths**2)
 plt.subplot(211)
 plt.plot(vels, phase_profile, label='Mixture')
 plt.plot(vels, gauss(0, stack_lwidth_phase)(vels), label='Reference')
-plt.plot(vels, gauss(0, sigma_hwhm_phase)(vels), label='HWHM Model')
+plt.plot(vels, phase_hwhm_model(vels), label='HWHM Model')
 plt.legend(frameon=True)
 plt.grid()
 
 plt.subplot(212)
 plt.plot(vels, phase_profile_rot, label='Mixture')
 plt.plot(vels, gauss(0, stack_lwidth_phase_rot)(vels), label='Reference')
-plt.plot(vels, gauss(0, sigma_hwhm_phase_rot)(vels), label='HWHM Model')
+plt.plot(vels, phase_hwhm_model_rot(vels), label='HWHM Model')
 plt.grid()
 
 print("Peak Velocity Params")

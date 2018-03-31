@@ -8,6 +8,7 @@ from astropy.table import Table
 from os.path import join as osjoin
 import os
 import seaborn as sb
+from astropy.modeling.models import Gaussian1D
 
 from cube_analysis.spectral_stacking_models import fit_hwhm, fit_gaussian
 
@@ -101,7 +102,6 @@ fig.savefig(osjoin(figure_folder, "total_profile_corrected_velocity_HI_CO21.pdf"
 fig.savefig(osjoin(figure_folder, "total_profile_corrected_velocity_HI_CO21.png"))
 
 p.close()
-# raw_input("Next plot?")
 
 # Total CO mass. Using 6.7 Msol / pc^2 / K km s^-1\
 # pixscale = gal.distance.to(u.pc) * (np.pi / 180.) * \
@@ -202,6 +202,140 @@ co_param_df = DataFrame(co_fit_vals, index=parnames_hwhm)
 co_param_df.to_latex(alltables_path("co_gaussian_totalprof_fits_hwhm.tex"))
 co_param_df.to_csv(iram_co21_14B088_data_path("tables/co_gaussian_totalprof_fits_hwhm.csv",
                                               no_check=True))
+
+# Single plot of just the peak velocity profiles with the width highlighted
+onecolumn_figure()
+cpal = sb.color_palette()
+p.plot(total_spectrum_hi_peakvel.spectral_axis.to(u.km / u.s).value,
+       (total_spectrum_hi_peakvel / total_spectrum_hi_peakvel.max()).value,
+       '-', drawstyle='steps-mid', label="HI")
+p.axvline(hi_tab['Feath. Peak Sub. Params'][1] +
+          hi_tab['Feath. Peak Sub. Params'][0] *
+          np.sqrt(2 * np.log(2)), linestyle='-', color=cpal[0], linewidth=3,
+          alpha=0.75)
+p.axvline(hi_tab['Feath. Peak Sub. Params'][1] -
+          hi_tab['Feath. Peak Sub. Params'][0] *
+          np.sqrt(2 * np.log(2)), linestyle='-', color=cpal[0], linewidth=3,
+          alpha=0.75)
+p.plot(total_spectrum_co_peakvel.spectral_axis.to(u.km / u.s).value,
+       (total_spectrum_co_peakvel / total_spectrum_co_peakvel.max()).value,
+       '--', drawstyle='steps-mid', label="CO(2-1)")
+p.axvline(co_param_df['Peak Sub. Params'][1] +
+          co_param_df['Peak Sub. Params'][0] *
+          np.sqrt(2 * np.log(2)), linestyle='--', color=cpal[1], linewidth=3,
+          alpha=0.75)
+p.axvline(co_param_df['Peak Sub. Params'][1] -
+          co_param_df['Peak Sub. Params'][0] *
+          np.sqrt(2 * np.log(2)), linestyle='--', color=cpal[1], linewidth=3,
+          alpha=0.75)
+p.ylabel("Normalized Total Intensity")
+p.xlabel("Velocity (km/s)")
+p.ylim([-0.02, 1.1])
+p.xlim([-50, 50])
+p.legend(frameon=True, fontsize=9)
+p.grid()
+
+p.tight_layout()
+
+p.savefig(osjoin(figure_folder, "total_profile_peak_velocity_HI_CO21.pdf"))
+p.savefig(osjoin(figure_folder, "total_profile_peak_velocity_HI_CO21.png"))
+
+p.close()
+
+# And with the equivalent Gaussian models
+
+onecolumn_Npanel_figure(2.5)
+
+vels = total_spectrum_hi_peakvel.spectral_axis.to(u.km / u.s).value
+
+fig, ax = p.subplots(3, 1, sharex=True, sharey=True)
+
+ax[0].plot(total_spectrum_hi_peakvel.spectral_axis.to(u.km / u.s).value,
+           (total_spectrum_hi_peakvel / total_spectrum_hi_peakvel.max()).value,
+           '-', drawstyle='steps-mid', label="HI")
+ax[0].axvline(hi_tab['Feath. Peak Sub. Params'][1] +
+              hi_tab['Feath. Peak Sub. Params'][0] *
+              np.sqrt(2 * np.log(2)), linestyle='-', color=cpal[0],
+              linewidth=3,
+              alpha=0.75)
+ax[0].axvline(hi_tab['Feath. Peak Sub. Params'][1] -
+              hi_tab['Feath. Peak Sub. Params'][0] *
+              np.sqrt(2 * np.log(2)), linestyle='-', color=cpal[0],
+              linewidth=3,
+              alpha=0.75)
+ax[0].plot(total_spectrum_co_peakvel.spectral_axis.to(u.km / u.s).value,
+           (total_spectrum_co_peakvel / total_spectrum_co_peakvel.max()).value,
+           '--', drawstyle='steps-mid', label="CO(2-1)")
+ax[0].axvline(co_param_df['Peak Sub. Params'][1] +
+              co_param_df['Peak Sub. Params'][0] *
+              np.sqrt(2 * np.log(2)), linestyle='--', color=cpal[1],
+              linewidth=3,
+              alpha=0.75)
+ax[0].axvline(co_param_df['Peak Sub. Params'][1] -
+              co_param_df['Peak Sub. Params'][0] *
+              np.sqrt(2 * np.log(2)), linestyle='--', color=cpal[1],
+              linewidth=3,
+              alpha=0.75)
+ax[0].set_ylabel("Normalized Total Intensity")
+ax[0].grid()
+
+ax[1].plot(total_spectrum_hi_peakvel.spectral_axis.to(u.km / u.s).value,
+           (total_spectrum_hi_peakvel / total_spectrum_hi_peakvel.max()).value,
+           '-', drawstyle='steps-mid', label="HI")
+ax[1].plot(vels,
+           Gaussian1D(1.0, hi_tab['Feath. Peak Sub. Params'][1],
+                      hi_tab['Feath. Peak Sub. Params'][0])(vels),
+           color='gray',
+           alpha=0.5, linewidth=4)
+ax[1].axvline(hi_tab['Feath. Peak Sub. Params'][1] +
+              hi_tab['Feath. Peak Sub. Params'][0] *
+              np.sqrt(2 * np.log(2)), linestyle='-', color=cpal[0],
+              linewidth=3,
+              alpha=0.75)
+ax[1].axvline(hi_tab['Feath. Peak Sub. Params'][1] -
+              hi_tab['Feath. Peak Sub. Params'][0] *
+              np.sqrt(2 * np.log(2)), linestyle='-', color=cpal[0],
+              linewidth=3,
+              alpha=0.75)
+ax[1].set_ylabel("Normalized Total Intensity")
+ax[1].grid()
+ax[1].text(35, 0.95, "HI", ha='center', va='center',
+           bbox={"boxstyle": "square", "facecolor": "w"})
+
+ax[2].plot(total_spectrum_co_peakvel.spectral_axis.to(u.km / u.s).value,
+           (total_spectrum_co_peakvel / total_spectrum_co_peakvel.max()).value,
+           '--', drawstyle='steps-mid', label="CO(2-1)", color=cpal[1])
+ax[2].plot(vels,
+           Gaussian1D(1.0, co_param_df['Peak Sub. Params'][1],
+                      co_param_df['Peak Sub. Params'][0])(vels),
+           color='gray',
+           alpha=0.5, linewidth=4)
+ax[2].axvline(co_param_df['Peak Sub. Params'][1] +
+              co_param_df['Peak Sub. Params'][0] *
+              np.sqrt(2 * np.log(2)), linestyle='--', color=cpal[1],
+              linewidth=3,
+              alpha=0.75)
+ax[2].axvline(co_param_df['Peak Sub. Params'][1] -
+              co_param_df['Peak Sub. Params'][0] *
+              np.sqrt(2 * np.log(2)), linestyle='--', color=cpal[1],
+              linewidth=3,
+              alpha=0.75)
+ax[2].set_ylabel("Normalized Total Intensity")
+ax[2].grid()
+ax[2].text(35, 0.95, "CO(2-1)", ha='center', va='center',
+           bbox={"boxstyle": "square", "facecolor": "w"})
+
+ax[2].set_xlabel("Velocity (km/s)")
+ax[2].set_ylim([-0.02, 1.1])
+ax[2].set_xlim([-50, 50])
+ax[0].legend(frameon=True, fontsize=9)
+
+p.tight_layout()
+
+p.savefig(osjoin(figure_folder, "total_profile_peak_velocity_w_model_HI_CO21.pdf"))
+p.savefig(osjoin(figure_folder, "total_profile_peak_velocity_w_model_HI_CO21.png"))
+
+p.close()
 
 # Load in radial profiles
 
@@ -516,7 +650,35 @@ fig.savefig(osjoin(figure_folder, "total_profile_radial_widths_HI_CO21.png"))
 
 p.close()
 
+# Peak velocity only
+onecolumn_figure()
+
+p.errorbar(bin_cents, hi_params["peaksub_sigma"],
+           yerr=[hi_params["peaksub_sigma_low_lim"],
+                 hi_params["peaksub_sigma_up_lim"]],
+           label='HI',
+           drawstyle='steps-mid')
+p.errorbar(bin_cents, co_params["peaksub_sigma"],
+           yerr=[co_params["peaksub_sigma_low_lim"],
+                 co_params["peaksub_sigma_up_lim"]],
+           linestyle='--', label='CO(2-1)',
+           drawstyle='steps-mid')
+p.legend(loc='upper right', frameon=True)
+p.grid()
+p.ylim([2.5, 9])
+p.xlabel("Radius (kpc)")
+p.ylabel("Gaussian Width (km/s)")
+
+p.tight_layout()
+
+p.savefig(osjoin(figure_folder, "total_profile_radial_widths_peakvel_HI_CO21.pdf"))
+p.savefig(osjoin(figure_folder, "total_profile_radial_widths_peakvel_HI_CO21.png"))
+
+p.close()
+
+
 # Compare velocity at the peak of the stacks
+twocolumn_twopanel_figure()
 
 fig, ax = p.subplots(1, 3, sharey=True)
 

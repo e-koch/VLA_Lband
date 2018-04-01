@@ -1,6 +1,7 @@
 
 import sys
 import os
+from shutil import copyfile
 from tasks import split, importasdm
 
 '''
@@ -26,6 +27,10 @@ parentdir = os.getcwd().split("/")[-1]
 lines_folder = parentdir + '_speclines'
 if not os.path.exists(lines_folder):
     os.mkdir(lines_folder)
+
+# Copy the cont.dat file from the repo
+source_path = os.path.expanduser("~/Dropbox/code_development/VLA_Lband/17B-162/pipeline_scripts/cont.dat")
+copyfile(source_path, lines_folder)
 
 split(vis=ms_active,
       outputvis=lines_folder + "/" + mySDM + ".speclines.ms",

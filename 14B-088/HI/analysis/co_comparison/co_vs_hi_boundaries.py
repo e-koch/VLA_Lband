@@ -184,8 +184,8 @@ fig.hide_axis_labels()
 
 p.tight_layout()
 
-fig.savefig(osjoin(fig_path, "mask_edge_img_vel_minus196.pdf"))
-fig.savefig(osjoin(fig_path, "mask_edge_img_vel_minus196.png"))
+# fig.savefig(osjoin(fig_path, "mask_edge_img_vel_minus196.pdf"))
+# fig.savefig(osjoin(fig_path, "mask_edge_img_vel_minus196.png"))
 fig.close()
 
 # Now bin all of the distances against the HI and CO intensities.
@@ -241,19 +241,37 @@ pixscale = \
 bin_centers *= pixscale
 
 onecolumn_figure()
+cpal = sb.color_palette()
 
-p.errorbar(bin_centers, hi_vals / np.nanmax(hi_vals),
-           yerr=hi_errs / np.nanmax(hi_vals), fmt="D-",
-           label="HI", drawstyle='steps-mid')
-p.errorbar(bin_centers, co_vals / np.nanmax(co_vals),
-           yerr=co_errs / np.nanmax(co_vals), fmt="o--",
-           label="CO(2-1)", drawstyle='steps-mid')
+# p.errorbar(bin_centers, hi_vals / np.nanmax(hi_vals),
+#            yerr=hi_errs / np.nanmax(hi_vals), fmt="D-",
+#            label="HI", drawstyle='steps-mid')
+# p.errorbar(bin_centers, co_vals / np.nanmax(co_vals),
+#            yerr=co_errs / np.nanmax(co_vals), fmt="o--",
+#            label="CO(2-1)", drawstyle='steps-mid')
 
-p.xlabel("Distance from mask edge (pc)")
-p.ylabel("Normalized Intensity")
-p.axvline(0.0, color='k')
-p.legend(loc='upper left', frameon=True)
-p.grid()
+ax = p.subplot(111)
+
+pl1 = ax.errorbar(bin_centers, hi_vals,
+                  yerr=hi_errs, fmt="D-", color=cpal[0],
+                  label="HI", drawstyle='steps-mid')
+ax_2 = ax.twinx()
+pl2 = ax_2.errorbar(bin_centers, co_vals * 1000.,
+                    yerr=co_errs, fmt="o--",
+                    color=cpal[1],
+                    label="CO(2-1)", drawstyle='steps-mid')
+
+pls = [pl1[0], pl2[0]]
+labs = ["HI", "CO(2-1)"]
+ax.legend(pls, labs, frameon=True)
+
+ax.set_xlabel("Distance from Mask Edge (pc)")
+ax.set_ylabel(r"HI Mean Intensity (K)")
+ax_2.set_ylabel(r"CO Mean Intensity (mK)")
+
+ax.axvline(0.0, color='k')
+ax.grid()
+
 p.tight_layout()
 
 p.savefig(osjoin(fig_path, "mask_edge_radial_profiles.pdf"))

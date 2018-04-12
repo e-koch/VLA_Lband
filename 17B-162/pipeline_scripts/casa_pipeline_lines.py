@@ -282,7 +282,7 @@ for spw_num in spws:
             scan = str(jj)
             spw = str(spw_num)
             avgchannel = str(avg_chan)
-            avgtime = "1e8s"
+            avgtime = "1e8"
             correlation = "RR,LL"
             averagedata = True
             avgbaseline = True
@@ -312,7 +312,7 @@ for spw_num in spws:
             scan = str(jj)
             spw = str(spw_num)
             avgchannel = str(4096)
-            avgtime = '1e8s'
+            avgtime = '1e8'
             correlation = "RR,LL"
             averagedata = True
             avgbaseline = False
@@ -344,12 +344,8 @@ for spw_num in spws:
                 scan = str(jj)
                 spw = str(spw_num)
                 correlation = "RR,LL"
-                if avg_baseline:
-                    averagedata = True
-                    avgbaseline = True
-                else:
-                    averagedata = False
-                    avgbaseline = False
+                averagedata = True
+                avgbaseline = False
                 transform = False
                 extendflag = False
                 plotrange = []
@@ -377,12 +373,8 @@ for spw_num in spws:
                 scan = str(jj)
                 spw = str(spw_num)
                 correlation = "RR,LL"
-                if avg_baseline:
-                    averagedata = True
-                    avgbaseline = True
-                else:
-                    averagedata = False
-                    avgbaseline = False
+                averagedata = True
+                avgbaseline = False
                 transform = False
                 extendflag = False
                 plotrange = []
@@ -411,13 +403,9 @@ for spw_num in spws:
                 spw = str(spw_num)
                 correlation = "RR,LL"
                 avgchannel = "4096"
-                # avgtime = '1e8s'
-                if avg_baseline:
-                    averagedata = True
-                    avgbaseline = True
-                else:
-                    averagedata = False
-                    avgbaseline = False
+                avgtime = '1e8'
+                averagedata = True
+                avgbaseline = False
                 transform = False
                 extendflag = False
                 plotrange = []

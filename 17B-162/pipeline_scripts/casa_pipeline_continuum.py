@@ -17,13 +17,22 @@ try:
     hifv_importdata(ocorr_mode='co', nocopy=False, vis=[mySDM],
                     createmms='automatic', asis='Receiver CalAtmosphere',
                     overwrite=False)
-    # hifv_hanning(pipelinemode="automatic")
+    hifv_hanning(pipelinemode="automatic")
+    # Online flags applied when importing ASDM
     hifv_flagdata(intents='*POINTING*,*FOCUS*,*ATMOSPHERE*,*SIDEBAND_RATIO*, \
                   *UNKNOWN*, *SYSTEM_CONFIGURATION*, *UNSPECIFIED#UNSPECIFIED*',
                   flagbackup=False, scan=True, baseband=True, clip=True,
                   autocorr=True,
-                  hm_tbuff='1.5int', template=True, online=True, tbuff=0.0,
+                  hm_tbuff='1.5int', template=True, online=False, tbuff=0.0,
                   fracspw=0.05, shadow=True, quack=True, edgespw=True)
+    # The template output fails for some reason in the above command. Probably due
+    # to pre-splitting cont/lines before running.
+    # May leave scratch.g around, screwing up further steps
+    try:
+        os.remove("scratch.g")
+    except Exception:
+        pass
+
     hifv_vlasetjy(fluxdensity=-1, scalebychan=True, reffreq='1GHz', spix=0)
     hifv_priorcals(tecmaps=False)
     hifv_testBPdcals(weakbp=False)
@@ -32,8 +41,16 @@ try:
     hifv_semiFinalBPdcals(weakbp=False)
     hifv_checkflag(checkflagmode='semi')
     hifv_semiFinalBPdcals(weakbp=False)
+    try:
+        os.remove("scratch.g")
+    except Exception:
+        pass
     hifv_solint(pipelinemode="automatic")
     hifv_fluxboot(pipelinemode="automatic")
+    try:
+        os.remove("scratch.g")
+    except Exception:
+        pass
     hifv_finalcals(weakbp=False)
     hifv_applycals(flagdetailedsum=True, flagbackup=True, calwt=[True],
                    flagsum=True, gainmap=False)
@@ -61,17 +78,6 @@ for fil in image_files:
 
 # Now make a bunch of scan plots to make it easier to identify bad data
 ms_active = mySDM
-
-# Average over baselines for spectral-line data, but not the continuum
-if "continuum" in ms_active:
-    avg_baseline = True
-elif "speclines" in ms_active:
-    avg_baseline = False
-else:
-    from warnings import warn
-    warn("Unsure if this is a continuum or line MS. Enabling baseline"
-         " averaging.")
-    avg_baseline = True
 
 # SPWs to loop through
 tb.open(os.path.join(ms_active, "SPECTRAL_WINDOW"))
@@ -161,12 +167,8 @@ for spw_num in spws:
             scan = str(jj)
             spw = str(spw_num)
             correlation = "RR,LL"
-            if avg_baseline:
-                averagedata = True
-                avgbaseline = True
-            else:
-                averagedata = False
-                avgbaseline = False
+            averagedata = True
+            avgbaseline = True
             transform = False
             extendflag = False
             plotrange = []
@@ -192,12 +194,8 @@ for spw_num in spws:
             scan = str(jj)
             spw = str(spw_num)
             correlation = "RR,LL"
-            if avg_baseline:
-                averagedata = True
-                avgbaseline = True
-            else:
-                averagedata = False
-                avgbaseline = False
+            averagedata = True
+            avgbaseline = True
             transform = False
             extendflag = False
             plotrange = []
@@ -225,12 +223,8 @@ for spw_num in spws:
             # avgchannel = str(max(channels))
             # avgtime = '1e8s'
             correlation = "RR,LL"
-            if avg_baseline:
-                averagedata = True
-                avgbaseline = True
-            else:
-                averagedata = False
-                avgbaseline = False
+            averagedata = True
+            avgbaseline = False
             transform = False
             extendflag = False
             plotrange = []
@@ -257,12 +251,8 @@ for spw_num in spws:
                 scan = str(jj)
                 spw = str(spw_num)
                 correlation = "RR,LL"
-                if avg_baseline:
-                    averagedata = True
-                    avgbaseline = True
-                else:
-                    averagedata = False
-                    avgbaseline = False
+                averagedata = True
+                avgbaseline = True
                 transform = False
                 extendflag = False
                 plotrange = []
@@ -288,12 +278,8 @@ for spw_num in spws:
                 scan = str(jj)
                 spw = str(spw_num)
                 correlation = "RR,LL"
-                if avg_baseline:
-                    averagedata = True
-                    avgbaseline = True
-                else:
-                    averagedata = False
-                    avgbaseline = False
+                averagedata = True
+                avgbaseline = True
                 transform = False
                 extendflag = False
                 plotrange = []
@@ -319,14 +305,10 @@ for spw_num in spws:
                 scan = str(jj)
                 spw = str(spw_num)
                 correlation = "RR,LL"
-                avgchannel = str(max(channels))
+                avgchannel = "128"
                 # avgtime = '1e8s'
-                if avg_baseline:
-                    averagedata = True
-                    avgbaseline = True
-                else:
-                    averagedata = False
-                    avgbaseline = False
+                averagedata = True
+                avgbaseline = False
                 transform = False
                 extendflag = False
                 plotrange = []

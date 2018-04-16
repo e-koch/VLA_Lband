@@ -155,7 +155,7 @@ run_pipeline(os.path.join(out_folder,
                              "save_cube": True,
                              "noise_map": co21_noise_smoothed.value,
                              "min_sig": 0.5,
-                             "max_sig": 1.5,
+                             "max_sig": 2.,
                              # the spatial cell of both grids are the same size
                              "min_pix": 27,
                              "verbose": True

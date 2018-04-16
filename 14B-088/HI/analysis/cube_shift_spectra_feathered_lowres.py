@@ -37,7 +37,7 @@ log.info("Shifting w/ centroid")
 centroidsub_cube_name = "M33_14B-088_HI.clean.image.GBT_feathered.38arcsec.centroid_corrected.fits"
 cube_shifter(cube, mom1, gal.vsys, save_shifted=True,
              save_name=osjoin(smooth_2beam_folder, centroidsub_cube_name),
-             return_spectra=False, verbose=True, num_cores=num_cores,
+             return_spectra=False, verbose=False, num_cores=num_cores,
              chunk_size=chunk_size, pad_edges=True)
 
 # Also shift the signal mask to match those shifted here.
@@ -45,7 +45,7 @@ log.info("Shifting mask w/ centroid")
 centroidsub_mask_name = "M33_14B-088_HI.clean.image.GBT_feathered.38arcsec_source_mask.centroid_corrected.fits"
 cube_shifter(mask_cube, mom1, gal.vsys, save_shifted=True,
              save_name=osjoin(smooth_2beam_folder, centroidsub_mask_name),
-             return_spectra=False, verbose=True, num_cores=num_cores,
+             return_spectra=False, verbose=False, num_cores=num_cores,
              is_mask=True, chunk_size=chunk_size, pad_edges=True)
 
 # Shift wrt. peak velocities
@@ -53,7 +53,7 @@ log.info("Shifting w/ peak velocity")
 peakvelsub_cube_name = "M33_14B-088_HI.clean.image.GBT_feathered.38arcsec.peakvels_corrected.fits"
 cube_shifter(cube, peakvels, gal.vsys, save_shifted=True,
              save_name=osjoin(smooth_2beam_folder, peakvelsub_cube_name),
-             return_spectra=False, verbose=True, num_cores=num_cores,
+             return_spectra=False, verbose=False, num_cores=num_cores,
              chunk_size=chunk_size, pad_edges=True)
 
 # Also shift the signal mask to match those shifted here.
@@ -61,7 +61,7 @@ log.info("Shifting mask w/ peak velocity")
 peakvelsub_mask_name = "M33_14B-088_HI.clean.image.GBT_feathered.38arcsec_source_mask.peakvels_corrected.fits"
 cube_shifter(mask_cube, peakvels, gal.vsys, save_shifted=True,
              save_name=osjoin(smooth_2beam_folder, peakvelsub_mask_name),
-             return_spectra=False, verbose=True, num_cores=num_cores,
+             return_spectra=False, verbose=False, num_cores=num_cores,
              is_mask=True, chunk_size=chunk_size, pad_edges=True)
 
 del cube
@@ -82,7 +82,7 @@ log.info("Shifting w/ centroid")
 centroidsub_cube_name = "M33_14B-088_HI.clean.image.GBT_feathered.95arcsec.centroid_corrected.fits"
 cube_shifter(cube, mom1, gal.vsys, save_shifted=True,
              save_name=osjoin(smooth_5beam_folder, centroidsub_cube_name),
-             return_spectra=False, verbose=True, num_cores=num_cores,
+             return_spectra=False, verbose=False, num_cores=num_cores,
              chunk_size=chunk_size, pad_edges=True)
 
 # Also shift the signal mask to match those shifted here.
@@ -90,7 +90,7 @@ log.info("Shifting mask w/ centroid")
 centroidsub_mask_name = "M33_14B-088_HI.clean.image.GBT_feathered.95arcsec_source_mask.centroid_corrected.fits"
 cube_shifter(mask_cube, mom1, gal.vsys, save_shifted=True,
              save_name=osjoin(smooth_5beam_folder, centroidsub_mask_name),
-             return_spectra=False, verbose=True, num_cores=num_cores,
+             return_spectra=False, verbose=False, num_cores=num_cores,
              is_mask=True, chunk_size=chunk_size, pad_edges=True)
 
 # Shift wrt. peak velocities
@@ -98,7 +98,7 @@ log.info("Shifting w/ peak velocity")
 peakvelsub_cube_name = "M33_14B-088_HI.clean.image.GBT_feathered.95arcsec.peakvels_corrected.fits"
 cube_shifter(cube, peakvels, gal.vsys, save_shifted=True,
              save_name=osjoin(smooth_5beam_folder, peakvelsub_cube_name),
-             return_spectra=False, verbose=True, num_cores=num_cores,
+             return_spectra=False, verbose=False, num_cores=num_cores,
              chunk_size=chunk_size, pad_edges=True)
 
 # Also shift the signal mask to match those shifted here.
@@ -106,5 +106,5 @@ log.info("Shifting mask w/ peak velocity")
 peakvelsub_mask_name = "M33_14B-088_HI.clean.image.GBT_feathered.95arcsec_source_mask.peakvels_corrected.fits"
 cube_shifter(mask_cube, peakvels, gal.vsys, save_shifted=True,
              save_name=osjoin(smooth_5beam_folder, peakvelsub_mask_name),
-             return_spectra=False, verbose=True, num_cores=num_cores,
+             return_spectra=False, verbose=False, num_cores=num_cores,
              is_mask=True, chunk_size=chunk_size, pad_edges=True)

@@ -109,8 +109,8 @@ if not os.path.exists(hi_stackpath("")):
     os.mkdir(hi_stackpath(""))
 
 hi_cube = SpectralCube.read(smooth_2beam_hi_path("M33_14B-088_HI.clean.image.GBT_feathered.38arcsec.centroid_corrected.fits"),
-                            memmap=False)
-hi_cube.allow_huge_operations = True
+                            memmap=True)
+# hi_cube.allow_huge_operations = True
 
 hi_mask = fits.open(smooth_2beam_hi_path("M33_14B-088_HI.clean.image.GBT_feathered.38arcsec_source_mask.centroid_corrected.fits"))[0]
 hi_cube = hi_cube.with_mask(hi_mask.data > 0)
@@ -121,12 +121,12 @@ hi_beam = hi_cube.beam
 jybm_to_K = hi_beam.jtok_equiv(hi_freq)
 
 log.info("Stacking HI with HI centroid. 2 * beam")
-total_spectrum_hi_radial, num_pixels = \
+bin_centers, total_spectrum_hi_radial, num_pixels = \
     radial_stacking(gal, hi_cube, dr=dr,
                     max_radius=max_radius,
                     pa_bounds=None,
                     verbose=verbose,
-                    how='cube')[1:]
+                    how='slice')
 
 total_spectrum_hi_radial = total_spectrum_hi_radial.to(u.K, jybm_to_K)
 
@@ -153,8 +153,8 @@ OneDSpectrum(total_spectrum_hi_cent.value,
 del hi_cube
 
 hi_cube_peakvel = SpectralCube.read(smooth_2beam_hi_path("M33_14B-088_HI.clean.image.GBT_feathered.38arcsec.peakvels_corrected.fits"),
-    memmap=False)
-hi_cube_peakvel.allow_huge_operations = True
+    memmap=True)
+# hi_cube_peakvel.allow_huge_operations = True
 
 hi_mask_peakvel = fits.open(smooth_2beam_hi_path("M33_14B-088_HI.clean.image.GBT_feathered.38arcsec_source_mask.peakvels_corrected.fits"))[0]
 
@@ -168,7 +168,7 @@ total_spectrum_hi_radial_peakvel = \
                     max_radius=max_radius,
                     pa_bounds=None,
                     verbose=verbose,
-                    how='cube')[1].to(u.K, jybm_to_K)
+                    how='slice')[1].to(u.K, jybm_to_K)
 
 spec_shape = hi_cube_peakvel.shape[0]
 
@@ -272,8 +272,8 @@ hi_stackpath = lambda x: osjoin(smooth_5beam_hi_path("stacked_spectra"), x)
 if not os.path.exists(hi_stackpath("")):
     os.mkdir(hi_stackpath(""))
 
-hi_cube = SpectralCube.read(smooth_5beam_hi_path("M33_14B-088_HI.clean.image.GBT_feathered.95arcsec.centroid_corrected.fits"), memmap=False)
-hi_cube.allow_huge_operations = True
+hi_cube = SpectralCube.read(smooth_5beam_hi_path("M33_14B-088_HI.clean.image.GBT_feathered.95arcsec.centroid_corrected.fits"), memmap=True)
+# hi_cube.allow_huge_operations = True
 
 hi_mask = fits.open(smooth_5beam_hi_path("M33_14B-088_HI.clean.image.GBT_feathered.95arcsec_source_mask.centroid_corrected.fits"))[0]
 hi_cube = hi_cube.with_mask(hi_mask.data > 0)
@@ -289,7 +289,7 @@ total_spectrum_hi_radial, num_pixels = \
                     max_radius=max_radius,
                     pa_bounds=None,
                     verbose=verbose,
-                    how='cube')[1:]
+                    how='slice')[1:]
 
 total_spectrum_hi_radial = total_spectrum_hi_radial.to(u.K, jybm_to_K)
 
@@ -315,8 +315,8 @@ OneDSpectrum(total_spectrum_hi_cent.value,
 
 del hi_cube
 
-hi_cube_peakvel = SpectralCube.read(smooth_5beam_hi_path("M33_14B-088_HI.clean.image.GBT_feathered.95arcsec.peakvels_corrected.fits"), memmap=False)
-hi_cube_peakvel.allow_huge_operations = True
+hi_cube_peakvel = SpectralCube.read(smooth_5beam_hi_path("M33_14B-088_HI.clean.image.GBT_feathered.95arcsec.peakvels_corrected.fits"), memmap=True)
+# hi_cube_peakvel.allow_huge_operations = True
 
 hi_mask_peakvel = fits.open(smooth_5beam_hi_path("M33_14B-088_HI.clean.image.GBT_feathered.95arcsec_source_mask.peakvels_corrected.fits"))[0]
 
@@ -330,7 +330,7 @@ total_spectrum_hi_radial_peakvel = \
                     max_radius=max_radius,
                     pa_bounds=None,
                     verbose=verbose,
-                    how='cube')[1].to(u.K, jybm_to_K)
+                    how='slice')[1].to(u.K, jybm_to_K)
 
 spec_shape = hi_cube_peakvel.shape[0]
 

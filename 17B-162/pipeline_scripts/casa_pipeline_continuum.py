@@ -5,9 +5,10 @@ from glob import glob
 import shutil
 import numpy as np
 
-from tasks import plotms
+from tasks import plotms, flagdata, flagmanager
 
 mySDM = sys.argv[-1]
+myvis = mySDM if mySDM.endswith("ms") else mySDM + ".ms"
 
 __rethrow_casa_exceptions = True
 context = h_init()
@@ -18,15 +19,31 @@ try:
                     createmms='automatic', asis='Receiver CalAtmosphere',
                     overwrite=False)
     hifv_hanning(pipelinemode="automatic")
+
+    # Completely flag the 3 SPWs that are RFI-dominated
+    flagdata(vis=myvis, spw="0,1,4", flagbackup=False)
+
+    # Flag regions channels that are continuously affected by RFI
+    spw2 = "2:0~14;21~26;44~54;83~96"
+    spw3 = "3:0~15"
+    spw5 = "5:52~67"
+    spw7 = "7:44~127"
+    flag_str = ",".join([spw2, spw3, spw5, spw7])
+    flagdata(vis=myvis, spw=flag_str, flagbackup=False)
+
+    flagmanager(vis=myvis, mode='save', versionname="known_RFI",
+                comment="Removal of constant L-band RFI in 17B.")
+
     # Online flags applied when importing ASDM
     hifv_flagdata(intents='*POINTING*,*FOCUS*,*ATMOSPHERE*,*SIDEBAND_RATIO*, \
-                  *UNKNOWN*, *SYSTEM_CONFIGURATION*, *UNSPECIFIED#UNSPECIFIED*',
+                  *UNKNOWN*, *SYSTEM_CONFIGURATION*, \
+                  *UNSPECIFIED#UNSPECIFIED*',
                   flagbackup=False, scan=True, baseband=True, clip=True,
                   autocorr=True,
                   hm_tbuff='1.5int', template=True, online=False, tbuff=0.0,
                   fracspw=0.05, shadow=True, quack=True, edgespw=True)
-    # The template output fails for some reason in the above command. Probably due
-    # to pre-splitting cont/lines before running.
+    # The template output fails for some reason in the above command. Probably
+    # due to pre-splitting cont/lines before running.
     # May leave scratch.g around, screwing up further steps
     try:
         os.remove("scratch.g")

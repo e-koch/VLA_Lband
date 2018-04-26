@@ -21,12 +21,15 @@ from paths import (fourteenB_HI_file_dict, allfigs_path,
                    fourteenB_wGBT_HI_file_dict)
 from constants import hi_freq, hi_coldens_Kkms
 from plotting_styles import default_figure, twocolumn_figure
+from galaxy_params import gal_feath as gal
 
 default_figure()
 
 fig_path = allfigs_path("HI_maps")
 if not os.path.exists(fig_path):
     os.mkdir(fig_path)
+
+cosinc = np.cos(gal.inclination.to(u.rad)).value
 
 moment0 = fits.open(fourteenB_HI_file_dict["Moment0"])[0]
 moment0_wcs = WCS(moment0.header)
@@ -38,10 +41,11 @@ peaktemps_feath = fits.open(fourteenB_wGBT_HI_file_dict["PeakTemp"])[0].data
 
 beam = Beam.from_fits_header(moment0.header)
 
-moment0_Kkm_s = beam.jtok(hi_freq).value * moment0.data / 1000.
+# Correct for inclination and convert to K km/s
+moment0_Kkm_s = beam.jtok(hi_freq).value * (moment0.data / 1000.) * cosinc
 moment0_coldens = moment0_Kkm_s * hi_coldens_Kkms.value
 
-moment0_Kkm_s_feath = beam.jtok(hi_freq).value * moment0_feath.data / 1000.
+moment0_Kkm_s_feath = beam.jtok(hi_freq).value * (moment0_feath.data / 1000.) * cosinc
 moment0_coldens_feath = moment0_Kkm_s_feath * hi_coldens_Kkms.value
 
 pixscale = np.sqrt(proj_plane_pixel_area(moment0_wcs))
@@ -57,8 +61,8 @@ im = ax.imshow(moment0_Kkm_s,
                                    stretch=AsinhStretch()))
 ax.set_ylabel("DEC (J2000)")
 ax.set_xlabel("RA (J2000)")
-ax.add_patch(beam.ellipse_to_plot(int(0.1233 * moment0.shape[0]),
-                                  int(0.05 * moment0.shape[1]), pixscale))
+# ax.add_patch(beam.ellipse_to_plot(int(0.1233 * moment0.shape[0]),
+#                                   int(0.05 * moment0.shape[1]), pixscale))
 
 cbar = plt.colorbar(im)
 cbar.set_label(r"Integrated Intensity (K km s$^{-1}$)")
@@ -85,8 +89,8 @@ im = ax.imshow(moment0_Kkm_s_feath,
                                    stretch=AsinhStretch()))
 ax.set_ylabel("DEC (J2000)")
 ax.set_xlabel("RA (J2000)")
-ax.add_patch(beam.ellipse_to_plot(int(0.123 * moment0.shape[0]),
-                                  int(0.05 * moment0.shape[1]), pixscale))
+# ax.add_patch(beam.ellipse_to_plot(int(0.123 * moment0.shape[0]),
+#                                   int(0.05 * moment0.shape[1]), pixscale))
 
 cbar = plt.colorbar(im)
 cbar.set_label(r"Integrated Intensity (K km s$^{-1}$)")
@@ -114,8 +118,8 @@ im = ax.imshow(moment0_coldens,
                                    stretch=AsinhStretch()))
 ax.set_ylabel("DEC (J2000)")
 ax.set_xlabel("RA (J2000)")
-ax.add_patch(beam.ellipse_to_plot(int(0.123 * moment0.shape[0]),
-                                  int(0.05 * moment0.shape[1]), pixscale))
+# ax.add_patch(beam.ellipse_to_plot(int(0.123 * moment0.shape[0]),
+#                                   int(0.05 * moment0.shape[1]), pixscale))
 
 formatter = tkr.ScalarFormatter(useMathText=True)
 formatter.set_scientific(True)
@@ -146,8 +150,8 @@ im = ax.imshow(moment0_coldens_feath,
                                    stretch=AsinhStretch()))
 ax.set_ylabel("DEC (J2000)")
 ax.set_xlabel("RA (J2000)")
-ax.add_patch(beam.ellipse_to_plot(int(0.123 * moment0.shape[0]),
-                                  int(0.05 * moment0.shape[1]), pixscale))
+# ax.add_patch(beam.ellipse_to_plot(int(0.123 * moment0.shape[0]),
+#                                   int(0.05 * moment0.shape[1]), pixscale))
 
 formatter = tkr.ScalarFormatter(useMathText=True)
 formatter.set_scientific(True)
@@ -182,8 +186,8 @@ im = ax.imshow(moment0_coldens_feath,
                                    stretch=AsinhStretch()))
 ax.set_ylabel("DEC (J2000)")
 ax.set_xlabel("RA (J2000)")
-ax.add_patch(beam.ellipse_to_plot(int(0.123 * moment0.shape[0]),
-                                  int(0.05 * moment0.shape[1]), pixscale))
+# ax.add_patch(beam.ellipse_to_plot(int(0.123 * moment0.shape[0]),
+#                                   int(0.05 * moment0.shape[1]), pixscale))
 
 col_pal = sb.color_palette()
 for j, (y, x) in enumerate(example_posns):
@@ -219,8 +223,8 @@ im = ax.imshow(peaktemps,
                                    stretch=AsinhStretch()))
 ax.set_ylabel("DEC (J2000)")
 ax.set_xlabel("RA (J2000)")
-ax.add_patch(beam.ellipse_to_plot(int(0.123 * moment0.shape[0]),
-                                  int(0.05 * moment0.shape[1]), pixscale))
+# ax.add_patch(beam.ellipse_to_plot(int(0.123 * moment0.shape[0]),
+#                                   int(0.05 * moment0.shape[1]), pixscale))
 
 cbar = plt.colorbar(im)
 cbar.set_label(r"HI Peak Temperature (K)")
@@ -247,8 +251,8 @@ im = ax.imshow(peaktemps_feath,
                                    stretch=AsinhStretch()))
 ax.set_ylabel("DEC (J2000)")
 ax.set_xlabel("RA (J2000)")
-ax.add_patch(beam.ellipse_to_plot(int(0.123 * moment0.shape[0]),
-                                  int(0.05 * moment0.shape[1]), pixscale))
+# ax.add_patch(beam.ellipse_to_plot(int(0.123 * moment0.shape[0]),
+#                                   int(0.05 * moment0.shape[1]), pixscale))
 
 cbar = plt.colorbar(im)
 cbar.set_label(r"HI Peak Temperature (K)")

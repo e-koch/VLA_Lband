@@ -61,6 +61,10 @@ good_pts = np.logical_and(~tab['multicomp_flag_HI'],
 good_pts = np.logical_and(good_pts,
                           tab["sigma_HI"] > 3800)
 
+# Minimum CO line width of one channel.
+good_pts = np.logical_and(good_pts,
+                          tab["sigma_CO"] >= 2600)
+
 # Show that the Gaussian model is a decent representation
 twocolumn_twopanel_figure()
 cpal = sb.color_palette()
@@ -183,7 +187,7 @@ slope_ratio, slope_ratio_ci, sampler_ratio = \
 
 onecolumn_figure()
 hist2d(tab['sigma_HI'][good_pts] / 1000.,
-       tab['sigma_CO'][good_pts] / 1000., bins=13,
+       np.array(tab['sigma_CO'])[good_pts] / 1000., bins=13,
        data_kwargs={"alpha": 0.5})
 plt.xlabel(r"$\sigma_{\rm HI}$ (km/s)")
 plt.ylabel(r"$\sigma_{\rm CO}$ (km/s)")
@@ -192,7 +196,8 @@ slope = params[0]
 inter = params[1] / 1000.
 slope_ci = cis[0]
 inter_cis = cis[1] / 1000.
-plt.plot([4, 12], [4. * slope + inter, 12. * slope + inter])
+plt.plot([4, 12], [4. * slope + inter, 12. * slope + inter],
+         label='Linear Fit')
 plt.fill_between([4, 12], [4. * slope_ci[0] + inter_cis[0],
                            12. * slope_ci[0] + inter_cis[0]],
                  [4. * slope_ci[1] + inter_cis[1],
@@ -200,12 +205,21 @@ plt.fill_between([4, 12], [4. * slope_ci[0] + inter_cis[0],
                  facecolor=sb.color_palette()[0],
                  alpha=0.5)
 plt.plot([4, 12], [4. * slope_ratio[0], 12. * slope_ratio[0]],
-         '--', color=sb.color_palette()[1], linewidth=3)
+         '--', color=sb.color_palette()[1], linewidth=3,
+         label='Ratio Fit')
 
 plt.plot([4, 12], [4, 12], '-.', linewidth=3, alpha=0.8,
-         color=sb.color_palette()[2])
+         color=sb.color_palette()[2],
+         label=r'$\sigma_{\rm CO} = \sigma_{\rm HI}$')
+
+plt.axhline(2.6, color=sb.color_palette()[3], linestyle=':',
+            alpha=0.5, linewidth=3)
+
+plt.ylim([0.5, 8])
+plt.legend(frameon=True)
 
 plt.tight_layout()
+
 plt.savefig(osjoin(fig_path, "sigma_HI_vs_H2_w_fit.png"))
 plt.savefig(osjoin(fig_path, "sigma_HI_vs_H2_w_fit.pdf"))
 plt.close()
@@ -615,6 +629,32 @@ plt.savefig(osjoin(fig_path, "sigma_ratio_vs_radius.png"))
 plt.savefig(osjoin(fig_path, "sigma_ratio_vs_radius.pdf"))
 plt.close()
 
+# Now do a fit to the relation per radial bin
+# rad_pars = []
+# rad_cis = []
+
+# for i, (rad_in, rad_out) in enumerate(zip(rad_bins[:-1], rad_bins[1:])):
+#     print(i, rad_in, rad_out)
+#     rad_mask = np.logical_and(tab['Rgal'] >= rad_in, tab['Rgal'] < rad_out)
+#     rad_par, rad_ci, samp_rad = \
+#         bayes_linear(tab['sigma_HI'][good_pts & rad_mask],
+#                      tab['sigma_CO'][good_pts & rad_mask],
+#                      tab['sigma_stderr_HI'][good_pts & rad_mask],
+#                      tab['sigma_stderr_CO'][good_pts & rad_mask],
+#                      nBurn=500, nSample=2000, nThin=2)
+
+#     rad_pars.append(rad_par)
+#     rad_cis.append(rad_ci)
+
+# rad_pars = np.array(rad_pars)
+# rad_cis = np.array(rad_cis)
+
+# plt.errorbar(bin_cents, rad_pars,
+#              yerr=[rad_pars - rad_cis[:, 0],
+#                    rad_cis[:, 1] - rad_pars],
+#              label='Fit', drawstyle='steps-mid')
+# plt.errorbar(bin_cents, stack_ratio, yerr=stack_stderr, label='Stack',
+#              fmt='D-', drawstyle='steps-mid')
 
 # Compare the HI fit properties w/ and w/o the FWHM mask when fitting
 # Fit the same relation as above

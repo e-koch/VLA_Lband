@@ -15,6 +15,7 @@ from os.path import join as osjoin
 import seaborn as sb
 from aplpy import FITSFigure
 from astropy.io import fits
+from astropy.table import Table, Column
 
 from paths import (fourteenB_HI_data_wGBT_path,
                    iram_co21_14B088_data_path,
@@ -773,8 +774,10 @@ p.close()
 # Look at the HWHM with radius
 
 onecolumn_figure()
-p.plot(inneredge.value + 250, hi_hwhms, label='HI')
-p.plot(inneredge.value + 250, co_hwhms, label='CO')
+p.plot(inneredge.value / 1000. + 0.25, hi_hwhms, label='HI',
+       drawstyle='steps-mid')
+p.plot(inneredge.value / 1000. + 0.25, co_hwhms, label='CO',
+       drawstyle='steps-mid')
 p.grid()
 p.legend(frameon=True)
 p.ylabel("HWHM (pc)")
@@ -784,5 +787,15 @@ p.tight_layout()
 p.savefig(osjoin(fig_path, "mask_intensity_vs_skeldist_hwhm.pdf"))
 p.savefig(osjoin(fig_path, "mask_intensity_vs_skeldist_hwhm.png"))
 p.close()
+
+
+# Save the table of HWHMs
+radbin_centers = Column((inneredge.value + 250) / 1000., unit=u.kpc,
+                        name='bin_cent')
+hi_hwhms = Column(hi_hwhms, unit=u.pc, name='hi_hwhm')
+co_hwhms = Column(co_hwhms, unit=u.pc, name='co_hwhm')
+tab = Table([radbin_centers, hi_hwhms, co_hwhms])
+
+tab.write(fourteenB_HI_data_wGBT_path("tables/skeleton_profile_radial_hwhm.fits", no_check=True))
 
 default_figure()

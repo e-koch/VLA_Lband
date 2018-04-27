@@ -185,8 +185,8 @@ fig.hide_axis_labels()
 
 p.tight_layout()
 
-# fig.savefig(osjoin(fig_path, "mask_edge_img_vel_minus196.pdf"))
-# fig.savefig(osjoin(fig_path, "mask_edge_img_vel_minus196.png"))
+fig.savefig(osjoin(fig_path, "mask_edge_img_vel_minus196.pdf"))
+fig.savefig(osjoin(fig_path, "mask_edge_img_vel_minus196.png"))
 fig.close()
 
 # Now bin all of the distances against the HI and CO intensities.
@@ -244,13 +244,6 @@ bin_centers *= pixscale
 onecolumn_figure()
 cpal = sb.color_palette()
 
-# p.errorbar(bin_centers, hi_vals / np.nanmax(hi_vals),
-#            yerr=hi_errs / np.nanmax(hi_vals), fmt="D-",
-#            label="HI", drawstyle='steps-mid')
-# p.errorbar(bin_centers, co_vals / np.nanmax(co_vals),
-#            yerr=co_errs / np.nanmax(co_vals), fmt="o--",
-#            label="CO(2-1)", drawstyle='steps-mid')
-
 ax = p.subplot(111)
 
 pl1 = ax.errorbar(bin_centers, hi_vals,
@@ -278,7 +271,6 @@ p.tight_layout()
 p.savefig(osjoin(fig_path, "mask_edge_radial_profiles.pdf"))
 p.savefig(osjoin(fig_path, "mask_edge_radial_profiles.png"))
 
-# raw_input("Next plot?")
 p.close()
 
 # Show the total number of elements in each distance bin
@@ -291,10 +283,9 @@ p.ylabel("Number of pixels")
 p.grid()
 p.tight_layout()
 
-# p.savefig(osjoin(fig_path, "mask_edge_radial_profiles_numbin.pdf"))
-# p.savefig(osjoin(fig_path, "mask_edge_radial_profiles_numbin.png"))
+p.savefig(osjoin(fig_path, "mask_edge_radial_profiles_numbin.pdf"))
+p.savefig(osjoin(fig_path, "mask_edge_radial_profiles_numbin.png"))
 
-# raw_input("Next plot?")
 p.close()
 
 # Now investigate the significance of the distance correlations.
@@ -325,7 +316,6 @@ p.close()
 # p.savefig(paper1_figures_path("mask_edge_radial_profiles_randbin.pdf"))
 # p.savefig(paper1_figures_path("mask_edge_radial_profiles_randbin.png"))
 
-# # raw_input("Next plot?")
 # p.close()
 
 # Compare the CDFs of the intensities within the masks to demonstrate CO
@@ -347,8 +337,8 @@ p.ylabel("CDF")
 p.xlabel("HI Intensity (K)")
 p.tight_layout()
 
-# p.savefig(osjoin(fig_path, "inmask_hi_co_cdfs.pdf"))
-# p.savefig(osjoin(fig_path, "inmask_hi_co_cdfs.png"))
+p.savefig(osjoin(fig_path, "inmask_hi_co_cdfs.pdf"))
+p.savefig(osjoin(fig_path, "inmask_hi_co_cdfs.png"))
 p.close()
 
 # Perform the same analysis split up into radial bins

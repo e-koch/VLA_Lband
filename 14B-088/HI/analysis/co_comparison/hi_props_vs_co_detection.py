@@ -273,28 +273,111 @@ co_fraction_peak = np.array(co_fraction_peak)
 onecolumn_figure()
 
 ax = p.subplot(111)
-pl1 = ax.plot(bin_cents, co_fraction, drawstyle='steps-mid',
-              label='$\Sigma_{\mathrm{HI}}$')
+pl1 = ax.plot(bin_cents_peak, co_fraction_peak, '--',
+              color=sb.color_palette()[1], drawstyle='steps-mid',
+              label=r"T$_{\rm HI}$")
 ax.grid()
-ax.set_xlabel("$\Sigma_{\mathrm{HI}}$ (M$_{\odot}$ pc$^{-2}$)")
+ax.set_xlabel(r"T$_{\rm HI}$ (K)")
 ax.set_ylabel("CO Detection Fraction")
 
 ax2 = ax.twiny()
 
-pl2 = ax2.plot(bin_cents_peak, co_fraction_peak, '--',
-               color=sb.color_palette()[1], drawstyle='steps-mid',
-               label=r"T$_{\rm HI}$")
-ax2.set_xlabel(r"T$_{\rm HI}$ (K)")
+pl2 = ax2.plot(bin_cents, co_fraction, drawstyle='steps-mid',
+               label=r'$\Sigma_{\mathrm{HI}}$')
+ax2.set_xlabel("$\Sigma_{\mathrm{HI}}$ (M$_{\odot}$ pc$^{-2}$)")
 
-pls = pl1 + pl2
-labs = [l.get_label() for l in pls]
-ax.legend(pls, labs, frameon=True, loc='upper left')
+pls = [pl2[0], pl1[0]]
+labs = [r'$\Sigma_{\mathrm{HI}}$', r"T$_{\rm HI}$"]
+ax2.legend(pls, labs, frameon=True, loc='upper left')
 
 p.tight_layout()
 
 save_name = "sigma_peak_HI_perpix_CO_detection_fraction"
 p.savefig(osjoin(fig_path, "{0}.pdf".format(save_name)))
 p.savefig(osjoin(fig_path, "{0}.png".format(save_name)))
+p.close()
+
+# Compare the detection fraction as fcn of radius
+twocolumn_figure()
+
+fig, axes = p.subplots(3, 2, sharex=True, sharey=True)
+p.subplots_adjust(hspace=0.04, wspace=0.04)
+
+co_fractions = []
+co_peak_fractions = []
+
+for i, (ax, lower, upper) in enumerate(zip(axes.flatten(), inners,
+                                           outers)):
+    bin_pts = np.logical_and(radii_pts.value >= lower,
+                             radii_pts.value < upper)
+    all_rad_pts = np.logical_and(radii_pts_all.value >= lower,
+                                 radii_pts_all.value < upper)
+    all_rad_pts_good = np.logical_and(radii[good_pts].value >= lower,
+                                      radii[good_pts].value < upper)
+
+    co_fraction_rad = []
+    for low, high in zip(bins[:-1], bins[1:]):
+        num_co = np.logical_and(hi_coldens[bin_pts].value > low.value,
+                                hi_coldens[bin_pts].value <= high.value)
+        num_total = np.logical_and(hi_coldens_all[all_rad_pts] > low,
+                                   hi_coldens_all[all_rad_pts] <= high)
+
+        if num_total.sum() == 0:
+            co_fraction_rad.append(np.NaN)
+        else:
+            co_fraction_rad.append(num_co.sum() / float(num_total.sum()))
+
+    co_fraction_rad = np.array(co_fraction_rad)
+    co_fractions.append(co_fraction_rad)
+
+    co_fraction_peak_rad = []
+    for low, high in zip(bins_peak[:-1], bins_peak[1:]):
+        num_co = np.logical_and(hi_peaktemp[good_pts][all_rad_pts_good] > low,
+                                hi_peaktemp[good_pts][all_rad_pts_good] <= high)
+        num_total = np.logical_and(hi_peaktemp[all_hi_pts][all_rad_pts] > low,
+                                   hi_peaktemp[all_hi_pts][all_rad_pts] <= high)
+
+        if num_total.sum() == 0:
+            co_fraction_peak_rad.append(np.NaN)
+        else:
+            co_fraction_peak_rad.append(num_co.sum() / float(num_total.sum()))
+
+    co_fraction_peak_rad = np.array(co_fraction_peak_rad)
+
+    co_peak_fractions.append(co_fraction_peak_rad)
+
+    pl1 = ax.plot(bin_cents_peak, co_fraction_peak_rad, '--',
+                  color=sb.color_palette()[1], drawstyle='steps-mid',
+                  label=r"T$_{\rm HI}$")
+    ax.grid()
+
+    ax2 = ax.twiny()
+
+    pl2 = ax2.plot(bin_cents, co_fraction_rad, drawstyle='steps-mid',
+                   label=r'$\Sigma_{\mathrm{HI}}$')
+
+    if i == 2:
+        pls = [pl2[0], pl1[0]]
+        labs = [r'$\Sigma_{\mathrm{HI}}$', r"T$_{\rm HI}$"]
+        ax2.legend(pls, labs, frameon=True, loc='center left')
+
+    ax.text(5, 0.8, "{0} - {1} kpc".format(lower, upper),
+            bbox={"boxstyle": "square", "facecolor": "w"},
+            fontsize=11)
+
+    if i != 0 and i != 1:
+        ax2.tick_params(labeltop='off')
+
+fig.text(0.5, 0.04, r"T$_{\rm HI}$ (K)",
+         ha='center', va='center',)
+fig.text(0.5, 0.96, r"$\Sigma_{\mathrm{HI}}$ (M$_{\odot}$ pc$^{-2}$)",
+         ha='center', va='center',)
+fig.text(0.06, 0.5, "CO Detection Fraction",
+         ha='center', va='center', rotation='vertical',)
+
+save_name = "sigma_peak_HI_perpix_CO_detection_fraction_radialbins"
+fig.savefig(osjoin(fig_path, "{0}.pdf".format(save_name)))
+fig.savefig(osjoin(fig_path, "{0}.png".format(save_name)))
 p.close()
 
 # What does radius vs Sigma_HI look like around the edge of the clouds?

@@ -290,8 +290,8 @@ p.ylabel("Number of pixels")
 p.grid()
 p.tight_layout()
 
-p.savefig(osjoin(fig_path, "mask_edge_radial_profiles_numbin.pdf"))
-p.savefig(osjoin(fig_path, "mask_edge_radial_profiles_numbin.png"))
+# p.savefig(osjoin(fig_path, "mask_edge_radial_profiles_numbin.pdf"))
+# p.savefig(osjoin(fig_path, "mask_edge_radial_profiles_numbin.png"))
 
 # raw_input("Next plot?")
 p.close()
@@ -346,8 +346,8 @@ p.ylabel("CDF")
 p.xlabel("HI Intensity (K)")
 p.tight_layout()
 
-p.savefig(osjoin(fig_path, "inmask_hi_co_cdfs.pdf"))
-p.savefig(osjoin(fig_path, "inmask_hi_co_cdfs.png"))
+# p.savefig(osjoin(fig_path, "inmask_hi_co_cdfs.pdf"))
+# p.savefig(osjoin(fig_path, "inmask_hi_co_cdfs.png"))
 p.close()
 
 # Perform the same analysis split up into radial bins
@@ -539,40 +539,38 @@ p.savefig(osjoin(fig_path, "mask_widthvsintensity.png"))
 p.close()
 
 # HI vs. CO with all skeleton distances (not just on the skeleton like above)
-bins = np.arange(0, 31, 1)
+bins = np.arange(0, 36, 1)
 
 selector_pts = np.logical_and(all_vals_co > 0,
                               np.logical_and(all_vals_hi > 0,
-                                             skeleton_dists_pix < 30))
+                                             skeleton_dists_pix < 35))
 
 hi_mean, bin_edges, bin_num = \
     binned_statistic(skeleton_dists_pix[selector_pts],
                      all_vals_hi[selector_pts],
                      bins=bins, statistic=np.mean)
-hi_85 = \
+
+hi_std = \
     binned_statistic(skeleton_dists_pix[selector_pts],
                      all_vals_hi[selector_pts],
-                     bins=bins, statistic=lambda x: np.percentile(x, 85))[0]
-hi_15 = \
-    binned_statistic(skeleton_dists_pix[selector_pts],
-                     all_vals_hi[selector_pts],
-                     bins=bins, statistic=lambda x: np.percentile(x, 15))[0]
+                     bins=bins, statistic=np.std)[0]
 
 co_mean = \
     binned_statistic(skeleton_dists_pix[selector_pts],
                      all_vals_co[selector_pts],
                      bins=bins, statistic=np.mean)[0]
-co_85 = \
+
+co_std = \
     binned_statistic(skeleton_dists_pix[selector_pts],
                      all_vals_co[selector_pts],
-                     bins=bins, statistic=lambda x: np.percentile(x, 85))[0]
-co_15 = \
-    binned_statistic(skeleton_dists_pix[selector_pts],
-                     all_vals_co[selector_pts],
-                     bins=bins, statistic=lambda x: np.percentile(x, 15))[0]
+                     bins=bins, statistic=np.std)[0]
 
 bin_width = (bin_edges[1] - bin_edges[0])
 bin_centers = bin_edges[1:] - bin_width / 2
+
+num_in_bins = np.bincount(bin_num)[1:]
+# Num. indep't points divided by number of pixels in one beam.
+num_indept = num_in_bins / 41.
 
 twocolumn_twopanel_figure()
 
@@ -598,30 +596,66 @@ p.savefig(osjoin(fig_path, "mask_intensity_vs_skeldist.pdf"))
 p.savefig(osjoin(fig_path, "mask_intensity_vs_skeldist.png"))
 p.close()
 
+
+# Find the HWHM points for the radial profiles
+def find_hwhm(x, y):
+    '''
+    Return the equivalent Gaussian sigma based on the HWHM positions.
+    '''
+    from scipy.interpolate import InterpolatedUnivariateSpline
+
+    # Assume that the profile peaks at the centre and monotonically
+    # decreases. This is true for our comparisons here.
+    peak = y.max()
+    bkg = np.mean(y[-5:])
+
+    halfmax = (peak - bkg) * 0.5
+
+    # Model the spectrum with a spline
+    # x values must be increasing for the spline, so flip if needed.
+    interp1 = InterpolatedUnivariateSpline(x, y - halfmax - bkg, k=3)
+
+    hwhm_points = interp1.roots()
+    if len(hwhm_points) < 1:
+        raise ValueError("Didn't find HWHM!")
+    elif len(hwhm_points) > 1:
+        hwhm_points = (min(hwhm_points))
+
+    return hwhm_points[0]
+
+
+co_hwhm = find_hwhm(bin_centers, co_mean) * phys_conv.value
+hi_hwhm = find_hwhm(bin_centers, hi_mean) * phys_conv.value
+
+print(co_hwhm, hi_hwhm)
+# (67.480769229465864, 100.43889752239386)
+
 onecolumn_figure()
 
 col_pal = sb.color_palette()
 
 ax = p.subplot(111)
-pl1 = ax.plot(bin_centers * phys_conv.value, hi_mean, "D-",
-              label='HI')
-# ax.errorbar(bin_centers * phys_conv.value, hi_mean,
-#             yerr=[hi_mean - hi_15, hi_85 - hi_mean], color='b',
-#             marker='D', linestyle='-', linewidth=2, elinewidth=2)
-ax.set_xlabel("Distance from Mask Centre (pc)")
+ax.axvline(hi_hwhm, linestyle='-', color=col_pal[0],
+           linewidth=3, alpha=0.6)
+ax.axvline(co_hwhm, linestyle='--', color=col_pal[1],
+           linewidth=3, alpha=0.6)
+
+pl1 = ax.errorbar(bin_centers * phys_conv.value, hi_mean,
+                  yerr=hi_std / np.sqrt(num_indept), color=col_pal[0],
+                  marker='D', linestyle='-', linewidth=2, elinewidth=2,
+                  label='HI')
+ax.set_xlabel("Distance from Skeleton (pc)")
 ax.set_ylabel(r"HI Mean Intensity (K)")
 
 ax_2 = ax.twinx()
-pl2 = ax_2.plot(bin_centers * phys_conv.value, co_mean, "o--",
-                label='CO', color=col_pal[1])
-# ax_2.errorbar(bin_centers * phys_conv.value, co_mean,
-#               yerr=[co_mean - co_15, co_85 - co_mean], color='r',
-#               marker='o', linestyle='--', linewidth=2, elinewidth=2)
+pl2 = ax_2.errorbar(bin_centers * phys_conv.value, co_mean,
+                    yerr=co_std / np.sqrt(num_indept), color=col_pal[1],
+                    marker='o', linestyle='--', linewidth=2, elinewidth=2,
+                    label='CO')
 ax_2.set_ylabel(r"CO Mean Intensity (K)")
-# align_yaxis(ax, 0, ax_2, 0)
 
-pls = pl1 + pl2
-labs = [l.get_label() for l in pls]
+pls = [pl1[0], pl2[0]]
+labs = ['HI', 'CO']
 ax.legend(pls, labs, frameon=True)
 
 ax.grid()
@@ -633,6 +667,9 @@ p.savefig(osjoin(fig_path, "mask_intensity_vs_skeldist_mean.png"))
 p.close()
 
 # Split the profiles by radius
+hi_hwhms = []
+co_hwhms = []
+
 twocolumn_figure()
 p.figure(1, figsize=(8.4, 11)).clf()
 
@@ -640,8 +677,9 @@ fig, ax = p.subplots(Nrows, Ncols,
                      sharex=True,
                      sharey=True, num=1)
 
-# fig.text(0.5, 0.04, 'Distance from skeleton (pc)', ha='center')
-# fig.text(0.04, 0.5, 'Normalized Intensity', va='center', rotation='vertical')
+fig.text(0.5, 0.04, "Distance from Skeleton (pc)", ha='center')
+fig.text(0.04, 0.5, r"HI Mean Intensity (K)", va='center', rotation='vertical')
+fig.text(0.96, 0.5, r"CO Mean Intensity (K)", va='center', rotation='vertical')
 
 p.subplots_adjust(hspace=0.1,
                   wspace=0.1)
@@ -660,48 +698,91 @@ for ctr, (r0, r1) in enumerate(zip(inneredge,
         binned_statistic(skeleton_dists_pix[idx],
                          all_vals_hi[idx],
                          bins=bins, statistic=np.mean)
+    hi_std_rad = \
+        binned_statistic(skeleton_dists_pix[idx],
+                         all_vals_hi[idx],
+                         bins=bins, statistic=np.std)[0]
+
     co_mean_rad = \
         binned_statistic(skeleton_dists_pix[idx],
                          all_vals_co[idx],
                          bins=bins, statistic=np.mean)[0]
 
+    co_std_rad = \
+        binned_statistic(skeleton_dists_pix[idx],
+                         all_vals_co[idx],
+                         bins=bins, statistic=np.std)[0]
+
+    num_in_bins_rad = np.bincount(bin_num)[1:]
+    # Num. indep't points divided by number of pixels in one beam.
+    num_indept_rad = num_in_bins / 41.
+
     bin_width = (bin_edges[1] - bin_edges[0])
     bin_centers = bin_edges[1:] - bin_width / 2
 
-    pl1 = ax[r, c].plot(bin_centers * pixscale,
-                        hi_mean_rad,
-                        "D-", drawstyle='steps-mid',
-                        label="HI")
+    co_hwhm_rad = find_hwhm(bin_centers, co_mean_rad) * phys_conv.value
+    hi_hwhm_rad = find_hwhm(bin_centers, hi_mean_rad) * phys_conv.value
+
+    co_hwhms.append(co_hwhm_rad)
+    hi_hwhms.append(hi_hwhm_rad)
+
+    ax[r, c].axvline(hi_hwhm_rad, linestyle='-', color=col_pal[0],
+                     linewidth=3, alpha=0.6)
+    ax[r, c].axvline(co_hwhm_rad, linestyle='--', color=col_pal[1],
+                     linewidth=3, alpha=0.6)
+
+    pl1 = ax[r, c].errorbar(bin_centers * pixscale,
+                            hi_mean_rad,
+                            yerr=hi_std_rad / np.sqrt(num_indept_rad),
+                            fmt="D-", drawstyle='steps-mid',
+                            label="HI")
     ax2 = ax[r, c].twinx()
-    pl2 = ax2.plot(bin_centers * pixscale,
-                   co_mean_rad,
-                   "o--", drawstyle='steps-mid',
-                   label="CO(2-1)", color=col_pal[1])
+    if c == 0:
+        ax_twin = ax2
+    else:
+        ax2.get_shared_y_axes().join(ax2, ax_twin)
+
+    if c < Ncols - 1:
+        ax2.tick_params(labelright='off')
+
+    pl2 = ax2.errorbar(bin_centers * pixscale,
+                       co_mean_rad,
+                       yerr=co_std_rad / np.sqrt(num_indept_rad),
+                       fmt="o--", drawstyle='steps-mid',
+                       label="CO(2-1)", color=col_pal[1])
     ax[r, c].annotate("{0} to {1}".format(r0.to(u.kpc).value, r1.to(u.kpc)),
-                      xy=(170, 15),
+                      xy=(170, 25),
                       color='k',
                       fontsize=11,
                       bbox={"boxstyle": "square", "facecolor": "w"})
 
-    # ax[r, c].set_ylim([0.0, 1.1])
-    # ax[r, c].set_xlim([-400, 220])
-    # ax[r, c].set_xlabel("Distance from mask edge (pc)")
-    # ax[r, c].set_ylabel("Normalized Intensity")
-    # p.title("Radii {} to {}".format(r0, r1))
     ax[r, c].axvline(0.0, color='k')
     if ctr == 0:
-        pls = pl1 + pl2
-        labs = [l.get_label() for l in pls]
-        ax[r, c].legend(pls, labs, loc='upper right', fontsize=11,
+        pls = [pl1[0], pl2[0]]
+        labs = ["HI", "CO"]
+        ax[r, c].legend(pls, labs, loc='center right', fontsize=11,
                         frameon=True)
     ax[r, c].grid()
-
-p.tight_layout()
 
 fig.savefig(osjoin(fig_path, "mask_intensity_vs_skeldist_mean_byradius.pdf"))
 fig.savefig(osjoin(fig_path, "mask_intensity_vs_skeldist_mean_byradius.png"))
 
 p.close()
 
+
+# Look at the HWHM with radius
+
+onecolumn_figure()
+p.plot(inneredge.value + 250, hi_hwhms, label='HI')
+p.plot(inneredge.value + 250, co_hwhms, label='CO')
+p.grid()
+p.legend(frameon=True)
+p.ylabel("HWHM (pc)")
+p.xlabel("Galactocentric Radius (kpc)")
+p.tight_layout()
+
+p.savefig(osjoin(fig_path, "mask_intensity_vs_skeldist_hwhm.pdf"))
+p.savefig(osjoin(fig_path, "mask_intensity_vs_skeldist_hwhm.png"))
+p.close()
 
 default_figure()

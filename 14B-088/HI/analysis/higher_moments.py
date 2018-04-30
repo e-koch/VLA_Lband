@@ -50,7 +50,7 @@ skew = Projection.from_hdu(skew_hdu)
 kurt_hdu = fits.open(fourteenB_HI_file_dict['Kurtosis'])[0]
 kurt = Projection.from_hdu(kurt_hdu)
 
-peaktemps_hdu = fits.open(fourteenB_HI_file_dict["PeakTemp"])[0]
+peaktemps_hdu = fits.open(fourteenB_wGBT_HI_file_dict["PeakTemp"])[0]
 peaktemps = Projection.from_hdu(peaktemps_hdu)
 
 peakvels_hdu = fits.open(fourteenB_HI_file_dict['PeakVels'])[0]
@@ -80,6 +80,9 @@ im = ax.imshow(skew.value,
 # ax.set_title("Skewness")
 ax.set_ylabel("DEC (J2000)")
 ax.set_xlabel("RA (J2000)")
+lon = ax.coords[0]
+lon.set_major_formatter('hh:mm')
+
 cbar = p.colorbar(im)
 cbar.set_label("Skewness")
 
@@ -87,6 +90,8 @@ ax2 = p.subplot(122, projection=kurt.wcs)
 im2 = ax2.imshow(kurt.value, vmin=-3, vmax=3,
                  origin='lower', interpolation='nearest', cmap='seismic')
 ax2.set_xlabel("RA (J2000)")
+lon = ax2.coords[0]
+lon.set_major_formatter('hh:mm')
 lat = ax2.coords[1]
 lat.set_ticklabel_visible(False)
 cbar2 = p.colorbar(im2)
@@ -106,6 +111,9 @@ im = ax.imshow(skew_feather.value,
 # ax.set_title("Skewness")
 ax.set_ylabel("DEC (J2000)")
 ax.set_xlabel("RA (J2000)")
+lon = ax.coords[0]
+lon.set_major_formatter('hh:mm')
+
 cbar = p.colorbar(im)
 cbar.set_label("Skewness")
 
@@ -115,6 +123,9 @@ im2 = ax2.imshow(kurt_feather.value, vmin=-3, vmax=3,
 ax2.set_xlabel("RA (J2000)")
 lat = ax2.coords[1]
 lat.set_ticklabel_visible(False)
+lon = ax2.coords[0]
+lon.set_major_formatter('hh:mm')
+
 cbar2 = p.colorbar(im2)
 cbar2.set_label("Kurtosis")
 
@@ -134,11 +145,16 @@ im = ax.imshow(skew.value,
 # ax.set_title("Skewness")
 ax.set_ylabel("DEC (J2000)")
 ax.set_xlabel("RA (J2000)")
+lon = ax.coords[0]
+lon.set_major_formatter('hh:mm')
 
 ax2 = p.subplot(122, projection=kurt_feather.wcs)
 im2 = ax2.imshow(skew_feather.value, vmin=-3, vmax=3,
                  origin='lower', interpolation='nearest', cmap='seismic')
 ax2.set_xlabel("RA (J2000)")
+lon = ax2.coords[0]
+lon.set_major_formatter('hh:mm')
+
 lat = ax2.coords[1]
 lat.set_ticklabel_visible(False)
 cbar2 = p.colorbar(im2)
@@ -156,6 +172,8 @@ im = ax.imshow(kurt.value,
                interpolation='nearest', cmap='seismic')
 ax.set_ylabel("DEC (J2000)")
 ax.set_xlabel("RA (J2000)")
+lon = ax.coords[0]
+lon.set_major_formatter('hh:mm')
 
 ax2 = p.subplot(122, projection=kurt_feather.wcs)
 im2 = ax2.imshow(kurt_feather.value, vmin=-3, vmax=3,
@@ -163,6 +181,9 @@ im2 = ax2.imshow(kurt_feather.value, vmin=-3, vmax=3,
 ax2.set_xlabel("RA (J2000)")
 lat = ax2.coords[1]
 lat.set_ticklabel_visible(False)
+lon = ax2.coords[0]
+lon.set_major_formatter('hh:mm')
+
 cbar2 = p.colorbar(im2)
 cbar2.set_label("Kurtosis")
 
@@ -170,6 +191,36 @@ p.tight_layout()
 
 p.savefig(allfigs_path("HI_maps/kurt_maps.pdf"))
 p.savefig(allfigs_path("HI_maps/kurt_maps.png"))
+p.close()
+
+ax = p.subplot(121, projection=skew_feather.wcs)
+im = ax.imshow(peaktemps.value,
+               origin='lower',
+               interpolation='nearest', cmap='binary')
+ax.set_ylabel("DEC (J2000)")
+ax.set_xlabel("RA (J2000)")
+lon = ax.coords[0]
+lon.set_major_formatter('hh:mm')
+
+cbar = p.colorbar(im)
+cbar.set_label("Peak HI Temperature (K)")
+
+ax2 = p.subplot(122, projection=kurt_feather.wcs)
+im2 = ax2.imshow(kurt_feather.value, vmin=-3, vmax=3,
+                 origin='lower', interpolation='nearest', cmap='seismic')
+ax2.set_xlabel("RA (J2000)")
+lat = ax2.coords[1]
+lat.set_ticklabel_visible(False)
+lon = ax2.coords[0]
+lon.set_major_formatter('hh:mm')
+
+cbar2 = p.colorbar(im2)
+cbar2.set_label("Kurtosis")
+
+# p.tight_layout()
+
+p.savefig(allfigs_path("HI_maps/peaktemp_kurt_feath_maps.pdf"))
+p.savefig(allfigs_path("HI_maps/peaktemp_kurt_feath_maps.png"))
 p.close()
 
 # Interesting regions:

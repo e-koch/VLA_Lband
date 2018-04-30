@@ -71,6 +71,8 @@ im = ax1.imshow(moment0_coldens_feath,
                                     stretch=AsinhStretch()))
 ax1.set_ylabel("")
 ax1.set_xlabel("")
+lon = ax1.coords[0]
+lon.set_major_formatter('hh:mm')
 
 # Add a box for the location of the N plume figure
 ax1.add_patch(patches.Rectangle((500, 1280), 250, 250, fill=False,

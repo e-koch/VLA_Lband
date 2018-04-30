@@ -52,6 +52,8 @@ im = ax.imshow(moment0_coldens,
                                    stretch=AsinhStretch()))
 ax.set_ylabel("DEC (J2000)")
 ax.set_xlabel("RA (J2000)")
+lon = ax.coords[0]
+lon.set_major_formatter('hh:mm')
 # ax.add_patch(beam.ellipse_to_plot(int(0.05 * moment0.shape[0]),
 #                                   int(0.05 * moment0.shape[1]), pixscale))
 
@@ -91,6 +93,8 @@ im = ax.imshow(moment0_coldens,
                                    stretch=AsinhStretch()))
 ax.set_ylabel("DEC (J2000)")
 ax.set_xlabel("RA (J2000)")
+lon = ax.coords[0]
+lon.set_major_formatter('hh:mm')
 # ax.add_patch(beam.ellipse_to_plot(int(0.05 * moment0.shape[0]),
 #                                   int(0.05 * moment0.shape[1]), pixscale))
 

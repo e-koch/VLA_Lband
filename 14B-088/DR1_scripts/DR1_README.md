@@ -6,6 +6,8 @@
 
 This is the first data release of the M33 L-band VLA project. This release includes most of the spectral-line data taking in VLA project 14B-088.
 
+Further requests and questions regarding the data can be sent to koch.eric.w@gmail.com.
+
 # HI Data
 
 * `M33_14B-088_HI.clean.image.GBT_feathered.2.6kms.fits` - HI cube with a velocity resolution of 2.6 km/s. **Note:** This is not the cube version presented in the paper linked above. The 200 m/s cube will be released in the next data release.
@@ -30,4 +32,8 @@ Naturally-weighted data cubes with 1.5 km/s velocity channels are given for each
 
 Naturally-weighted data cubes with 10 km/s velocity channels are given for 5 Hydrogen radio-recombination lines. These are dirty images with no deconvolution applied. There are no clear detections.
 
-Note that some of the cubes show artifacts from unflagged RFI in some pointings. These are left as is since the field with the highest coverage, which covers the giant HII region NGC 604, was found to show no emission, making it unlikely other regions would since it is one of the brightest Halpha sources in the galaxy
+Note that some of the cubes show artifacts from unflagged RFI in some pointings. These are left as is since the field with the highest coverage, which covers the giant HII region NGC 604, was found to show no emission, making it unlikely other regions would since it is one of the brightest Halpha sources in the galaxy.
+
+* `HRL_14B-088_combined.fits` - A co-added version of the individual lines smoothed to match the lowest resolution line (H152alp).
+* `NAME_14B-088_dirty.image.fits` - Primary-beam, naturally-weighted cube for each line.
+* `NAME_14B-088_dirty.image.smooth.fits` - Version smoothed to a common beam for use in the co-added version.

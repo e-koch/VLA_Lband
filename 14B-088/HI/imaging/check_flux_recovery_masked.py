@@ -117,12 +117,12 @@ df.to_csv(fourteenB_HI_data_wGBT_path("tables/hi_masses_withmask.csv",
 # How much flux have we missed from avoiding the MW HI confusion regions?
 # The last red-shifted side has ~6 Jy. Assume the shape will match the
 # blue-shifted side. This occurs at -288.8 km/s.
-miss_flux = total_gbt_profile[vel_axis < -288.8].sum()
+miss_flux = total_gbt_profile[vel_axis < -288.8].sum() * chan_width
 
 print("Missing flux from MW confusion: {}".format(miss_flux))
 
 # Percentage of total flux?
-miss_perc = miss_flux / (total_gbt_profile.sum() + miss_flux)
+miss_perc = miss_flux / (gbt_total_flux + miss_flux)
 print("Percentage missing: {}".format(miss_perc))
 
 default_figure()

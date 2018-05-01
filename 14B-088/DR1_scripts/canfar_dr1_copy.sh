@@ -90,3 +90,7 @@ vcp $RRL_DATA_PATH/H164alp/dirty_images/H164alp_14B-088_dirty.image.smooth.fits 
 
 vcp $RRL_DATA_PATH/H166alp/dirty_images/H166alp_14B-088_dirty.image.fits $DR1_RRL_PATH
 vcp $RRL_DATA_PATH/H166alp/dirty_images/H166alp_14B-088_dirty.image.smooth.fits $DR1_RRL_PATH
+
+# Lastly copy over the README
+
+vcp 14B-088/DR1_scripts/DR1_README.md $DR1_PATH

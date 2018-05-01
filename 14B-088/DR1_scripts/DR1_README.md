@@ -4,7 +4,7 @@
 # Paper DOI: 
 # Code link: https://github.com/ekoch/VLA_Lband/
 
-This is the first data release of the M33 L-band VLA project. This release includes most of the spectral-line data taking in VLA project 14B-088.
+This is the first data release of the M33 L-band VLA project. This release includes most of the spectral-line data taken in VLA project 14B-088.
 
 Further requests and questions regarding the data can be sent to koch.eric.w@gmail.com.
 

@@ -107,17 +107,22 @@ hi_peak_fits.to_csv(fourteenB_HI_data_wGBT_path("tables/hi_hwhm_totalprof_fits_p
 
 # Let's plot some properties.
 
+# from pandas import read_csv
+# hi_peak_fits = read_csv(fourteenB_HI_data_wGBT_path("tables/hi_hwhm_totalprof_fits_peak_{}_feather.csv".format(wstring)), index_col=0)
+
 onecolumn_figure()
 
+# These errorbars looked small on the plot. Unsure if it is treating it as
+# single-sided or not. Doesn't really matter in this case.
 p.errorbar(hi_peak_fits['bin_center'], hi_peak_fits['rotsub_sigma'],
-           yerr=hi_peak_fits['rotsub_sigma_low_lim'],
-           label="Rotation\nSubtracted")
+           yerr=hi_peak_fits['rotsub_sigma_low_lim'] * 2,
+           label="Rotation\nSubtracted", fmt='-D')
 p.errorbar(hi_peak_fits['bin_center'], hi_peak_fits['centsub_sigma'],
-           yerr=hi_peak_fits['centsub_sigma_low_lim'],
-           label="Centroid\nSubtracted")
+           yerr=hi_peak_fits['centsub_sigma_low_lim'] * 2,
+           label="Centroid\nSubtracted", fmt='--o')
 p.errorbar(hi_peak_fits['bin_center'], hi_peak_fits['peaksub_sigma'],
-           yerr=hi_peak_fits['peaksub_sigma_low_lim'],
-           label="Peak Vel.\nSubtracted")
+           yerr=hi_peak_fits['peaksub_sigma_low_lim'] * 2,
+           label="Peak Vel.\nSubtracted", fmt='-.^')
 p.legend(frameon=True)
 p.ylabel(r"$\sigma_{\rm HWHM}$ (km/s)")
 p.xlabel("Peak Temperature (K)")
@@ -129,14 +134,14 @@ p.savefig(allfigs_path("stacked_profiles/hi_veldisp_peak_stackedfits_feather.pdf
 p.close()
 
 p.errorbar(hi_peak_fits['bin_center'], hi_peak_fits['rotsub_v_peak'],
-           yerr=hi_peak_fits['rotsub_v_peak_low_lim'],
-           label="Rotation\nSubtracted")
+           yerr=hi_peak_fits['rotsub_v_peak_low_lim'] * 2,
+           label="Rotation\nSubtracted", fmt='-D')
 p.errorbar(hi_peak_fits['bin_center'], hi_peak_fits['centsub_v_peak'],
-           yerr=hi_peak_fits['centsub_v_peak_low_lim'],
-           label="Centroid\nSubtracted")
+           yerr=hi_peak_fits['centsub_v_peak_low_lim'] * 2,
+           label="Centroid\nSubtracted", fmt='--o')
 p.errorbar(hi_peak_fits['bin_center'], hi_peak_fits['peaksub_v_peak'],
-           yerr=hi_peak_fits['peaksub_v_peak_low_lim'],
-           label="Peak Vel.\nSubtracted")
+           yerr=hi_peak_fits['peaksub_v_peak_low_lim'] * 2,
+           label="Peak Vel.\nSubtracted", fmt='-.^')
 p.legend(frameon=True)
 p.ylabel("Centroid (km/s)")
 p.xlabel("Peak Temperature (K)")
@@ -150,15 +155,15 @@ p.close()
 p.errorbar(hi_peak_fits['bin_center'], hi_peak_fits['rotsub_f_wings'],
            yerr=[hi_peak_fits['rotsub_f_wings_low_lim'],
                  hi_peak_fits['rotsub_f_wings_up_lim']],
-           label="Rotation\nSubtracted")
+           label="Rotation\nSubtracted", fmt='-D')
 p.errorbar(hi_peak_fits['bin_center'], hi_peak_fits['centsub_f_wings'],
            yerr=[hi_peak_fits['centsub_f_wings_low_lim'],
                  hi_peak_fits['centsub_f_wings_up_lim']],
-           label="Centroid\nSubtracted")
+           label="Centroid\nSubtracted", fmt='--o')
 p.errorbar(hi_peak_fits['bin_center'], hi_peak_fits['peaksub_f_wings'],
            yerr=[hi_peak_fits['peaksub_f_wings_low_lim'],
                  hi_peak_fits['peaksub_f_wings_up_lim']],
-           label="Peak Vel.\nSubtracted")
+           label="Peak Vel.\nSubtracted", fmt='-.^')
 p.legend(frameon=True)
 p.ylabel(r"$f_{\rm wings}$")
 p.xlabel("Peak Temperature (K)")
@@ -172,15 +177,15 @@ p.close()
 p.errorbar(hi_peak_fits['bin_center'], hi_peak_fits['rotsub_asymm'],
            yerr=[hi_peak_fits['rotsub_asymm_low_lim'],
                  hi_peak_fits['rotsub_asymm_up_lim']],
-           label="Rotation\nSubtracted")
+           label="Rotation\nSubtracted", fmt='-D')
 p.errorbar(hi_peak_fits['bin_center'], hi_peak_fits['centsub_asymm'],
            yerr=[hi_peak_fits['centsub_asymm_low_lim'],
                  hi_peak_fits['centsub_asymm_up_lim']],
-           label="Centroid\nSubtracted")
+           label="Centroid\nSubtracted", fmt='--o')
 p.errorbar(hi_peak_fits['bin_center'], hi_peak_fits['peaksub_asymm'],
            yerr=[hi_peak_fits['peaksub_asymm_low_lim'],
                  hi_peak_fits['peaksub_asymm_up_lim']],
-           label="Peak Vel.\nSubtracted")
+           label="Peak Vel.\nSubtracted", fmt='-.^')
 p.legend(frameon=True)
 p.ylabel(r"Asymmetry")
 p.xlabel("Peak Temperature (K)")
@@ -195,15 +200,15 @@ p.close()
 p.errorbar(hi_peak_fits['bin_center'], hi_peak_fits['rotsub_kappa'],
            yerr=[hi_peak_fits['rotsub_kappa_low_lim'],
                  hi_peak_fits['rotsub_kappa_up_lim']],
-           label="Rotation\nSubtracted")
+           label="Rotation\nSubtracted", fmt='-D')
 p.errorbar(hi_peak_fits['bin_center'], hi_peak_fits['centsub_kappa'],
            yerr=[hi_peak_fits['centsub_kappa_low_lim'],
                  hi_peak_fits['centsub_kappa_up_lim']],
-           label="Centroid\nSubtracted")
+           label="Centroid\nSubtracted", fmt='--o')
 p.errorbar(hi_peak_fits['bin_center'], hi_peak_fits['peaksub_kappa'],
            yerr=[hi_peak_fits['peaksub_kappa_low_lim'],
                  hi_peak_fits['peaksub_kappa_up_lim']],
-           label="Peak Vel.\nSubtracted")
+           label="Peak Vel.\nSubtracted", fmt='-.^')
 p.legend(frameon=True)
 p.ylabel(r"$\kappa$")
 p.xlabel("Peak Temperature (K)")

@@ -14,7 +14,7 @@ from radio_beam import Beam
 from astropy.wcs.utils import proj_plane_pixel_area
 import seaborn as sb
 
-from paths import (fourteenB_HI_file_dict, allfigs_path,
+from paths import (fourteenB_wGBT_HI_file_dict, allfigs_path,
                    iram_co21_14B088_data_path)
 from constants import (hi_freq, hi_coldens_Kkms)
 from plotting_styles import default_figure, twocolumn_figure
@@ -24,7 +24,7 @@ default_figure()
 
 cosinc = np.cos(gal.inclination.to(u.rad)).value
 
-moment0 = fits.open(fourteenB_HI_file_dict["Moment0"])[0]
+moment0 = fits.open(fourteenB_wGBT_HI_file_dict["Moment0"])[0]
 moment0_wcs = WCS(moment0.header)
 
 beam = Beam.from_fits_header(moment0.header)

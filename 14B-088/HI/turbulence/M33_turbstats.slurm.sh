@@ -5,7 +5,7 @@
 #SBATCH --nodes=1
 #SBATCH --job-name=M33_turbulence
 #SBATCH --output=m33_turbulence-%J.out
-#SBATCH --acount=def-eros-ab
+#SBATCH --account=def-eros-ab
 
 export OMP_NUM_THREADS=$SLURM_JOB_CPUS_PER_NODE
 
@@ -23,7 +23,7 @@ export project_path=/home/ekoch/project/ekoch/
 cd $HOME
 
 # Call script with number of cores
-$HOME/anaconda3/bin/python $HOME/code/VLA_Lband/14B-088/turbulence/M33_turbstats.py 32
+$HOME/anaconda3/bin/python $HOME/code/VLA_Lband/14B-088/HI/turbulence/M33_turbstats.py 32
 
 # Copy the output files to the project path
 cp $scratch_path/M33_turbulence/*.pkl $project_path/M33_turbulence/

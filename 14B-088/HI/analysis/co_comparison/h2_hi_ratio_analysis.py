@@ -584,17 +584,15 @@ med_ratio, bin_edges, cts = \
                      statistic=np.median)
 bin_cents = (bin_edges[1:] + bin_edges[:-1]) / 2.
 
-lower_ratio, bin_edges, cts = \
+ratio_stds, bin_edges, cts = \
     binned_statistic(tab['Rgal'][good_pts],
                      tab['sigma_CO'][good_pts] / tab['sigma_HI'][good_pts],
                      bins=rad_bins,
-                     statistic=lambda x: np.percentile(x, 15))
+                     statistic=np.std)
 
-upper_ratio, bin_edges, cts = \
-    binned_statistic(tab['Rgal'][good_pts],
-                     tab['sigma_CO'][good_pts] / tab['sigma_HI'][good_pts],
-                     bins=rad_bins,
-                     statistic=lambda x: np.percentile(x, 85))
+num_in_bins = np.bincount(cts)[1:]
+# Num. indep't points divided by number of pixels in one beam.
+num_indept = num_in_bins / 41.
 
 onecolumn_figure()
 
@@ -608,13 +606,15 @@ stack_stderr = stack_ratio * \
             (hi_radial_fits['peaksub_sigma_up_lim'] /
              hi_radial_fits['peaksub_sigma'])**2)
 plt.errorbar(bin_cents, stack_ratio, yerr=stack_stderr, label='Stack',
-             fmt='D-', drawstyle='steps-mid')
+             fmt='D-', drawstyle='steps-mid',
+             markersize=6)
 
-plt.errorbar(bin_cents, med_ratio, fmt='o-.',
-             yerr=[med_ratio - lower_ratio,
-                   upper_ratio - med_ratio], label='Fit',
-             drawstyle='steps-mid')
-# plt.axhline(0.61079832, linestyle='--', color=sb.color_palette()[2])
+plt.errorbar(bin_cents, med_ratio, fmt='s-.',
+             yerr=ratio_stds / np.sqrt(num_indept), label='Line-of-sight',
+             drawstyle='steps-mid', elinewidth=2,
+             color=sb.color_palette()[2],
+             markersize=6)
+# plt.axhline(0.61079832, linestyle='--', color=sb.color_palette()[1])
 plt.axhline(slope_ratio, linestyle='--', color=sb.color_palette()[2])
 
 plt.ylabel(r"$\sigma_{\rm CO} / \sigma_{\rm HI}$")

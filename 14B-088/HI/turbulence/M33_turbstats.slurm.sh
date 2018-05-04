@@ -19,7 +19,7 @@ source /home/ekoch/.bashrc
 source /home/ekoch/preload.bash
 
 export scratch_path=/home/ekoch/scratch/M33_turbulence
-export project_path=/home/ekoch/project/ekoch/
+export project_path=/home/ekoch/projects/def-eros-ab/ekoch/
 
 cd $HOME
 
@@ -27,4 +27,4 @@ cd $HOME
 $HOME/anaconda3/bin/python $HOME/code/VLA_Lband/14B-088/HI/turbulence/M33_turbstats.py 32
 
 # Copy the output files to the project path
-cp $scratch_path/M33_turbulence/*.pkl $project_path/M33_turbulence/
+cp $scratch_path/*.pkl $project_path/M33_turbulence/

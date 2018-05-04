@@ -22,13 +22,13 @@ from turbustat.statistics import (PowerSpectrum, VCA, VCS, PCA, SCF,
 
 ncore = int(sys.argv[-1])
 
-run_pspec = True
-run_delvar = True
-run_moments = True
-run_vca = False
-run_vcs = False
-run_pca = False
-run_scf = False
+run_pspec = False
+run_delvar = False
+run_moments = False
+run_vca = True
+run_vcs = True
+run_pca = True
+run_scf = True
 
 scratch_path = "/home/ekoch/scratch/M33_turbulence/"
 
@@ -106,7 +106,8 @@ if run_vca:
 
         log.info("On VCA channel width {}".format(chan))
 
-        vca = VCA(cube, channel_width=chan).run(use_pyfftw=True, threads=ncore - 1)
+        vca = VCA(cube, channel_width=chan).run(use_pyfftw=True,
+                                                threads=ncore - 1)
 
         if chan is None:
             chan = 0.2 * u.km / u.s
@@ -145,7 +146,8 @@ if run_vcs:
             new_beam = Beam(major)
             conv_cube = cube.convolve_to(new_beam)
 
-        vcs = VCS(conv_cube, channel_width=chan).run(use_pyfftw=True, threads=ncore - 1)
+        vcs = VCS(conv_cube, channel_width=chan).run(use_pyfftw=True,
+                                                     threads=ncore - 1)
 
         if major is None:
             major = 19 * u.arcsec

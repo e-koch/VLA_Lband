@@ -5,6 +5,7 @@
 #SBATCH --nodes=1
 #SBATCH --job-name=M33_turbulence
 #SBATCH --output=m33_turbulence-%J.out
+#SBATCH --error=m33_turbulence-%J.err
 #SBATCH --account=def-eros-ab
 
 export OMP_NUM_THREADS=$SLURM_JOB_CPUS_PER_NODE

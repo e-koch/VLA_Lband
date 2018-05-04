@@ -41,7 +41,7 @@ if run_pspec:
 
     log.info("Running PowerSpectrum")
 
-    mom0 = fits.open(mom0_name)
+    mom0 = fits.open(mom0_name)[0]
 
     pspec = PowerSpectrum(mom0).run(use_pyfftw=True, threads=ncore - 1)
 
@@ -53,7 +53,7 @@ if run_delvar:
 
     log.info("Running Delta-Variance")
 
-    mom0 = fits.open(mom0_name)
+    mom0 = fits.open(mom0_name)[0]
 
     delvar = DeltaVariance(mom0).run(use_pyfftw=True, threads=ncore - 1)
 
@@ -65,7 +65,7 @@ if run_moments:
 
     log.info("Running Stat Moments")
 
-    mom0 = fits.open(mom0_name)
+    mom0 = fits.open(mom0_name)[0]
 
     # Run with a couple of different radii
     # Beam size (close to it)

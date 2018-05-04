@@ -45,7 +45,7 @@ if run_pspec:
 
     pspec = PowerSpectrum(mom0).run(use_pyfftw=True, threads=ncore - 1)
 
-    pspec.save_results("pspec_m33_14B088.pkl", keep_data=False)
+    pspec.save_results(out_path("pspec_m33_14B088.pkl"), keep_data=False)
 
     del pspec
 
@@ -57,7 +57,7 @@ if run_delvar:
 
     delvar = DeltaVariance(mom0).run(use_pyfftw=True, threads=ncore - 1)
 
-    delvar.save_results("delvar_m33_14B088.pkl", keep_data=False)
+    delvar.save_results(out_path("delvar_m33_14B088.pkl"), keep_data=False)
 
     del delvar
 
@@ -77,7 +77,7 @@ if run_moments:
 
         moments = StatMoments(mom0, radius=radius).run()
 
-        moments.save_results("moments_m33_14B088_radius_{}pix.pkl".format(radius.value),
+        moments.save_results(out_path("moments_m33_14B088_radius_{}pix.pkl".format(radius.value)),
                              keep_data=False)
 
         del moments
@@ -111,7 +111,7 @@ if run_vca:
         if chan is None:
             chan = 0.2 * u.km / u.s
 
-        vca.save_results("vca_m33_14B088_chanwidth_{}_kms.pkl".format(chan.value),
+        vca.save_results(out_path("vca_m33_14B088_chanwidth_{}_kms.pkl".format(chan.value)),
                          keep_data=False)
 
         del vca
@@ -150,7 +150,7 @@ if run_vcs:
         if major is None:
             major = 19 * u.arcsec
 
-        vcs.save_results("vcs_m33_14B088_chanwidth_{}_arcsec.pkl".format(major.value),
+        vcs.save_results(out_path("vcs_m33_14B088_chanwidth_{}_arcsec.pkl".format(major.value)),
                          keep_data=False)
 
         del vcs
@@ -172,7 +172,7 @@ if run_pca:
                                               spatial_output_unit=u.pc,
                                               spectral_output_unit=u.km / u.s)
 
-    pca.save_results("pca_m33_14B088.pkl",
+    pca.save_results(out_path("pca_m33_14B088.pkl"),
                      keep_data=False)
 
     del pca
@@ -184,6 +184,6 @@ if run_scf:
     # Note that the rolls are going to take a LONG time!!
     scf = SCF(cube, size=36).run()
 
-    scf.save_results("scf_m33_14B088.pkl", keep_data=False)
+    scf.save_results(out_path("scf_m33_14B088.pkl"), keep_data=False)
 
     del scf

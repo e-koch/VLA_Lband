@@ -90,7 +90,7 @@ if run_vca:
     try:
         cube.shape
     except NameError:
-        cube = SpectralCube.read(cube_name, memmap=False)
+        cube = fits.open(cube_name, memmap=False)
 
     # Run VCA over a number of channel sizes.
     # First one keeps the original channel width.
@@ -126,7 +126,7 @@ if run_vcs:
     try:
         cube.shape
     except NameError:
-        cube = SpectralCube.read(cube_name, memmap=False)
+        cube = fits.open(cube_name, memmap=False)
 
     # Run VCS when varying the spatial resolution.
     # First one keeps the original beam size.
@@ -167,7 +167,7 @@ if run_pca:
     try:
         cube.shape
     except NameError:
-        cube = SpectralCube.read(cube_name, memmap=False)
+        cube = fits.open(cube_name, memmap=False)
 
     pca = PCA(cube, distance=840 * u.kpc).run(min_eigval=0.001,
                                               beam_fwhm=19 * u.arcsec,

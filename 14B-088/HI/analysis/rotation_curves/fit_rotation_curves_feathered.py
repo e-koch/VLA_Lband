@@ -54,7 +54,7 @@ fits_for_wcs = fourteenB_wGBT_HI_file_dict["Moment1"]
 thr1 = Thread(target=run_diskfit, args=(param_file, data_path, fits_for_wcs),
               kwargs={"fit_model": True, "gal": gal})
 thr1.start()
-
+thr1.join()
 
 param_file = c_hi_analysispath("rotation_curves/diskfit_params_feathered/diskfit_params_peakvels_nowarp_noradial_noasymm.inp")
 data_path = fourteenB_HI_data_wGBT_path("", no_check=True)
@@ -63,7 +63,13 @@ fits_for_wcs = fourteenB_wGBT_HI_file_dict["PeakVels"]
 thr2 = Thread(target=run_diskfit, args=(param_file, data_path, fits_for_wcs),
               kwargs={"fit_model": True, "gal": gal})
 thr2.start()
-
-
-thr1.join()
 thr2.join()
+
+param_file = c_hi_analysispath("rotation_curves/diskfit_params_feathered/diskfit_params_peakvels_nowarp_radial_noasymm.inp")
+data_path = fourteenB_HI_data_wGBT_path("", no_check=True)
+fits_for_wcs = fourteenB_wGBT_HI_file_dict["PeakVels"]
+
+thr3 = Thread(target=run_diskfit, args=(param_file, data_path, fits_for_wcs),
+              kwargs={"fit_model": True, "gal": gal})
+thr3.start()
+thr3.join()

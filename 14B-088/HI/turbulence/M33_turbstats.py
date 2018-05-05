@@ -25,7 +25,7 @@ ncore = int(sys.argv[-1])
 run_pspec = False
 run_delvar = False
 run_moments = False
-run_vca = True
+run_vca = False
 run_vcs = True
 run_pca = True
 run_scf = True
@@ -146,8 +146,11 @@ if run_vcs:
             new_beam = Beam(major)
             conv_cube = cube.convolve_to(new_beam)
 
-        vcs = VCS(conv_cube, channel_width=chan).run(use_pyfftw=True,
-                                                     threads=ncore - 1)
+        vcs = VCS(conv_cube, channel_width=chan)
+
+        vcs.compute_pspec(use_pyfftw=True, threads=ncore - 1)
+
+        # vcs.run(use_pyfftw=True, threads=ncore - 1)
 
         if major is None:
             major = 19 * u.arcsec

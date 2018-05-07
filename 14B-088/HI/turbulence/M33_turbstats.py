@@ -146,11 +146,9 @@ if run_vcs:
             new_beam = Beam(major)
             conv_cube = cube.convolve_to(new_beam)
 
-        vcs = VCS(conv_cube, channel_width=chan)
+        vcs = VCS(conv_cube)
 
-        vcs.compute_pspec(use_pyfftw=True, threads=ncore - 1)
-
-        # vcs.run(use_pyfftw=True, threads=ncore - 1)
+        vcs.run(use_pyfftw=True, threads=ncore - 1)
 
         if major is None:
             major = 19 * u.arcsec

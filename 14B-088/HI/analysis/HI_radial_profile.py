@@ -5,7 +5,7 @@ from astropy import units as u
 from astropy.coordinates import Angle
 import matplotlib.pyplot as p
 import matplotlib.patches as patches
-from astropy.table import Table
+from astropy.table import Table, Column
 from spectral_cube.lower_dimensional_structures import Projection
 from astropy.io import fits
 import seaborn as sb
@@ -17,12 +17,12 @@ from cube_analysis.profiles import surfdens_radial_profile
 from paths import (arecibo_HI_data_path, gbt_HI_data_path,
                    c_hi_analysispath, allfigs_path,
                    data_path, fourteenB_wGBT_HI_file_dict,
-                   fourteenB_HI_file_dict)
+                   fourteenB_HI_file_dict,
+                   fourteenB_HI_data_wGBT_path)
 
 from constants import hi_freq, hi_mass_conversion
-from galaxy_params import gal
-from plotting_styles import (default_figure, onecolumn_figure,
-                             twocolumn_twopanel_figure)
+from galaxy_params import gal_feath as gal
+from plotting_styles import (default_figure, onecolumn_figure)
 
 mom0_hdu = fits.open(fourteenB_HI_file_dict["Moment0"])[0]
 mom0 = Projection.from_hdu(mom0_hdu)
@@ -30,6 +30,15 @@ mom0 = Projection.from_hdu(mom0_hdu)
 # And the feathered version
 mom0_feath_hdu = fits.open(fourteenB_wGBT_HI_file_dict["Moment0"])[0]
 mom0_feath = Projection.from_hdu(mom0_feath_hdu)
+
+# Beam handling still not finished. Remove per beam if it appears. The
+# units will be wrong in the intermediate steps, but will be converted
+# correctly at the end.
+if "beam" in mom0.unit.to_string():
+    mom0 = mom0 * u.beam
+if "beam" in mom0_feath.unit.to_string():
+    mom0_feath = mom0_feath * u.beam
+
 
 if not os.path.exists(allfigs_path("HI_properties")):
     os.mkdir(allfigs_path("HI_properties"))
@@ -70,6 +79,19 @@ rs_feath_s, sd_feath_s, sd_sigma_feath_s = \
                                              0.5 * np.pi * u.rad]),
                             dr=dr, restfreq=hi_freq,
                             mass_conversion=hi_mass_conversion)
+
+# Save the feathered radial profiles as a table
+tab_out = Table([Column(rs_feath, name="rad_bin"),
+                 Column(sd_feath, name='Sigma_HI'),
+                 Column(sd_sigma_feath, name='Sigma_HI_std'),
+                 Column(sd_feath_n, name='Sigma_HI_north'),
+                 Column(sd_sigma_feath_n, name='Sigma_HI_std_north'),
+                 Column(sd_feath_n, name='Sigma_HI_south'),
+                 Column(sd_sigma_feath_s, name='Sigma_HI_std_south'),
+                 ])
+tab_out.write(fourteenB_HI_data_wGBT_path("tables/surfdens_radial_profile_{0}{1}.csv"
+                                          .format(int(dr.value), dr.unit),
+                                          no_check=True))
 
 # Arecibo
 arecibo_file = arecibo_HI_data_path("M33only_jy_stokes_vrad.fits")

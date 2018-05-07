@@ -5,7 +5,6 @@ from astropy import units as u
 from astropy.coordinates import Angle
 import matplotlib.pyplot as p
 import matplotlib.patches as patches
-from astropy.table import Table, Column
 from spectral_cube.lower_dimensional_structures import Projection
 from astropy.io import fits
 import seaborn as sb
@@ -79,19 +78,6 @@ rs_feath_s, sd_feath_s, sd_sigma_feath_s = \
                                              0.5 * np.pi * u.rad]),
                             dr=dr, restfreq=hi_freq,
                             mass_conversion=hi_mass_conversion)
-
-# Save the feathered radial profiles as a table
-tab_out = Table([Column(rs_feath, name="rad_bin"),
-                 Column(sd_feath, name='Sigma_HI'),
-                 Column(sd_sigma_feath, name='Sigma_HI_std'),
-                 Column(sd_feath_n, name='Sigma_HI_north'),
-                 Column(sd_sigma_feath_n, name='Sigma_HI_std_north'),
-                 Column(sd_feath_n, name='Sigma_HI_south'),
-                 Column(sd_sigma_feath_s, name='Sigma_HI_std_south'),
-                 ])
-tab_out.write(fourteenB_HI_data_wGBT_path("tables/surfdens_radial_profile_{0}{1}.csv"
-                                          .format(int(dr.value), dr.unit),
-                                          no_check=True))
 
 # Arecibo
 arecibo_file = arecibo_HI_data_path("M33only_jy_stokes_vrad.fits")

@@ -27,6 +27,9 @@ vcp $DATA_PATH/M33_14B-088_HI.clean.image.GBT_feathered.pbcov_gt_0.5_masked.peak
 vcp $DATA_PATH/M33_14B-088_HI.clean.image.GBT_feathered.pbcov_gt_0.5_masked.peakvels.fits $DR1_HI_PATH
 vcp $DATA_PATH/M33_14B-088_HI.clean.image.GBT_feathered.pbcov_gt_0.5_masked.skewness.fits $DR1_HI_PATH
 
+# 100 pc radial average for different moment maps
+vcp $DATA_PATH/tables/moments_radial_profile_100pc.fits $DR1_HI_PATH
+
 # Stacked spectra
 vmkdir $DR1_HI_PATH/stacked_spectra
 

@@ -13,6 +13,7 @@ from astropy.coordinates import Angle
 import os
 from os.path import join as osjoin
 import seaborn as sb
+from astropy.table import Table, Column
 
 from cube_analysis.profiles import (radial_profile, surfdens_radial_profile)
 
@@ -362,6 +363,12 @@ p.close()
 mom0_hdu = fits.open(fourteenB_wGBT_HI_file_dict["Moment0"])[0]
 mom0 = Projection.from_hdu(mom0_hdu)
 
+# Beam handling still not finished. Remove per beam if it appears. The
+# units will be wrong in the intermediate steps, but will be converted
+# correctly at the end.
+if "beam" in mom0.unit.to_string():
+    mom0 = mom0 * u.beam
+
 mom1_hdu = fits.open(fourteenB_wGBT_HI_file_dict["Moment1"])[0]
 mom1 = Projection.from_hdu(mom1_hdu)
 
@@ -431,6 +438,38 @@ rs_surf_s, sd_surf_s, sd_surf_sigma_s = \
                                              0.5 * np.pi * u.rad]),
                             dr=dr, restfreq=hi_freq, max_rad=8 * u.kpc,
                             mass_conversion=hi_mass_conversion)
+
+# Save the feathered radial profiles as a table
+tab_out = Table([Column(rs_surf, name="rad_bin"),
+                 Column(sd_surf, name='Sigma_HI'),
+                 Column(sd_surf_sigma, name='Sigma_HI_std'),
+                 Column(sd_surf_n, name='Sigma_HI_north'),
+                 Column(sd_surf_sigma_n, name='Sigma_HI_std_north'),
+                 Column(sd_surf_s, name='Sigma_HI_south'),
+                 Column(sd_surf_sigma_s, name='Sigma_HI_std_south'),
+                 Column(sd_lwidth, name='lwidth'),
+                 Column(sd_lwidth_sigma, name='lwidth_std'),
+                 Column(sd_lwidth_n, name='lwidth_north'),
+                 Column(sd_lwidth_sigma_n, name='lwidth_std_north'),
+                 Column(sd_lwidth_s, name='lwidth_south'),
+                 Column(sd_lwidth_sigma_s, name='lwidth_std_south'),
+                 Column(sdprof_kurt, name='kurtosis'),
+                 Column(sdprof_sigma_kurt, name='kurtosis_std'),
+                 Column(sd_kurt_n, name='kurtosis_north'),
+                 Column(sd_kurt_sigma_n, name='kurtosis_std_north'),
+                 Column(sd_kurt_s, name='kurtosis_south'),
+                 Column(sd_kurt_sigma_s, name='kurtosis_std_south'),
+                 Column(sdprof_skew, name='skewness'),
+                 Column(sdprof_sigma_skew, name='skewness_std'),
+                 Column(sd_skew_n, name='skewness_north'),
+                 Column(sd_skew_sigma_n, name='skewness_std_north'),
+                 Column(sd_skew_s, name='skewness_south'),
+                 Column(sd_skew_sigma_s, name='skewness_std_south'),
+                 ])
+tab_out.write(fourteenB_HI_data_wGBT_path("tables/moments_radial_profile_{0}{1}.fits"
+                                          .format(int(dr.value), dr.unit),
+                                          no_check=True),
+              overwrite=True)
 
 onecolumn_Npanel_figure(N=3, font_scale=1.0)
 

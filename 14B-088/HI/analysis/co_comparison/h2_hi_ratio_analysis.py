@@ -20,11 +20,13 @@ from corner import hist2d
 import seaborn as sb
 import emcee
 from scipy.stats import binned_statistic
+from scipy import stats
 
 from paths import (fourteenB_HI_data_wGBT_path, fourteenB_wGBT_HI_file_dict,
                    allfigs_path, iram_co21_14B088_data_path)
 from plotting_styles import (default_figure, onecolumn_figure,
-                             twocolumn_twopanel_figure)
+                             twocolumn_twopanel_figure,
+                             twocolumn_figure)
 
 from krumholz_models import krumholz2013_ratio_model, krumholz2013_sigmaHI
 
@@ -656,6 +658,86 @@ plt.close()
 # plt.errorbar(bin_cents, stack_ratio, yerr=stack_stderr, label='Stack',
 #              fmt='D-', drawstyle='steps-mid')
 
+# Is there a pattern in the scatter related to the peak CO temperature?
+# Split by quartiles
+
+amp_CO_percs = np.percentile(tab['amp_CO'][good_pts], [0, 25, 50, 75, 100])
+
+twocolumn_figure()
+
+fig, axes = plt.subplots(2, 2, sharex=True, sharey=True)
+
+slope_ampCO_bins = []
+inters_ampCO_bins = []
+
+median_CO = []
+median_HI = []
+
+for low, up, ax in zip(amp_CO_percs[:-1], amp_CO_percs[1:], axes.ravel()):
+
+    samples = np.logical_and(tab['amp_CO'] >= low, tab['amp_CO'] <= up)
+    samples = np.logical_and(good_pts, samples)
+
+    hist2d(tab['sigma_HI'][samples] / 1000.,
+           tab['sigma_CO'][samples] / 1000.,
+           bins=10, data_kwargs={"alpha": 0.5},
+           ax=ax)
+    ax.axvline(np.median(tab['sigma_HI'][samples] / 1000.))
+    ax.axhline(np.median(tab['sigma_CO'][samples] / 1000.))
+
+    median_HI.append(np.median(tab['sigma_HI'][samples] / 1000.))
+    median_CO.append(np.median(tab['sigma_CO'][samples] / 1000.))
+
+    ax.plot([4, 12], [4, 12], '--', linewidth=3)
+
+    ax.annotate("{0:.2f}--{1:.2f} K".format(low, up),
+                xy=(.8, .1), xycoords=ax.transAxes,
+                color='k',
+                horizontalalignment='center',
+                verticalalignment='center',
+                bbox={"boxstyle": "square", "facecolor": "w"})
+
+    params_ampCO_bin, cis_ampCO_bin, sampler_ampCO_bin = \
+        bayes_linear(tab['sigma_HI'][samples],
+                     tab['sigma_CO'][samples],
+                     tab['sigma_stderr_HI'][samples],
+                     tab['sigma_stderr_CO'][samples],
+                     nBurn=500, nSample=1000, nThin=2)
+    slope = params_ampCO_bin[0]
+    inter = params_ampCO_bin[1] / 1000.
+    slope_ci = cis_ampCO_bin[0]
+    inter_cis = cis_ampCO_bin[1] / 1000.
+
+    slope_ampCO_bins.append([slope, slope_ci])
+    inters_ampCO_bins.append([inter, inter_cis])
+
+    ax.plot([4, 12], [4. * slope + inter, 12 * slope + inter])
+    ax.fill_between([4, 12], [4. * slope_ci[0] + inter_cis[0],
+                              12 * slope_ci[0] + inter_cis[0]],
+                    [4. * slope_ci[1] + inter_cis[1],
+                     12 * slope_ci[1] + inter_cis[1]],
+                    facecolor=sb.color_palette()[0],
+                    alpha=0.5)
+
+fig.text(0.5, 0.04, r"$\sigma_{\rm CO}$ (km/s)", ha='center')
+fig.text(0.04, 0.5, r"$\sigma_{\rm HI}$ (km/s)", va='center',
+         rotation='vertical')
+
+fig.savefig(osjoin(fig_path, "sigma_peakCO_bins.png"))
+fig.savefig(osjoin(fig_path, "sigma_peakCO_bins.pdf"))
+plt.close()
+
+print("Bins: {}".format(amp_CO_percs))
+print("Median HI {}".format(median_HI))
+print("Median CO {}".format(median_CO))
+print("Slopes: {}".format(slope_ampCO_bins))
+print("Intercepts: {}".format(inters_ampCO_bins))
+# Bins: [ 0.02152052  0.0936956   0.12852667  0.18478005  0.76506873]
+# Median HI [7.8008611238372492, 7.5082358955246429, 7.3272466153904379, 7.2200793571847104]
+# Median CO [5.3853999473748786, 4.5209602245389569, 4.1011948861837366, 3.8850511852554352]
+# Slopes: [[0.6294158815046601, array([ 0.61214236,  0.64628901])], [0.81963661102990959, array([ 0.80172927,  0.83662457])], [0.86919052087028636, array([ 0.85084196,  0.88838301])], [0.89350333524742365, array([ 0.87657641,  0.91070673])]]
+# Intercepts: [[0.45069488957181059, array([ 0.32021306,  0.59133293])], [-1.596063854312973, array([-1.7260279 , -1.45711462])], [-2.2127787475028247, array([-2.35480913, -2.07167332])], [-2.535478998092338, array([-2.6642518 , -2.40830384])]]
+
 # Compare the HI fit properties w/ and w/o the FWHM mask when fitting
 # Fit the same relation as above
 
@@ -715,6 +797,83 @@ plt.tight_layout()
 
 plt.savefig(osjoin(fig_path, "sigma_HI_nomask_vs_H2_w_fit.png"))
 plt.savefig(osjoin(fig_path, "sigma_HI_nomask_vs_H2_w_fit.pdf"))
+plt.close()
+
+
+# Investigate correlations amongst the set of parameters
+pan_tab = tab[good_pts].to_pandas()
+
+# Drop some variables
+drops = ['RA', 'Dec', 'xpts', 'ypts', 'multicomp_flag_CO', 'multicomp_flag_HI']
+drops += [col for col in pan_tab.columns if "nomask" in col]
+drops += [col for col in pan_tab.columns if "stderr" in col]
+drops += [col for col in pan_tab.columns if "FWHM" in col]
+drops += [col for col in pan_tab.columns if "coldens" in col]
+
+drops = list(set(drops))
+
+pan_tab = pan_tab.drop(drops, axis=1)
+
+# Remove _ from names
+pan_tab = pan_tab.rename(columns={col: "".join(col.split('_'))
+                                  for col in pan_tab.columns})
+
+corr_mat = pan_tab.corr()
+
+mask = np.zeros_like(corr_mat, dtype=np.bool)
+mask[np.triu_indices_from(mask)] = True
+
+twocolumn_figure()
+
+he = sb.heatmap(corr_mat, mask=mask)
+he.set_xticklabels(he.get_xticklabels(), rotation=90)
+he.set_yticklabels(he.get_yticklabels(), rotation=0)
+
+plt.tight_layout()
+
+plt.savefig(osjoin(fig_path, "fit_param_corr_matrix.png"))
+plt.savefig(osjoin(fig_path, "fit_param_corr_matrix.pdf"))
+plt.close()
+
+
+def corrfunc(x, y, **kws):
+    r, _ = stats.pearsonr(x, y)
+    ax = plt.gca()
+
+    if abs(r) >= 0.2:
+        ax.annotate("r = {:.2f}".format(r),
+                    xy=(.5, .5), xycoords=ax.transAxes,
+                    color='r',
+                    horizontalalignment='center',
+                    verticalalignment='center')
+    else:
+        ax.annotate("r = {:.2f}".format(r),
+                    xy=(.5, .5), xycoords=ax.transAxes,
+                    horizontalalignment='center',
+                    verticalalignment='center')
+
+
+def kdeplot_colored(x, y, **kws):
+    r, _ = stats.pearsonr(x, y)
+
+    if "cmap" in kws:
+        kws.pop('cmap')
+
+    if abs(r) >= 0.2:
+        sb.kdeplot(x, y, cmap='Reds_d', **kws)
+    else:
+        sb.kdeplot(x, y, cmap='Blues_d', **kws)
+
+
+g = sb.PairGrid(pan_tab, palette=["red"])
+g.map_upper(corrfunc)
+g.map_diag(sb.distplot, kde=False)
+g.map_lower(kdeplot_colored)
+
+plt.tight_layout()
+
+plt.savefig(osjoin(fig_path, "fit_param_pairplot.png"))
+plt.savefig(osjoin(fig_path, "fit_param_pairplot.pdf"))
 plt.close()
 
 

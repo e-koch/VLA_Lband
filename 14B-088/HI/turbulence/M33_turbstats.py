@@ -90,7 +90,7 @@ if run_vca:
     try:
         cube.shape
     except NameError:
-        cube = fits.open(cube_name, memmap=False)[0]
+        cube = SpectralCube.read(cube_name, memmap=False)
 
     # Run VCA over a number of channel sizes.
     # First one keeps the original channel width.
@@ -126,7 +126,7 @@ if run_vcs:
     try:
         cube.shape
     except NameError:
-        cube = fits.open(cube_name, memmap=False)[0]
+        cube = SpectralCube.read(cube_name, memmap=False)
 
     # Run VCS when varying the spatial resolution.
     # First one keeps the original beam size.
@@ -144,8 +144,7 @@ if run_vcs:
             conv_cube = cube
         else:
             new_beam = Beam(major)
-            sc = SpectralCube.read(cube)
-            conv_cube = sc.convolve_to(new_beam)
+            conv_cube = cube.convolve_to(new_beam)
 
         vcs = VCS(conv_cube)
 
@@ -169,7 +168,7 @@ if run_pca:
     try:
         cube.shape
     except NameError:
-        cube = fits.open(cube_name, memmap=False)[0]
+        cube = SpectralCube.read(cube_name, memmap=False)
 
     pca = PCA(cube, distance=840 * u.kpc).run(min_eigval=0.001,
                                               beam_fwhm=19 * u.arcsec,
@@ -184,6 +183,11 @@ if run_pca:
 if run_scf:
 
     log.info("Running SCF")
+
+    try:
+        cube.shape
+    except NameError:
+        cube = SpectralCube.read(cube_name, memmap=False)
 
     # Note that the rolls are going to take a LONG time!!
     scf = SCF(cube, size=36).run()

@@ -144,8 +144,8 @@ if run_vcs:
             conv_cube = cube
         else:
             new_beam = Beam(major)
-            cube = SpectralCube.read(cube)
-            conv_cube = cube.convolve_to(new_beam)
+            sc = SpectralCube.read(cube)
+            conv_cube = sc.convolve_to(new_beam)
 
         vcs = VCS(conv_cube)
 

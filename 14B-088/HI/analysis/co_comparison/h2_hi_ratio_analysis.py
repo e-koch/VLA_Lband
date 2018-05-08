@@ -673,10 +673,14 @@ inters_ampCO_bins = []
 median_CO = []
 median_HI = []
 
+samps_ampCO_bins = []
+
 for low, up, ax in zip(amp_CO_percs[:-1], amp_CO_percs[1:], axes.ravel()):
 
     samples = np.logical_and(tab['amp_CO'] >= low, tab['amp_CO'] <= up)
     samples = np.logical_and(good_pts, samples)
+
+    samps_ampCO_bins.append(samples)
 
     hist2d(tab['sigma_HI'][samples] / 1000.,
            tab['sigma_CO'][samples] / 1000.,
@@ -719,8 +723,8 @@ for low, up, ax in zip(amp_CO_percs[:-1], amp_CO_percs[1:], axes.ravel()):
                     facecolor=sb.color_palette()[0],
                     alpha=0.5)
 
-fig.text(0.5, 0.04, r"$\sigma_{\rm CO}$ (km/s)", ha='center')
-fig.text(0.04, 0.5, r"$\sigma_{\rm HI}$ (km/s)", va='center',
+fig.text(0.5, 0.04, r"$\sigma_{\rm HI}$ (km/s)", ha='center')
+fig.text(0.04, 0.5, r"$\sigma_{\rm CO}$ (km/s)", va='center',
          rotation='vertical')
 
 fig.savefig(osjoin(fig_path, "sigma_peakCO_bins.png"))
@@ -737,6 +741,26 @@ print("Intercepts: {}".format(inters_ampCO_bins))
 # Median CO [5.3853999473748786, 4.5209602245389569, 4.1011948861837366, 3.8850511852554352]
 # Slopes: [[0.6294158815046601, array([ 0.61214236,  0.64628901])], [0.81963661102990959, array([ 0.80172927,  0.83662457])], [0.86919052087028636, array([ 0.85084196,  0.88838301])], [0.89350333524742365, array([ 0.87657641,  0.91070673])]]
 # Intercepts: [[0.45069488957181059, array([ 0.32021306,  0.59133293])], [-1.596063854312973, array([-1.7260279 , -1.45711462])], [-2.2127787475028247, array([-2.35480913, -2.07167332])], [-2.535478998092338, array([-2.6642518 , -2.40830384])]]
+
+# Where are the different bins located? Different clouds or inter-cloud variation?
+
+# hi_mom0 = Projection.from_hdu(fits.open(fourteenB_wGBT_HI_file_dict['Moment0'])[0])
+
+# twocolumn_figure()
+# hi_mom0.quicklook()
+
+# for i, samps in enumerate(samps_ampCO_bins):
+
+#     hi_mom0.FITSFigure._ax1.scatter(tab['xpts'][samps], tab['ypts'][samps],
+#                                     c=sb.color_palette()[i])
+
+# You're going to have to stop and zoom in to see the different structure.
+# Uncomment to do so.
+
+# They're mostly inter-cloud variation. Most structures have a clear
+# progression between the bins from inside out. This also means that
+# the line widths in the bins are moderately correlated.
+# The larger scatter at lower T_CO bins is probably a S/N
 
 # Compare the HI fit properties w/ and w/o the FWHM mask when fitting
 # Fit the same relation as above

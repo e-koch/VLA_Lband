@@ -32,7 +32,7 @@ run_scf = True
 
 scratch_path = "/home/ekoch/scratch/M33_turbulence/"
 
-cube_name = osjoin(scratch_path, "M33_14B-088_HI.clean.image.GBT_feathered.pbcov_gt_0.5_masked.fits")
+cube_name = osjoin(scratch_path, "M33_14B-088_HI.clean.image.GBT_feathered.pbcov_gt_0.5_masked.com_beam.fits")
 mom0_name = osjoin(scratch_path, "M33_14B-088_HI.clean.image.GBT_feathered.pbcov_gt_0.5_masked.mom0.fits")
 
 out_path = lambda x: osjoin(scratch_path, x)

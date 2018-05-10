@@ -684,6 +684,7 @@ fig, axes = plt.subplots(2, 2, sharex=True, sharey=True)
 
 slope_ampCO_bins = []
 inters_ampCO_bins = []
+ratio_ampCO_bins = []
 
 median_CO = []
 median_HI = []
@@ -738,6 +739,26 @@ for low, up, ax in zip(amp_CO_percs[:-1], amp_CO_percs[1:], axes.ravel()):
                     facecolor=sb.color_palette()[0],
                     alpha=0.5)
 
+    params_ampCO_bin, cis_ampCO_bin, sampler_ampCO_bin = \
+        bayes_linear(tab['sigma_HI'][samples],
+                     tab['sigma_CO'][samples],
+                     tab['sigma_stderr_HI'][samples],
+                     tab['sigma_stderr_CO'][samples],
+                     nBurn=500, nSample=1000, nThin=2,
+                     fix_intercept=True)
+    slope = params_ampCO_bin[0]
+    slope_ci = cis_ampCO_bin
+
+    ratio_ampCO_bins.append([slope, slope_ci])
+
+    ax.plot([4, 12], [4. * slope, 12 * slope])
+    ax.fill_between([4, 12], [4. * slope_ci[0],
+                              12 * slope_ci[0]],
+                    [4. * slope_ci[1],
+                     12 * slope_ci[1]],
+                    facecolor=sb.color_palette()[0],
+                    alpha=0.5)
+
 fig.text(0.5, 0.04, r"$\sigma_{\rm HI}$ (km/s)", ha='center')
 fig.text(0.04, 0.5, r"$\sigma_{\rm CO}$ (km/s)", va='center',
          rotation='vertical')
@@ -751,13 +772,17 @@ print("Median HI {}".format(median_HI))
 print("Median CO {}".format(median_CO))
 print("Slopes: {}".format(slope_ampCO_bins))
 print("Intercepts: {}".format(inters_ampCO_bins))
+print("Ratios: {}".format(ratio_ampCO_bins))
 # Bins: [ 0.02152052  0.0936956   0.12852667  0.18478005  0.76506873]
 # Median HI [7.8008611238372492, 7.5082358955246429, 7.3272466153904379, 7.2200793571847104]
 # Median CO [5.3853999473748786, 4.5209602245389569, 4.1011948861837366, 3.8850511852554352]
 # Slopes: [[0.6294158815046601, array([ 0.61214236,  0.64628901])], [0.81963661102990959, array([ 0.80172927,  0.83662457])], [0.86919052087028636, array([ 0.85084196,  0.88838301])], [0.89350333524742365, array([ 0.87657641,  0.91070673])]]
 # Intercepts: [[0.45069488957181059, array([ 0.32021306,  0.59133293])], [-1.596063854312973, array([-1.7260279 , -1.45711462])], [-2.2127787475028247, array([-2.35480913, -2.07167332])], [-2.535478998092338, array([-2.6642518 , -2.40830384])]]
+# Ratios: [[0.68525140568117959, array([ 0.68171152,  0.68861348])], [0.6157812356778769, array([ 0.61218132,  0.61920323])], [0.58115311930462621, array([ 0.57756643,  0.58475018])], [0.55832702038757476, array([ 0.55501114,  0.56211134])]]
 
-# Where are the different bins located? Different clouds or inter-cloud variation?
+
+# Where are the different bins located? Different clouds or inter-cloud
+# variation?
 
 # hi_mom0 = Projection.from_hdu(fits.open(fourteenB_wGBT_HI_file_dict['Moment0'])[0])
 

@@ -27,6 +27,7 @@ from paths import (fourteenB_HI_data_wGBT_path, fourteenB_wGBT_HI_file_dict,
 from plotting_styles import (default_figure, onecolumn_figure,
                              twocolumn_twopanel_figure,
                              twocolumn_figure)
+from constants import co21_mass_conversion
 
 from krumholz_models import krumholz2013_ratio_model, krumholz2013_sigmaHI
 
@@ -304,7 +305,6 @@ plt.savefig(osjoin(fig_path, "Sigma_HI_vs_CO_fit.pdf"))
 plt.close()
 
 # Peak temps comparison
-
 hist2d(tab['amp_HI'][good_pts], tab['amp_CO'][good_pts],
        bins=30,
        data_kwargs={"alpha": 0.5})
@@ -317,11 +317,26 @@ plt.savefig(osjoin(fig_path, "peak_HI_vs_CO_fit.pdf"))
 plt.close()
 
 # CO width vs. CO peak
-
 hist2d(tab['sigma_CO'][good_pts] / 1000.,
        tab['amp_CO'][good_pts],
        bins=23,
        data_kwargs={"alpha": 0.5})
+
+# There's an expected correlation if the integrated intensity is constant
+onefive_rel = lambda sigma: np.percentile(tab['coldens_CO_gauss'] / co21_mass_conversion, 15) / (np.sqrt(2 * np.pi) * sigma)
+eightyfive_rel = lambda sigma: np.percentile(tab['coldens_CO_gauss'] / co21_mass_conversion, 85) / (np.sqrt(2 * np.pi) * sigma)
+
+sigma_range = np.linspace(2.5, 8, 100)
+
+plt.plot(sigma_range, median_rel(sigma_range),
+         color=sb.color_palette()[0],
+         alpha=1.0, linewidth=3,
+         linestyle='--')
+plt.fill_between(sigma_range, onefive_rel(sigma_range),
+                 eightyfive_rel(sigma_range),
+                 color=sb.color_palette()[0],
+                 alpha=0.3)
+
 plt.grid()
 plt.xlabel(r"$\sigma_{\rm CO}$ (km/s)")
 plt.ylabel(r"T$_{\rm CO}$ (K)")

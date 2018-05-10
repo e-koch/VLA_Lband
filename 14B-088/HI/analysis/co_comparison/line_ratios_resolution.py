@@ -108,6 +108,20 @@ good_pts_5beam = np.logical_and(~hi_co_tab_5beam['multicomp_flag_HI'],
 # good_pts_5beam = np.logical_and(good_pts_5beam,
 #                                 hi_co_tab_5beam["sigma_HI"] > 3800)
 
+# What are the median line widths
+print("19'' median line widths. HI: {0}; CO: {1}"
+      .format(np.median(hi_co_tab['sigma_HI'][good_pts]),
+              np.median(hi_co_tab['sigma_CO'][good_pts])))
+print("38'' median line widths. HI: {0}; CO: {1}"
+      .format(np.median(hi_co_tab_2beam['sigma_HI'][good_pts_2beam]),
+              np.median(hi_co_tab_2beam['sigma_CO'][good_pts_2beam])))
+print("95'' median line widths. HI: {0}; CO: {1}"
+      .format(np.median(hi_co_tab_5beam['sigma_HI'][good_pts_5beam]),
+              np.median(hi_co_tab_5beam['sigma_CO'][good_pts_5beam])))
+# 19'' median line widths. HI: 7442.4097371; CO: 4422.97440623
+# 38'' median line widths. HI: 8351.11914113; CO: 5144.03043005
+# 95'' median line widths. HI: 11011.9116254; CO: 7543.48352746
+
 twocolumn_figure()
 
 fig, axes = plt.subplots(2, 3, sharex=True, sharey='row')

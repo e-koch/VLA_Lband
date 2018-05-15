@@ -25,10 +25,11 @@ hdu = fits.open(fourteenB_HI_data_wGBT_path("M33_14B-088_HI.clean.image.GBT_feat
                 mode='update')
 
 # Update the beam in the header
-hdr = cube.header
+hdr = hdu[0].header
 hdr.update(Beam(major=cube.beam.major / np.cos(gal.inclination),
                 minor=cube.beam.major,
                 pa=gal.position_angle + 90 * u.deg).to_header_keywords())
+hdu[0].header = hdr
 
 hdu.flush()
 hdu.close()

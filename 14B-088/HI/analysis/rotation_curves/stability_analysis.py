@@ -17,6 +17,7 @@ from cube_analysis.rotation_curves.curve_fitting import (oortA_brandt,
 from paths import (fourteenB_wGBT_HI_file_dict, allfigs_path,
                    fourteenB_HI_data_wGBT_path, iram_co21_14B088_data_path)
 from galaxy_params import gal_feath as gal
+from constants import hi_mass_conversion, hi_freq
 
 from plotting_styles import (default_figure, onecolumn_figure,
                              twocolumn_twopanel_figure)
@@ -47,7 +48,13 @@ def toomre_sd_criteria(sigma, kappa):
     return crit_sd.to(u.solMass / u.pc**2)
 
 
-mom0 = fits.open(fourteenB_wGBT_HI_file_dict['Moment0'])[0]
+mom0 = Projection.from_hdu(fits.open(fourteenB_wGBT_HI_file_dict['Moment0'])[0])
+
+lwidth = Projection.from_hdu(fits.open(fourteenB_wGBT_HI_file_dict['LWidth'])[0]).to(u.km / u.s)
+
+SurfDens_HI = mom0.quantity * mom0.beam.jtok(hi_freq) * (u.beam / u.Jy) * \
+    hi_mass_conversion * np.cos(gal.inclination) / (1000. * u.m / u.km)
+
 
 # Index, v_max (km/s), R_max (kpc)
 pars = [0.56, 110.0, 12.0]
@@ -59,7 +66,7 @@ shear_map = shear_map.to(u.km / u.s / u.pc)
 
 # And make one of epicyclic frequency
 
-epifreq_map = epifreq_brandt(radii.value, *pars) * u.km / u.s
+epifreq_map = epifreq_brandt(radii.value, *pars) * u.km / u.s / u.kpc
 
 # Make radial slice versions
 
@@ -68,7 +75,6 @@ radii_1D = np.arange(0., 7., 0.1) * u.kpc
 shear_1D = oortA_brandt(radii_1D.value, *pars) * u.km / u.s / u.kpc
 epifreq_1D = epifreq_brandt(radii_1D.value, *pars) * u.km / u.s / u.kpc
 
-
 # Taking centroid stacked value.
 # dispersion
 sigma_gas = 6 * u.km / u.s
@@ -76,13 +82,23 @@ sigma_gas = 6 * u.km / u.s
 Sigma_gas = 8 * u.solMass / u.pc**2 + \
     10 * u.solMass / u.pc**2 * np.exp(-radii_1D / (2.2 * u.kpc))
 
+Sigma_gas_map = SurfDens_HI + \
+    10 * u.solMass / u.pc**2 * np.exp(-radii / (2.2 * u.kpc))
+
 Qgas = ((sigma_gas * epifreq_1D) / (np.pi * c.G * Sigma_gas)).to(u.dimensionless_unscaled)
+
+# Make a gas Q map assuming line widths from the second moment
+# Assume that the line width from the second moment is ~50\% overestimated
+Qgas_map = (lwidth * epifreq_map / (np.pi * c.G * SurfDens_HI)).to(u.dimensionless_unscaled)
+Qgas_map[Qgas_map <= 0.] = np.NaN
 
 # Exponential stellar disk. From Corbelli+14, this is about
 # 242 Msol/pc^2 * exp(-R/1.7 kpc)
 l_star = 1.7 * u.kpc
 Sigma_star_0 = 242 * u.solMass / u.pc**2
 Sigma_stellar = Sigma_star_0 * np.exp(-radii_1D / l_star)
+
+Sigma_stellar_map = Sigma_star_0 * np.exp(- radii / l_star)
 
 # Thin disk dispersion (corrected) from McConnachie+2006
 # sigma_stellar = 12.5 * u.km / u.s
@@ -96,6 +112,9 @@ sigma_stellar_equilib = np.sqrt(2 * np.pi * c.G * l_star * Sigma_stellar / 7.3).
 Qstar = ((sigma_stellar * epifreq_1D) / (np.pi * c.G * Sigma_stellar)).to(u.dimensionless_unscaled)
 Qstar_equilib = ((sigma_stellar_equilib * epifreq_1D) / (np.pi * c.G * Sigma_stellar)).to(u.dimensionless_unscaled)
 
+Qstar_map = ((sigma_stellar * epifreq_map) / (np.pi * c.G * Sigma_stellar_map)).to(u.dimensionless_unscaled)
+Qstar_map[radii >= 10 * u.kpc] = np.NaN
+
 prefix = (2 * sigma_gas * sigma_stellar) / (sigma_gas**2 + sigma_stellar**2)
 Qeff_old = 1 / (prefix * Qstar**-1 + Qgas**-1)
 
@@ -105,20 +124,36 @@ def Qeff_RW11_2comp(Qs, sigma_s, Qg, sigma_g):
     Qeff from Romeo + Wiegert (2011) for two components
     '''
 
-    prefix = (2 * sigma_gas * sigma_s) / (sigma_gas**2 + sigma_s**2)
+    prefix = (2 * sigma_g * sigma_s) / (sigma_g**2 + sigma_s**2)
 
     Qeff = np.zeros_like(Qs)
 
     Tg = 1.5
     Ts = 1.22
 
-    Qeff[Ts * Qs >= Qg * Tg] = 1 / (prefix * Qstar**-1 + Qgas**-1)[Ts * Qs >= Qg * Tg]
-    Qeff[Ts * Qs < Qg * Tg] = 1 / (prefix * Qgas**-1 + Qstar**-1)[Ts * Qs < Qg * Tg]
+    Qeff[Ts * Qs >= Qg * Tg] = \
+        1 / (prefix * Qs**-1 + Qg**-1)[Ts * Qs >= Qg * Tg]
+    Qeff[Ts * Qs < Qg * Tg] = 1 / (prefix * Qg**-1 + Qs**-1)[Ts * Qs < Qg * Tg]
 
     return Qeff
 
+
 Qeff = Qeff_RW11_2comp(Qstar, sigma_stellar, Qgas, sigma_gas)
-Qeff_equilib = Qeff_RW11_2comp(Qstar_equilib, sigma_stellar_equilib, Qgas, sigma_gas)
+Qeff_equilib = Qeff_RW11_2comp(Qstar_equilib, sigma_stellar_equilib, Qgas,
+                               sigma_gas)
+
+# Again, assume that the second moment line width is ~50\% overestimated,
+# so divide by 2
+Qeff_2_map = Qeff_RW11_2comp(Qstar_map, sigma_stellar, Qgas_map, lwidth)
+Qeff_2_map[np.isnan(mom0.value)] = np.NaN
+
+# Save the map
+Qeff_2_hdu = fits.PrimaryHDU(Qeff_2_map.value, header=mom0.header)
+Qeff_2_hdu.header['BUNIT'] = ("", "Effective Toomre Q")
+Qeff_2_hdu.header['COMMENT'] = "Qeff from Romeo + Wiegert (2011). Using line"\
+    " width from second moment for gas dispersion."
+Qeff_2_hdu.writeto(fourteenB_HI_data_wGBT_path("M33_14B-088_HI_Qeff_map.fits",
+                                               no_check=True))
 
 onecolumn_figure()
 plt.axhline(1, color='k', linestyle='--', alpha=0.5)
@@ -216,7 +251,8 @@ Qstar_bin = ((sigma_stellar * epifreq_bin) / (np.pi * c.G * Sigma_stellar_bin)).
 Qstar_bin_equilib = ((sigma_stellar_equilib_bin * epifreq_bin) / (np.pi * c.G * Sigma_stellar_bin)).to(u.dimensionless_unscaled)
 
 Qeff_3 = Qeff_RW11_3comp(Qstar_bin, sigma_stellar, QHI, sigma_hi, QH2, sigma_h2)
-Qeff_3_equilib = Qeff_RW11_3comp(Qstar_bin_equilib, sigma_stellar_equilib_bin, QHI, sigma_hi, QH2, sigma_h2)
+Qeff_3_equilib = Qeff_RW11_3comp(Qstar_bin_equilib, sigma_stellar_equilib_bin,
+                                 QHI, sigma_hi, QH2, sigma_h2)
 
 onecolumn_figure()
 plt.axhline(1, color='k', linestyle='--', alpha=0.5)
@@ -246,6 +282,19 @@ plt.legend(frameon=True, ncol=2)
 plt.savefig(allfigs_path("toomre_q3_bins_zoom.png"))
 plt.savefig(allfigs_path("toomre_q3_bins_zoom.pdf"))
 
+# Make a full map of Qeff
+Qeff_map = np.zeros_like(radii.value)
+
+bin_low = np.arange(0., 6.6, 0.5) * u.kpc
+bin_high = np.arange(0.5, 7.1, 0.5) * u.kpc
+
+for idx, (low, high) in enumerate(zip(bin_low, bin_high)):
+
+    rad_mask = np.logical_and(radii >= low, radii <= high)
+
+    Qeff_map[rad_mask] = Qeff_3[idx]
+
+Qeff_map[Qeff_map == 0.] = np.NaN
 
 # Compare surface density thresholds
 

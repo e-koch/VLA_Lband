@@ -10,9 +10,13 @@ directories
 '''
 
 mySDM = sys.argv[-2]
-parallel_run = True if sys.argv[-2] == "T" else False
+parallel_run = True if sys.argv[-1] == "T" else False
 
 ms_active = mySDM + ".ms"
+
+print("Given inputs:")
+print("SDM: {}".format(mySDM))
+print("Make MMS: {}".format(parallel_run))
 
 importasdm(asdm=mySDM, vis=ms_active, ocorr_mode='co',
            applyflags=True, savecmds=True, tbuff=1.5,
@@ -37,7 +41,7 @@ split(vis=ms_active,
 # will fail when running fluxboot because there is no other calibration
 # field to transfer to! We can avoid this by just keeping all of the
 # fields, even if they aren't used.
-    # field="0137+331=3C48,M33_2,M33_14,M33_6,M33_7_center,M33_12,M33_11,M33_8")
+# field="0137+331=3C48,M33_2,M33_14,M33_6,M33_7_center,M33_12,M33_11,M33_8")
 
 cont_folder = parentdir + '_continuum'
 if not os.path.exists(cont_folder):

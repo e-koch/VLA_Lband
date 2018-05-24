@@ -118,8 +118,6 @@ plt.ylabel("Ratio")
 
 plt.tight_layout()
 
-print(argh)
-
 plt.savefig(allfigs_path("co_vs_hi/size_linewidth_peaksub_ratio.png"))
 plt.savefig(allfigs_path("co_vs_hi/size_linewidth_peaksub_ratio.pdf"))
 plt.close()

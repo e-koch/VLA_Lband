@@ -118,11 +118,19 @@ plt.ylabel("Ratio")
 
 plt.tight_layout()
 
+print(argh)
+
 plt.savefig(allfigs_path("co_vs_hi/size_linewidth_peaksub_ratio.png"))
 plt.savefig(allfigs_path("co_vs_hi/size_linewidth_peaksub_ratio.pdf"))
 plt.close()
 
 onecolumn_figure()
+
+# Long legend requires a slightly larger figure
+plt.figure(figsize=(4.5, 3.24))
+
+# Need some extra colors
+sb.set_palette('colorblind', n_colors=8)
 
 cpal = sb.color_palette()
 
@@ -137,10 +145,23 @@ plt.errorbar([80, 160, 380], [4.5, 6.0, 7.25], yerr=[1.3] * 3, color=cpal[2],
 plt.errorbar([80, 160, 380], [6.6, 8.0, 8.9], yerr=[0.1] * 3, color=cpal[2],
              fmt='o', label='M33 HI Width')
 # Show the mean value from Fukui+09
-plt.errorbar([40], [14.1 / 2.35], yerr=[3.3 / 2.35], fmt='s', label='LMC HI Avg.',
+plt.errorbar([40], [14.1 / 2.35], yerr=[3.3 / 2.35], fmt='s',
+             label='LMC HI Avg.',
              color=cpal[3])
-plt.errorbar([40], [4.6 / 2.35], yerr=[1.6 / 2.35], fmt='X', label='LMC CO(1-0) Avg.',
+plt.errorbar([40], [4.6 / 2.35], yerr=[1.6 / 2.35], fmt='X',
+             label='LMC CO(1-0) Avg.',
              color=cpal[3])
+
+# Narrow line width in M31 from Caldu-Primo + Schruba 2016
+plt.errorbar([85], [7.5 / 2.35], yerr=[0.4], fmt='X', label='M31 CO(1-0) Stack',
+             color=cpal[5])
+
+# NGC 2403 CO and HI from Caldu-Primo+2013
+plt.errorbar([200], [11.5], yerr=[1.0], fmt='s', label='NGC 2403 HI Avg.',
+             color=cpal[7])
+plt.errorbar([200], [9.2], yerr=[1.5], fmt='X', label='NGC 2403 CO(2-1) Avg.',
+             color=cpal[7])
+
 plt.grid()
 plt.legend(frameon=True)
 plt.xlabel("Scale (pc)")

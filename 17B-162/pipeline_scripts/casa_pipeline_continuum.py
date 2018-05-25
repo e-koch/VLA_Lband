@@ -14,6 +14,9 @@ __rethrow_casa_exceptions = True
 context = h_init()
 context.set_state('ProjectSummary', 'observatory', 'Karl G. Jansky Very Large Array')
 context.set_state('ProjectSummary', 'telescope', 'EVLA')
+context.set_state('ProjectSummary', 'proposal_code', '17B-162')
+context.set_state('ProjectSummary', 'piname', 'Eric Koch')
+
 try:
     hifv_importdata(ocorr_mode='co', nocopy=False, vis=[mySDM],
                     createmms='automatic', asis='Receiver CalAtmosphere',
@@ -40,35 +43,21 @@ try:
                   *UNSPECIFIED#UNSPECIFIED*',
                   flagbackup=False, scan=True, baseband=True, clip=True,
                   autocorr=True,
-                  hm_tbuff='1.5int', template=True, online=False, tbuff=0.0,
+                  hm_tbuff='1.5int', template=True,
+                  filetemplate="additional_flagging.txt",
+                  online=False, tbuff=0.0,
                   fracspw=0.05, shadow=True, quack=True, edgespw=True)
-    # The template output fails for some reason in the above command. Probably
-    # due to pre-splitting cont/lines before running.
-    # May leave scratch.g around, screwing up further steps
-    try:
-        os.remove("scratch.g")
-    except Exception:
-        pass
-
     hifv_vlasetjy(fluxdensity=-1, scalebychan=True, reffreq='1GHz', spix=0)
     hifv_priorcals(tecmaps=False)
-    hifv_testBPdcals(weakbp=False)
+    hifv_testBPdcals(weakbp=False, refantignore='ea24')
     hifv_flagbaddef(pipelinemode="automatic")
     hifv_checkflag(pipelinemode="automatic")
-    hifv_semiFinalBPdcals(weakbp=False)
+    hifv_semiFinalBPdcals(weakbp=False, refantignore='ea24')
     hifv_checkflag(checkflagmode='semi')
-    hifv_semiFinalBPdcals(weakbp=False)
-    try:
-        os.remove("scratch.g")
-    except Exception:
-        pass
-    hifv_solint(pipelinemode="automatic")
-    hifv_fluxboot(pipelinemode="automatic")
-    try:
-        os.remove("scratch.g")
-    except Exception:
-        pass
-    hifv_finalcals(weakbp=False)
+    hifv_semiFinalBPdcals(weakbp=False, refantignore='ea24')
+    hifv_solint(pipelinemode="automatic", refantignore='ea24')
+    hifv_fluxboot(pipelinemode="automatic", refantignore='ea24')
+    hifv_finalcals(weakbp=False, refantignore='ea24')
     hifv_applycals(flagdetailedsum=True, flagbackup=True, calwt=[True],
                    flagsum=True, gainmap=False)
     hifv_targetflag(intents='*CALIBRATE*,*TARGET*')

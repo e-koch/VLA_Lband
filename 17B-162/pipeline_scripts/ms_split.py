@@ -37,15 +37,16 @@ copyfile(source_path, lines_folder + "/cont.dat")
 
 # Check for a flag template and copy if in the repo
 # Naming conventions is 17B-162_month_day_year_lines_flags.txt
-flag_filename = "{}_line_flags.txt".format(parentdir)
+flag_filename = "{}_lines_flags.txt".format(parentdir)
 flag_path = os.path.expanduser("~/Dropbox/code_development/VLA_Lband/17B-162/pipeline_scripts/track_flagging")
 full_flag_filename = os.path.join(flag_path, flag_filename)
+
 if os.path.exists(full_flag_filename):
     copyfile(full_flag_filename,
              os.path.join(lines_folder, "additional_flagging.txt"))
 else:
-    logprint("No additional flagging script found in the VLA_Lband repo"
-             " for lines.")
+    print("No additional flagging script found in the VLA_Lband repo"
+          " for lines.")
 
 split(vis=ms_active,
       outputvis=lines_folder + "/" + mySDM + ".speclines.ms",
@@ -70,8 +71,8 @@ if os.path.exists(full_flag_filename):
     copyfile(full_flag_filename,
              os.path.join(cont_folder, "additional_flagging.txt"))
 else:
-    logprint("No additional flagging script found in the VLA_Lband repo"
-             " for continuum.")
+    print("No additional flagging script found in the VLA_Lband repo"
+          " for continuum.")
 
 split(vis=ms_active,
       outputvis=cont_folder + "/" + mySDM + ".continuum.ms",

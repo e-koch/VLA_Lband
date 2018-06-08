@@ -192,9 +192,12 @@ plt.errorbar([200], ngc2403_widths[3:, 1].mean(),
 print("NGC 2403 HI: {0}+/-{1}".format(ngc2403_widths[3:, 0].mean(),
                                       np.sqrt(hi_err**2 +
                                               ngc2403_widths[3:, 0].std()**2)))
+# NGC 2403 HI: 10.9833333333+/-1.2433154601
+
 print("NGC 2403 CO: {0}+/-{1}".format(ngc2403_widths[3:, 1].mean(),
                                       np.sqrt(co_err**2 +
                                               ngc2403_widths[3:, 1].std()**2)))
+# NGC 2403 CO: 9.0+/-3.28633534503
 
 plt.grid()
 plt.legend(frameon=True)

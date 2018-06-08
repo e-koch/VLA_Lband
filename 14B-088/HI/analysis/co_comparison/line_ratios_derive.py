@@ -118,8 +118,8 @@ plt.ylabel("Ratio")
 
 plt.tight_layout()
 
-plt.savefig(allfigs_path("co_vs_hi/size_linewidth_peaksub_ratio.png"))
-plt.savefig(allfigs_path("co_vs_hi/size_linewidth_peaksub_ratio.pdf"))
+# plt.savefig(allfigs_path("co_vs_hi/size_linewidth_peaksub_ratio.png"))
+# plt.savefig(allfigs_path("co_vs_hi/size_linewidth_peaksub_ratio.pdf"))
 plt.close()
 
 onecolumn_figure()
@@ -155,10 +155,46 @@ plt.errorbar([85], [7.5 / 2.35], yerr=[0.4], fmt='X', label='M31 CO(1-0) Stack',
              color=cpal[5])
 
 # NGC 2403 CO and HI from Caldu-Primo+2013
-plt.errorbar([200], [11.5], yerr=[1.0], fmt='s', label='NGC 2403 HI Avg.',
+ngc2403_widths = np.array([[12.3, 15.3, 0.8],
+                           [12.0, 16.4, 0.7],
+                           [12.4, 14.2, 0.9],
+                           [12.4, 11.1, 1.1],
+                           [12.2, 9.9, 1.2],
+                           [12.2, 10.3, 1.2],
+                           [12.1, 9.1, 1.3],
+                           [11.1, 8.8, 1.3],
+                           [10.7, 9.1, 1.2],
+                           [11.2, 9.4, 1.2],
+                           [10.6, 8.2, 1.3],
+                           [10.7, 7.6, 1.4],
+                           [10.5, 8.4, 1.2],
+                           [10.8, 8.7, 1.2],
+                           [10.6, 8.3, 1.3],
+                           [10.3, 6.7, 1.5],
+                           [10.8, 9.6, 1.1],
+                           [10.2, 9.8, 1.0],
+                           [10.8, 7.6, 1.4],
+                           [10.8, 7.2, 1.5],
+                           [9.7, 12.2, 0.8]])
+hi_err = 1.0
+co_err = 3.0
+
+# Exclude inner points that are likely affected by beam smearing
+plt.errorbar([200], ngc2403_widths[3:, 0].mean(),
+             yerr=np.sqrt(hi_err**2 + ngc2403_widths[3:, 0].std()**2),
+             fmt='s', label='NGC 2403 HI Avg.',
              color=cpal[7])
-plt.errorbar([200], [9.2], yerr=[1.5], fmt='X', label='NGC 2403 CO(2-1) Avg.',
+plt.errorbar([200], ngc2403_widths[3:, 1].mean(),
+             yerr=np.sqrt(co_err**2 + ngc2403_widths[3:, 1].std()**2),
+             fmt='X', label='NGC 2403 CO(2-1) Avg.',
              color=cpal[7])
+
+print("NGC 2403 HI: {0}+/-{1}".format(ngc2403_widths[3:, 0].mean(),
+                                      np.sqrt(hi_err**2 +
+                                              ngc2403_widths[3:, 0].std()**2)))
+print("NGC 2403 CO: {0}+/-{1}".format(ngc2403_widths[3:, 1].mean(),
+                                      np.sqrt(co_err**2 +
+                                              ngc2403_widths[3:, 1].std()**2)))
 
 plt.grid()
 plt.legend(frameon=True)

@@ -34,8 +34,23 @@ try:
     flag_str = ",".join([spw2, spw3, spw5, spw7])
     flagdata(vis=myvis, spw=flag_str, flagbackup=False)
 
+    # Add extra quack for the first 3C48 scan and scans after longer slews
+    # May need to be adjusted for this. Seem to need ~30 s more after online
+    # flags indicate
+    flagdata(vis=myvis, flagbackup=False, mode='quack', scan='2',
+             quackinterval=270.0)
+    flagdata(vis=myvis, flagbackup=False, mode='quack',
+             scan='3,11,19,27,35,43,51,5967,75,83,91,99',
+             quackinterval=14.0)
+    flagdata(vis=myvis, flagbackup=False, mode='quack',
+             scan='100',
+             quackinterval=70.0)
+    flagdata(vis=myvis, flagbackup=False, mode='quack',
+             scan='100,101',
+             quackinterval=100.0)
+
     flagmanager(vis=myvis, mode='save', versionname="known_RFI",
-                comment="Removal of constant L-band RFI in 17B.")
+                comment="Removal of constant L-band RFI in 17B + Extra long-slew quacking.")
 
     # Online flags applied when importing ASDM
     hifv_flagdata(intents='*POINTING*,*FOCUS*,*ATMOSPHERE*,*SIDEBAND_RATIO*, \

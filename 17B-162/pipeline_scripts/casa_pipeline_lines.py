@@ -7,6 +7,7 @@ import numpy as np
 from tasks import plotms
 
 mySDM = sys.argv[-1]
+myvis = mySDM if mySDM.endswith("ms") else mySDM + ".ms"
 
 if not os.path.exists("cont.dat"):
     raise ValueError("The cont.dat file is not in the pipeline directory.")
@@ -36,6 +37,24 @@ try:
                   filetemplate="additional_flagging.txt",
                   online=False, tbuff=0.0, fracspw=0.05,
                   shadow=True, quack=True, edgespw=True)
+    # Add extra quack for the first 3C48 scan and scans after longer slews
+    # May need to be adjusted for this. Seem to need ~30 s more after online
+    # flags indicate
+    flagdata(vis=myvis, flagbackup=False, mode='quack', scan='2',
+             quackinterval=270.0)
+    flagdata(vis=myvis, flagbackup=False, mode='quack',
+             scan='3,11,19,27,35,43,51,5967,75,83,91,99',
+             quackinterval=14.0)
+    flagdata(vis=myvis, flagbackup=False, mode='quack',
+             scan='100',
+             quackinterval=70.0)
+    flagdata(vis=myvis, flagbackup=False, mode='quack',
+             scan='100,101',
+             quackinterval=100.0)
+
+    flagmanager(vis=myvis, mode='save', versionname="extra_quacking",
+                comment="Extra long-slew quacking.")
+
     hifv_vlasetjy(fluxdensity=-1, scalebychan=True, reffreq='1GHz', spix=0)
     hifv_priorcals(tecmaps=False)
     hifv_testBPdcals(weakbp=False, refantignore='ea24')

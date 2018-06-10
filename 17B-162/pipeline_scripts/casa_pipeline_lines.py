@@ -43,7 +43,7 @@ try:
     flagdata(vis=myvis, flagbackup=False, mode='quack', scan='2',
              quackinterval=270.0)
     flagdata(vis=myvis, flagbackup=False, mode='quack',
-             scan='3,11,19,27,35,43,51,5967,75,83,91,99',
+             scan='3,11,19,27,35,43,51,59,67,75,83,91,99',
              quackinterval=14.0)
     flagdata(vis=myvis, flagbackup=False, mode='quack',
              scan='100',
@@ -227,7 +227,7 @@ for spw_num in spws:
     # Plotting the HI spw (0) takes so so long.
     # Make some simplifications to save time
     if spw_num == 0:
-        avg_chan = "16"
+        avg_chan = "4"
     else:
         avg_chan = "1"
 

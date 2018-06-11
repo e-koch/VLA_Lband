@@ -1,0 +1,22 @@
+# Flags for line SPWs of 17B-162.sb34293636.eb34601252.58042.33489737268
+# Substantial amp-time variable in the gain cal.
+mode='manual' antenna='ea24'
+
+# Poor Gain amp cal.
+mode='manual' scan='75' antenna='ea23'
+
+# Poor gain phase cal.
+mode='manual' scan='43' antenna='ea21'
+
+mode='manual' scan='12' timerange='<08:36:30'
+mode='manual' scan='36' timerange='<09:45:25'
+mode='manual' scan='52' timerange='<10:31:20'
+mode='manual' scan='92' timerange='<12:26:15'
+
+
+mode='manual' scan='73' timerange='<11:33:10'
+
+mode='manual' scan='28' spw='3' timerange='>09:24:10'
+mode='manual' scan='87' spw='3' timerange='>12:14:00'
+mode='manual' scan='80' spw='3' timerange='>11:54:10'
+mode='manual' scan='77' spw='3' timerange='>11:45:40'

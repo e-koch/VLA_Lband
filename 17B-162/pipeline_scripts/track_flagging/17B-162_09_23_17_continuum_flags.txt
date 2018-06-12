@@ -17,33 +17,33 @@ mode='manual' scan='84' timerange="<06:55:25"
 
 # Something to eventually check is whether any of the ripples occasionally seen in these scans are from the calibration ripples.
 
-mode='manual' spw='2' scan='4,6,12,7,9,32,5' channel='74~83'
-mode='manual' spw='2' scan='20,22,28,30,44,52,54,60,62,68,76,70,78,94,86,23,31,66,74,82,39,47,79,87,18,26,42,50,58,9,17,25,33,41,49,57,81,16,24,40,48,72,80,88,21,29,37,53,61,69,77,93' channel='20~45'
-mode='manual' spw='2' scan='65' channel='95~105'
-mode='manual' spw='2' scan='73,16,48' channel='95~125'
-mode='manual' spw='2' scan='40' channel='50~85'
+mode='manual' spw='2:74~83' scan='4,6,12,7,9,32,5'
+mode='manual' spw='2:20~45' scan='20,22,28,30,44,52,54,60,62,68,76,70,78,94,86,23,31,66,74,82,39,47,79,87,18,26,42,50,58,9,17,25,33,41,49,57,81,16,24,40,48,72,80,88,21,29,37,53,61,69,77,93
+mode='manual' spw='2:95~105' scan='65'
+mode='manual' spw='2:95~125' scan='73,16,48'
+mode='manual' spw='250~85' scan='40'
 
-mode='manual' spw='3' scan='9,24' channel='60~80'
-mode='manual' spw='3' scan='17,16,48' channel='15~40'
-mode='manual' spw='3' scan='33,65,8,16' channel='45~70'
-mode='manual' spw='3' scan='32,48' channel='70~100'
-mode='manual' spw='3' scan='88' channel='40~80'
+mode='manual' spw='3:60~80' scan='9,24'
+mode='manual' spw='3:15~40' scan='17,16,48'
+mode='manual' spw='3:45~70' scan='33,65,8,16'
+mode='manual' spw='3:70~100' scan='32,48'
+mode='manual' spw='3:40~80' scan='88'
 mode='manual' spw='3' scan='73,97,40,80,96'
 
-mode='manual' spw='5' scan='6,22' channel='15~25'
+mode='manual' spw='5:15~25' scan='6,22'
 mode='manual' spw='5' scan='6' timerange='03:13:00~03:13:20'
-mode='manual' spw='5' scan='22,8,21' channel='69~77'
-mode='manual' spw='5' scan='54,82,57,5,85' channel='0~10'
+mode='manual' spw='5:69~77' scan='22,8,21'
+mode='manual' spw='5:0~10' scan='54,82,57,5,85'
 mode='manual' spw='5' scan='54' timerange='>05:31:20'
 mode='manual' spw='5' scan='82' timerange='>06:52:00'
-mode='manual' spw='5' scan='73' channel='0~20'
+mode='manual' spw='5:0~20' scan='73'
 mode='manual' spw='5' scan='97' timerange='07:35:40~07:35:20'
-mode='manual' spw='5' scan='48,56' channel='95~125'
-mode='manual' spw='5' scan='80' channel='40~55'
-mode='manual' spw='5' scan='88' channel='0~30'
+mode='manual' spw='5:95~125' scan='48,56'
+mode='manual' spw='5:40~55' scan='80'
+mode='manual' spw='5:0~30' scan='88'
 
-mode='manual' spw='6' scan='16' channel='0~40'
-mode='manual' spw='6' scan='25' channel='60~80'
+mode='manual' spw='6:0~40' scan='16'
+mode='manual' spw='6:60~80' scan='25'
 mode='manual' spw='6' scan='56'
 
 # SPW 7 has several bad baselines through the phase scans. Consider flagging all if rerunning pipeline with extra flagging does not help

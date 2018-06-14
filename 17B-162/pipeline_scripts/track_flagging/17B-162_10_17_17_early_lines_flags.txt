@@ -14,15 +14,20 @@ mode='manual' scan='20' timerange='<02:12:10'
 mode='manual' scan='28' timerange='<02:35:10'
 mode='manual' scan='92' timerange='<05:39:10'
 
+mode='manual' scan='71'
+
+mode='manual' spw='1' scan='16' antenna='ea01&&ea08'
 mode='manual' spw='1' scan='85' timerange='05:20:20~05:20:30'
 
 mode='manual' spw='3' scan='3' timerange='<01:25:20'
 mode='manual' spw='3' scan='38' timerange='>03:06:00'
 mode='manual' spw='3' scan='41' timerange='>03:15:20'
 mode='manual' spw='3' scan='65' timerange='>04:24:50'
-mode='manual' spw='3' scan='72' timerange='04:43:40~04:44:30'
+mode='manual' spw='3' scan='72,94'
 mode='manual' spw='3' scan='45' timerange='<03:25:20'
 
 mode='manual' spw='4' scan='73' timerange='04:46:50~04:47:10'
+
+mode='manual' spw='1~9' scan='94'
 
 

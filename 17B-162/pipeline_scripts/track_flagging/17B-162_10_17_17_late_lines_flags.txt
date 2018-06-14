@@ -7,9 +7,12 @@ mode='manual' scan='60' timerange="<10:48:30"
 mode='manual' scan='84' timerange="<11:57:25"
 mode='manual' scan='92' timerange="<12:20:25"
 
+mode='manual' scan='60' timerange="<10:48:30"
+
 mode='manual' spw='3' scan='28' timerange=">09:18:00"
-mode='manual' spw='3' scan='84' timerange=">11:59:00"
 mode='manual' spw='3' scan='75' timerange="<11:31:30"
-mode='manual' spw='3' scan='80'
+mode='manual' spw='3' scan='80,84'
+
+mode='manual' scan='20' antenna='ea01'
 
 

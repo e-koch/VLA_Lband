@@ -19,7 +19,7 @@ mode='manual' spw='3' scan='89' timerange="06:32:30~06:34:00"
 mode='manual' spw='3' scan='64' timerange=">05:22:20"
 mode='manual' spw='3' scan='61' timerange=">05:13:10"
 
-mode='manual' spw='7' scan='89'
+mode='manual' spw='3,7' scan='89'
 
 mode='manual' spw='8' scan='62' timerange="<05:14:00"
 

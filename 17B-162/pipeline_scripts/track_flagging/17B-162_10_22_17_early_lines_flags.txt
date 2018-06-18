@@ -1,0 +1,22 @@
+# Flags for line SPWs of 17B-162.sb34051874.eb34620290.58048.0411411574
+# No ea15 in whole observation
+
+# Substantial amp-time variable in the gain cal.
+mode='manual' antenna='ea19,ea24'
+
+# Bad amp at beginning. But the phase scatter grows at the end
+mode='manual' scan='99' timerange='<05:45:20'
+mode='manual' scan='99' timerange='>05:45:45'
+
+
+mode='manual' scan='4' timerange='<01:10:20'
+mode='manual' scan='20' timerange='<01:56:20'
+mode='manual' scan='28' timerange='<02:19:20'
+mode='manual' scan='16' timerange='>01:48:50'
+
+mode='manual' scan='39' spw='3' timerange='>02:53:40'
+mode='manual' scan='33' spw='3' timerange='<02:37:00'
+mode='manual' scan='37' spw='3' timerange='<02:46:00'
+mode='manual' scan='61' spw='3' timerange='<03:55:50'
+
+

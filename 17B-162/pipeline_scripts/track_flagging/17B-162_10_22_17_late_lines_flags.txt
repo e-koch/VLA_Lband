@@ -1,0 +1,20 @@
+# Flags for line SPWs of 17B-162.sb34293636.eb34620658.58048.32964618056
+# No ea15 in whole observation
+
+# Substantial amp-time variable in the gain cal.
+mode='manual' antenna='ea24'
+
+mode='manual' scan='20' timerange='<08:51:45'
+mode='manual' scan='36' timerange='<09:37:50'
+mode='manual' scan='52' timerange='<10:23:50'
+mode='manual' scan='84' timerange='<11:55:45'
+mode='manual' scan='92' timerange='<12:18:45'
+
+mode='manual' scan='70' timerange='>11:17:50'
+mode='manual' scan='15' timerange='<08:39:40'
+mode='manual' scan='18' timerange='<08:48:40'
+mode='manual' scan='64' timerange='<11:01:15'
+mode='manual' scan='21' timerange='>08:56:50'
+
+
+

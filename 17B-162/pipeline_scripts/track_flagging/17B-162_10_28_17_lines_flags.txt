@@ -1,0 +1,24 @@
+# Flags for line SPWs of 17B-162.sb34051874.eb34635762.58054.009438877314
+# No ea21. Has ea28 instead
+
+# Substantial amp-time variable in the gain cal.
+mode='manual' antenna='ea24'
+
+mode='manual' scan='4' timerange='<00:24:55'
+mode='manual' scan='12' timerange='<00:47:55'
+mode='manual' scan='20' timerange='<01:10:50'
+mode='manual' scan='28' timerange='<01:33:50'
+mode='manual' scan='36' timerange='<01:56:50'
+mode='manual' scan='76' timerange='<03:51:48'
+
+mode='manual' scan='67' timerange='<03:28:03'
+
+mode='manual' scan='36' spw='3' timerange='>01:59:45'
+mode='manual' scan='70' spw='3' timerange='>03:37:20'
+mode='manual' scan='31' spw='3,4,6' timerange='<01:44:10'
+mode='manual' scan='39' spw='3' timerange='>02:08:40'
+mode='manual' scan='42' spw='3' timerange='>02:17:20'
+mode='manual' scan='64' spw='3' timerange='<03:19:00'
+mode='manual' scan='37' spw='3' timerange='<02:00:30'
+
+

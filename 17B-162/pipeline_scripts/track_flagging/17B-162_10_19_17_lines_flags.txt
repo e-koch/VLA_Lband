@@ -1,0 +1,20 @@
+# Flags for line SPWs of 17B-162.sb34293636.eb34618017.58045.33243515046
+# Note that ea06 and ea26 were dropped for the whole track.
+
+# Substantial amp-time variable in the gain cal.
+mode='manual' antenna='ea24'
+
+mode='manual' scan='2' timerange='<08:07:10'
+
+mode='manual' scan='28' timerange='<09:20:35'
+mode='manual' scan='44' timerange='<10:06:30'
+mode='manual' scan='68' timerange='<11:15:25'
+mode='manual' scan='76' timerange='<11:38:25'
+
+mode='manual' spw='3' scan='22' timerange='>09:05:55'
+mode='manual' spw='3' scan='78' timerange='<11:46:30'
+mode='manual' spw='3' scan='23' timerange='<09:07:20'
+mode='manual' spw='3' scan='74' timerange='>11:36:10'
+mode='manual' spw='3' scan='81' timerange='<11:55:40'
+mode='manual' spw='3' scan='69' timerange='<11:19:30'
+

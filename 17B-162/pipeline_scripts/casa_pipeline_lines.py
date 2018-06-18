@@ -55,6 +55,12 @@ try:
     flagmanager(vis=myvis, mode='save', versionname="extra_quacking",
                 comment="Extra long-slew quacking.")
 
+    # Bad solutions for all tracks with ea24. Just flag it altogether.
+    default('flagdata')
+    flagdata(vis=myvis, mode='manual', antenna='ea24', flagbackup=False)
+    flagmanager(vis=myvis, mode='save', versionname="flag_ea24",
+                comment="Poor cal solutions from ea24.")
+
     hifv_vlasetjy(fluxdensity=-1, scalebychan=True, reffreq='1GHz', spix=0)
     hifv_priorcals(tecmaps=False)
     hifv_testBPdcals(weakbp=False, refantignore='ea24')

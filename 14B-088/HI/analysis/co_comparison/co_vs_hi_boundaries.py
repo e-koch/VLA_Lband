@@ -189,6 +189,29 @@ fig.savefig(osjoin(fig_path, "mask_edge_img_vel_minus196.pdf"))
 fig.savefig(osjoin(fig_path, "mask_edge_img_vel_minus196.png"))
 fig.close()
 
+# Make a version with the skeleton instead of the mask
+mpl_fig = p.figure()
+
+spatial_slice = (slice(720, 900), slice(350, 750))
+
+fig = FITSFigure((hi_cube[47][spatial_slice] * hi_beam.jtok(hi_freq).value).hdu,
+                 figure=mpl_fig)
+fig.show_grayscale(invert=True, vmin=None, vmax=80, stretch='sqrt')
+fig.add_colorbar()
+fig.colorbar.set_axis_label_text("HI Intensity (K)")
+fig.show_contour(fits.PrimaryHDU(medial_axis(masks[40]).astype(int),
+                                 hi_cube[0].header),
+                 colors=[sb.color_palette()[-1]], levels=[0.5])
+fig.show_contour(co_cube[47][spatial_slice].hdu, cmap='autumn',
+                 levels=[0.05, 0.1, 0.2, 0.3])
+fig.hide_axis_labels()
+
+p.tight_layout()
+
+fig.savefig(osjoin(fig_path, "mask_skel_img_vel_minus196.pdf"))
+fig.savefig(osjoin(fig_path, "mask_skel_img_vel_minus196.png"))
+fig.close()
+
 # Now bin all of the distances against the HI and CO intensities.
 bins = np.arange(-30, 30, 1)
 hi_vals, bin_edges, bin_num = \
@@ -589,18 +612,20 @@ p.close()
 
 
 # Find the HWHM points for the radial profiles
-def find_hwhm(x, y):
+def find_perc_width(x, y, level=0.5):
     '''
     Return the equivalent Gaussian sigma based on the HWHM positions.
     '''
     from scipy.interpolate import InterpolatedUnivariateSpline
+
+    assert (level > 0.) & (level < 1.)
 
     # Assume that the profile peaks at the centre and monotonically
     # decreases. This is true for our comparisons here.
     peak = y.max()
     bkg = np.mean(y[-5:])
 
-    halfmax = (peak - bkg) * 0.5
+    halfmax = (peak - bkg) * level
 
     # Model the spectrum with a spline
     # x values must be increasing for the spline, so flip if needed.
@@ -610,16 +635,27 @@ def find_hwhm(x, y):
     if len(hwhm_points) < 1:
         raise ValueError("Didn't find HWHM!")
     elif len(hwhm_points) > 1:
-        hwhm_points = (min(hwhm_points))
+        hwhm_points = [min(hwhm_points)]
 
     return hwhm_points[0]
 
 
-co_hwhm = find_hwhm(bin_centers, co_mean) * phys_conv.value
-hi_hwhm = find_hwhm(bin_centers, hi_mean) * phys_conv.value
+co_hwhm = find_perc_width(bin_centers, co_mean) * phys_conv.value
+hi_hwhm = find_perc_width(bin_centers, hi_mean) * phys_conv.value
+
+# Widths at the 25 and 75th percentiles between peak and bkg.
+co_lowq = find_perc_width(bin_centers, co_mean, level=0.25) * phys_conv.value
+hi_lowq = find_perc_width(bin_centers, hi_mean, level=0.25) * phys_conv.value
+co_highq = find_perc_width(bin_centers, co_mean, level=0.75) * phys_conv.value
+hi_highq = find_perc_width(bin_centers, hi_mean, level=0.75) * phys_conv.value
+
 
 print(co_hwhm, hi_hwhm)
 # (67.480769229465864, 100.43889752239386)
+print(co_lowq, hi_lowq)
+# (103.06346550608011, 169.52993127884227)
+print(co_highq, hi_highq)
+# (40.128517012921016, 56.468698633140313)
 
 onecolumn_figure()
 
@@ -660,6 +696,10 @@ p.close()
 # Split the profiles by radius
 hi_hwhms = []
 co_hwhms = []
+hi_lowqs = []
+co_lowqs = []
+hi_highqs = []
+co_highqs = []
 
 twocolumn_figure()
 p.figure(1, figsize=(8.4, 11)).clf()
@@ -711,11 +751,24 @@ for ctr, (r0, r1) in enumerate(zip(inneredge,
     bin_width = (bin_edges[1] - bin_edges[0])
     bin_centers = bin_edges[1:] - bin_width / 2
 
-    co_hwhm_rad = find_hwhm(bin_centers, co_mean_rad) * phys_conv.value
-    hi_hwhm_rad = find_hwhm(bin_centers, hi_mean_rad) * phys_conv.value
+    co_hwhm_rad = find_perc_width(bin_centers, co_mean_rad) * phys_conv.value
+    hi_hwhm_rad = find_perc_width(bin_centers, hi_mean_rad) * phys_conv.value
+
+    co_lowq_rad = find_perc_width(bin_centers, co_mean_rad,
+                                  level=0.25) * phys_conv.value
+    hi_lowq_rad = find_perc_width(bin_centers, hi_mean_rad,
+                                  level=0.25) * phys_conv.value
+    co_highq_rad = find_perc_width(bin_centers, co_mean_rad,
+                                   level=0.75) * phys_conv.value
+    hi_highq_rad = find_perc_width(bin_centers, hi_mean_rad,
+                                   level=0.75) * phys_conv.value
 
     co_hwhms.append(co_hwhm_rad)
     hi_hwhms.append(hi_hwhm_rad)
+    co_lowqs.append(co_lowq_rad)
+    hi_lowqs.append(hi_lowq_rad)
+    co_highqs.append(co_highq_rad)
+    hi_highqs.append(hi_highq_rad)
 
     ax[r, c].axvline(hi_hwhm_rad, linestyle='-', color=col_pal[0],
                      linewidth=3, alpha=0.6)
@@ -764,13 +817,24 @@ p.close()
 # Look at the HWHM with radius
 
 onecolumn_figure()
-p.plot(inneredge.value / 1000. + 0.25, hi_hwhms, label='HI',
-       drawstyle='steps-mid')
-p.plot(inneredge.value / 1000. + 0.25, co_hwhms, label='CO',
-       drawstyle='steps-mid')
+p.plot(inneredge.value / 1000. + 0.25, hi_lowqs, label='HI 25\%',
+       drawstyle='steps-mid', color=col_pal[0], linestyle='--')
+p.plot(inneredge.value / 1000. + 0.25, co_lowqs, label='CO 25\%',
+       drawstyle='steps-mid', color=col_pal[1], linestyle='--')
+
+p.plot(inneredge.value / 1000. + 0.25, hi_hwhms, label='HI 50\%',
+       drawstyle='steps-mid', color=col_pal[0], linewidth=3)
+p.plot(inneredge.value / 1000. + 0.25, co_hwhms, label='CO 50\%',
+       drawstyle='steps-mid', color=col_pal[1], linewidth=3)
+
+p.plot(inneredge.value / 1000. + 0.25, hi_highqs, label='HI 75\%',
+       drawstyle='steps-mid', color=col_pal[0], linestyle='-.')
+p.plot(inneredge.value / 1000. + 0.25, co_highqs, label='CO 75\%',
+       drawstyle='steps-mid', color=col_pal[1], linestyle='-.')
 p.grid()
-p.legend(frameon=True)
-p.ylabel("HWHM (pc)")
+p.xlim([-0.2, 8.5])
+p.legend(frameon=True, loc='center right')
+p.ylabel("Width (pc)")
 p.xlabel("Galactocentric Radius (kpc)")
 p.tight_layout()
 
@@ -784,7 +848,12 @@ radbin_centers = Column((inneredge.value + 250) / 1000., unit=u.kpc,
                         name='bin_cent')
 hi_hwhms = Column(hi_hwhms, unit=u.pc, name='hi_hwhm')
 co_hwhms = Column(co_hwhms, unit=u.pc, name='co_hwhm')
-tab = Table([radbin_centers, hi_hwhms, co_hwhms])
+hi_lowqs = Column(hi_lowqs, unit=u.pc, name='hi_25')
+co_lowqs = Column(co_lowqs, unit=u.pc, name='co_25')
+hi_highqs = Column(hi_highqs, unit=u.pc, name='hi_75')
+co_highqs = Column(co_highqs, unit=u.pc, name='co_75')
+
+tab = Table([radbin_centers, hi_hwhms, co_hwhms, hi_lowqs, co_lowqs, hi_highqs, co_highqs])
 
 tab.write(fourteenB_HI_data_wGBT_path("tables/skeleton_profile_radial_hwhm.fits", no_check=True))
 

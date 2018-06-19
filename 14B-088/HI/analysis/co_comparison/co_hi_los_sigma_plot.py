@@ -7,6 +7,7 @@ amongst the aggregate distribution.
 import numpy as np
 from astropy.io import fits
 from astropy.wcs import WCS
+from spectral_cube import Projection
 import astropy.units as u
 import matplotlib.pyplot as plt
 from astropy.visualization import AsinhStretch
@@ -39,6 +40,8 @@ cosinc = np.cos(gal.inclination.to(u.rad)).value
 moment0 = fits.open(fourteenB_wGBT_HI_file_dict["Moment0"])[0]
 moment0_wcs = WCS(moment0.header)
 
+mom0_proj = Projection.from_hdu(moment0)
+
 beam = Beam.from_fits_header(moment0.header)
 
 # Convert to K km s and correct for disk inclination.
@@ -57,7 +60,7 @@ onecolumn_twopanel_figure()
 img_slice = (slice(902, 1084), slice(400, 650))
 offset = [902, 400]
 
-ax = plt.subplot(211)
+ax = plt.subplot(211, projection=mom0_proj[img_slice].wcs)
 im = ax.imshow(moment0_coldens[img_slice],
                origin='lower',
                interpolation='nearest',
@@ -65,11 +68,10 @@ im = ax.imshow(moment0_coldens[img_slice],
                norm=ImageNormalize(vmin=-0.001,
                                    vmax=np.nanmax(moment0_coldens),
                                    stretch=AsinhStretch()))
-ax.set_ylabel("")
-ax.set_xlabel("")
 
-ax.get_xaxis().set_ticks([])
-ax.get_yaxis().set_ticks([])
+lon = ax.coords[0]
+lon.set_major_formatter('hh:mm:ss')
+
 
 ax.contour(np.isfinite(co_moment0.data[img_slice]).astype(float), levels=[0.5],
            colors=sb.color_palette('viridis')[:1],

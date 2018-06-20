@@ -36,10 +36,13 @@ print("Given inputs:")
 print("SDM: {}".format(mySDM))
 print("Make MMS: {}".format(parallel_run))
 
-importasdm(asdm=mySDM, vis=ms_active, ocorr_mode='co',
-           applyflags=True, savecmds=True, tbuff=1.5,
-           outfile='{}.flagonline.txt'.format(mySDM),
-           createmms=parallel_run)
+if not os.path.exists(ms_active):
+    importasdm(asdm=mySDM, vis=ms_active, ocorr_mode='co',
+               applyflags=True, savecmds=True, tbuff=1.5,
+               outfile='{}.flagonline.txt'.format(mySDM),
+               createmms=parallel_run)
+else:
+    print("MS already exists. Skipping importasdm")
 
 parentdir = os.getcwd().split("/")[-1]
 

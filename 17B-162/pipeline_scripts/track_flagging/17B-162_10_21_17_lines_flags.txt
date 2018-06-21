@@ -9,7 +9,7 @@ mode='manual' scan='52' timerange='<10:58:20'
 mode='manual' scan='76' timerange='<12:07:15'
 mode='manual' scan='84' timerange='<12:30:15'
 
-mode='manual' scan='8' timerange='>08:54:40'
+mode='manual' scan='8' timerange='<08:54:40'
 mode='manual' scan='61' spw='0' timerange='<11:24:55'
 
 mode='manual' scan='60' spw='3' timerange='>11:24:00'

@@ -15,6 +15,3 @@ mode='manual' scan='15' timerange='<08:39:40'
 mode='manual' scan='18' timerange='<08:48:40'
 mode='manual' scan='64' timerange='<11:01:15'
 mode='manual' scan='21' timerange='>08:56:50'
-
-
-

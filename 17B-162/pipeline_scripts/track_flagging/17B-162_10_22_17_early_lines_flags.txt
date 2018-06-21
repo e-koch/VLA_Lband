@@ -19,4 +19,6 @@ mode='manual' scan='33' spw='3' timerange='<02:37:00'
 mode='manual' scan='37' spw='3' timerange='<02:46:00'
 mode='manual' scan='61' spw='3' timerange='<03:55:50'
 
+mode='manual' scan='55,58' antenna='ea11'
+
 

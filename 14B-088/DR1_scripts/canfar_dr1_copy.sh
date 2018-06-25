@@ -1,7 +1,7 @@
 
 # Copy over the 14B-088 data to be released with the first M33 HI paper
 
-getcert
+getCert
 
 DR1_PATH="vos:ekoch/M33/VLA/14B-088/DR1/"
 

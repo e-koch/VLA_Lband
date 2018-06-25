@@ -1,10 +1,13 @@
 
 # First Data Release from the M33 L-band VLA Project
 # Data presented in from Koch et al. (2018)
-# Paper DOI: 
+# Paper DOI: http://dx.doi.org/10.1093/mnras/sty1674
 # Code link: https://github.com/ekoch/VLA_Lband/
 
 This is the first data release of the M33 L-band VLA project. This release includes most of the spectral-line data taken in VLA project 14B-088.
+
+Imaging and reduction scripts are available in the github repository linked
+above in the '14B-088' folder.
 
 Further requests and questions regarding the data can be sent to koch.eric.w@gmail.com.
 
@@ -25,7 +28,7 @@ Further requests and questions regarding the data can be sent to koch.eric.w@gma
 
 # OH Data
 
-Note that data for the separately-published OH-1665 maser detection can be found [here](http://apps.canfar.net/storage/list/ekoch/M33/VLA/Koch2018_OH_maser).
+Note that data for the separately-published OH-1665 maser detection can be found [here](http://apps.canfar.net/storage/list/ekoch/M33/VLA/Koch2018_OH_maser). Maser paper DOI: 10.3847/2515-5172/aaac33
 
 Naturally-weighted data cubes with 1.5 km/s velocity channels are given for each of the 4 transitions.  These are dirty images with no deconvolution applied. There is only one clear detection in the 1665 MHz line (see above).
 

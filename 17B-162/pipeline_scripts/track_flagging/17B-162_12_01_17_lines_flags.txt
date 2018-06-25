@@ -1,0 +1,31 @@
+# Flags for line SPWs of 17B-162.sb34051874.eb34756401.58088.93220465278
+# Already flagged ea24. No ea07 included.
+
+# Missing gain solutions for most of ea10
+# mode='manual' antenna='ea10' scan='60~101'
+
+# Similar for ea22
+# mode='manual' antenna='ea22' scan='52~101'
+
+mode='manual' scan='2' timerange='<22:19:10'
+mode='manual' scan='99' timerange='<03:08:30'
+
+mode='manual' scan='101' timerange='>03:18:10'
+
+mode='manual' scan='12' timerange='<22:56:27'
+mode='manual' scan='20' timerange='<23:19:27'
+mode='manual' scan='28' timerange='<23:42:27'
+mode='manual' scan='52' timerange='<00:51:24'
+mode='manual' scan='60' timerange='<01:14:24'
+mode='manual' scan='68' timerange='<01:37:24'
+mode='manual' scan='76' timerange='<02:00:24'
+mode='manual' scan='92' timerange='<02:46:27'
+
+mode='manual' scan='5' spw='3' timerange='>22:37:50'
+mode='manual' scan='7' spw='3' timerange='>22:45:10'
+mode='manual' scan='8' spw='3' timerange='<22:46:40'
+mode='manual' scan='10' spw='3' timerange='>22:54:30'
+mode='manual' scan='85' spw='3' timerange='<02:27:30'
+
+mode='manual' scan='95' spw='7' timerange='>02:57:30'
+

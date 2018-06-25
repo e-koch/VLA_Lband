@@ -1,0 +1,17 @@
+# Flags for line SPWs of 17B-162.sb34293636.eb34635780.58055.299382048615
+# Already flagged ea24. No ea13, ea28 included.
+
+mode='manual' scan='36' timerange='<08:54:13'
+mode='manual' scan='52' timerange='<09:40:10'
+mode='manual' scan='60' timerange='<10:03:10'
+mode='manual' scan='84' timerange='<11:12:10'
+mode='manual' scan='92' timerange='<11:35:08'
+
+mode='manual' scan='71' timerange='<10:36:40'
+mode='manual' scan='29' timerange='>08:37:21'
+mode='manual' scan='16' timerange='>08:00:45'
+
+mode='manual' scan='15' spw='3' timerange='>07:56:20'
+mode='manual' scan='18' spw='3' timerange='>08:05:30'
+mode='manual' scan='65' spw='3' timerange='<10:19:00'
+mode='manual' scan='64,68' spw='3'

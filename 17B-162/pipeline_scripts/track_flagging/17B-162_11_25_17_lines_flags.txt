@@ -1,0 +1,43 @@
+# Flags for line SPWs of 17B-162.sb34051874.eb34742796.58082.91476392361
+# Already flagged ea24. No ea28 included.
+
+# Bad gain phase solutions
+mode='manual' scan='51' antenna='ea11'
+
+mode='manual' scan='84~101' antenna='ea27'
+
+mode='manual' scan='4' timerange='<22:11:30'
+mode='manual' scan='20' timerange='<22:57:27'
+mode='manual' scan='28' timerange='<23:20:27'
+mode='manual' scan='36' timerange='<23:43:27'
+mode='manual' scan='44' timerange='<00:06:27'
+mode='manual' scan='52' timerange='<00:29:24'
+mode='manual' scan='60' timerange='<00:52:24'
+mode='manual' scan='68' timerange='<01:15:24'
+mode='manual' scan='76' timerange='<01:38:24'
+mode='manual' scan='84' timerange='<02:01:24'
+mode='manual' scan='92' timerange='<02:24:24'
+
+# Phase growing with time
+mode='manual' scan='91' timerange='>02:23:57'
+
+mode='manual' scan='22' timerange='<23:04:45'
+
+mode='manual' scan='42' antenna='ea19'
+mode='manual' scan='47' antenna='ea10'
+mode='manual' scan='50,79,84,88' antenna='ea27'
+mode='manual' scan='53' antenna='ea13'
+mode='manual' scan='57,98' antenna='ea11'
+
+mode='manual' scan='52' spw='3' timerange='<00:31:00'
+mode='manual' scan='22' spw='3:220~256'
+mode='manual' scan='22' spw='3' timerange='<23:05:20'
+mode='manual' scan='58' spw='3:100~170'
+mode='manual' scan='58' spw='3' timerange='<00:49:30'
+mode='manual' scan='25' spw='3' timerange='<23:14:50'
+mode='manual' scan='24' spw='3' timerange='>23:12:20'
+
+mode='manual' scan='18,19,20' spw='4:0~28'
+mode='manual' scan='20' timerange='<22:57:40'
+mode='manual' scan='22' timerange='<23:04:50'
+

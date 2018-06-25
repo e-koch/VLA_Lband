@@ -14,7 +14,9 @@ import matplotlib.pyplot as plt
 from turbustat.statistics import PDF
 from scipy import stats
 import seaborn as sb
+from corner import hist2d
 
+from galaxy_params import gal_feath as gal
 
 from paths import (fourteenB_wGBT_HI_file_dict, fourteenB_HI_data_wGBT_path,
                    allfigs_path)
@@ -176,3 +178,22 @@ plt.tight_layout()
 plt.savefig(allfigs_path('HI_properties/peakvel_stddevfilter_histograms.pdf'))
 plt.savefig(allfigs_path('HI_properties/peakvel_stddevfilter_histograms.png'))
 plt.close()
+
+# Trends against each other?
+comb_mask_38 = np.logical_and(np.isfinite(stddev_masked),
+                              np.isfinite(stddev_masked_38))
+hist2d(stddev_masked[comb_mask_38], stddev_masked_38[comb_mask_38])
+
+comb_mask_95 = np.logical_and(np.isfinite(stddev_masked),
+                              np.isfinite(stddev_masked_95))
+hist2d(stddev_masked[comb_mask_95], stddev_masked_95[comb_mask_95])
+
+# Against radius?
+radius = gal.radius(header=mom0.header).to(u.kpc)
+
+hist2d(radius.value[comb_mask_38],
+       np.log10((stddev_masked_38 / stddev_masked)[comb_mask_38]))
+hist2d(radius.value[comb_mask_95],
+       np.log10((stddev_masked_95 / stddev_masked)[comb_mask_95]))
+
+# Mild increase with radius for the inner 2 kpc.

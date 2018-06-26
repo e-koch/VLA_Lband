@@ -23,21 +23,16 @@ mode='manual' scan='91' timerange='>02:23:57'
 
 mode='manual' scan='22' timerange='<23:04:45'
 
-mode='manual' scan='42' antenna='ea19'
+mode='manual' scan='42' antenna='ea19,ea27'
 mode='manual' scan='47' antenna='ea10'
 mode='manual' scan='50,79,84,88' antenna='ea27'
 mode='manual' scan='53' antenna='ea13'
 mode='manual' scan='57,98' antenna='ea11'
 
-mode='manual' scan='52' spw='3' timerange='<00:31:00'
-mode='manual' scan='22' spw='3:220~256'
-mode='manual' scan='22' spw='3' timerange='<23:05:20'
-mode='manual' scan='58' spw='3:100~170'
-mode='manual' scan='58' spw='3' timerange='<00:49:30'
-mode='manual' scan='25' spw='3' timerange='<23:14:50'
-mode='manual' scan='24' spw='3' timerange='>23:12:20'
+mode='manual' scan='22,24,25,52,58' spw='3'
 
 mode='manual' scan='18,19,20' spw='4:0~28'
 mode='manual' scan='20' timerange='<22:57:40'
 mode='manual' scan='22' timerange='<23:04:50'
 
+mode='manual' scan='100,101' antenna='ea11'

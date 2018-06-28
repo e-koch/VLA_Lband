@@ -1,11 +1,16 @@
 # Flags for line SPWs of 17B-162.sb34293636.eb34642622.58057.30859833333
-# Already flagged ea24. No ea28 included.
+# Already flagged ea24. No ea28 included. Missing ea21.
 
 # Poor solution for BP. Didn't get on source until near the end of the scan
 mode='manual' antenna='ea02'
 
 mode='manual' scan='2' timerange='<07:31:10'
 
+# The wind knocked some stuff around. Remove a few antennas over that time.
+mode='manual' scan='12~34' antenna='ea26,ea12,ea10,ea13,ea16'
+# Additional antennas that show variation over that time
+mode='manual' scan='12~34' antenna='ea03,ea14,ea15,ea16,ea18,ea22'
+mode='manual' scan='20~34' antenna='ea23'
 
 mode='manual' scan='4' timerange='<07:35:33'
 mode='manual' scan='12' timerange='<07:58:30'
@@ -18,9 +23,24 @@ mode='manual' scan='23' timerange='>08:33:38'
 mode='manual' scan='66' timerange='>10:38:07'
 mode='manual' scan='45' timerange='<09:33:39'
 
-mode='manual' scan='68' spw='3' timerange='>10:42:00'
-mode='manual' scan='6' spw='3' timerange='>07:44:05'
-mode='manual' scan='9' spw='3' timerange='>07:53:10'
+mode='manual' scan='6,9,68' spw='3'
 
 mode='manual' scan='32' antenna='ea16'
+
+# SPW 0 (HI) shows moderate time scatter across most antennas
+# throughout the observation. Cutting out the more severe
+# variations. Otherwise, the added scatter should be negligible
+mode='manual' scan='30~35' antenna='ea19' spw='0'
+
+# Lots of scatter on many baselines. Mostly limited to spw 0
+mode='manual' scan='80~82' spw='0'
+mode='manual' scan='84,85' spw='0'
+
+mode='manual' scan='8' timerange='<07:48:04' spw='0'
+mode='manual' scan='10' timerange='<07:56:20' spw='0'
+mode='manual' scan='12' timerange='>08:00:40' spw='0'
+mode='manual' scan='20' timerange='>08:24:26' spw='0'
+mode='manual' scan='63' timerange='<10:26:50' spw='0'
+mode='manual' scan='18' timerange='<08:18:20' spw='0'
+mode='manual' scan='82' timerange='>11:23:45' spw='0'
 

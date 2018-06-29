@@ -11,9 +11,9 @@ from glob import glob
 
 # Requires analysisutils to be appended to the casa path
 # Load in the auto image parameter setters
-from CASA_functions import set_cellsize, set_imagesizes
+from CASA_functions import set_cellsize, set_imagesize
 
-from tasks import tclean, impbcor
+from tasks import tclean
 
 spw_num = int(sys.argv[-1])
 
@@ -34,7 +34,7 @@ execfile(os.path.expanduser("~/code/VLA_Lband/17B-162/spw_setup.py"))
 mycellsize = set_cellsize(myvis[0], spw_num, sample_factor=6.,
                           baseline_percentile=95,
                           return_type="str")
-print("Cell size: {}".format(mycellsize))
+casalog.post("Cell size: {}".format(mycellsize))
 
 mypblimit = 0.1
 
@@ -42,7 +42,8 @@ mypblimit = 0.1
 source = 'M33'
 
 myimagesize = set_imagesize(myvis[0], spw_num, source, sample_factor=6.,
-                            pblevel=0.1, max_size=15000, pblevel=mypblimit)
+                            max_size=15000, pblevel=mypblimit)
+casalog.post("Image size: {}".format(myimagesize))
 
 # Image ALL channels in the MS. Just looking for reduction issues
 default('tclean')

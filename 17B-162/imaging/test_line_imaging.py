@@ -15,7 +15,7 @@ from CASA_functions import set_cellsize, set_imagesizes
 
 from tasks import tclean, impbcor
 
-spw_num = sys.argv[-1]
+spw_num = int(sys.argv[-1])
 
 output_path = "spw_{}".format(spw_num)
 
@@ -52,6 +52,7 @@ tclean(vis=myvis,
        imagename=os.path.join(output_path,
                               'M33_14B-088_{0}_spw_{1}.dirty'.format(linespw_dict[spw_num][0],
                                                                      spw_num)),
+       spw=str(spw_num),
        field='M33*',
        imsize=myimagesize,
        cell=mycellsize,

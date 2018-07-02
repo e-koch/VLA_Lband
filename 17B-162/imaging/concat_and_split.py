@@ -15,7 +15,7 @@ myvis = glob("*.speclines.ms")
 assert len(myvis) == 17
 
 default('concat')
-concat(vis=myvis, concatvis='17B-162_lines_all.ms', timesort=True)
+concat(vis=myvis, concatvis='17B-162_lines_all.ms', timesort=False)
 
 default('split')
 split(vis='17B-162_lines_all.ms', outputvis='17B-162_lines.ms',

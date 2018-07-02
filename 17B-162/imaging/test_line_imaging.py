@@ -23,15 +23,13 @@ if not os.path.exists(output_path):
     os.mkdir(output_path)
 
 # Grab all of the MS tracks in the folder (should be 17)
-myvis = glob("*.speclines.ms")
-
-assert len(myvis) == 17
+myvis = "17B-162_lines.ms"
 
 # Load in the SPW dict in the repo on cedar
 execfile(os.path.expanduser("~/code/VLA_Lband/17B-162/spw_setup.py"))
 
 # Assume we can set reasonable image parameters from any of the tracks
-mycellsize = set_cellsize(myvis[0], spw_num, sample_factor=6.,
+mycellsize = set_cellsize(myvis, spw_num, sample_factor=6.,
                           baseline_percentile=95,
                           return_type="str")
 casalog.post("Cell size: {}".format(mycellsize))
@@ -41,7 +39,7 @@ mypblimit = 0.1
 # Will look for all M33 fields and assume they are all used in the mosaic
 source = 'M33'
 
-myimagesize = set_imagesize(myvis[0], spw_num, source, sample_factor=6.,
+myimagesize = set_imagesize(myvis, spw_num, source, sample_factor=6.,
                             max_size=15000, pblevel=mypblimit)
 casalog.post("Image size: {}".format(myimagesize))
 
@@ -51,7 +49,7 @@ default('tclean')
 tclean(vis=myvis,
        datacolumn='corrected',
        imagename=os.path.join(output_path,
-                              'M33_14B-088_{0}_spw_{1}.dirty'.format(linespw_dict[spw_num][0],
+                              'M33_17B-162_{0}_spw_{1}.dirty'.format(linespw_dict[spw_num][0],
                                                                      spw_num)),
        spw=str(spw_num),
        field='M33*',

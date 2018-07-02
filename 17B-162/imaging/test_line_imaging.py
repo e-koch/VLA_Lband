@@ -47,7 +47,7 @@ casalog.post("Image size: {}".format(myimagesize))
 default('tclean')
 
 # Don't image the channel edges
-pad_chan = int(np.ceil(linespw_dict[spw_num][2] * 0.1))
+pad_chan = int(np.ceil(linespw_dict[spw_num][2] * 0.05))
 num_chan = int(linespw_dict[spw_num][2]) - 2 * pad_chan
 
 tclean(vis=myvis,

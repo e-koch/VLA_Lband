@@ -7,7 +7,7 @@ Should be run from the 17B-162_imaging folder on cedar
 
 import os
 import sys
-from glob import glob
+import numpy as np
 
 # Requires analysisutils to be appended to the casa path
 # Load in the auto image parameter setters
@@ -46,19 +46,23 @@ casalog.post("Image size: {}".format(myimagesize))
 # Image ALL channels in the MS. Just looking for reduction issues
 default('tclean')
 
+# Don't image the channel edges
+pad_chan = int(np.ceil(linespw_dict[spw_num][2] * 0.1))
+num_chan = int(linespw_dict[spw_num][2]) - 2 * pad_chan
+
 tclean(vis=myvis,
        datacolumn='corrected',
        imagename=os.path.join(output_path,
-                              'M33_17B-162_{0}_spw_{1}.dirty'.format(linespw_dict[spw_num][0],
-                                                                     spw_num)),
+                              'M33_17B-162_{0}_spw_{1}.dirty'
+                              .format(linespw_dict[spw_num][0], spw_num)),
        spw=str(spw_num),
        field='M33*',
        imsize=myimagesize,
        cell=mycellsize,
        specmode='cube',
-       start=1,
+       start=pad_chan,
        width=1,
-       nchan=-1,
+       nchan=num_chan,
        startmodel=None,
        gridder='mosaic',
        weighting='natural',

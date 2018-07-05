@@ -21,4 +21,4 @@ cd $scratch_path
 Xvfb :1 &
 export DISPLAY=:1
 
-$HOME/casa-release-5.3.0-143.el7/bin/casa --nologger --nogui --log2term --nocrashreport -c $HOME/code/VLA_Lband/17B-162/imaging/M33_transform_and_uvsub.py
+$HOME/casa-release-5.3.0-143.el7/bin/casa --nologger --nogui --log2term --nocrashreport -c $HOME/code/VLA_Lband/17B-162/imaging/transform_and_uvsub.py

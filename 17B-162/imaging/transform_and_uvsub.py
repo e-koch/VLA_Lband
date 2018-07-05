@@ -24,7 +24,7 @@ for spw_num in range(1, 10):
 
     # Note that the combined MS already only includes the calibrated data
     # with all flagged data removed.
-    mstransform(vis=myvis, outputvis=out_vis, spw=spw_num, datacolumn='data',
+    mstransform(vis=myvis, outputvis=out_vis, spw=str(spw_num), datacolumn='data',
                 regridms=True, mode='channel', interpolation='fftshift',
                 phasecenter='J2000 01h33m50.904 +30d39m35.79',
                 restfreq=linespw_dict[spw_num][1], outframe='LSRK',

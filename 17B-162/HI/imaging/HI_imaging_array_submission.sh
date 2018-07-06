@@ -2,8 +2,8 @@
 #SBATCH -c 1
 #SBATCH --time=12:00:00
 #SBATCH --mem=16000M
-#SBATCH --job-name=M33_dirty_cube-%J-%a
-#SBATCH --output=casa-m33_dirtycube-%J-%a.out
+#SBATCH --job-name=M33_dirty_cube-%A-%a
+#SBATCH --output=casa-m33_dirtycube-%A-%a.out
 #SBATCH --array=2400-2410
 
 # Use array to set which channels will get imaged.

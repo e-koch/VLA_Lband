@@ -22,7 +22,7 @@ cd $scratch_path
 Xvfb :1 &
 export DISPLAY=:1
 
-echo "Running channel "$spw
+echo "Running channel "$chan_num
 
 $HOME/casa-release-5.3.0-143.el7/bin/casa --nologger --nogui --log2term --nocrashreport -c $HOME/code/VLA_Lband/17B-162/HI/imaging/HI_single_channel_clean.py $chan_num
 

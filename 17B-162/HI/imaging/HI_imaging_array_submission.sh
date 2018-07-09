@@ -16,6 +16,9 @@ source /home/ekoch/preload.bash
 
 chan_num=$SLURM_ARRAY_TASK_ID
 
+# Image w/ or w/o continuum subtraction
+wcont=$WCONT
+
 # Move to scratch space b/c casa write out the temporary files into the same folder
 export scratch_path=/home/ekoch/scratch/17B-162_imaging/
 
@@ -26,5 +29,5 @@ export DISPLAY=:1
 
 echo "Running channel "$chan_num
 
-$HOME/casa-release-5.3.0-143.el7/bin/casa --nologger --nogui --log2term --nocrashreport -c $HOME/code/VLA_Lband/17B-162/HI/imaging/HI_single_channel_clean.py $chan_num
+$HOME/casa-release-5.3.0-143.el7/bin/casa --nologger --nogui --log2term --nocrashreport -c $HOME/code/VLA_Lband/17B-162/HI/imaging/HI_single_channel_clean.py $chan_num $wcont
 

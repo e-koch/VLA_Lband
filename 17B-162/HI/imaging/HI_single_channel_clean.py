@@ -16,11 +16,20 @@ This is the template file. There are too many variables to easily generalize.
 # Load in the SPW dict in the repo on cedar
 execfile(os.path.expanduser("~/code/VLA_Lband/17B-162/spw_setup.py"))
 
-chan_num = int(sys.argv[-1])
+chan_num = int(sys.argv[-2])
+
+wcont = sys.argv[-1]
+
+if wcont == "T":
+    myvis = "17B-162_HI_spw_0_LSRK.ms"
+    out_prefix = "spw_0_perchan_wcont"
+else:
+    myvis = "17B-162_HI_spw_0_LSRK.ms.contsub"
+    out_prefix = "spw_0_perchan"
 
 spw_num = 0
 
-output_path = "spw_0_perchan/channel_{}".format(chan_num)
+output_path = "{0}/channel_{1}".format(out_prefix, chan_num)
 
 # Since the imaging is not run from the parent path for the channel output,
 # use `mkpath`
@@ -35,7 +44,7 @@ mypblimit = 0.1
 
 default('tclean')
 
-tclean(vis="17B-162_lines.ms",
+tclean(vis=myvis,
        datacolumn='corrected',
        imagename=os.path.join(output_path,
                               'M33_17B-162_{0}_channel_{1}.dirty'

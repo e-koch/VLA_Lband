@@ -17,6 +17,8 @@ source /home/ekoch/preload.bash
 chan_num=$SLURM_ARRAY_TASK_ID
 
 # Move to scratch space b/c casa write out the temporary files into the same folder
+export scratch_path=/home/ekoch/scratch/17B-162_imaging/
+
 cd $scratch_path
 
 Xvfb :1 &

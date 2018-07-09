@@ -2,6 +2,7 @@
 
 import sys
 import os
+from distutils.dir_util import mkpath
 
 # from casa_tools import myclean
 from tasks import tclean
@@ -21,8 +22,10 @@ spw_num = 0
 
 output_path = "spw_0_perchan/channel_{}".format(chan_num)
 
+# Since the imaging is not run from the parent path for the channel output,
+# use `mkpath`
 if not os.path.exists(output_path):
-    os.mkdir(output_path)
+    mkpath(output_path)
 
 mycellsize = '1.0arcsec'
 

@@ -85,6 +85,11 @@ try:
                    noise='1.0Jy', hm_minbeamfrac=-999.0, target_list={}, robust=-999.0,
                    parallel='automatic', weighting='briggs', hm_noisethreshold=-999.0,
                    hm_lownoisethreshold=-999.0, npixels=0, hm_sidelobethreshold=-999.0)
+
+    # Make a folder of products for restoring the pipeline solution
+    os.mkdir('products/')
+    hifv_exportdata(products_dir='products/')
+
 finally:
     h_save()
 

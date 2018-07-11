@@ -38,7 +38,7 @@ n_chan = int(np.ceil((end_vel - start_vel) / chan_width))
 seventeenB_ms_regrid = "{}.regrid".format(seventeenB_ms)
 
 mstransform(vis=seventeenB_ms,
-            output_vis=seventeenB_ms_regrid,
+            outputvis=seventeenB_ms_regrid,
             spw='0', regridms=True, mode='velocity', veltype='radio',
             start="{}km/s".format(start_vel),
             width="{}km/s".format(chan_width), nchan=n_chan,
@@ -49,8 +49,8 @@ fourteenB_ms_regrid = "{}.regrid".format(fourteenB_ms)
 
 # Also convert th 14B data to an MMS w/ the same number of sub-MS as 17B
 mstransform(vis=fourteenB_ms,
-            output_vis=fourteenB_ms_regrid,
-            field='M33_2,M33_3,M33_6,M33_7_center,M33_8,M33_11,M33_12,M33_14',
+            outputvis=fourteenB_ms_regrid,
+            field='M33_2,M33_6,M33_7_center,M33_8,M33_11,M33_12,M33_14',
             spw='0', regridms=True, mode='velocity', veltype='radio',
             start="{}km/s".format(start_vel),
             width="{}km/s".format(chan_width), nchan=n_chan,

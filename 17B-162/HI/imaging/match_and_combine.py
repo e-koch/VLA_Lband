@@ -42,7 +42,7 @@ mstransform(vis=seventeenB_ms,
             spw='0', regridms=True, mode='velocity', veltype='radio',
             start="{}km/s".format(start_vel),
             width="{}km/s".format(chan_width), nchan=n_chan,
-            interpolation='fftshift')
+            interpolation='fftshift', restfreq='1.420405752GHz')
 
 # Now the 14B data. Only keep the fields used in the 17B data
 fourteenB_ms_regrid = "{}.regrid".format(fourteenB_ms)
@@ -54,7 +54,7 @@ mstransform(vis=fourteenB_ms,
             spw='0', regridms=True, mode='velocity', veltype='radio',
             start="{}km/s".format(start_vel),
             width="{}km/s".format(chan_width), nchan=n_chan,
-            interpolation='fftshift',
+            interpolation='fftshift', restfreq='1.420405752GHz',
             createmms=True, separationaxis='auto', numsubms=31)
 
 # concatenate together, and will also remove the individual MS

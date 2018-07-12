@@ -1,10 +1,10 @@
 #!/bin/bash
 #SBATCH -c 1
-#SBATCH --time=12:00:00
+#SBATCH --time=24:00:00
 #SBATCH --mem=16000M
 #SBATCH --job-name=M33_dirty_cube-%A-%a
 #SBATCH --output=casa-m33_dirtycube-%A-%a.out
-#SBATCH --array=2400-2410
+#SBATCH --array=0-56
 
 # Use array to set which channels will get imaged.
 # Run from a separate folder so the log files are in one place.

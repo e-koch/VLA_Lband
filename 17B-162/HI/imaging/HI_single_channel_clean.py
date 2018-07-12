@@ -24,7 +24,8 @@ if wcont == "T":
     myvis = "17B-162_HI_spw_0_LSRK.ms"
     out_prefix = "spw_0_perchan_wcont"
 else:
-    myvis = "17B-162_HI_spw_0_LSRK.ms.contsub"
+    # myvis = "17B-162_HI_spw_0_LSRK.ms.contsub"
+    myvis = "14B_17B_HI_LSRK.mms.contsub"
     out_prefix = "spw_0_perchan"
 
 spw_num = 0
@@ -40,7 +41,13 @@ mycellsize = '1.0arcsec'
 
 myimagesize = [6250, 6144]
 
-mypblimit = 0.1
+mypblimit = 0.3
+
+# Set a velocity channel width, starting at -330 km/s
+init_start = -330  # km/s
+chan_width = 5  # km/s
+
+start_vel = init_start + chan_width * chan_num
 
 default('tclean')
 
@@ -54,14 +61,15 @@ tclean(vis=myvis,
        imsize=myimagesize,
        cell=mycellsize,
        specmode='cube',
-       start=chan_num,
-       width=1,
+       start="{}km/s".format(start_vel),
+       width="{}km/s".format(chan_width),
        nchan=1,
        startmodel=None,
        gridder='mosaic',
        weighting='natural',
-       niter=0,
-       threshold='3.2mJy/beam',
+       niter=1000000,
+       threshold='7.0mJy/beam',  # Something high to start
+       # scales=[0, 6, 12, 24, 48, 96],
        phasecenter='J2000 01h33m50.904 +30d39m35.79',
        restfreq=linespw_dict[spw_num][1],
        outframe='LSRK',
@@ -69,9 +77,9 @@ tclean(vis=myvis,
        usemask='pb',
        mask=None,
        deconvolver='hogbom',
-       pbcor=False,
+       pbcor=True,
        veltype='radio',
        chanchunks=-1,
-       restoration=False,
+       restoration=True,
        parallel=False,
        )

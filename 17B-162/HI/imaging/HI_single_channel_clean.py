@@ -49,13 +49,26 @@ chan_width = 5  # km/s
 
 start_vel = init_start + chan_width * chan_num
 
+# Check if the products already exist and we should avoid recomputing the PSF
+# and residuals
+
+out_imagename = os.path.join(output_path,
+                             'M33_17B-162_{0}_channel_{1}.dirty'
+                             .format(linespw_dict[spw_num][0], chan_num))
+
+# Check for the PSF and assume the rest of the products are there too.
+if os.path.exists("{}.psf".format(out_imagename)):
+    do_calcres = False
+    do_calcpsf = False
+else:
+    do_calcres = True
+    do_calcpsf = True
+
 default('tclean')
 
 tclean(vis=myvis,
        datacolumn='corrected',
-       imagename=os.path.join(output_path,
-                              'M33_17B-162_{0}_channel_{1}.dirty'
-                              .format(linespw_dict[spw_num][0], chan_num)),
+       imagename=out_imagename,
        spw=str(spw_num),
        field='M33*',
        imsize=myimagesize,
@@ -82,4 +95,7 @@ tclean(vis=myvis,
        chanchunks=-1,
        restoration=True,
        parallel=False,
+       restart=True,
+       calcres=do_calcres,
+       calcpsf=do_calcpsf,
        )

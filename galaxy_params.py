@@ -35,3 +35,8 @@ param_table = Table.read(param_name)
 gal_feath = Galaxy("M33")
 
 update_galaxy_params(gal_feath, param_table)
+
+# Force 840 kpc for the distance
+
+gal.distance = 840 * u.kpc
+gal_feath.distance = 840 * u.kpc

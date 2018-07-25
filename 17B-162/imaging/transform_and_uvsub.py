@@ -6,7 +6,7 @@ to LSRK, and subtract continuum in uv-plane
 
 import os
 
-from tasks import mstransform, uvcontsub
+from tasks import mstransform, uvcontsub, partition, split
 
 myvis = '17B-162_lines.ms'
 
@@ -38,7 +38,7 @@ for spw_num in range(0, 10):
                 regridms=True, mode='channel', interpolation='fftshift',
                 phasecenter='J2000 01h33m50.904 +30d39m35.79',
                 restfreq=linespw_dict[spw_num][1], outframe='LSRK',
-                douvcontsub=True,
+                douvcontsub=do_uvcontsub,
                 fitspw='{0}:{1}'.format(spw_num, linespw_dict[spw_num][3]),
                 fitorder=0, want_cont=False)
 
@@ -47,6 +47,17 @@ for spw_num in range(0, 10):
         out_vis_cs = "17B-162_{0}_spw_{1}_LSRK.ms.contsub"\
             .format(linespw_dict[spw_num][0], spw_num)
 
-        uvcontsub(vis=out_vis,
+        out_mms_vis_cs = "17B-162_{0}_spw_{1}_LSRK.mms.contsub"\
+             .format(linespw_dict[spw_num][0], spw_num)
+
+        # The operation is much fast in parallel, so make an MMS and then
+        # convert back
+        partition(vis=out_vis, outputvis=out_vis[:-3] + ".mms", createmms=True,
+                  separationaxis='auto', flagbackup=False)
+
+        uvcontsub(vis=out_vis[:-3] + ".mms",
                   fitspw='{0}:{1}'.format(spw_num, linespw_dict[spw_num][3]),
                   fitorder=0, want_cont=False)
+
+        default('split')
+        split(vis=out_mms_vis_cs, outputvis=out_vis_cs, keepmms=False)

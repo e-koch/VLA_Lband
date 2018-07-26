@@ -3,14 +3,13 @@
 import sys
 import os
 from distutils.dir_util import mkpath
+import re
+import numpy as np
 
-# from casa_tools import myclean
-from tasks import tclean
+from tasks import tclean, tget
 
 '''
 Cleans a single channel given the channel name
-
-This is the template file. There are too many variables to easily generalize.
 '''
 
 # Load in the SPW dict in the repo on cedar
@@ -18,84 +17,90 @@ execfile(os.path.expanduser("~/code/VLA_Lband/17B-162/spw_setup.py"))
 
 chan_num = int(sys.argv[-2])
 
-wcont = sys.argv[-1]
+# Load in the imaging parameters from the given file name
+parameter_file = sys.argv[-1]
 
-if wcont == "T":
-    myvis = "17B-162_HI_spw_0_LSRK.ms"
-    out_prefix = "spw_0_perchan_wcont"
-else:
-    # myvis = "17B-162_HI_spw_0_LSRK.ms.contsub"
-    myvis = "14B_17B_HI_LSRK.mms.contsub"
-    out_prefix = "spw_0_perchan"
+# Load parameters
+tget(tclean, parameter_file)
 
-spw_num = 0
+# Get the output path and create directories, if needed, based on
+# the imagename
+if imagename.split("/") > 1:
 
-output_path = "{0}/channel_{1}".format(out_prefix, chan_num)
+    output_path = "/".join(imagename.split("/")[:-1])
 
-# Since the imaging is not run from the parent path for the channel output,
-# use `mkpath`
-if not os.path.exists(output_path):
-    mkpath(output_path)
+    # Since the imaging is not run from the parent path for the channel output,
+    # use `mkpath`
+    if not os.path.exists(output_path):
+        mkpath(output_path)
 
-mycellsize = '1.0arcsec'
+# Now update the imagename with the channel number
+imagename = "{0}_channel_{1}".format(imagename, chan_num)
 
-myimagesize = [6250, 6144]
+# Based on the channel number, update the start velocity for this channel
 
-mypblimit = 0.3
+# Get the value out from the string, removing the unit
+split_start = filter("/".join(filter(None, re.split(r'(\d+)', start))))
 
-# Set a velocity channel width, starting at -330 km/s
-init_start = -330  # km/s
-chan_width = 5  # km/s
+init_start = float("".join(split_start[:-1]))
+spec_unit = split_start[-1]
+
+chan_width = float(filter(None, re.split(r'(\d+)', width))[:-1])
 
 start_vel = init_start + chan_width * chan_num
 
 # Check if the products already exist and we should avoid recomputing the PSF
 # and residuals
 
-out_imagename = os.path.join(output_path,
-                             'M33_17B-162_{0}_channel_{1}.dirty'
-                             .format(linespw_dict[spw_num][0], chan_num))
-
 # Check for the PSF and assume the rest of the products are there too.
-if os.path.exists("{}.psf".format(out_imagename)):
+if os.path.exists("{}.psf".format(imagename)):
     do_calcres = False
     do_calcpsf = False
+
+    # Force startmodel to use the model on disk
+    startmodel = None
+
 else:
     do_calcres = True
     do_calcpsf = True
 
-default('tclean')
+# If model or mask names are given, ensure they exist.
+# These should already be split into individual channels for use here
+# The naming scheme should split imagename.image to imagename_channel_{}.image
+# The file MUST end in ".image"
+if startmodel is not None or len(startmodel) > 0:
 
-tclean(vis=myvis,
-       datacolumn='corrected',
-       imagename=out_imagename,
-       spw=str(spw_num),
-       field='M33*',
-       imsize=myimagesize,
-       cell=mycellsize,
-       specmode='cube',
-       start="{}km/s".format(start_vel),
-       width="{}km/s".format(chan_width),
-       nchan=1,
-       startmodel=None,
-       gridder='mosaic',
-       weighting='natural',
-       niter=1000000,
-       threshold='7.0mJy/beam',  # Something high to start
-       # scales=[0, 6, 12, 24, 48, 96],
-       phasecenter='J2000 01h33m50.904 +30d39m35.79',
-       restfreq=linespw_dict[spw_num][1],
-       outframe='LSRK',
-       pblimit=mypblimit,
-       usemask='pb',
-       mask=None,
-       deconvolver='hogbom',
-       pbcor=True,
-       veltype='radio',
-       chanchunks=-1,
-       restoration=True,
-       parallel=False,
-       restart=True,
-       calcres=do_calcres,
-       calcpsf=do_calcpsf,
-       )
+    startmodel = "{0}_channel_{1}.image"(startmodel.split(".image")[0],
+                                         chan_num)
+
+    if not os.path.exists(startmodel):
+        raise ValueError("Given startmodel does not exist")
+
+# The naming scheme should split name.mask to name_channel_{}.mask
+# The file MUST end in ".mask"
+if mask is not None or len(mask) > 0 and usemask == "user":
+
+    mask = "{0}_channel_{1}.mask"(mask.split(".image")[0], chan_num)
+
+    if not os.path.exists(mask):
+        raise ValueError("Given mask name ({0}) does not exist".format(mask))
+
+# Only update a few parameters, as needed
+
+out_dict = \
+    tclean(start="{0}{1}".format(start_vel, spec_unit),
+           width="{0}{1}".format(chan_width, spec_unit),
+           nchan=1,
+           startmodel=startmodel,
+           restfreq=linespw_dict[spw_num][1],
+           mask=mask,
+           restart=True,
+           calcres=do_calcres,
+           calcpsf=do_calcpsf,
+           interactive=0  # Returns a summary dictionary
+           )
+
+# Save the output dictionary. Numpy should be fine for this as the individual
+# channels will get concatenated together
+
+np.save(imagename + ".results_dict.npy", out_dict)

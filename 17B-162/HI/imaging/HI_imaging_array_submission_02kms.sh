@@ -2,9 +2,9 @@
 #SBATCH -c 1
 #SBATCH --time=24:00:00
 #SBATCH --mem=16000M
-#SBATCH --job-name=M33_bc_2kms-%A-%a
-#SBATCH --output=casa-m33_bv_2kms-%A-%a.out
-#SBATCH --array=0-140
+#SBATCH --job-name=M33_bc_02kms-%A-%a
+#SBATCH --output=casa-m33_bv_02kms-%A-%a.out
+#SBATCH --array=0-1334
 
 # Use array to set which channels will get imaged.
 # Run from a separate folder so the log files are in one place.
@@ -17,7 +17,7 @@ source /home/ekoch/preload.bash
 chan_num=$SLURM_ARRAY_TASK_ID
 
 # Parameter file for tclean
-param_file="/home/ekoch/code/VLA_Lband/17B-162/HI/imaging/param_files/14B_17B_2kms.saved"
+param_file="/home/ekoch/code/VLA_Lband/17B-162/HI/imaging/param_files/14B_17B_02kms.saved"
 
 # Move to scratch space b/c casa write out the temporary files into the same folder
 export scratch_path=/home/ekoch/scratch/17B-162_imaging/

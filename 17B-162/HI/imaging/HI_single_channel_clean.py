@@ -13,7 +13,8 @@ Cleans a single channel given the channel name
 '''
 
 # Load in the SPW dict in the repo on cedar
-execfile(os.path.expanduser("~/code/VLA_Lband/17B-162/spw_setup.py"))
+# execfile(os.path.expanduser("~/code/VLA_Lband/17B-162/spw_setup.py"))
+execfile(os.path.expanduser("~/Dropbox/code_development/VLA_Lband/17B-162/spw_setup.py"))
 
 chan_num = int(sys.argv[-2])
 
@@ -40,12 +41,12 @@ imagename = "{0}_channel_{1}".format(imagename, chan_num)
 # Based on the channel number, update the start velocity for this channel
 
 # Get the value out from the string, removing the unit
-split_start = filter("/".join(filter(None, re.split(r'(\d+)', start))))
+split_start = filter(None, re.split(r'(\d+)', start))
 
 init_start = float("".join(split_start[:-1]))
 spec_unit = split_start[-1]
 
-chan_width = float(filter(None, re.split(r'(\d+)', width))[:-1])
+chan_width = float("".join(filter(None, re.split(r'(\d+)', width))[:-1]))
 
 start_vel = init_start + chan_width * chan_num
 
@@ -68,7 +69,12 @@ else:
 # These should already be split into individual channels for use here
 # The naming scheme should split imagename.image to imagename_channel_{}.image
 # The file MUST end in ".image"
-if startmodel is not None or len(startmodel) > 0:
+if startmodel is not None and len(startmodel) > 0:
+
+    print("Start model??")
+    print(type(startmodel))
+    print(startmodel is not None)
+    print(len(startmodel))
 
     startmodel = "{0}_channel_{1}.image"(startmodel.split(".image")[0],
                                          chan_num)
@@ -78,27 +84,30 @@ if startmodel is not None or len(startmodel) > 0:
 
 # The naming scheme should split name.mask to name_channel_{}.mask
 # The file MUST end in ".mask"
-if mask is not None or len(mask) > 0 and usemask == "user":
+if mask is not None and len(mask) > 0 and usemask == "user":
+
+    print("Mask??")
 
     mask = "{0}_channel_{1}.mask"(mask.split(".image")[0], chan_num)
 
     if not os.path.exists(mask):
         raise ValueError("Given mask name ({0}) does not exist".format(mask))
 
+# Grab freq from the SPW dict
+spw_num = int(spw)
+
 # Only update a few parameters, as needed
 
-out_dict = \
-    tclean(start="{0}{1}".format(start_vel, spec_unit),
-           width="{0}{1}".format(chan_width, spec_unit),
-           nchan=1,
-           startmodel=startmodel,
-           restfreq=linespw_dict[spw_num][1],
-           mask=mask,
-           restart=True,
-           calcres=do_calcres,
-           calcpsf=do_calcpsf,
-           interactive=0  # Returns a summary dictionary
-           )
+start = "{0}{1}".format(start_vel, spec_unit)
+width = "{0}{1}".format(chan_width, spec_unit)
+nchan = 1
+restfreq = linespw_dict[spw_num][1]
+restart = True
+calcres = do_calcres
+calcpsf = do_calcpsf
+interactive = 0  # Returns a summary dictionary
+
+out_dict = tclean()
 
 # Save the output dictionary. Numpy should be fine for this as the individual
 # channels will get concatenated together

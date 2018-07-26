@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH -c 1
-#SBATCH --time=24:00:00
-#SBATCH --mem=16000M
+#SBATCH --time=36:00:00
+#SBATCH --mem=4000M
 #SBATCH --job-name=M33_bc_02kms-%A-%a
 #SBATCH --output=casa-m33_bv_02kms-%A-%a.out
 #SBATCH --array=0-1334

@@ -843,15 +843,15 @@ plt.close()
 hist2d(tab['sigma_HI_nomask'][good_pts] / 1000.,
        tab['sigma_CO'][good_pts] / 1000.,
        bins=18, data_kwargs={"alpha": 0.5})
-plt.plot([4, 17.5], [4, 17.5], '--', linewidth=3)
-plt.plot([4, 17.5], [4. * slope + inter, 17.5 * slope + inter])
+plt.plot([4, 17.5], [4, 17.5], '-.', linewidth=3, color=sb.color_palette()[2])
+plt.plot([4, 17.5], [4. * slope + inter, 17.5 * slope + inter],
+         color=sb.color_palette()[0])
 plt.fill_between([4, 17.5], [4. * slope_ci[0] + inter_cis[0],
                              17.5 * slope_ci[0] + inter_cis[0]],
                  [4. * slope_ci[1] + inter_cis[1],
                   17.5 * slope_ci[1] + inter_cis[1]],
                  facecolor=sb.color_palette()[0],
                  alpha=0.5)
-
 plt.grid()
 
 plt.ylabel(r"$\sigma_{\rm CO}$ (km/s)")

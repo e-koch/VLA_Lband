@@ -70,11 +70,6 @@ else:
 # The file MUST end in ".image"
 if startmodel is not None and len(startmodel) > 0:
 
-    print("Start model??")
-    print(type(startmodel))
-    print(startmodel is not None)
-    print(len(startmodel))
-
     startmodel = "{0}_channel_{1}.image"(startmodel.split(".image")[0],
                                          chan_num)
 
@@ -84,8 +79,6 @@ if startmodel is not None and len(startmodel) > 0:
 # The naming scheme should split name.mask to name_channel_{}.mask
 # The file MUST end in ".mask"
 if mask is not None and len(mask) > 0 and usemask == "user":
-
-    print("Mask??")
 
     mask = "{0}_channel_{1}.mask"(mask.split(".image")[0], chan_num)
 

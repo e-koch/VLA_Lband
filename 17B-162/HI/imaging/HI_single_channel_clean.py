@@ -53,6 +53,11 @@ start_vel = init_start + chan_width * chan_num
 # Check if the products already exist and we should avoid recomputing the PSF
 # and residuals
 
+if os.path.exists("{}.image".format(imagename)):
+    casalog.post("Image already exists! Assuming this channel is completed.")
+    import sys
+    sys.exit(0)
+
 # Check for the PSF and assume the rest of the products are there too.
 if os.path.exists("{}.psf".format(imagename)):
     do_calcres = False

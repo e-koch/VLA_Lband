@@ -14,6 +14,7 @@ Cleans a single channel given the channel name
 
 # Load in the SPW dict in the repo on cedar
 execfile(os.path.expanduser("~/code/VLA_Lband/17B-162/spw_setup.py"))
+# execfile(os.path.expanduser("~/Dropbox/code_development/VLA_Lband/17B-162/spw_setup.py"))
 
 chan_num = int(sys.argv[-2])
 
@@ -99,9 +100,162 @@ calcres = do_calcres
 calcpsf = do_calcpsf
 interactive = 0  # Returns a summary dictionary
 
-out_dict = tclean()
+# out_dict = tclean()
 
-# Save the output dictionary. Numpy should be fine for this as the individual
-# channels will get concatenated together
+# Alternatively, skip the mandatory plotting stage from the summary call
 
-np.save(imagename + ".results_dict.npy", out_dict)
+## (1) Import the python application layer
+
+from imagerhelpers.imager_base import PySynthesisImager
+from imagerhelpers.input_parameters import ImagerParameters
+
+## (2) Set up Input Parameters
+## - List all parameters that you need here
+## - Defaults will be assumed for unspecified parameters
+## - Nearly all parameters are identical to that in the task. Please look at the
+## list of parameters under __init__ using " help ImagerParameters " )
+
+
+    # Put all parameters into dictionaries and check them.
+paramList = ImagerParameters(msname=vis,
+                             field=field,
+                             spw=spw,
+                             timestr=timerange,
+                             uvdist=uvrange,
+                             antenna=antenna,
+                             scan=scan,
+                             obs=observation,
+                             state=intent,
+                             datacolumn=datacolumn,
+                             imagename=imagename,
+                             imsize=imsize,
+                             cell=cell,
+                             phasecenter=phasecenter,
+                             stokes=stokes,
+                             projection=projection,
+                             startmodel=startmodel,
+                             specmode=specmode,
+                             reffreq=reffreq,
+                             nchan=1,
+                             start="{0}{1}".format(start_vel, spec_unit),
+                             width="{0}{1}".format(chan_width, spec_unit),
+                             outframe=outframe,
+                             veltype=veltype,
+                             restfreq=linespw_dict[spw_num][1],
+                             sysvel='',
+                             sysvelframe='',
+                             interpolation=interpolation,
+                             gridder=gridder,
+                             facets=facets,
+                             chanchunks=chanchunks,
+                             wprojplanes=wprojplanes,
+                             vptable=vptable,
+                             aterm=aterm,
+                             psterm=psterm,
+                             wbawp = wbawp,
+                             cfcache = cfcache,
+                             conjbeams = conjbeams,
+                             computepastep =computepastep,
+                             rotatepastep = rotatepastep,
+                             pblimit=pblimit,
+                             normtype=normtype,
+                             outlierfile=outlierfile,
+                             restart=restart,
+                             weighting=weighting,
+                             robust=robust,
+                             npixels=npixels,
+                             uvtaper=uvtaper,
+                             niter=niter,
+                             cycleniter=cycleniter,
+                             loopgain=gain,
+                             threshold=threshold,
+                             nsigma=0.0,
+                             cyclefactor=cyclefactor,
+                             minpsffraction=minpsffraction,
+                             maxpsffraction=maxpsffraction,
+                             interactive=0,
+                             deconvolver=deconvolver,
+                             scales=scales,
+                             nterms=nterms,
+                             scalebias=smallscalebias,
+                             restoringbeam=restoringbeam,
+                             usemask=usemask,
+                             mask=mask,
+                             pbmask=pbmask,
+                             sidelobethreshold=sidelobethreshold,
+                             noisethreshold=noisethreshold,
+                             lownoisethreshold=lownoisethreshold,
+                             negativethreshold=negativethreshold,
+                             smoothfactor=smoothfactor,
+                             minbeamfrac=minbeamfrac,
+                             cutthreshold=cutthreshold,
+                             growiterations=growiterations,
+                             dogrowprune=True,
+                             minpercentchange=0.0,
+                             verbose=True,
+                             savemodel=savemodel,
+                             )
+
+# (3) Construct the PySynthesisImager object, with all input parameters
+
+imager = PySynthesisImager(params=paramList)
+
+# (4) Initialize various modules.
+# - Pick only the modules you will need later on. For example, to only make
+# the PSF, there is no need for the deconvolver or iteration control modules.
+
+# Initialize modules major cycle modules
+
+imager.initializeImagers()
+imager.initializeNormalizers()
+imager.setWeighting()
+
+# Init minor cycle modules
+
+if restoration and niter > 0:
+    imager.initializeDeconvolvers()
+
+if niter > 0:
+    imager.initializeIterationControl()
+
+# (5) Make the initial images
+
+if do_calcpsf:
+    imager.makePSF()
+
+    imager.makePB()
+
+if do_calcres:
+    imager.runMajorCycle()  # Make initial dirty / residual image
+
+if niter > 0:
+    # (6) Make the initial clean mask
+    imager.hasConverged()
+    imager.updateMask()
+
+    # (7) Run the iteration loops
+    mincyc_num = 1
+    while (not imager.hasConverged()):
+        casalog.post("On minor cycle {}".format(mincyc_num))
+        imager.runMinorCycle()
+        imager.runMajorCycle()
+        imager.updateMask()
+        mincyc_num += 1
+
+# (8) Finish up
+
+if niter > 0:
+    out_dict = imager.IBtool.getiterationsummary()
+
+    # Save the output dictionary. Numpy should be fine for this as the
+    # individual channels will get concatenated together
+
+    np.save(imagename + ".results_dict.npy", out_dict)
+
+if restoration:
+    imager.restoreImages()
+
+    if pbcor:
+        imager.pbcorImages()
+
+imager.deleteTools()

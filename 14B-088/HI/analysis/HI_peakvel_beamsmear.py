@@ -13,6 +13,7 @@ from spectral_cube import Projection
 import matplotlib.pyplot as plt
 from turbustat.statistics import PDF
 from scipy import stats
+from scipy.stats import binned_statistic
 import seaborn as sb
 from corner import hist2d
 
@@ -36,7 +37,10 @@ def window_stdev(X, window_size):
     return np.sqrt(c2 - c1 * c1)
 
 
-peakvels = Projection.from_hdu(fits.open(fourteenB_wGBT_HI_file_dict['PeakVels']))
+default_figure()
+
+peakvels = \
+    Projection.from_hdu(fits.open(fourteenB_wGBT_HI_file_dict['PeakVels']))
 mom0 = Projection.from_hdu(fits.open(fourteenB_wGBT_HI_file_dict['Moment0']))
 
 
@@ -58,6 +62,10 @@ mask = nd.binary_erosion(mask, iterations=window_size)
 
 # plt.imshow(stddev, origin='lower', vmax=1.e4)
 # plt.contour(mask, colors='r')
+
+onecolumn_figure()
+sb.set_palette('colorblind')
+col_pal = sb.color_palette('colorblind')
 
 _ = plt.hist(np.log10(stddev[mask] / 1000.), bins='auto', alpha=0.4, label='19"')
 
@@ -86,10 +94,6 @@ mask_38[stddev_38 == 0.0] = False
 
 # Only compare where the original resolution values are defined
 mask_38[~mask] = False
-
-onecolumn_figure()
-sb.set_palette('colorblind')
-col_pal = sb.color_palette('colorblind')
 
 _ = plt.hist(np.log10(stddev_38[mask_38] / 1000.), bins='auto', alpha=0.4, label='38"')
 
@@ -180,20 +184,84 @@ plt.savefig(allfigs_path('HI_properties/peakvel_stddevfilter_histograms.png'))
 plt.close()
 
 # Trends against each other?
-comb_mask_38 = np.logical_and(np.isfinite(stddev_masked),
-                              np.isfinite(stddev_masked_38))
-hist2d(stddev_masked[comb_mask_38], stddev_masked_38[comb_mask_38])
+# comb_mask_38 = np.logical_and(np.isfinite(stddev_masked),
+#                               np.isfinite(stddev_masked_38))
+# hist2d(stddev_masked[comb_mask_38], stddev_masked_38[comb_mask_38])
 
-comb_mask_95 = np.logical_and(np.isfinite(stddev_masked),
-                              np.isfinite(stddev_masked_95))
-hist2d(stddev_masked[comb_mask_95], stddev_masked_95[comb_mask_95])
+# comb_mask_95 = np.logical_and(np.isfinite(stddev_masked),
+#                               np.isfinite(stddev_masked_95))
+# hist2d(stddev_masked[comb_mask_95], stddev_masked_95[comb_mask_95])
 
 # Against radius?
 radius = gal.radius(header=mom0.header).to(u.kpc)
 
-hist2d(radius.value[comb_mask_38],
-       np.log10((stddev_masked_38 / stddev_masked)[comb_mask_38]))
-hist2d(radius.value[comb_mask_95],
-       np.log10((stddev_masked_95 / stddev_masked)[comb_mask_95]))
+# hist2d(radius.value[comb_mask_38],
+#        np.log10((stddev_masked_38 / stddev_masked)[comb_mask_38]))
+# hist2d(radius.value[comb_mask_95],
+#        np.log10((stddev_masked_95 / stddev_masked)[comb_mask_95]))
 
 # Mild increase with radius for the inner 2 kpc.
+
+# Create radial profiles of avg std
+
+beam_pix = 41.
+
+rad_bins = np.arange(0, 7.5, 0.5)
+med_bin, bin_edges, cts = binned_statistic(radius.value[mask],
+                                           stddev_masked[mask] / 1.e3,
+                                           bins=rad_bins,
+                                           statistic=np.mean)
+# Last bin value are the points that are outside the largest bin
+bin_cts = np.array([np.sum(cts == bin_lab) for bin_lab in np.unique(cts)[:-1]])
+
+std_bin = binned_statistic(radius.value[mask],
+                           stddev_masked[mask] / 1.e3,
+                           bins=rad_bins,
+                           statistic=np.std)[0]
+# Correct by number of independent samples
+# std_bin /= np.sqrt(bin_cts / beam_pix)
+
+med_bin_38, bin_edges, cts = binned_statistic(radius.value[mask_38],
+                                              stddev_masked_38[mask_38] / 1.e3,
+                                              bins=rad_bins,
+                                              statistic=np.mean)
+bin_cts_38 = np.array([np.sum(cts == bin_lab)
+                       for bin_lab in np.unique(cts)[:-1]])
+
+std_bin_38 = binned_statistic(radius.value[mask_38],
+                              stddev_masked_38[mask_38] / 1.e3,
+                              bins=rad_bins,
+                              statistic=np.std)[0]
+# std_bin_38 /= np.sqrt(bin_cts_38 / beam_pix)
+
+med_bin_95, bin_edges, cts = binned_statistic(radius.value[mask_95],
+                                              stddev_masked_95[mask_95] / 1.e3,
+                                              bins=rad_bins,
+                                              statistic=np.mean)
+bin_cts_95 = np.array([np.sum(cts == bin_lab)
+                       for bin_lab in np.unique(cts)[:-1]])
+
+std_bin_95 = binned_statistic(radius.value[mask_95],
+                              stddev_masked_95[mask_95] / 1.e3,
+                              bins=rad_bins,
+                              statistic=np.std)[0]
+# std_bin_95 /= np.sqrt(bin_cts_95 / beam_pix)
+
+bin_cents = (bin_edges[1:] + bin_edges[:-1]) / 2.
+
+plt.axhline(0.2, color=col_pal[3], linestyle='--', linewidth=4, alpha=0.75)
+plt.axhline(2.6, color=col_pal[5], linestyle=':', linewidth=4, alpha=0.75)
+plt.errorbar(bin_cents, med_bin, fmt='o-', drawstyle='steps-mid',
+             yerr=std_bin, label='19"')
+plt.errorbar(bin_cents, med_bin_38, fmt='D-', drawstyle='steps-mid',
+             yerr=std_bin_38, label='38"')
+plt.errorbar(bin_cents, med_bin_95, fmt='^-', drawstyle='steps-mid',
+             yerr=std_bin_95, label='95"')
+plt.legend(frameon=True)
+plt.grid()
+plt.ylabel("Standard deviation of\n peak velocity (km/s)")
+plt.xlabel("Radius (kpc)")
+plt.tight_layout()
+plt.savefig(allfigs_path('HI_properties/peakvel_stddevfilter_radprofile.pdf'))
+plt.savefig(allfigs_path('HI_properties/peakvel_stddevfilter_radprofile.png'))
+plt.close()

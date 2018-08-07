@@ -87,15 +87,18 @@ reg3 = ((90, 132), (138, 170))
 
 ax.add_patch(patches.Rectangle(reg1[0], reg1[1][0] - reg1[0][0],
                                reg1[1][1] - reg1[0][1], fill=True,
-                               facecolor=col_pal[3], linewidth=3,))
+                               facecolor=col_pal[3], linewidth=1,
+                               edgecolor='k'))
 
 ax.add_patch(patches.Rectangle(reg2[0], reg2[1][0] - reg2[0][0],
                                reg2[1][1] - reg2[0][1], fill=True,
-                               facecolor=col_pal[2], linewidth=3,))
+                               facecolor=col_pal[1], linewidth=1,
+                               edgecolor='k'))
 
 ax.add_patch(patches.Rectangle(reg3[0], reg3[1][0] - reg3[0][0],
                                reg3[1][1] - reg3[0][1], fill=True,
-                               facecolor=col_pal[5], linewidth=3,))
+                               facecolor=col_pal[5], linewidth=1,
+                               edgecolor='k'))
 
 
 tab = Table.read(fourteenB_HI_data_wGBT_path("tables/hi_co_gaussfit_column_densities_perpix.fits"))

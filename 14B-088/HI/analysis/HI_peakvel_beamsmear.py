@@ -265,3 +265,49 @@ plt.tight_layout()
 plt.savefig(allfigs_path('HI_properties/peakvel_stddevfilter_radprofile.pdf'))
 plt.savefig(allfigs_path('HI_properties/peakvel_stddevfilter_radprofile.png'))
 plt.close()
+
+
+# Calculate the bin-averaged velocity dispersions from the radial profiles
+
+pix_area = np.sum(radius < 7 * u.kpc)
+
+med_bin_area_avg = (bin_cts * med_bin).sum() / pix_area
+eight5_bin_area_avg = (bin_cts * (med_bin + std_bin)).sum() / pix_area
+fifteen_bin_area_avg = (bin_cts * (med_bin - std_bin)).sum() / pix_area
+med_bin_38_area_avg = (bin_cts * med_bin_38).sum() / pix_area
+eight5_bin_38_area_avg = (bin_cts * (med_bin + std_bin_38)).sum() / pix_area
+fifteen_bin_38_area_avg = (bin_cts * (med_bin - std_bin_38)).sum() / pix_area
+med_bin_95_area_avg = (bin_cts * med_bin_95).sum() / pix_area
+eight5_bin_95_area_avg = (bin_cts * (med_bin + std_bin_95)).sum() / pix_area
+fifteen_bin_95_area_avg = (bin_cts * (med_bin - std_bin_95)).sum() / pix_area
+
+print("Avg. broadening: {0}. Limits: {1}, {2}".format(med_bin_area_avg,
+                                                      fifteen_bin_area_avg,
+                                                      eight5_bin_area_avg))
+print("38''Avg. broadening: {0}. Limits: {1}, {2}".format(med_bin_38_area_avg,
+                                                          fifteen_bin_38_area_avg,
+                                                          eight5_bin_38_area_avg))
+print("95''Avg. broadening: {0}. Limits: {1}, {2}".format(med_bin_95_area_avg,
+                                                          fifteen_bin_95_area_avg,
+                                                          eight5_bin_95_area_avg))
+
+# Can the line width increases at 95'' be entirely due to beam smearing?
+
+hi_width_95 = 8.9
+co_width_95 = 7.3
+
+hi_width_38 = 8.0
+co_width_38 = 6.0
+
+hi_width_95_bc = np.sqrt(hi_width_95**2 - med_bin_95_area_avg**2)
+hi_width_95_bc_err = (2 / hi_width_95_bc) * \
+    (hi_width_95 * 0.1 + med_bin_95_area_avg * 1.0)
+
+co_width_95_bc = np.sqrt(co_width_95**2 - med_bin_95_area_avg**2)
+co_width_95_bc_err = (2 / co_width_95_bc) * \
+    (co_width_95 * 1.3 + med_bin_95_area_avg * 1.0)
+
+print("Beam smear-corr 95'' HI: {0}+/-{1}".format(hi_width_95_bc,
+                                                  hi_width_95_bc_err))
+print("Beam smear-corr 95'' CO: {0}+/-{1}".format(co_width_95_bc,
+                                                  co_width_95_bc_err))

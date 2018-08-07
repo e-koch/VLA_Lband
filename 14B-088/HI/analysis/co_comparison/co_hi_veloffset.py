@@ -75,15 +75,18 @@ plt.savefig(allfigs_path(join(fig_path, "hi_Tpeak_centroid_velocity_offset.png")
 plt.close()
 
 # Peak Velocity Comparisons
-hist2d(np.abs((co_peakvels - hi_peakvels)[good_pts]), co_peaktemp[good_pts],
+peakvel_diff = (co_peakvels - hi_peakvels)[good_pts]
+hist2d(np.abs(peakvel_diff), co_peaktemp[good_pts],
        bins=16, data_kwargs={"alpha": 0.6},
-       range=[(0.0, 25.),
+       range=[(-25.0, 25.),
               (0.0, 1.05 * np.max(co_peaktemp[good_pts]))])
 plt.axhline(0.06, color='r', linestyle='--')
 plt.ylabel(r"T$_\mathrm{peak, CO}$ (K)")
 plt.xlabel(r"$|V_{\rm peak, CO} - V_{\rm peak, HI}|$ (km/s)")
 plt.grid()
 plt.tight_layout()
+
+print("Fraction of outliers beyond ~4 sigma: {}".format((np.abs(peakvel_diff) > 10).sum() / float(peakvel_diff.size)))
 
 plt.savefig(allfigs_path(join(fig_path, "co21_Tpeak_peakvel_velocity_offset.pdf")))
 plt.savefig(allfigs_path(join(fig_path, "co21_Tpeak_peakvel_velocity_offset.png")))

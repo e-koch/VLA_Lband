@@ -231,7 +231,11 @@ if do_calcpsf:
     imager.makePB()
 
 if do_calcres:
+    casalog.post("Initial major cycle")
     imager.runMajorCycle()  # Make initial dirty / residual image
+
+    # Copy the initial residual map to a new name for post-imaging checks
+    os.system("cp -r {0} {0}_init".format(imagename + ".residual"))
 
 if niter > 0:
     # (6) Make the initial clean mask

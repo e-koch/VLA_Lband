@@ -5,6 +5,7 @@ Use parameters from Diskfit in the Galaxy class
 
 from galaxies import Galaxy
 from astropy.table import Table
+import astropy.units as u
 
 from cube_analysis.rotation_curves import update_galaxy_params
 

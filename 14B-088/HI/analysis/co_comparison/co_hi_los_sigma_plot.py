@@ -92,7 +92,7 @@ ax.add_patch(patches.Rectangle(reg1[0], reg1[1][0] - reg1[0][0],
 
 ax.add_patch(patches.Rectangle(reg2[0], reg2[1][0] - reg2[0][0],
                                reg2[1][1] - reg2[0][1], fill=True,
-                               facecolor=col_pal[1], linewidth=1,
+                               facecolor=col_pal[2], linewidth=1,
                                edgecolor='k'))
 
 ax.add_patch(patches.Rectangle(reg3[0], reg3[1][0] - reg3[0][0],

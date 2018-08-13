@@ -5,6 +5,7 @@ import os
 from distutils.dir_util import mkpath
 import re
 import numpy as np
+import time
 
 from tasks import tclean, tget
 
@@ -13,8 +14,8 @@ Cleans a single channel given the channel name
 '''
 
 # Load in the SPW dict in the repo on cedar
-execfile(os.path.expanduser("~/code/VLA_Lband/17B-162/spw_setup.py"))
-# execfile(os.path.expanduser("~/Dropbox/code_development/VLA_Lband/17B-162/spw_setup.py"))
+# execfile(os.path.expanduser("~/code/VLA_Lband/17B-162/spw_setup.py"))
+execfile(os.path.expanduser("~/Dropbox/code_development/VLA_Lband/17B-162/spw_setup.py"))
 
 chan_num = int(sys.argv[-2])
 
@@ -157,11 +158,11 @@ paramList = ImagerParameters(msname=vis,
                              vptable=vptable,
                              aterm=aterm,
                              psterm=psterm,
-                             wbawp = wbawp,
-                             cfcache = cfcache,
-                             conjbeams = conjbeams,
-                             computepastep =computepastep,
-                             rotatepastep = rotatepastep,
+                             wbawp=wbawp,
+                             cfcache=cfcache,
+                             conjbeams=conjbeams,
+                             computepastep=computepastep,
+                             rotatepastep=rotatepastep,
                              pblimit=pblimit,
                              normtype=normtype,
                              outlierfile=outlierfile,
@@ -174,7 +175,7 @@ paramList = ImagerParameters(msname=vis,
                              cycleniter=cycleniter,
                              loopgain=gain,
                              threshold=threshold,
-                             nsigma=0.0,
+                             nsigma=nsigma,
                              cyclefactor=cyclefactor,
                              minpsffraction=minpsffraction,
                              maxpsffraction=maxpsffraction,
@@ -210,61 +211,123 @@ imager = PySynthesisImager(params=paramList)
 # the PSF, there is no need for the deconvolver or iteration control modules.
 
 # Initialize modules major cycle modules
+try:
+    t0 = time.time()
 
-imager.initializeImagers()
-imager.initializeNormalizers()
-imager.setWeighting()
+    imager.initializeImagers()
+    imager.initializeNormalizers()
+    imager.setWeighting()
 
-# Init minor cycle modules
+    t1 = time.time()
 
-if restoration and niter > 0:
-    imager.initializeDeconvolvers()
+    casalog.post("Time for initializing imager and normalizers: " +
+                 "%.2f" % (t1 - t0) + " sec")
 
-if niter > 0:
-    imager.initializeIterationControl()
+    # Init minor cycle modules
+    if restoration and niter > 0:
+        t2 = time.time()
+        imager.initializeDeconvolvers()
+        t3 = time.time()
+        casalog.post("Time for initializing deconvolver: " +
+                     "%.2f" % (t3 - t2) + " sec")
 
-# (5) Make the initial images
+    if niter > 0:
+        t4 = time.time()
+        imager.initializeIterationControl()
+        t5 = time.time()
+        casalog.post("Time for initializing iteration control: " +
+                     "%.2f" % (t5 - t4) + " sec")
 
-if do_calcpsf:
-    imager.makePSF()
+    # (5) Make the initial images
 
-    imager.makePB()
+    if do_calcpsf:
+        t6 = time.time()
+        imager.makePSF()
+        t7 = time.time()
+        casalog.post("Time for creating PSF: " +
+                     "%.2f" % (t7 - t6) + " sec")
 
-if do_calcres:
-    casalog.post("Initial major cycle")
-    imager.runMajorCycle()  # Make initial dirty / residual image
+        t8 = time.time()
+        imager.makePB()
+        t9 = time.time()
+        casalog.post("Time for creating PB: " +
+                     "%.2f" % (t9 - t8) + " sec")
 
-    # Copy the initial residual map to a new name for post-imaging checks
-    os.system("cp -r {0} {0}_init".format(imagename + ".residual"))
+    if do_calcres:
+        casalog.post("Initial major cycle")
 
-if niter > 0:
-    # (6) Make the initial clean mask
-    imager.hasConverged()
-    imager.updateMask()
+        t10 = time.time()
+        imager.runMajorCycle()  # Make initial dirty / residual image
+        t11 = time.time()
+        casalog.post("Time for initial major cycle: " +
+                     "%.2f" % (t11 - t10) + " sec")
 
-    # (7) Run the iteration loops
-    mincyc_num = 1
-    while (not imager.hasConverged()):
-        casalog.post("On minor cycle {}".format(mincyc_num))
-        imager.runMinorCycle()
-        imager.runMajorCycle()
+        # Copy the initial residual map to a new name for post-imaging checks
+        os.system("cp -r {0} {0}_init".format(imagename + ".residual"))
+
+    if niter > 0:
+        # (6) Make the initial clean mask
+        imager.hasConverged()
         imager.updateMask()
-        mincyc_num += 1
 
-# (8) Finish up
+        # (7) Run the iteration loops
+        mincyc_num = 1
+        while (not imager.hasConverged()):
+            casalog.post("On minor cycle {}".format(mincyc_num))
 
-if niter > 0:
-    out_dict = imager.IBtool.getiterationsummary()
+            t0_l = time.time()
+            imager.runMinorCycle()
+            t1_l = time.time()
+            casalog.post("Time for minor cycle: {}".format(mincyc_num) +
+                         "%.2f" % (t1_l - t0_l) + " sec")
 
-    # Save the output dictionary. Numpy should be fine for this as the
-    # individual channels will get concatenated together
+            t2_l = time.time()
+            imager.runMajorCycle()
+            t3_l = time.time()
+            casalog.post("Time for major cycle: {}".format(mincyc_num + 1) +
+                         "%.2f" % (t3_l - t2_l) + " sec")
 
-    np.save(imagename + ".results_dict.npy", out_dict)
+            imager.updateMask()
+            mincyc_num += 1
 
-if restoration:
-    imager.restoreImages()
+    # (8) Finish up
 
-    if pbcor:
-        imager.pbcorImages()
+    if niter > 0:
+        out_dict = imager.IBtool.getiterationsummary()
 
-imager.deleteTools()
+        # Save the output dictionary. Numpy should be fine for this as the
+        # individual channels will get concatenated together
+
+        np.save(imagename + ".results_dict.npy", out_dict)
+
+    if restoration:
+        t12 = time.time()
+        imager.restoreImages()
+        t13 = time.time()
+        casalog.post("Time for restoring images: " +
+                     "%.2f" % (t13 - t12) + " sec")
+
+        if pbcor:
+            t14 = time.time()
+            imager.pbcorImages()
+            t15 = time.time()
+            casalog.post("Time for pb-correcting images: " +
+                         "%.2f" % (t15 - t14) + " sec")
+
+    imager.deleteTools()
+
+    t16 = time.time()
+    casalog.post("Total Time: " +
+                 "%.2f" % (t16 - t0) + " sec")
+
+
+except Exception as e:
+    casalog.post("Exception reported: {}".format(e), "SEVERE")
+    casalog.post("Exception reported: {}".format(e.args), "SEVERE")
+
+    try:
+        imager.deleteTools()
+    except Exception:
+        pass
+
+    raise e

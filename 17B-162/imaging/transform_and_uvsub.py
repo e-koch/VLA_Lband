@@ -40,7 +40,7 @@ for spw_num in range(0, 10):
                 restfreq=linespw_dict[spw_num][1], outframe='LSRK',
                 douvcontsub=do_uvcontsub,
                 fitspw='{0}:{1}'.format(spw_num, linespw_dict[spw_num][3]),
-                fitorder=0, want_cont=False)
+                fitorder=0 if spw_num != 0 else 1, want_cont=False)
 
     # Separate uvcontsub for HI
     if spw_num == 0:

@@ -42,7 +42,7 @@ for (( chan_num = $start_chan; chan_num < $end_chan; chan_num++ )); do
 
     echo "Running channel "$chan_num
 
-    $HOME/casa-release-5.3.0-143.el7/bin/casa --nologger --nogui --logfile M33_14B_17B_${chan_num}_${SLURM_JOB_ID}_$(date "+%Y%m%d-%H%M%S").log --nocrashreport -c $HOME/code/VLA_Lband/17B-162/HI/imaging/HI_single_channel_clean.py $chan_num $param_file &
+    $HOME/casa-release-5.3.0-143.el7/bin/casa --nologger --nogui --logfile casa_M33_HI_14B_17B_2kms_${chan_num}_${SLURM_JOB_ID}_$(date "+%Y%m%d-%H%M%S").log --nocrashreport -c $HOME/code/VLA_Lband/17B-162/HI/imaging/HI_single_channel_clean.py $chan_num $param_file &
     pids+=" $!"
 
 done

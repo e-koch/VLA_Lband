@@ -1,0 +1,21 @@
+# Custom flags for 16B-236.sb32623829.eb33077539.57737.926878715276 line SPWs
+
+mode='manual' scan='2' timerange="<22:20:45"
+mode='manual' scan='2' timerange=">22:25:50"
+
+mode='manual' scan='33' timerange="<00:13:40"
+
+mode='manual' scan='3~6' antenna='ea11'
+
+mode='manual' spw='0' scan='39' antenna='ea16'
+
+mode='manual' spw='3' scan='13' timerange=">23:03:50"
+mode='manual' spw='3' scan='16'
+mode='manual' spw='3' scan='18' timerange=">23:21:10"
+mode='manual' spw='3' scan='21' timerange="<23:30:50"
+mode='manual' spw='3' scan='57' timerange=">01:43:00"
+
+mode='manual' spw='3:12~15' scan='21' antenna='ea12&&ea13'
+mode='manual' spw='8:92~95' scan='6,10,21,30,33,42,45,46,52,60,61' antenna='ea07&&ea20'
+
+

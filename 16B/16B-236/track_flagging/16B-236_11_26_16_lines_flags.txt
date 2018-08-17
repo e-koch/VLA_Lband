@@ -1,0 +1,22 @@
+# Custom flags for 16B-236.sb32623829.eb33039582.57718.93170724537 line SPWs
+
+# Bad delay solutions
+mode='manual' antenna='ea21'
+
+mode='manual' scan='2' timerange='>22:27:30'
+mode='manual' scan='2' timerange='<22:25:10'
+
+# RE-CHECK after flagging ea21
+# mode='manual' scan='10' timerange='>23:00:20'
+# mode='manual' scan='12' timerange='>23:05:10'
+# mode='manual' scan='13' timerange='>23:09:50'
+
+mode='manual' scan='52' timerange='>01:30:20'
+
+# RE-CHECK SPW 3 after flagging ea21
+# Lots of one-integration small amp spikes
+mode='manual' spw='3' scan='9' timerange='>22:50:20'
+mode='manual' spw='3' scan='46' timerange='<01:08:20'
+mode='manual' spw='3' scan='48' timerange='>01:16:20'
+mode='manual' spw='3' scan='52' timerange='>01:30:20'
+

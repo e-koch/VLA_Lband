@@ -1,0 +1,21 @@
+# Custom flags for 16B-236.sb32658813.eb33043300.57721.2355058449 line SPWs
+
+# Bad delay solutions
+mode='manual' antenna='ea21,ea26'
+
+mode='manual' scan='40' antenna='ea25'
+mode='manual' scan='41' antenna='ea25,ea10'
+mode='manual' scan='43' antenna='ea25,ea01,ea28'
+
+mode='manual' scan='2' timerange='<05:40:10'
+
+mode='manual' scan='3' timerange='>05:49:40'
+
+mode='manual' spw='3' scan='40' timerange="<08:02:40"
+mode='manual' spw='3' scan='44' timerange=">08:19:50"
+
+mode='manual' spw='3' scan='35' antenna="ea06"
+
+# uv scatter throughout
+mode='manual' spw='9' antenna="ea04"
+

@@ -1,0 +1,21 @@
+# Custom flags for 16B-236.sb32623829.eb33069261.57731.904499571756 line SPWs
+
+# Original pipeline removed ea16. Ensure it stays flagged
+mode='manual' antenna='ea16'
+
+# mode='manual' scan='3' antenna='ea11'
+
+mode='manual' scan='26' antenna='ea11'
+mode='manual' scan='60' antenna='ea27'
+
+mode='manual' scan='2' timerange='<21:49:35'
+mode='manual' scan='3' timerange='<21:53:05'
+
+mode='manual' scan='48' timerange='>00:37:00'
+
+mode='manual' spw='3' scan='37' timerange='>23:57:30'
+
+mode='manual' spw='8:92~95' antenna='ea07&&ea20'
+
+
+

@@ -1,0 +1,29 @@
+# Custom flags for 16B-236.sb32623829.eb33039653.57719.98023209491 line SPWs
+
+# Bad delay solutions
+mode='manual' antenna='ea21'
+
+# Extra scatter throughout. Note that ea26 gets flagged in 11/28/16 for poor
+# delay solutions
+mode='manual' antenna='ea26'
+
+mode='manual' scan='32'
+
+mode='manual' scan='34,36' antenna='ea27'
+
+# Significant scatter from ea11 over many scans in SPW 0. Check if the other SPWs show this and if ea11 should be removed.
+# mode='manual' scan='15~22' antenna='ea11'
+
+mode='manual' scan='2' timerange=">23:41:10"
+mode='manual' scan='2' timerange="<23:37:50"
+
+mode='manual' spw='3' scan='4' timerange="<23:45:30"
+mode='manual' spw='3' scan='8' timerange=">24:00:05"
+mode='manual' spw='3' scan='9' timerange=">00:02:40"
+mode='manual' spw='3' scan='12' timerange=">00:16:25"
+mode='manual' spw='3' scan='25' timerange=">01:01:40"
+mode='manual' spw='3' scan='28' timerange="<01:11:20"
+mode='manual' spw='3' scan='28' timerange=">01:13:20"
+mode='manual' spw='3' scan='34' timerange=">01:36:20"
+mode='manual' spw='3' scan='46' timerange="<02:19:00"
+

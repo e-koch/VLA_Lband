@@ -1,0 +1,18 @@
+# Custom flags for 16B-236.sb32623829.eb32998154.57703.975014375 line SPWs
+
+# Issue with ea04, as noted in operator log
+mode='manual' antenna='ea04'
+
+mode='manual' scan='2' timerange="<23:31:20"
+# mode='manual' scan='2' timerange=">23:33:40"
+
+mode='manual' scan='41' antenna='ea16'
+
+mode='manual' scan='16' antenna='ea22'
+mode='manual' scan='56' antenna='ea19'
+
+mode='manual' scan='10' timerange="<23:59:55"
+mode='manual' scan='52' timerange="<02:33:10"
+
+mode='manual' spw='3' scan='12' timerange="<00:08:30"
+mode='manual' spw='3' scan='54' timerange="<02:39:30"

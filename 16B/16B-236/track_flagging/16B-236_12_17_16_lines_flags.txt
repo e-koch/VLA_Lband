@@ -1,0 +1,30 @@
+# Custom flags for 16B-236.sb32658813.eb33081823.57739.161825104165 line SPWs
+
+# Large delays
+mode='manual' antenna='ea06'
+
+mode='manual' scan='6' antenna='ea19'
+mode='manual' scan='12' antenna='ea27,ea04'
+mode='manual' scan='24,25' antenna='ea22'
+mode='manual' scan='32' antenna='ea27'
+mode='manual' scan='47' antenna='ea16'
+mode='manual' scan='62' antenna='ea19'
+
+mode='manual' scan='2' timerange='<04:01:00'
+
+mode='manual' scan='3' timerange='<04:05:55'
+mode='manual' scan='4' timerange='<04:07:48'
+mode='manual' scan='7' timerange='<04:20:25'
+
+mode='manual' scan='38' timerange='<06:13:20'
+
+mode='manual' spw='2~3' scan='61' antenna=ea19&&ea24'
+mode='manual' spw='3,4,8' scan='27' antenna=ea24&&ea25'
+mode='manual' spw='4' scan='30~33' antenna=ea24&&ea25'
+mode='manual' spw='5,9' scan='33' antenna=ea24&&ea25'
+mode='manual' spw='8:94~95' scan='5,9' antenna=ea07&&ea20'
+
+mode='manual' spw='8,9' antenna='ea08&&ea16'
+
+# Consistently higher scatter
+mode='manual' spw='9' antenna='ea04'

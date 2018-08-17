@@ -1,0 +1,35 @@
+# Custom flags for 16B-236.sb32623829.eb33067127.57730.91522394676 line SPWs
+
+# Technical issues
+mode='manual' antenna='ea28'
+
+# Consistent uv scatter
+mode='manual' antenna='ea27'
+
+# Bad bandpass in one polarization
+mode='manual' antenna='ea14'
+
+# Amplitude spike over all frequencies
+mode='manual' scan='45'
+
+mode='manual' scan='2' timerange=">22:07:30"
+mode='manual' scan='2' timerange="<22:04:50"
+
+mode='manual' scan='35' timerange="<00:04:30"
+
+# Big ~ coherent spike in the middle of the SPW
+mode='manual' spw='1' scan='28'
+
+mode='manual' spw='3' scan='28' timerange='<23:37:30'
+
+mode='manual' scan='9~11' antenna='ea11'
+
+mode='manual' spw='3' scan='35' antenna='ea01&&ea11'
+mode='manual' spw='8' scan='4' antenna='ea07&&ea20'
+mode='manual' spw='8' scan='40' antenna='ea01&&ea21'
+
+
+
+
+
+

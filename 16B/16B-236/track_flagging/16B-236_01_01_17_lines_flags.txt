@@ -1,0 +1,16 @@
+# Custom flags for 16B-236.sb33078950.eb33143443.57752.87391505787 line SPWs
+
+mode='manual' scan='2' timerange='<21:02:15'
+
+mode='manual' scan='26' antenna='ea27'
+mode='manual' scan='40' antenna='ea27,ea19'
+mode='manual' scan='41' antenna='ea19'
+
+mode='manual' spw='3' scan='12,14'
+mode='manual' spw='3' scan='9' timerange='>21:32:40'
+mode='manual' spw='3' scan='58' timerange='>00:30:00'
+
+# Lots of outliers from these two channels
+mode='manual' spw='8:94~95'
+
+

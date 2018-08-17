@@ -1,0 +1,24 @@
+# Custom flags for 16B-236.sb32623829.eb33039653.57719.98023209491 line SPWs
+
+# Bad delay solutions
+mode='manual' antenna='ea21,ea26'
+
+# Substantial scatter
+mode='manual' antenna='ea11'
+
+mode='manual' scan='2' timerange=">22:21:40"
+mode='manual' scan='2' timerange="<22:19:10"
+
+mode='manual' scan='52' timerange=">01:22:00"
+mode='manual' scan='53' timerange="<01:23:40"
+
+mode='manual' spw='3' scan='45'
+
+mode='manual' scan='43~63' antenna='ea05'
+mode='manual' scan='57' antenna='ea06'
+mode='manual' scan='51' antenna='ea28'
+
+mode='manual' spw='7' scan='33' timerange="<00:11:40"
+
+# One extreme outlier
+mode='manual' spw='8:94~95' antenna='ea07&&ea20'

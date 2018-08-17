@@ -112,7 +112,8 @@ interactive = 0  # Returns a summary dictionary
 
 ## (1) Import the python application layer
 
-from imagerhelpers.imager_base import PySynthesisImager
+# from imagerhelpers.imager_base import PySynthesisImager
+from imagerhelpers.imager_parallel_continuum import PyParallelContSynthesisImager
 from imagerhelpers.input_parameters import ImagerParameters
 
 ## (2) Set up Input Parameters
@@ -204,7 +205,8 @@ paramList = ImagerParameters(msname=vis,
 
 # (3) Construct the PySynthesisImager object, with all input parameters
 
-imager = PySynthesisImager(params=paramList)
+# imager = PySynthesisImager(params=paramList)
+imager = PyParallelContSynthesisImager(params=paramList)
 
 # (4) Initialize various modules.
 # - Pick only the modules you will need later on. For example, to only make

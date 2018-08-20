@@ -48,8 +48,8 @@ try:
     # Adjust for slew time at beginning
     flagdata(vis=myvis, mode='quack', field="J0119+3210", quackinterval=13,
              quackmode='beg', flagbackup=False)
-    flagdata(vis=myvis, mode='quack', field="J0119+3210", quackinterval=6,
-             quackmode='end', flagbackup=False)
+    flagdata(vis=myvis, mode='quack', field="J0119+3210", quackinterval=4,
+             quackmode='endb', flagbackup=False)
 
     # Pol cals
     flagdata(vis=myvis, mode='quack', field="J0319+4130", quackinterval=70,
@@ -65,9 +65,10 @@ try:
     flagdata(vis=myvis, mode='quack', scan=scans_after_slew,
              quackinterval=8,
              quackmode='beg', flagbackup=False)
-    flagdata(vis=myvis, mode='quack', scan=scans_after_slew,
-             quackinterval=4,
-             quackmode='end', flagbackup=False)
+    scans_before_slew = "6,10,14,18,22,26,30,34,38,42,46,50,54,58,62"
+    flagdata(vis=myvis, mode='quack', scan=scans_before_slew,
+             quackinterval=6,
+             quackmode='endb', flagbackup=False)
 
     flagmanager(vis=myvis, mode='save', versionname="extra_quacking",
                 comment="Extra long-slew quacking.")
@@ -362,13 +363,14 @@ for spw_num in spws:
             plotms()
 
             # Skip the phase plots for the HI SPW (0)
-            if is_calibrator[jj - 1] and spw_num != 0:
+            if is_calibrator[jj - 1]:
                 # Plot phase vs time
                 default('plotms')
                 vis = ms_active
                 xaxis = 'time'
                 yaxis = 'phase'
                 ydatacolumn = 'corrected'
+                avgchannel = str(4096)
                 selectdata = True
                 field = names[ii]
                 scan = str(jj)
@@ -402,6 +404,7 @@ for spw_num in spws:
                 field = names[ii]
                 scan = str(jj)
                 spw = str(spw_num)
+                avgchannel = str(avg_chan)
                 correlation = "RR,LL"
                 averagedata = True
                 avgbaseline = False

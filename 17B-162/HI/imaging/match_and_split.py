@@ -48,6 +48,7 @@ casalog.post("Regridding 17B")
 
 mstransform(vis=seventeenB_ms,
             outputvis=seventeenB_ms_regrid,
+            datacolumn='data',
             spw='0', regridms=True, mode='velocity', veltype='radio',
             start="{}km/s".format(start_vel),
             width="{}km/s".format(chan_width), nchan=n_chan,
@@ -62,6 +63,7 @@ casalog.post("Regridding 14B")
 # Also convert th 14B data to an MMS w/ the same number of sub-MS as 17B
 mstransform(vis=fourteenB_ms,
             outputvis=fourteenB_ms_regrid,
+            datacolumn='data',
             field='M33_2,M33_6,M33_7_center,M33_8,M33_11,M33_12,M33_14',
             spw='0', regridms=True, mode='velocity', veltype='radio',
             start="{}km/s".format(start_vel),

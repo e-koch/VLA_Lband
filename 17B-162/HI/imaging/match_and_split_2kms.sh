@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH --time=60:00:00
-#SBATCH --mem=1547000M
+#SBATCH --time=72:00:00
+#SBATCH --mem=515000M
 #SBATCH --ntasks-per-node=32
 #SBATCH --nodes=1
 #SBATCH --job-name=M33_HI_match_and_combine-%J

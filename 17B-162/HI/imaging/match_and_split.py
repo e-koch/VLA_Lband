@@ -24,7 +24,7 @@ chan_width = float(sys.argv[-1])
 start_vel = -330
 end_vel = -50
 
-chan_width_label = "{}kms".format(chan_width.replace(".", ""))
+chan_width_label = "{}kms".format(chan_width).replace(".", "")
 
 # ~1334 for 0.21 km/s
 n_chan = int(np.ceil((end_vel - start_vel) / chan_width))

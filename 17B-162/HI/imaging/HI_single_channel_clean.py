@@ -20,24 +20,34 @@ execfile(os.path.expanduser("~/code/VLA_Lband/17B-162/spw_setup.py"))
 chan_num = int(sys.argv[-2])
 
 # Load in the imaging parameters from the given file name
-parameter_file = sys.argv[-1]
+parameter_file = sys.argv[-2]
+
+# Assume file structure of channel_path/channel_${num}/
+# Need to give the overall channel_path
+channel_path = sys.argv[-1]
 
 # Load parameters
 tget(tclean, parameter_file)
 
+# Append the full channel path to the vis's
+vis = [os.path.join(channel_path, "channel_".format(chan_num),
+                    "{0}_channel_{1}".format(mss, chan_num))
+       for mss in vis]
+
 # Get the output path and create directories, if needed, based on
 # the imagename
-if imagename.split("/") > 1:
+# if imagename.split("/") > 1:
 
-    output_path = "/".join(imagename.split("/")[:-1])
+#     output_path = "/".join(imagename.split("/")[:-1])
 
-    # Since the imaging is not run from the parent path for the channel output,
-    # use `mkpath`
-    if not os.path.exists(output_path):
-        mkpath(output_path)
+#     # Since the imaging is not run from the parent path for the channel output,
+#     # use `mkpath`
+#     if not os.path.exists(output_path):
+#         mkpath(output_path)
 
 # Now update the imagename with the channel number
-imagename = "{0}_channel_{1}".format(imagename, chan_num)
+imagename = os.path.join(channel_path, "channel_".format(chan_num),
+                         "{0}_channel_{1}".format(imagename, chan_num)
 
 # Based on the channel number, update the start velocity for this channel
 
@@ -77,8 +87,10 @@ else:
 # The file MUST end in ".image"
 if startmodel is not None and len(startmodel) > 0:
 
-    startmodel = "{0}_channel_{1}.image"(startmodel.split(".image")[0],
-                                         chan_num)
+    startmodel = os.path.join(channel_path,
+                              "channel_".format(chan_num),
+                              "{0}_channel_{1}.image"(startmodel.split(".image")[0],
+                                                      chan_num))
 
     if not os.path.exists(startmodel):
         raise ValueError("Given startmodel does not exist")
@@ -87,7 +99,9 @@ if startmodel is not None and len(startmodel) > 0:
 # The file MUST end in ".mask"
 if mask is not None and len(mask) > 0 and usemask == "user":
 
-    mask = "{0}_channel_{1}.mask"(mask.split(".image")[0], chan_num)
+    mask = os.path.join(channel_path,
+                        "channel_".format(chan_num),
+                        "{0}_channel_{1}.mask"(mask.split(".image")[0], chan_num))
 
     if not os.path.exists(mask):
         raise ValueError("Given mask name ({0}) does not exist".format(mask))

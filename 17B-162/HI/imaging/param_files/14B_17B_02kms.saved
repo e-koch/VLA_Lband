@@ -1,5 +1,5 @@
 taskname           = "tclean"
-vis                =  ['17B-162_HI_spw_0_LSRK.ms.contsub', '14B-088_HI_LSRK.ms.contsub']
+vis                =  ['17B-162_HI_spw_0_LSRK.ms.contsub.regrid_021kms', '14B-088_HI_LSRK.ms.contsub.regrid_021kms']
 selectdata         =  True
 field              =  "M33_2,M33_6,M33_7_center,M33_8,M33_11,M33_12,M33_14"
 spw                =  "0"

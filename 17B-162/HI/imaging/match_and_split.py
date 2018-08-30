@@ -92,14 +92,27 @@ for chan in range(n_chan + 1):
         os.mkdir(ind_chan_path)
 
     mstransform(vis=seventeenB_ms_regrid,
-                outputvis=os.path.join(ind_chan_path, split_msname),
+                outputvis=os.path.join(ind_chan_path, split_msname + ".mms"),
                 field='M33*',
                 spw='0:{}'.format(chan))
+
+    # You know what has a lot of files? MMSs! The cluster doesn't
+    # like this, so convert back to an MS
+    default('split')
+    split(vis=os.path.join(ind_chan_path, split_msname + ".mms"),
+          outputvis=os.path.join(ind_chan_path, split_msname), keepmms=False)
+
+    os.system("rm -r {}".format(os.path.join(ind_chan_path, split_msname + ".mms")))
 
     split_14B_msname = "{0}_channel_{1}".format(fourteenB_ms_regrid,
                                                 chan)
 
     mstransform(vis=fourteenB_ms_regrid,
-                outputvis=os.path.join(ind_chan_path, split_14B_msname),
+                outputvis=os.path.join(ind_chan_path, split_14B_msname + ".mms"),
                 field='M33*',
                 spw='0:{}'.format(chan))
+
+    split(vis=os.path.join(ind_chan_path, split_14B_msname + ".mms"),
+          outputvis=os.path.join(ind_chan_path, split_14B_msname), keepmms=False)
+
+    os.system("rm -r {}".format(os.path.join(ind_chan_path, split_14B_msname + ".mms")))

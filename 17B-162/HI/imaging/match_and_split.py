@@ -93,6 +93,7 @@ for chan in range(n_chan + 1):
 
     mstransform(vis=seventeenB_ms_regrid,
                 outputvis=os.path.join(ind_chan_path, split_msname + ".mms"),
+                datacolumn='data',
                 field='M33*',
                 spw='0:{}'.format(chan))
 
@@ -109,6 +110,7 @@ for chan in range(n_chan + 1):
 
     mstransform(vis=fourteenB_ms_regrid,
                 outputvis=os.path.join(ind_chan_path, split_14B_msname + ".mms"),
+                datacolumn='data',
                 field='M33*',
                 spw='0:{}'.format(chan))
 

@@ -1,10 +1,12 @@
 #!/bin/bash
-#SBATCH --time=72:00:00
+#SBATCH --time=220:00:00
 #SBATCH --mem=515000M
 #SBATCH --ntasks-per-node=32
 #SBATCH --nodes=1
 #SBATCH --job-name=M33_HI_match_and_combine-%J
 #SBATCH --output=casa-m33_HI_match_and_combine-%J.out
+
+# This will take about 9 days to run...
 
 # Create a combined 14B and 17B HI MMS
 

@@ -14,10 +14,10 @@ Cleans a single channel given the channel name
 '''
 
 # Load in the SPW dict in the repo on cedar
-execfile(os.path.expanduser("~/code/VLA_Lband/17B-162/spw_setup.py"))
-# execfile(os.path.expanduser("~/Dropbox/code_development/VLA_Lband/17B-162/spw_setup.py"))
+# execfile(os.path.expanduser("~/code/VLA_Lband/17B-162/spw_setup.py"))
+execfile(os.path.expanduser("~/Dropbox/code_development/VLA_Lband/17B-162/spw_setup.py"))
 
-chan_num = int(sys.argv[-2])
+chan_num = int(sys.argv[-3])
 
 # Load in the imaging parameters from the given file name
 parameter_file = sys.argv[-2]
@@ -30,7 +30,7 @@ channel_path = sys.argv[-1]
 tget(tclean, parameter_file)
 
 # Append the full channel path to the vis's
-vis = [os.path.join(channel_path, "channel_".format(chan_num),
+vis = [os.path.join(channel_path, "channel_{}".format(chan_num),
                     "{0}_channel_{1}".format(mss, chan_num))
        for mss in vis]
 
@@ -46,20 +46,26 @@ vis = [os.path.join(channel_path, "channel_".format(chan_num),
 #         mkpath(output_path)
 
 # Now update the imagename with the channel number
-imagename = os.path.join(channel_path, "channel_".format(chan_num),
-                         "{0}_channel_{1}".format(imagename, chan_num)
+imagename = os.path.join(channel_path, "channel_{}".format(chan_num),
+                         "{0}_channel_{1}".format(imagename, chan_num))
 
 # Based on the channel number, update the start velocity for this channel
 
 # Get the value out from the string, removing the unit
-split_start = filter(None, re.split(r'(\d+)', start))
+try:
+    split_start = filter(None, re.split(r'(\d+)', start))
 
-init_start = float("".join(split_start[:-1]))
-spec_unit = split_start[-1]
+    init_start = float("".join(split_start[:-1]))
+    spec_unit = split_start[-1]
 
-chan_width = float("".join(filter(None, re.split(r'(\d+)', width))[:-1]))
+    chan_width = float("".join(filter(None, re.split(r'(\d+)', width))[:-1]))
 
-start_vel = init_start + chan_width * chan_num
+    start_vel = init_start + chan_width * chan_num
+
+    int_settings = False
+
+except Exception:
+    int_settings = True
 
 # Check if the products already exist and we should avoid recomputing the PSF
 # and residuals
@@ -111,9 +117,15 @@ spw_num = int(spw)
 
 # Only update a few parameters, as needed
 
-start = "{0}{1}".format(start_vel, spec_unit)
-width = "{0}{1}".format(chan_width, spec_unit)
-nchan = 1
+if not int_settings:
+    start = "{0}{1}".format(start_vel, spec_unit)
+    width = "{0}{1}".format(chan_width, spec_unit)
+    nchan = 1
+else:
+    start = 1
+    width = 1
+    nchan = 1
+
 restfreq = linespw_dict[spw_num][1]
 restart = True
 calcres = do_calcres
@@ -157,9 +169,9 @@ paramList = ImagerParameters(msname=vis,
                              startmodel=startmodel,
                              specmode=specmode,
                              reffreq=reffreq,
-                             nchan=1,
-                             start="{0}{1}".format(start_vel, spec_unit),
-                             width="{0}{1}".format(chan_width, spec_unit),
+                             nchan=nchan,
+                             start=start,
+                             width=width,
                              outframe=outframe,
                              veltype=veltype,
                              restfreq=linespw_dict[spw_num][1],
@@ -330,6 +342,7 @@ try:
             casalog.post("Time for pb-correcting images: " +
                          "%.2f" % (t15 - t14) + " sec")
 
+    imager.concatImages(type='virtualcopy')
     imager.deleteTools()
 
     t16 = time.time()

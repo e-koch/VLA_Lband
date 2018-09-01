@@ -1,0 +1,11 @@
+# Custom flags for 16B-242.sb32681213.eb32949259.57673.06817918981 line SPWs
+
+mode='manual' scan='2' timerange='<01:42:20'
+mode='manual' scan='2' timerange='>01:47:20'
+
+mode='manual' scan='27' timerange='>03:16:15'
+
+# Significant RFI in SPW 8
+mode='manual' spw='8' scan='33~63'
+
+mode='manual' scan='15,16' antenna='ea28'

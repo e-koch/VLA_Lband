@@ -1,0 +1,15 @@
+# Custom flags for 16B-242.sb32681213.eb32954876.57674.07753513889 line SPWs
+
+# Poor phase gain solutions in ea11. And amp issues in scan 2
+mode='manual' antenna='ea11'
+
+mode='manual' scan='2' timerange='<01:55:45'
+mode='manual' scan='2' timerange='>02:00:50'
+
+mode='manual' scan='3' timerange='<02:02:20'
+
+mode='manual' scan='61' spw='3'
+
+
+
+

@@ -101,7 +101,8 @@ for chan in range(n_chan + 1):
     # like this, so convert back to an MS
     default('split')
     split(vis=os.path.join(ind_chan_path, split_msname + ".mms"),
-          outputvis=os.path.join(ind_chan_path, split_msname), keepmms=False)
+          outputvis=os.path.join(ind_chan_path, split_msname), keepmms=False,
+          datacolumn='data')
 
     os.system("rm -r {}".format(os.path.join(ind_chan_path, split_msname + ".mms")))
 
@@ -115,6 +116,7 @@ for chan in range(n_chan + 1):
                 spw='0:{}'.format(chan))
 
     split(vis=os.path.join(ind_chan_path, split_14B_msname + ".mms"),
-          outputvis=os.path.join(ind_chan_path, split_14B_msname), keepmms=False)
+          outputvis=os.path.join(ind_chan_path, split_14B_msname), keepmms=False,
+          datacolumn='data')
 
     os.system("rm -r {}".format(os.path.join(ind_chan_path, split_14B_msname + ".mms")))

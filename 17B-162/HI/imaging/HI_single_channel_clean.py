@@ -14,8 +14,8 @@ Cleans a single channel given the channel name
 '''
 
 # Load in the SPW dict in the repo on cedar
-# execfile(os.path.expanduser("~/code/VLA_Lband/17B-162/spw_setup.py"))
-execfile(os.path.expanduser("~/Dropbox/code_development/VLA_Lband/17B-162/spw_setup.py"))
+execfile(os.path.expanduser("~/code/VLA_Lband/17B-162/spw_setup.py"))
+# execfile(os.path.expanduser("~/Dropbox/code_development/VLA_Lband/17B-162/spw_setup.py"))
 
 chan_num = int(sys.argv[-3])
 

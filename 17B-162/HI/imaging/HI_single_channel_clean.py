@@ -342,7 +342,6 @@ try:
             casalog.post("Time for pb-correcting images: " +
                          "%.2f" % (t15 - t14) + " sec")
 
-    imager.concatImages(type='virtualcopy')
     imager.deleteTools()
 
     t16 = time.time()

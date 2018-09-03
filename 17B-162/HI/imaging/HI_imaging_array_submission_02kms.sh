@@ -45,6 +45,9 @@ for (( chan_num = $start_chan; chan_num < $end_chan; chan_num++ )); do
     $HOME/casa-release-5.3.0-143.el7/bin/mpicasa -n 8 $HOME/casa-release-5.3.0-143.el7/bin/casa --nologger --nogui --logfile $scratch_path/HI_contsub_021kms/casa_M33_HI_14B_17B_02kms_${chan_num}_${SLURM_JOB_ID}_$(date "+%Y%m%d-%H%M%S").log --nocrashreport -c $HOME/code/VLA_Lband/17B-162/HI/imaging/HI_single_channel_clean.py $chan_num $param_file "HI_contsub_021kms" &
     pids+=" $!"
 
+    # Avoid starting up multiple CASA sessions at once. Runs into ipython database issues.
+    sleep 60
+
 done
 
 wait $pids || { echo "There was an error" >&2; exit 1; }

@@ -258,21 +258,28 @@ for i, (obj, obj2) in enumerate(zip(intint_bins, lwidth_bins)):
     snr_props['energy'].append(out_props[6].value)
 
     if show_plots:
-        plt.subplot(131)
+        fig = plt.figure(figsize=(12, 6))
+        fig.add_subplot(131)
         pix = np.where(index_mask == i + 1)
         xlow, xhigh = np.min(pix[1]), np.max(pix[1])
         ylow, yhigh = np.min(pix[0]), np.max(pix[0])
         lim_slice = [slice(ylow - 50, yhigh + 50), slice(xlow - 50, xhigh + 50)]
         plt.imshow(mom0.value[lim_slice], origin='lower')
         plt.contour((index_mask == i + 1)[lim_slice], colors='b')
-        plt.subplot(132)
+        fig.add_subplot(132)
         plt.errorbar(dist_limit.value, obj[:, 0].value, yerr=obj[:, 1].value, drawstyle='steps-mid')
-        plt.subplot(133)
-        plt.errorbar(dist_limit.value, obj2[:, 0].value, yerr=obj2[:, 1].value, drawstyle='steps-mid')
+        plt.xlabel("Distance (pc)")
+        plt.ylabel(r"Surf. Density (Msol/pc$^2$)")
+        fig.add_subplot(133)
+        plt.errorbar(dist_limit.value, obj2[:, 0].value / 1000.,
+                     yerr=obj2[:, 1].value / 1000., drawstyle='steps-mid')
+        plt.xlabel("Distance (pc)")
+        plt.ylabel(r"Line Width (km/s)")
+        plt.tight_layout()
         plt.draw()
         print(out_props)
         input("{}".format(i + 1))
-        plt.clf()
+        plt.close()
 
 snr_props['shell_rad'] = snr_props['shell_rad'] * u.pc
 snr_props['vol'] = snr_props['vol'] * u.pc**3

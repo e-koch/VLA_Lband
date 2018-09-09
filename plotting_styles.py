@@ -27,6 +27,7 @@ def twocolumn_figure(fig_ratio=None, font_scale=1.25):
 
     sb.set_context("paper", font_scale=font_scale,
                    rc={"figure.figsize": figsize})
+    sb.set_palette("colorblind")
 
 
 def twocolumn_twopanel_figure(fig_ratio=None, **kwargs):
@@ -56,6 +57,7 @@ def onecolumn_figure(fig_ratio=None, font_scale=1.2):
 
     sb.set_context("paper", font_scale=font_scale,
                    rc={"figure.figsize": figsize})
+    sb.set_palette("colorblind")
 
 
 def onecolumn_Npanel_figure(N, font_scale=1.2):

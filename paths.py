@@ -83,6 +83,10 @@ iram_co21_14B088_data_path = \
     partial(name_return_check,
             path=os.path.join(data_path, "co21/14B-088/"))
 
+hst_phat_path = \
+  partial(name_return_check,
+          path=os.path.join(data_path, "Hubble/big/"))
+
 # Paper figures path
 papers_path = os.path.expanduser("~/Dropbox/My_Papers/")
 paper1_figures_path = \

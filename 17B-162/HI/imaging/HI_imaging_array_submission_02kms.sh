@@ -17,9 +17,6 @@ source /home/ekoch/preload.bash
 
 job_num=$SLURM_ARRAY_TASK_ID
 
-# Parameter file for tclean
-param_file="/home/ekoch/code/VLA_Lband/17B-162/HI/imaging/param_files/14B_17B_02kms.saved"
-
 # Move to scratch space b/c casa write out the temporary files into the same folder
 export scratch_path=/home/ekoch/scratch/17B-162_imaging/
 
@@ -27,6 +24,21 @@ cd $scratch_path
 
 Xvfb :1 &
 export DISPLAY=:1
+
+# Set which imaging stage to run: the initial 5-sigma clean (1) or the full clean with a mask to (2)
+stage=1
+
+if [[ $stage==1 ]]; then
+    script_name="${HOME}/code/VLA_Lband/17B-162/HI/imaging/HI_single_channel_clean.py"
+    # Parameter file for tclean
+    param_file="/home/ekoch/code/VLA_Lband/17B-162/HI/imaging/param_files/14B_17B_02kms.saved"
+elif [[ $stage==2 ]]; then
+    script_name="${HOME}/code/VLA_Lband/17B-162/HI/imaging/HI_single_channel_clean_stage2.py"
+    param_file="/home/ekoch/code/VLA_Lband/17B-162/HI/imaging/param_files/14B_17B_02kms_stage2.saved"
+else
+    echo "Stage must be 1 or 2, not ${stage}".
+    exit 1
+fi
 
 # Start 5 channels running on the node
 # This is well-suited for the cedar base nodes
@@ -42,7 +54,7 @@ for (( chan_num = $start_chan; chan_num < $end_chan; chan_num++ )); do
 
     echo "Running channel "$chan_num
 
-    $HOME/casa-release-5.3.0-143.el7/bin/mpicasa -n 8 $HOME/casa-release-5.3.0-143.el7/bin/casa --nologger --nogui --logfile $scratch_path/HI_contsub_021kms/casa_M33_HI_14B_17B_02kms_${chan_num}_${SLURM_JOB_ID}_$(date "+%Y%m%d-%H%M%S").log --nocrashreport -c $HOME/code/VLA_Lband/17B-162/HI/imaging/HI_single_channel_clean.py $chan_num $param_file "HI_contsub_021kms" &
+    $HOME/casa-release-5.3.0-143.el7/bin/mpicasa -n 8 $HOME/casa-release-5.3.0-143.el7/bin/casa --nologger --nogui --logfile $scratch_path/HI_contsub_021kms/casa_M33_HI_14B_17B_02kms_${chan_num}_${SLURM_JOB_ID}_$(date "+%Y%m%d-%H%M%S")_stage${stage}.log --nocrashreport -c $script_name $chan_num $param_file "HI_contsub_021kms" &
     pids+=" $!"
 
     # Avoid starting up multiple CASA sessions at once. Runs into ipython database issues.

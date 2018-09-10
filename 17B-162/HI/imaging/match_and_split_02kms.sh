@@ -1,14 +1,18 @@
 #!/bin/bash
-#SBATCH --time=220:00:00
+#SBATCH --time=24:00:00
 #SBATCH --mem=128000M
 #SBATCH --ntasks-per-node=32
 #SBATCH --nodes=1
-#SBATCH --job-name=M33_HI_match_and_combine-%J
-#SBATCH --output=casa-m33_HI_match_and_combine-%J.out
+#SBATCH --job-name=M33_HI_match_and_combine-%A-%a
+#SBATCH --output=casa-m33_HI_match_and_combine-%A-%a.out
+#SBATCH --array=0-11%1
 
 # This will take about 9 days to run...
+# In array mode, one job will run at a time. The match_and_split.py script will
+# Check the stage that the previous job got to, then pick up from where the last one
+# ended.
 
-# Create a combined 14B and 17B HI MMS
+# Create regridded 14B and 17B HI MMS and split into individual channels
 
 export OMP_NUM_THREADS=$SLURM_JOB_CPUS_PER_NODE
 

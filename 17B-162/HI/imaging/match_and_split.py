@@ -14,6 +14,8 @@ the start and end points will be the same (or rounded up by 1),
 
 import numpy as np
 import sys
+from glob import glob
+import os
 
 from tasks import mstransform, virtualconcat, rmtables
 
@@ -44,32 +46,39 @@ else:
 
 seventeenB_ms_regrid = "{0}.{1}.regrid".format(seventeenB_ms, chan_width_label)
 
-casalog.post("Regridding 17B")
+if os.path.exists(seventeenB_ms_regrid):
+    casalog.post("Found the regridded 17B MS. Skipping mstransform.")
+else:
+    casalog.post("Regridding 17B")
 
-mstransform(vis=seventeenB_ms,
-            outputvis=seventeenB_ms_regrid,
-            datacolumn='data',
-            spw='0', regridms=True, mode='velocity', veltype='radio',
-            start="{}km/s".format(start_vel),
-            width="{}km/s".format(chan_width), nchan=n_chan,
-            interpolation='fftshift', restfreq='1.420405752GHz',
-            createmms=True, separationaxis='auto', numsubms=31)
+    mstransform(vis=seventeenB_ms,
+                outputvis=seventeenB_ms_regrid,
+                datacolumn='data',
+                spw='0', regridms=True, mode='velocity', veltype='radio',
+                start="{}km/s".format(start_vel),
+                width="{}km/s".format(chan_width), nchan=n_chan,
+                interpolation='fftshift', restfreq='1.420405752GHz',
+                createmms=True, separationaxis='auto', numsubms=31)
 
 # Now the 14B data. Only keep the fields used in the 17B data
 fourteenB_ms_regrid = "{0}.{1}.regrid".format(fourteenB_ms, chan_width_label)
 
-casalog.post("Regridding 14B")
+if os.path.exists(fourteenB_ms_regrid):
+    casalog.post("Found the regridded 14B MS. Skipping mstransform.")
+else:
 
-# Also convert th 14B data to an MMS w/ the same number of sub-MS as 17B
-mstransform(vis=fourteenB_ms,
-            outputvis=fourteenB_ms_regrid,
-            datacolumn='data',
-            field='M33_2,M33_6,M33_7_center,M33_8,M33_11,M33_12,M33_14',
-            spw='0', regridms=True, mode='velocity', veltype='radio',
-            start="{}km/s".format(start_vel),
-            width="{}km/s".format(chan_width), nchan=n_chan,
-            interpolation='fftshift', restfreq='1.420405752GHz',
-            createmms=True, separationaxis='auto', numsubms=31)
+    casalog.post("Regridding 14B")
+
+    # Also convert th 14B data to an MMS w/ the same number of sub-MS as 17B
+    mstransform(vis=fourteenB_ms,
+                outputvis=fourteenB_ms_regrid,
+                datacolumn='data',
+                field='M33_2,M33_6,M33_7_center,M33_8,M33_11,M33_12,M33_14',
+                spw='0', regridms=True, mode='velocity', veltype='radio',
+                start="{}km/s".format(start_vel),
+                width="{}km/s".format(chan_width), nchan=n_chan,
+                interpolation='fftshift', restfreq='1.420405752GHz',
+                createmms=True, separationaxis='auto', numsubms=31)
 
 # Now split out individual channels for imaging.
 
@@ -77,9 +86,37 @@ chan_path = "HI_{0}_{1}".format("contsub" if use_contsub else "nocontsub",
                                 chan_width_label)
 
 if not os.path.exists(chan_path):
+
     os.mkdir(chan_path)
 
-for chan in range(n_chan + 1):
+    start = 0
+
+else:
+
+    # Check if some of the channels have already been split
+    exist_chans = glob("{}/channel_*".format(chan_path))
+
+    # Didn't find any existing channels
+    if len(exist_chans) == 0:
+        start = 0
+
+    else:
+        # Pick out the channel numbers
+        nums = np.array([int(chan.split("_")[-1]) for chan in exist_chans])
+
+        # Assume that the last job stopped while part of the way through
+        # the final channel
+        final_chan = exist_chans[nums.argmax()]
+
+        os.system("rm -r {}".format(final_chan))
+
+        start = nums.max() - 1
+
+if start == n_chan:
+    casalog.post("No more channels to split!")
+    raise ValueError("No more channels to split!")
+
+for chan in range(start, n_chan + 1):
 
     casalog.post("On splitting channel {}".format(chan))
 

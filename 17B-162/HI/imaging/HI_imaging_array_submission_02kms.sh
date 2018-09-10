@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --time=60:00:00
+#SBATCH --time=15:00:00
 #SBATCH --mem=128000M
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=32
@@ -16,6 +16,10 @@ source /home/ekoch/.bashrc
 source /home/ekoch/preload.bash
 
 job_num=$SLURM_ARRAY_TASK_ID
+
+# Build in a slight offset for each job to avoid starting a bunch of CASA
+# sessions at once
+sleep $(($job_num + 30))
 
 # Move to scratch space b/c casa write out the temporary files into the same folder
 export scratch_path=/home/ekoch/scratch/17B-162_imaging/

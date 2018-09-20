@@ -117,7 +117,7 @@ for i, (y, x) in enumerate(ProgressBar(zip(yposns, xposns))):
 
     co_params, co_stderrs, co_cov, co_parnames, co_model = \
         fit_gaussian(co_specaxis, co_spectrum.quantity,
-                     sigma=co_err)
+                     sigma=co_err, use_discrete=True)
 
     if np.isnan(co_cov).any():
         results["multicomp_flag_CO"][i] = True
@@ -481,7 +481,7 @@ for i, (y, x) in enumerate(ProgressBar(zip(yposns[rand_ord],
 
     co_params, co_stderrs, co_cov, co_parnames, co_model = \
         fit_gaussian(co_specaxis, co_spectrum.quantity,
-                     sigma=co_err)
+                     sigma=co_err, use_discrete=True)
 
     if np.isnan(co_cov).any():
         results["multicomp_flag_CO"][i] = True

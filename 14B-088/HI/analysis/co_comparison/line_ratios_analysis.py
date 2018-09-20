@@ -3,8 +3,6 @@
 Looking for HI-CO relationships from the fitting in co_hi_list_fitting.py
 '''
 
-
-
 import os
 from os.path import join as osjoin
 from spectral_cube import Projection
@@ -25,13 +23,7 @@ from plotting_styles import (default_figure, onecolumn_figure,
                              twocolumn_figure)
 from constants import co21_mass_conversion
 
-from krumholz_models import krumholz2013_ratio_model, krumholz2013_sigmaHI
-
 fig_path = allfigs_path("co_vs_hi")
-if not os.path.exists(fig_path):
-    os.mkdir(fig_path)
-
-fig_path_models = allfigs_path("co_vs_hi/h2_formation_models")
 if not os.path.exists(fig_path):
     os.mkdir(fig_path)
 
@@ -63,10 +55,6 @@ good_pts = np.logical_and(good_pts,
 # Minimum CO line width of one channel.
 good_pts = np.logical_and(good_pts,
                           tab["sigma_CO"] >= 2600)
-
-
-good_pts = np.logical_and(good_pts,
-                          tab["sigma_stderr_HI"] <= 1500)
 
 
 # Show that the Gaussian model is a decent representation
@@ -243,8 +231,6 @@ plt.close()
 print("Ratio Slope: {0} {1}".format(slope_ratio, slope_ratio_ci))
 # Ratio Slope: [ 0.58628069] [ 0.58513281  0.58750975]
 
-print(argh)
-
 # What does this relation look like for line widths from the second moment
 co_lwidth = Projection.from_hdu(fits.open(iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI.lwidth.fits"))[0])
 hi_lwidth = Projection.from_hdu(fits.open(fourteenB_wGBT_HI_file_dict['LWidth'])[0])
@@ -256,13 +242,17 @@ hi_lwidth_vals = hi_lwidth.value[tab['ypts'][good_pts], tab['xpts'][good_pts]] /
 
 hist2d(hi_lwidth_vals, co_lwidth_vals, bins=13,
        data_kwargs={"alpha": 0.5})
-plt.plot([4, 16], [4. * slope + inter, 16. * slope + inter])
-plt.fill_between([4, 16], [4. * slope_ci[0] + inter_cis[0],
-                           16. * slope_ci[0] + inter_cis[0]],
-                 [4. * slope_ci[1] + inter_cis[1],
-                  16. * slope_ci[1] + inter_cis[1]],
-                 facecolor=sb.color_palette()[0],
-                 alpha=0.5)
+plt.plot([4, 16], [4. * slope_ratio[0], 16. * slope_ratio[0]],
+         '--', color=sb.color_palette()[1], linewidth=3,
+         label='Ratio Fit')
+
+# plt.plot([4, 16], [4. * slope + inter, 16. * slope + inter])
+# plt.fill_between([4, 16], [4. * slope_ci[0] + inter_cis[0],
+#                            16. * slope_ci[0] + inter_cis[0]],
+#                  [4. * slope_ci[1] + inter_cis[1],
+#                   16. * slope_ci[1] + inter_cis[1]],
+#                  facecolor=sb.color_palette()[0],
+#                  alpha=0.5)
 plt.plot([4, 16], [4, 16], '--', linewidth=3, alpha=0.8)
 plt.xlabel(r"$\sigma_{\rm HI}$ (km/s)")
 plt.ylabel(r"$\sigma_{\rm CO}$ (km/s)")
@@ -334,8 +324,9 @@ hist2d(tab['sigma_CO'][good_pts] / 1000.,
        data_kwargs={"alpha": 0.5})
 
 # There's an expected correlation if the integrated intensity is constant
-onefive_rel = lambda sigma: np.percentile(tab['coldens_CO_gauss'] / co21_mass_conversion, 15) / (np.sqrt(2 * np.pi) * sigma)
-eightyfive_rel = lambda sigma: np.percentile(tab['coldens_CO_gauss'] / co21_mass_conversion, 85) / (np.sqrt(2 * np.pi) * sigma)
+onefive_rel = lambda sigma: np.percentile(tab['coldens_CO_gauss'][good_pts] / co21_mass_conversion, 15) / (np.sqrt(2 * np.pi) * sigma)
+eightyfive_rel = lambda sigma: np.percentile(tab['coldens_CO_gauss'][good_pts] / co21_mass_conversion, 85) / (np.sqrt(2 * np.pi) * sigma)
+median_rel = lambda sigma: np.median(tab['coldens_CO_gauss'][good_pts] / co21_mass_conversion) / (np.sqrt(2 * np.pi) * sigma)
 
 sigma_range = np.linspace(2.5, 8, 100)
 
@@ -457,9 +448,9 @@ onecolumn_figure()
 
 stack_ratio = co_radial_fits['peaksub_sigma'] / hi_radial_fits['peaksub_sigma']
 stack_stderr = stack_ratio * \
-    np.sqrt((co_radial_fits['peaksub_sigma_up_lim'] /
+    np.sqrt((0.5 * (co_radial_fits['peaksub_sigma_up_lim'] - co_radial_fits['peaksub_sigma_low_lim']) /
              co_radial_fits['peaksub_sigma'])**2 +
-            (hi_radial_fits['peaksub_sigma_up_lim'] /
+            (0.5 * (hi_radial_fits['peaksub_sigma_up_lim'] - hi_radial_fits['peaksub_sigma_low_lim']) /
              hi_radial_fits['peaksub_sigma'])**2)
 plt.errorbar(bin_cents, stack_ratio, yerr=stack_stderr, label='Stack',
              fmt='D-', drawstyle='steps-mid',
@@ -521,8 +512,6 @@ twocolumn_figure()
 
 fig, axes = plt.subplots(2, 2, sharex=True, sharey=True)
 
-slope_ampCO_bins = []
-inters_ampCO_bins = []
 ratio_ampCO_bins = []
 
 median_CO = []
@@ -561,28 +550,6 @@ for low, up, ax in zip(amp_CO_percs[:-1], amp_CO_percs[1:], axes.ravel()):
                      tab['sigma_CO'][samples],
                      tab['sigma_stderr_HI'][samples],
                      tab['sigma_stderr_CO'][samples],
-                     nBurn=500, nSample=1000, nThin=2)
-    slope = params_ampCO_bin[0]
-    inter = params_ampCO_bin[1] / 1000.
-    slope_ci = cis_ampCO_bin[0]
-    inter_cis = cis_ampCO_bin[1] / 1000.
-
-    slope_ampCO_bins.append([slope, slope_ci])
-    inters_ampCO_bins.append([inter, inter_cis])
-
-    ax.plot([4, 12], [4. * slope + inter, 12 * slope + inter])
-    ax.fill_between([4, 12], [4. * slope_ci[0] + inter_cis[0],
-                              12 * slope_ci[0] + inter_cis[0]],
-                    [4. * slope_ci[1] + inter_cis[1],
-                     12 * slope_ci[1] + inter_cis[1]],
-                    facecolor=sb.color_palette()[0],
-                    alpha=0.5)
-
-    params_ampCO_bin, cis_ampCO_bin, sampler_ampCO_bin = \
-        bayes_linear(tab['sigma_HI'][samples],
-                     tab['sigma_CO'][samples],
-                     tab['sigma_stderr_HI'][samples],
-                     tab['sigma_stderr_CO'][samples],
                      nBurn=500, nSample=1000, nThin=2,
                      fix_intercept=True)
     slope = params_ampCO_bin[0]
@@ -609,15 +576,11 @@ plt.close()
 print("Bins: {}".format(amp_CO_percs))
 print("Median HI {}".format(median_HI))
 print("Median CO {}".format(median_CO))
-print("Slopes: {}".format(slope_ampCO_bins))
-print("Intercepts: {}".format(inters_ampCO_bins))
 print("Ratios: {}".format(ratio_ampCO_bins))
-# Bins: [ 0.02152052  0.0936956   0.12852667  0.18478005  0.76506873]
-# Median HI [7.8008611238372492, 7.5082358955246429, 7.3272466153904379, 7.2200793571847104]
-# Median CO [5.3853999473748786, 4.5209602245389569, 4.1011948861837366, 3.8850511852554352]
-# Slopes: [[0.6294158815046601, array([ 0.61214236,  0.64628901])], [0.81963661102990959, array([ 0.80172927,  0.83662457])], [0.86919052087028636, array([ 0.85084196,  0.88838301])], [0.89350333524742365, array([ 0.87657641,  0.91070673])]]
-# Intercepts: [[0.45069488957181059, array([ 0.32021306,  0.59133293])], [-1.596063854312973, array([-1.7260279 , -1.45711462])], [-2.2127787475028247, array([-2.35480913, -2.07167332])], [-2.535478998092338, array([-2.6642518 , -2.40830384])]]
-# Ratios: [[0.68525140568117959, array([ 0.68171152,  0.68861348])], [0.6157812356778769, array([ 0.61218132,  0.61920323])], [0.58115311930462621, array([ 0.57756643,  0.58475018])], [0.55832702038757476, array([ 0.55501114,  0.56211134])]]
+# Bins: [ 0.0216304   0.09427743  0.12937286  0.18652276  0.77582827]
+# median HI [7.809098737989034, 7.5305795309550287, 7.3295286124520533, 7.2155818736706951]
+# Median CO [5.3731908685868648, 4.4848448472133509, 4.0691257419299776, 3.8260377394812854]
+# Ratios: [[0.66509536904103284, array([ 0.6624661 ,  0.66789774])], [0.60213597499176963, array([ 0.59954577,  0.60485436])], [0.56788630195993139, array([ 0.56574952,  0.57024993])], [0.54637874025439059, array([ 0.54406811,  0.54849577])]]
 
 
 # Where are the different bins located? Different clouds or inter-cloud
@@ -648,17 +611,13 @@ params_nomask, cis_nomask, sampler_nomask = \
     bayes_linear(tab['sigma_HI_nomask'][good_pts], tab['sigma_CO'][good_pts],
                  tab['sigma_stderr_HI_nomask'][good_pts],
                  tab['sigma_stderr_CO'][good_pts],
-                 nBurn=500, nSample=2000, nThin=2)
-slope = params_nomask[0]
-inter = params_nomask[1] / 1000.
-slope_ci = cis_nomask[0]
-inter_cis = cis_nomask[1] / 1000.
+                 nBurn=500, nSample=2000, nThin=2, fix_intercept=True)
+ratio = params_nomask[0]
+ratio_ci = cis_nomask
 
 print("HI sigma no mask vs. CO")
-print("Slope: {0} {1}".format(slope, slope_ci))
-print("Intercept: {0} {1}".format(inter, inter_cis))
-# Slope: 0.521911603815 [ 0.51385501  0.52925186]
-# Intercept: 0.149811659879 [ 0.08597853  0.21841618]
+print("Ratio: {0} {1}".format(ratio, ratio_ci))
+# Ratio: 0.516309909663 [ 0.51524154  0.51738791]
 
 onecolumn_figure()
 
@@ -683,14 +642,8 @@ hist2d(tab['sigma_HI_nomask'][good_pts] / 1000.,
        tab['sigma_CO'][good_pts] / 1000.,
        bins=18, data_kwargs={"alpha": 0.5})
 plt.plot([4, 17.5], [4, 17.5], '-.', linewidth=3, color=sb.color_palette()[2])
-plt.plot([4, 17.5], [4. * slope + inter, 17.5 * slope + inter],
+plt.plot([4, 17.5], [4. * ratio, 17.5 * ratio],
          color=sb.color_palette()[0])
-plt.fill_between([4, 17.5], [4. * slope_ci[0] + inter_cis[0],
-                             17.5 * slope_ci[0] + inter_cis[0]],
-                 [4. * slope_ci[1] + inter_cis[1],
-                  17.5 * slope_ci[1] + inter_cis[1]],
-                 facecolor=sb.color_palette()[0],
-                 alpha=0.5)
 plt.grid()
 
 plt.ylabel(r"$\sigma_{\rm CO}$ (km/s)")
@@ -786,17 +739,17 @@ h2dom_moments = sum(mom_tab["Ratio"][overlap_mask] >= 1.) / \
 h2dom_fits = sum((tab['coldens_CO_gauss'] / tab['coldens_HI_gauss'])[good_pts] >= 1.) / \
     float(overlap_mask.sum())
 print("Fraction of LOS dominated by H2 from moments: {}".format(h2dom_moments))
-# 0.2369
+# 0.2395
 print("Fraction of LOS dominated by H2 from fits: {}".format(h2dom_fits))
-# 0.43265
+# 0.4352
 
 # Median properties?
 print("Median Ratio from moments: {}".format(np.median(mom_tab["Ratio"][overlap_mask])))
 print("Median Ratio from fits: {}".format(np.median((tab['coldens_CO_gauss'] / tab['coldens_HI_gauss'])[good_pts])))
-# Median Ratio from moments: 0.661082448156
-# Median Ratio from fits: 0.917707557645
+# Median Ratio from moments: 0.661042061937
+# Median Ratio from fits: 0.919247770941
 
 print("Median Gas SD from moments: {}".format(np.median(mom_tab["Sigma_Total"][overlap_mask])))
 print("Median Gas SD from fits: {}".format(np.median((tab['coldens_CO_gauss'] + tab['coldens_HI_gauss'])[good_pts])))
-# Median Gas SD from moments: 20.3874723999
-# Median Gas SD from fits: 20.1290850074
+# Median Gas SD from moments: 20.387181386
+# Median Gas SD from fits: 20.1561608573

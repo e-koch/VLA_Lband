@@ -132,7 +132,7 @@ for i, (y, x) in enumerate(ProgressBar(zip(yposns, xposns))):
 
     co_params, co_stderrs, co_cov, co_parnames, co_model = \
         fit_gaussian(co_specaxis, co_spectrum.quantity,
-                     sigma=co_err)
+                     sigma=co_err, use_discrete=True)
 
     if np.isnan(co_cov).any():
         results["multicomp_flag_CO"][i] = True
@@ -174,8 +174,8 @@ for i, (y, x) in enumerate(ProgressBar(zip(yposns, xposns))):
                                hi_specaxis.value <= hi_hwhm[1] + mask_pad)
 
     # Give some initial guesses
-    p0 = (np.nanmax(hi_spectrum[hwhm_mask]),
-          hi_specaxis[hwhm_mask][np.nanargmax(hi_spectrum[hwhm_mask])],
+    p0 = (np.nanmax(hi_spectrum[hwhm_mask]).value,
+          hi_specaxis[hwhm_mask][np.nanargmax(hi_spectrum[hwhm_mask])].value,
           hi_sigest)
 
     hi_params, hi_stderrs, hi_cov, hi_parnames, hi_model = \
@@ -403,6 +403,7 @@ if not os.path.exists(fourteenB_HI_data_wGBT_path("tables", no_check=True)):
 # Save the lists of points in a table
 tab = Table([results[key] for key in results],
             names=results.keys())
+
 tab.write(fourteenB_HI_data_wGBT_path("tables/hi_co_gaussfit_column_densities_perpix.fits",
                                       no_check=True),
           overwrite=True)

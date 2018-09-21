@@ -17,13 +17,23 @@ mode='manual' scan='34,36' antenna='ea27'
 mode='manual' scan='2' timerange=">23:41:10"
 mode='manual' scan='2' timerange="<23:37:50"
 
+mode='manual' scan='8' timerange="<23:58:10"
+mode='manual' scan='12' timerange="<00:12:40"
+mode='manual' scan='24' timerange="<00:56:12"
+mode='manual' scan='36' timerange="<01:39:45"
+mode='manual' scan='40' timerange="<01:54:15"
+mode='manual' scan='42' timerange=">02:06:40"
+mode='manual' scan='48' timerange="<02:23:17"
+mode='manual' scan='60' timerange="<03:06:50"
+
+mode='manual' scan='42' spw='0~2'
+
 mode='manual' spw='3' scan='4' timerange="<23:45:30"
 mode='manual' spw='3' scan='8' timerange=">24:00:05"
-mode='manual' spw='3' scan='9' timerange=">00:02:40"
+mode='manual' spw='3' scan='9'
 mode='manual' spw='3' scan='12' timerange=">00:16:25"
-mode='manual' spw='3' scan='25' timerange=">01:01:40"
+mode='manual' spw='3' scan='25' timerange=">01:01:20"
 mode='manual' spw='3' scan='28' timerange="<01:11:20"
 mode='manual' spw='3' scan='28' timerange=">01:13:20"
 mode='manual' spw='3' scan='34' timerange=">01:36:20"
 mode='manual' spw='3' scan='46' timerange="<02:19:00"
-

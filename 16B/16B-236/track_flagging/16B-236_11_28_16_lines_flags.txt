@@ -12,6 +12,14 @@ mode='manual' scan='2' timerange="<22:19:10"
 mode='manual' scan='52' timerange=">01:22:00"
 mode='manual' scan='53' timerange="<01:23:40"
 
+mode='manual' scan='12' timerange="<22:53:35"
+mode='manual' scan='24' timerange="<23:37:08"
+mode='manual' scan='28' timerange="<23:51:37"
+mode='manual' scan='40' timerange="<00:35:10"
+mode='manual' scan='52' timerange="<01:18:40"
+
+mode='manual' scan='30' antenna='ea27'
+
 mode='manual' spw='3' scan='45'
 
 mode='manual' scan='43~63' antenna='ea05'

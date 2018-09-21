@@ -3,8 +3,18 @@
 # Issue with ea04, as noted in operator log
 mode='manual' antenna='ea04'
 
+# Poor delay calibration
+mode='manual' antenna='ea08'
+
+# Poor gain cal solution
+# mode='manual' scan='12' antenna='ea11,ea22'
+
 mode='manual' scan='2' timerange="<23:31:20"
 # mode='manual' scan='2' timerange=">23:33:40"
+
+mode='manual' scan='3' timerange="<23:34:55"
+mode='manual' scan='39' timerange="25:45:15~25:46:00"
+mode='manual' scan='55' timerange="26:43:25~26:44:00"
 
 mode='manual' scan='41' antenna='ea16'
 
@@ -14,5 +24,24 @@ mode='manual' scan='56' antenna='ea19'
 mode='manual' scan='10' timerange="<23:59:55"
 mode='manual' scan='52' timerange="<02:33:10"
 
-mode='manual' spw='3' scan='12' timerange="<00:08:30"
+mode='manual' spw='3' scan='12'
 mode='manual' spw='3' scan='54' timerange="<02:39:30"
+
+mode='manual' scan='4' timerange="<23:36:10"
+mode='manual' scan='10' timerange="<24:03:05"
+
+mode='manual' scan='6' antenna='ea20&&ea24'
+mode='manual' scan='11' antenna='ea10'
+mode='manual' scan='11' antenna='ea20&&ea23'
+
+mode='manual' scan='34,51' antenna='ea22'
+mode='manual' scan='63' antenna='ea24&&ea25'
+mode='manual' scan='65' antenna='ea28'
+mode='manual' scan='65' antenna='ea15&&ea17'
+
+mode='manual' scan='16' timerange='<00:19:40'
+mode='manual' scan='28' timerange='<01:03:15'
+mode='manual' scan='40' timerange='<01:46:45'
+mode='manual' scan='44' timerange='<02:01:15'
+mode='manual' scan='56' timerange='<02:44:47'
+

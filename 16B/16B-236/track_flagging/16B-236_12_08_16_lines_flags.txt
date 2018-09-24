@@ -15,7 +15,17 @@ mode='manual' scan='45'
 mode='manual' scan='2' timerange=">22:07:30"
 mode='manual' scan='2' timerange="<22:04:50"
 
+mode='manual' scan='8' timerange="<22:24:40"
+mode='manual' scan='20' timerange="<23:08:15"
+mode='manual' scan='24' timerange="<23:22:45"
+mode='manual' scan='32' timerange="<23:51:45"
+mode='manual' scan='36' timerange="<00:06:15"
+mode='manual' scan='48' timerange="<00:49:48"
+mode='manual' scan='60' timerange="<01:33:20"
+
 mode='manual' scan='35' timerange="<00:04:30"
+
+mode='manual' scan='20' antenna='ea16'
 
 # Big ~ coherent spike in the middle of the SPW
 mode='manual' spw='1' scan='28'

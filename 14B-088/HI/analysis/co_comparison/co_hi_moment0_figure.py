@@ -65,18 +65,16 @@ ax.text(80, 200,
         "1 kpc", color='k', va='center')
 
 ax.contour(np.isfinite(co_moment0.data).astype(float), levels=[0.5],
-           colors=sb.color_palette('viridis')[:1])
+           colors=sb.color_palette('viridis')[:1], alpha=0.45)
 ax.contour(co_moment0.data,
-           levels=np.linspace(np.nanpercentile(co_moment0.data, 70),
-                              np.nanpercentile(co_moment0.data, 95), 4),
-           cmap='viridis')
+           levels=[900, 1400, 1900, 2400],
+           cmap='viridis', alpha=0.45)
 
 # CO levels at: 877,  1370,  1862,  2354 K m/s
 # <Quantity [  5.8759,  9.179 , 12.4754, 15.7718] solMass / pc2>
 
 cbar = plt.colorbar(im)
 cbar.set_label(r"HI Column Density (cm$^{-2}$)")
-
 
 plt.savefig(allfigs_path("HI_maps/coldens_map_14B088_w_CO21.pdf"))
 plt.savefig(allfigs_path("HI_maps/coldens_map_14B088_w_CO21.png"))
@@ -104,13 +102,13 @@ ax.text(80, 200,
         "1 kpc", color='k', va='center')
 
 ax.contour(np.isfinite(co_moment0.data).astype(float), levels=[0.5],
-           colors=sb.color_palette('viridis')[:1])
+           colors=sb.color_palette('viridis')[:1], alpha=0.45)
 ax.contour(co_moment0.data,
-           levels=np.linspace(np.nanpercentile(co_moment0.data, 70),
-                              np.nanpercentile(co_moment0.data, 95), 4),
-           cmap='viridis')
+           levels=[900, 1400, 1900, 2400],
+           cmap='viridis', alpha=0.45)
 ax.contour(np.isfinite(co_noise_map.data),
-           levels=[0.5], colors=sb.color_palette()[::-1])
+           levels=[0.5], colors=sb.color_palette()[::-1],
+           linewidths=[3])
 
 cbar = plt.colorbar(im)
 cbar.set_label(r"HI Column Density (cm$^{-2}$)")

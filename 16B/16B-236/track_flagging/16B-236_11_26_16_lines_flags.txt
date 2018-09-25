@@ -3,6 +3,8 @@
 # Bad delay solutions
 mode='manual' antenna='ea21'
 
+mode='manual' antenna='ea05' spw='0'
+
 mode='manual' scan='2' timerange='>22:27:30'
 mode='manual' scan='2' timerange='<22:25:10'
 
@@ -20,3 +22,25 @@ mode='manual' spw='3' scan='46' timerange='<01:08:20'
 mode='manual' spw='3' scan='48' timerange='>01:16:20'
 mode='manual' spw='3' scan='52' timerange='>01:30:20'
 
+mode='manual' scan='8' timerange='<22:48:10'
+mode='manual' scan='12' timerange='<23:02:40'
+mode='manual' scan='20' timerange='<23:31:43'
+mode='manual' scan='24' timerange='<23:46:15'
+mode='manual' scan='36' timerange='<00:29:45'
+mode='manual' scan='42' timerange='>00:56:40'
+mode='manual' scan='48' timerange='<01:13:17'
+mode='manual' scan='52' timerange='<01:28:00'
+mode='manual' scan='60' timerange='<01:56:50'
+
+# Several scans have enhanced scatter
+# mode='manual' scan='14~18, 29~37, 46, 48, 53'
+mode='manual' scan='16' antenna='ea01'
+mode='manual' scan='28' antenna='ea16'
+mode='manual' scan='42' antenna='ea11'
+mode='manual' scan='48,49' antenna='ea27'
+mode='manual' scan='59' antenna='ea11'
+mode='manual' scan='62' antenna='ea11'
+
+# Phase scatter
+mode='manual' scan='3~22' antenna='ea04'
+mode='manual' scan='3~26' antenna='ea26'

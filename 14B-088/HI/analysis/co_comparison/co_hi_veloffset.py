@@ -27,6 +27,8 @@ fig_path = join(allfigs_path(""), "co_vs_hi")
 if not exists(fig_path):
     os.mkdir(fig_path)
 
+cpal = sb.color_palette()
+
 hi_mom1 = fits.open(fourteenB_wGBT_HI_file_dict['Moment1'])[0].data / 1000.
 hi_peakvels = fits.open(fourteenB_wGBT_HI_file_dict['PeakVels'])[0].data / 1000.
 hi_peaktemp = fits.open(fourteenB_wGBT_HI_file_dict['PeakTemp'])[0].data
@@ -47,11 +49,13 @@ good_pts = np.logical_and(good_pts, co_peaktemp > 0.06)
 onecolumn_figure(font_scale=1.1)
 
 # Mom1 comparisons
-hist2d(np.abs((co_mom1 - hi_mom1)[good_pts]), co_peaktemp[good_pts],
+hist2d(np.abs((co_mom1 - hi_mom1)[good_pts]),
+       co_peaktemp[good_pts],
        bins=16, data_kwargs={"alpha": 0.6},
        range=[(0.0, 25.0),
               (0.0, 1.05 * np.max(co_peaktemp[good_pts]))])
-plt.axhline(0.06, color='r', linestyle='--')
+plt.axhline(0.06, color=cpal[1], linestyle='--', linewidth=3)
+plt.axvline(2.6, color=cpal[2], linestyle=':', linewidth=3)
 plt.ylabel(r"T$_\mathrm{peak, CO}$ (K)")
 plt.xlabel(r"$|V_{\rm cent, CO} - V_{\rm cent, HI}|$ (km/s)")
 plt.grid()
@@ -65,6 +69,8 @@ hist2d(np.abs((co_mom1 - hi_mom1)[good_pts]), hi_peaktemp[good_pts],
        bins=16, data_kwargs={"alpha": 0.6},
        range=[(0.0, 25.0),
               (0.0, 1.05 * np.max(hi_peaktemp[good_pts]))])
+plt.axhline(0.06, color=cpal[1], linestyle='--', linewidth=3)
+plt.axvline(2.6, color=cpal[2], linestyle=':', linewidth=3)
 plt.ylabel(r"T$_\mathrm{peak, HI}$ (K)")
 plt.xlabel(r"$|V_{\rm cent, CO} - V_{\rm cent, HI}|$ (km/s)")
 plt.grid()
@@ -78,9 +84,10 @@ plt.close()
 peakvel_diff = (co_peakvels - hi_peakvels)[good_pts]
 hist2d(np.abs(peakvel_diff), co_peaktemp[good_pts],
        bins=16, data_kwargs={"alpha": 0.6},
-       range=[(-25.0, 25.),
+       range=[(0.0, 25.),
               (0.0, 1.05 * np.max(co_peaktemp[good_pts]))])
-plt.axhline(0.06, color='r', linestyle='--')
+plt.axhline(0.06, color=cpal[1], linestyle='--', linewidth=3)
+plt.axvline(2.6, color=cpal[2], linestyle=':', linewidth=3)
 plt.ylabel(r"T$_\mathrm{peak, CO}$ (K)")
 plt.xlabel(r"$|V_{\rm peak, CO} - V_{\rm peak, HI}|$ (km/s)")
 plt.grid()
@@ -96,6 +103,8 @@ hist2d(np.abs((co_peakvels - hi_peakvels)[good_pts]), hi_peaktemp[good_pts],
        bins=16, data_kwargs={"alpha": 0.6},
        range=[(0.0, 25.),
               (0.0, 1.05 * np.max(hi_peaktemp[good_pts]))])
+plt.axhline(0.06, color=cpal[1], linestyle='--', linewidth=3)
+plt.axvline(2.6, color=cpal[2], linestyle=':', linewidth=3)
 plt.ylabel(r"T$_\mathrm{peak, HI}$ (K)")
 plt.xlabel(r"$|V_{\rm peak, CO} - V_{\rm peak, HI}|$ (km/s)")
 plt.grid()
@@ -104,7 +113,6 @@ plt.tight_layout()
 plt.savefig(allfigs_path(join(fig_path, "hi_Tpeak_peakvel_velocity_offset.pdf")))
 plt.savefig(allfigs_path(join(fig_path, "hi_Tpeak_peakvel_velocity_offset.png")))
 plt.close()
-
 
 # Where do the outliers occur
 moment0 = Projection.from_hdu(fits.open(fourteenB_wGBT_HI_file_dict["Moment0"])[0])

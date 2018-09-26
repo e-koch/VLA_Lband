@@ -1,0 +1,19 @@
+# Custom flags for 16B-242.sb32614458.eb32980749.57695.35484743056 line SPWs
+
+# Large scatter from a few baselines in SPW 0
+mode='manual' spw='0' antenna='ea10&&ea11'
+mode='manual' spw='0' antenna='ea10&&ea12'
+mode='manual' spw='0' antenna='ea11&&ea12'
+
+# Poor phase solutions
+mode='manual' antenna='ea04' scan='40~63'
+
+mode='manual' scan='12,13' antenna='ea22'
+
+mode='manual' scan='2' timerange='<08:30:00'
+mode='manual' scan='2' timerange='>08:33:10'
+
+mode='manual' scan='32' timerange='>10:23:40'
+mode='manual' scan='40' timerange='>10:51:50'
+mode='manual' scan='42' timerange='>11:01:00'
+mode='manual' scan='48' timerange='<11:20:50'

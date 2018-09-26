@@ -1,0 +1,16 @@
+# Custom flags for 16B-242.sb32681213.eb32961984.57681.03943858796 line SPWs
+
+# Flagged in initial pipeline run
+mode='manual' antenna='ea11'
+
+# Poor phase solution
+mode='manual' antenna='ea05' scan='43,47'
+mode='manual' antenna='ea19' scan='43'
+mode='manual' antenna='ea22' scan='47'
+
+mode='manual' scan='2' timerange='<01:01:00'
+mode='manual' scan='2' timerange='>01:06:00'
+
+mode='manual' spw='3' scan='22' timerange='>02:18:20'
+mode='manual' spw='3' scan='25'
+mode='manual' spw='3' scan='30' timerange='<02:46:30'

@@ -1,0 +1,13 @@
+# Custom flags for 16B-242.sb32614458.eb32978118.57693.289744062495 line SPWs
+
+# Amplitude ripple over most of the scan. Limit to the last couple min
+mode='manual' scan='2' timerange='<7:07:00'
+mode='manual' scan='2' timerange='>7:08:40'
+
+mode='manual' scan='16' timerange='>07:56:20'
+
+mode='manual' spw='3' scan='25,62'
+
+mode='manual' scan='4' antenna='ea19'
+mode='manual' scan='17' antenna='ea05'
+mode='manual' scan='30,32' antenna='ea24&&ea25'

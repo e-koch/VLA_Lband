@@ -1,0 +1,11 @@
+# Custom flags for 16B-242.sb32614458.eb32978942.57694.29761952546 line SPWs
+
+mode='manual' scan='2' timerange='<07:13:00'
+mode='manual' scan='2' timerange='>07:16:30'
+
+mode='manual' spw='3' scan='57' timerange='>10:35:50'
+mode='manual' spw='3' scan='62' timerange='>10:54:40'
+
+mode='manual' scan='19' antenna='ea05'
+
+

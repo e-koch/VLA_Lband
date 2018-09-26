@@ -1,0 +1,12 @@
+# Custom flags for 16B-242.sb32681213.eb32969161.57686.01854777778 line SPWs
+
+mode='manual' scan='2' timerange='<00:33:05'
+mode='manual' scan='2' timerange='>00:36:40'
+
+mode='manual' scan='54' antenna='ea27'
+
+mode='manual' spw='3' scan='20' timerange='>01:38:40'
+mode='manual' spw='3' scan='22' timerange='>01:48:00'
+mode='manual' spw='3' scan='25'
+mode='manual' spw='3' scan='28' timerange='<02:07:30'
+mode='manual' spw='3' scan='30' timerange='<02:16:30'

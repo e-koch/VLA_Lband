@@ -1,0 +1,24 @@
+# Custom flags for 16B-242.sb32614458.eb32984330.57698.29168733796 line SPWs
+
+# Poor delay phases
+mode='manual' antenna='ea04,ea19'
+
+mode='manual' spw='0' antenna='ea11,ea12'
+
+# ea22 has some bad amp gain cals that may need to be flagged
+
+mode='manual' scan='2' timerange='<07:04:30'
+mode='manual' scan='2' timerange='>07:08:30'
+
+mode='manual' scan='3' timerange='<07:10:17'
+
+mode='manual' scan='61' timerange='<10:40:40'
+
+mode='manual' spw='3' scan='17' timerange='>07:58:30'
+mode='manual' spw='3' scan='53,61'
+mode='manual' spw='3' scan='56' timerange='<10:21:40'
+mode='manual' spw='3' scan='58' timerange='<10:31:30'
+
+mode='manual' scan='3' antenna='ea05'
+mode='manual' scan='22,45,46' antenna='ea22'
+mode='manual' scan='47' antenna='ea19'

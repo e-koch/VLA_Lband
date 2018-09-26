@@ -53,7 +53,7 @@ pids+=" $!"
 
 echo 16B-236_12_09_16
 cd $two36_path/16B-236_12_09_16
-(tar -xf 16B-236.sb32623829.eb33039653.57719.98023209491.tar && rm 16B-236.sb32623829.eb33039653.57719.98023209491.tar  && ~/casa-release-5.1.2-4.el7/bin/casa -c ~/Dropbox/code_development/VLA_Lband/16B/pipeline_scripts/ms_split.py 16B-236.sb32623829.eb33039653.57719.98023209491 F lines && cd $two36_path/16B-236_12_09_16/16B-236_12_09_16_speclines &&  ~/casa-release-5.1.2-4.el7/bin/casa --pipeline -c ~/Dropbox/code_development/VLA_Lband/16B/pipeline_scripts/casa_pipeline_lines.py 16B-236.sb32623829.eb33039653.57719.98023209491.speclines.ms) &
+(tar -xf 16B-236.sb32623829.eb33069261.57731.904499571756.tar && rm 16B-236.sb32623829.eb33069261.57731.904499571756.tar  && ~/casa-release-5.1.2-4.el7/bin/casa -c ~/Dropbox/code_development/VLA_Lband/16B/pipeline_scripts/ms_split.py 16B-236.sb32623829.eb33069261.57731.904499571756 F lines && cd $two36_path/16B-236_12_09_16/16B-236_12_09_16_speclines &&  ~/casa-release-5.1.2-4.el7/bin/casa --pipeline -c ~/Dropbox/code_development/VLA_Lband/16B/pipeline_scripts/casa_pipeline_lines.py 16B-236.sb32623829.eb33069261.57731.904499571756.speclines.ms) &
 pids+=" $!"
 
 wait $pids || { echo "There was an error" >&2; exit 1; }

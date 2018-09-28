@@ -27,6 +27,8 @@ cosinc = np.cos(gal.inclination.to(u.rad)).value
 moment0 = fits.open(fourteenB_wGBT_HI_file_dict["Moment0"])[0]
 moment0_wcs = WCS(moment0.header)
 
+radius = gal.radius(header=moment0.header)
+
 beam = Beam.from_fits_header(moment0.header)
 
 # Convert to K km s and correct for disk inclination.
@@ -115,6 +117,48 @@ cbar.set_label(r"HI Column Density (cm$^{-2}$)")
 
 plt.savefig(allfigs_path("HI_maps/coldens_map_14B088_w_CO21_map_edge.pdf"))
 plt.savefig(allfigs_path("HI_maps/coldens_map_14B088_w_CO21_map_edge.png"))
+
+plt.close()
+
+# And with the 7 kpc cut-off region shown
+
+ax = plt.subplot(111, projection=moment0_wcs)
+im = ax.imshow(moment0_coldens,
+               origin='lower',
+               interpolation='nearest',
+               alpha=0.85,
+               norm=ImageNormalize(vmin=-0.001,
+                                   vmax=np.nanmax(moment0_coldens),
+                                   stretch=AsinhStretch()))
+ax.set_ylabel("DEC (J2000)")
+ax.set_xlabel("RA (J2000)")
+lon = ax.coords[0]
+lon.set_major_formatter('hh:mm')
+# ax.add_patch(beam.ellipse_to_plot(int(0.05 * moment0.shape[0]),
+#                                   int(0.05 * moment0.shape[1]), pixscale))
+
+ax.plot([200, 200], [200 - length_pix / 2., 200 + length_pix / 2.], 'k',
+        linewidth=2)
+ax.text(80, 200,
+        "1 kpc", color='k', va='center')
+
+ax.contour(radius < 7 * u.kpc, levels=[0.5], colors=[sb.color_palette()[4]],
+           linewidths=[4], alpha=0.5, linestyles='--')
+
+ax.contour(np.isfinite(co_moment0.data).astype(float), levels=[0.5],
+           colors=sb.color_palette('viridis')[:1], alpha=0.45)
+ax.contour(co_moment0.data,
+           levels=[900, 1400, 1900, 2400],
+           cmap='viridis', alpha=0.45)
+ax.contour(np.isfinite(co_noise_map.data),
+           levels=[0.5], colors=sb.color_palette()[::-1],
+           linewidths=[3])
+
+cbar = plt.colorbar(im)
+cbar.set_label(r"HI Column Density (cm$^{-2}$)")
+
+plt.savefig(allfigs_path("HI_maps/coldens_map_14B088_w_CO21_map_edge_7kpc.pdf"))
+plt.savefig(allfigs_path("HI_maps/coldens_map_14B088_w_CO21_map_edge_7kpc.png"))
 
 plt.close()
 

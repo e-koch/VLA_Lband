@@ -115,9 +115,15 @@ for i, (y, x) in enumerate(ProgressBar(zip(yposns, xposns))):
     # First beam is the largest. Change is far far smaller than 1 pixel
     hi_spectrum = hi_cube_38[:, y, x].to(u.K, hi_cube_38.beam.jtok_equiv(hi_freq))
 
+    # Try fitting with the spectral response included
+    # From Sun+18
+    r = 0.26
+    k = 0.47 * r - 0.23 * r**2 - 0.16 * r**3 + 0.43 * r**4
+
     co_params, co_stderrs, co_cov, co_parnames, co_model = \
         fit_gaussian(co_specaxis, co_spectrum.quantity,
-                     sigma=co_err, use_discrete=True)
+                     sigma=co_err, use_discrete=True,
+                     kernel=np.array([k, 1 - 2 * k, k]))
 
     if np.isnan(co_cov).any():
         results["multicomp_flag_CO"][i] = True
@@ -399,6 +405,8 @@ tab.write(fourteenB_HI_data_wGBT_path("smooth_2beam/tables/hi_co_gaussfit_column
 # Onto the 5 beam case
 log.info("Now running 5 * beam LOS analysis.")
 
+co_mask = fits.open(iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI_source_mask.fits"))[0].data
+
 hi_cube_95 = SpectralCube.read(fourteenB_HI_data_wGBT_path("smooth_5beam/M33_14B-088_HI.clean.image.GBT_feathered.95arcsec.fits"))
 co_cube_95 = SpectralCube.read(iram_co21_14B088_data_path("smooth_5beam/m33.co21_iram.14B-088_HI.95arcsec.fits"))
 co_rms_95 = fits.open(iram_co21_14B088_data_path("smooth_5beam/m33.rms.14B-088_HI.95arcsec.fits"))[0]
@@ -479,9 +487,15 @@ for i, (y, x) in enumerate(ProgressBar(zip(yposns[rand_ord],
     # First beam is the largest. Change is far far smaller than 1 pixel
     hi_spectrum = hi_cube_95[:, y, x].to(u.K, hi_cube_95.beam.jtok_equiv(hi_freq))
 
+    # Try fitting with the spectral response included
+    # From Sun+18
+    r = 0.26
+    k = 0.47 * r - 0.23 * r**2 - 0.16 * r**3 + 0.43 * r**4
+
     co_params, co_stderrs, co_cov, co_parnames, co_model = \
         fit_gaussian(co_specaxis, co_spectrum.quantity,
-                     sigma=co_err, use_discrete=True)
+                     sigma=co_err, use_discrete=True,
+                     kernel=np.array([k, 1 - 2 * k, k]))
 
     if np.isnan(co_cov).any():
         results["multicomp_flag_CO"][i] = True

@@ -130,9 +130,15 @@ for i, (y, x) in enumerate(ProgressBar(zip(yposns, xposns))):
     # First beam is the largest. Change is far far smaller than 1 pixel
     hi_spectrum = cube[:, y, x].to(u.K, cube.beams[0].jtok_equiv(hi_freq))
 
+    # Try fitting with the spectral response included
+    # From Sun+18
+    r = 0.26
+    k = 0.47 * r - 0.23 * r**2 - 0.16 * r**3 + 0.43 * r**4
+
     co_params, co_stderrs, co_cov, co_parnames, co_model = \
         fit_gaussian(co_specaxis, co_spectrum.quantity,
-                     sigma=co_err, use_discrete=True)
+                     sigma=co_err, use_discrete=True,
+                     kernel=np.array([k, 1 - 2 * k, k]))
 
     if np.isnan(co_cov).any():
         results["multicomp_flag_CO"][i] = True

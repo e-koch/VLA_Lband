@@ -225,11 +225,9 @@ plt.close()
 
 # print("Slope: {0} {1}".format(slope, slope_ci))
 # print("Intercept: {0} {1}".format(inter, inter_cis))
-# # Slope: 0.700171430031 [ 0.69332507  0.70735591]
-# # Intercept: -0.880647328986 [-0.93565763 -0.82813659]
 
 print("Ratio Slope: {0} {1}".format(slope_ratio, slope_ratio_ci))
-# Ratio Slope: [ 0.58628069] [ 0.58513281  0.58750975]
+# Ratio Slope: [ 0.5750746] [ 0.57380588  0.57633586]
 
 # What does this relation look like for line widths from the second moment
 co_lwidth = Projection.from_hdu(fits.open(iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI.lwidth.fits"))[0])
@@ -448,9 +446,9 @@ onecolumn_figure()
 
 stack_ratio = co_radial_fits['peaksub_sigma'] / hi_radial_fits['peaksub_sigma']
 stack_stderr = stack_ratio * \
-    np.sqrt((0.5 * (co_radial_fits['peaksub_sigma_up_lim'] - co_radial_fits['peaksub_sigma_low_lim']) /
+    np.sqrt((co_radial_fits['peaksub_sigma_up_lim'] /
              co_radial_fits['peaksub_sigma'])**2 +
-            (0.5 * (hi_radial_fits['peaksub_sigma_up_lim'] - hi_radial_fits['peaksub_sigma_low_lim']) /
+            (hi_radial_fits['peaksub_sigma_up_lim'] /
              hi_radial_fits['peaksub_sigma'])**2)
 plt.errorbar(bin_cents, stack_ratio, yerr=stack_stderr, label='Stack',
              fmt='D-', drawstyle='steps-mid',
@@ -468,7 +466,7 @@ plt.ylabel(r"$\sigma_{\rm CO} / \sigma_{\rm HI}$")
 plt.xlabel("Radius (kpc)")
 
 plt.grid()
-plt.legend(frameon=True, loc='upper right')
+plt.legend(frameon=True, loc='lower left')
 
 plt.tight_layout()
 
@@ -577,10 +575,11 @@ print("Bins: {}".format(amp_CO_percs))
 print("Median HI {}".format(median_HI))
 print("Median CO {}".format(median_CO))
 print("Ratios: {}".format(ratio_ampCO_bins))
-# Bins: [ 0.0216304   0.09427743  0.12937286  0.18652276  0.77582827]
-# median HI [7.809098737989034, 7.5305795309550287, 7.3295286124520533, 7.2155818736706951]
-# Median CO [5.3731908685868648, 4.4848448472133509, 4.0691257419299776, 3.8260377394812854]
-# Ratios: [[0.66509536904103284, array([ 0.6624661 ,  0.66789774])], [0.60213597499176963, array([ 0.59954577,  0.60485436])], [0.56788630195993139, array([ 0.56574952,  0.57024993])], [0.54637874025439059, array([ 0.54406811,  0.54849577])]]
+# Bins: [ 0.0219169   0.09599498  0.13232244  0.19245095  0.80435075]
+# Median HI [7.8417065991420429, 7.5443055678764352, 7.319231497156256, 7.1817473529057017]
+#Median CO [5.3499201185891607, 4.4162685854964181, 3.9670922291672444, 3.6825616949564433]
+# Ratios: [[0.66013118082300504, array([ 0.65705675,  0.66318105])], [0.59511854011802079, array([ 0.59247636,  0.59774402])], [0.55479946493436527, array([ 0.55242757,  0.55708554])], [0.53141917453202669, array([ 0.52931531,  0.53356832])]]
+
 
 
 # Where are the different bins located? Different clouds or inter-cloud
@@ -617,7 +616,7 @@ ratio_ci = cis_nomask
 
 print("HI sigma no mask vs. CO")
 print("Ratio: {0} {1}".format(ratio, ratio_ci))
-# Ratio: 0.516309909663 [ 0.51524154  0.51738791]
+# Ratio: 0.507352535864 [ 0.50624905  0.50844422]
 
 onecolumn_figure()
 
@@ -739,17 +738,18 @@ h2dom_moments = sum(mom_tab["Ratio"][overlap_mask] >= 1.) / \
 h2dom_fits = sum((tab['coldens_CO_gauss'] / tab['coldens_HI_gauss'])[good_pts] >= 1.) / \
     float(overlap_mask.sum())
 print("Fraction of LOS dominated by H2 from moments: {}".format(h2dom_moments))
-# 0.2395
+# 0.2415
 print("Fraction of LOS dominated by H2 from fits: {}".format(h2dom_fits))
-# 0.4352
+# 0.4370
 
 # Median properties?
 print("Median Ratio from moments: {}".format(np.median(mom_tab["Ratio"][overlap_mask])))
 print("Median Ratio from fits: {}".format(np.median((tab['coldens_CO_gauss'] / tab['coldens_HI_gauss'])[good_pts])))
-# Median Ratio from moments: 0.661042061937
-# Median Ratio from fits: 0.919247770941
+# Median Ratio from moments: 0.658840902968
+# Median Ratio from fits: 0.920772482979
 
 print("Median Gas SD from moments: {}".format(np.median(mom_tab["Sigma_Total"][overlap_mask])))
-print("Median Gas SD from fits: {}".format(np.median((tab['coldens_CO_gauss'] + tab['coldens_HI_gauss'])[good_pts])))
-# Median Gas SD from moments: 20.387181386
-# Median Gas SD from fits: 20.1561608573
+print("Median Gas SD from fits: {}".format(np.median((tab['coldens_CO_gauss'] +
+                                                      tab['coldens_HI_gauss'])[good_pts])))
+# Median Gas SD from moments: 20.3851612418
+# Median Gas SD from fits: 20.2102707871

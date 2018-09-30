@@ -59,102 +59,101 @@ pa_bounds_n = Angle([0.5 * np.pi * u.rad, -0.5 * np.pi * u.rad])
 pa_bounds_s = Angle([-0.5 * np.pi * u.rad, 0.5 * np.pi * u.rad])
 
 # Avg rms noise in smoothed cube is 16 mK
-# sigma = 16. * u.mK
+sigma = 16. * u.mK
 
-# co_cube_peakvel = \
-#     SpectralCube.read(iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI_feather.peakvels_corrected.fits"))
-# co_cube_peakvel.allow_huge_operations = True
+co_cube_peakvel = \
+    SpectralCube.read(iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI_feather.peakvels_corrected.fits"))
+co_cube_peakvel.allow_huge_operations = True
 
-# for level in range(1, 4):
+for level in range(1, 4):
 
-#     mask = co_cube_peakvel > level * sigma
+    mask = co_cube_peakvel > level * sigma
 
-#     # Require there be >= 3 pixels above the threshold to be included
-#     spat_mask = mask.include().sum(0) >= 3
+    # Require there be >= 3 pixels above the threshold to be included
+    spat_mask = mask.include().sum(0) >= 3
 
-#     masked_cube = co_cube_peakvel.with_mask(spat_mask)
+    masked_cube = co_cube_peakvel.with_mask(spat_mask)
 
-#     bin_centers, total_spectrum_co_radial_peakvel, num_pixels = \
-#         radial_stacking(gal, masked_cube, dr=dr,
-#                         max_radius=max_radius,
-#                         pa_bounds=None,
-#                         verbose=True,
-#                         how='cube')
+    bin_centers, total_spectrum_co_radial_peakvel, num_pixels = \
+        radial_stacking(gal, masked_cube, dr=dr,
+                        max_radius=max_radius,
+                        pa_bounds=None,
+                        verbose=True,
+                        how='cube')
 
-#     total_spectrum_co_radial_peakvel_n, num_pixels_n = \
-#         radial_stacking(gal, masked_cube, dr=dr,
-#                         max_radius=max_radius,
-#                         pa_bounds=pa_bounds_n,
-#                         verbose=True,
-#                         how='cube')[1:]
+    total_spectrum_co_radial_peakvel_n, num_pixels_n = \
+        radial_stacking(gal, masked_cube, dr=dr,
+                        max_radius=max_radius,
+                        pa_bounds=pa_bounds_n,
+                        verbose=True,
+                        how='cube')[1:]
 
-#     total_spectrum_co_radial_peakvel_s, num_pixels_s = \
-#         radial_stacking(gal, masked_cube, dr=dr,
-#                         max_radius=max_radius,
-#                         pa_bounds=pa_bounds_s,
-#                         verbose=True,
-#                         how='cube')[1:]
+    total_spectrum_co_radial_peakvel_s, num_pixels_s = \
+        radial_stacking(gal, masked_cube, dr=dr,
+                        max_radius=max_radius,
+                        pa_bounds=pa_bounds_s,
+                        verbose=True,
+                        how='cube')[1:]
 
-#     # Separately save the number of pixels in each bin
-#     np.save(co_stackpath("radial_stacking_pixelsinbin_{0}_sigmacut_{1}.npy").format(wstring, level), num_pixels)
-#     np.save(co_stackpath("radial_stacking_pixelsinbin_north_{0}_sigmacut_{1}.npy").format(wstring, level), num_pixels_n)
-#     np.save(co_stackpath("radial_stacking_pixelsinbin_south_{0}_sigmacut_{1}.npy").format(wstring, level), num_pixels_s)
+    # Separately save the number of pixels in each bin
+    np.save(co_stackpath("radial_stacking_pixelsinbin_{0}_sigmacut_{1}.npy").format(wstring, level), num_pixels)
+    np.save(co_stackpath("radial_stacking_pixelsinbin_north_{0}_sigmacut_{1}.npy").format(wstring, level), num_pixels_n)
+    np.save(co_stackpath("radial_stacking_pixelsinbin_south_{0}_sigmacut_{1}.npy").format(wstring, level), num_pixels_s)
 
-#     spec_shape = co_cube_peakvel.shape[0]
+    spec_shape = co_cube_peakvel.shape[0]
 
-#     peakvel_stack = SpectralCube(data=total_spectrum_co_radial_peakvel.T.reshape((spec_shape, bin_centers.size, 1)),
-#                                  wcs=co_cube_peakvel.wcs)
-#     peakvel_stack.write(co_stackpath("peakvel_stacked_radial_{0}_sigmacut_{1}.fits".format(wstring, level)),
-#                         overwrite=True)
+    peakvel_stack = SpectralCube(data=total_spectrum_co_radial_peakvel.T.reshape((spec_shape, bin_centers.size, 1)),
+                                 wcs=co_cube_peakvel.wcs)
+    peakvel_stack.write(co_stackpath("peakvel_stacked_radial_{0}_sigmacut_{1}.fits".format(wstring, level)),
+                        overwrite=True)
 
-#     peakvel_stack_n = SpectralCube(data=total_spectrum_co_radial_peakvel_n.T.reshape((spec_shape, bin_centers.size, 1)),
-#                                    wcs=co_cube_peakvel.wcs)
-#     peakvel_stack_n.write(co_stackpath("peakvel_stacked_radial_north_{0}_sigmacut_{1}.fits".format(wstring, level)),
-#                           overwrite=True)
-#     peakvel_stack_s = SpectralCube(data=total_spectrum_co_radial_peakvel_s.T.reshape((spec_shape, bin_centers.size, 1)),
-#                                    wcs=co_cube_peakvel.wcs)
-#     peakvel_stack_s.write(co_stackpath("peakvel_stacked_radial_south_{0}_sigmacut_{1}.fits".format(wstring, level)),
-#                           overwrite=True)
+    peakvel_stack_n = SpectralCube(data=total_spectrum_co_radial_peakvel_n.T.reshape((spec_shape, bin_centers.size, 1)),
+                                   wcs=co_cube_peakvel.wcs)
+    peakvel_stack_n.write(co_stackpath("peakvel_stacked_radial_north_{0}_sigmacut_{1}.fits".format(wstring, level)),
+                          overwrite=True)
+    peakvel_stack_s = SpectralCube(data=total_spectrum_co_radial_peakvel_s.T.reshape((spec_shape, bin_centers.size, 1)),
+                                   wcs=co_cube_peakvel.wcs)
+    peakvel_stack_s.write(co_stackpath("peakvel_stacked_radial_south_{0}_sigmacut_{1}.fits".format(wstring, level)),
+                          overwrite=True)
 
-#     total_spectrum_co_peakvel = total_spectrum_co_radial_peakvel.sum(0)
+    total_spectrum_co_peakvel = total_spectrum_co_radial_peakvel.sum(0)
 
-#     # Save each of these
-#     oned_wcs = co_cube_peakvel[:, 0, 0].wcs
-#     OneDSpectrum(total_spectrum_co_peakvel.value,
-#                  unit=total_spectrum_co_peakvel.unit,
-#                  wcs=oned_wcs).write(co_stackpath("peakvel_stacked_{0}_sigmacut_{1}.fits".format(maxrad_string, level)),
-#                                      overwrite=True)
+    # Save each of these
+    oned_wcs = co_cube_peakvel[:, 0, 0].wcs
+    OneDSpectrum(total_spectrum_co_peakvel.value,
+                 unit=total_spectrum_co_peakvel.unit,
+                 wcs=oned_wcs).write(co_stackpath("peakvel_stacked_{0}_sigmacut_{1}.fits".format(maxrad_string, level)),
+                                     overwrite=True)
 
-#     total_spectrum_co_peakvel_n = total_spectrum_co_radial_peakvel_n.sum(0)
+    total_spectrum_co_peakvel_n = total_spectrum_co_radial_peakvel_n.sum(0)
 
-#     # Save each of these
-#     oned_wcs = co_cube_peakvel[:, 0, 0].wcs
-#     OneDSpectrum(total_spectrum_co_peakvel_n.value,
-#                  unit=total_spectrum_co_peakvel.unit,
-#                  wcs=oned_wcs).write(co_stackpath("peakvel_stacked_north_{0}_sigmacut_{1}.fits".format(maxrad_string, level)),
-#                                      overwrite=True)
+    # Save each of these
+    oned_wcs = co_cube_peakvel[:, 0, 0].wcs
+    OneDSpectrum(total_spectrum_co_peakvel_n.value,
+                 unit=total_spectrum_co_peakvel.unit,
+                 wcs=oned_wcs).write(co_stackpath("peakvel_stacked_north_{0}_sigmacut_{1}.fits".format(maxrad_string, level)),
+                                     overwrite=True)
 
 
-#     total_spectrum_co_peakvel_s = total_spectrum_co_radial_peakvel_s.sum(0)
+    total_spectrum_co_peakvel_s = total_spectrum_co_radial_peakvel_s.sum(0)
 
-#     # Save each of these
-#     oned_wcs = co_cube_peakvel[:, 0, 0].wcs
-#     OneDSpectrum(total_spectrum_co_peakvel_s.value,
-#                  unit=total_spectrum_co_peakvel.unit,
-#                  wcs=oned_wcs).write(co_stackpath("peakvel_stacked_south_{0}_sigmacut_{1}.fits".format(maxrad_string, level)),
-#                                      overwrite=True)
-# del co_cube_peakvel
+    # Save each of these
+    oned_wcs = co_cube_peakvel[:, 0, 0].wcs
+    OneDSpectrum(total_spectrum_co_peakvel_s.value,
+                 unit=total_spectrum_co_peakvel.unit,
+                 wcs=oned_wcs).write(co_stackpath("peakvel_stacked_south_{0}_sigmacut_{1}.fits".format(maxrad_string, level)),
+                                     overwrite=True)
+del co_cube_peakvel
 
-# # Save version of the no masking radial stacking in the N and S
-# total_spectrum_co_radial = SpectralCube.read(co_stackpath("peakvel_stacked_radial_{}.fits".format(wstring)))
-# total_spectrum_co_radial_n = SpectralCube.read(co_stackpath("peakvel_stacked_radial_north_{}.fits".format(wstring)))
-# total_spectrum_co_radial_s = SpectralCube.read(co_stackpath("peakvel_stacked_radial_south_{}.fits".format(wstring)))
+# Save version of the no masking radial stacking in the N and S
+total_spectrum_co_radial = SpectralCube.read(co_stackpath("peakvel_stacked_radial_{}.fits".format(wstring)))
+total_spectrum_co_radial_n = SpectralCube.read(co_stackpath("peakvel_stacked_radial_north_{}.fits".format(wstring)))
+total_spectrum_co_radial_s = SpectralCube.read(co_stackpath("peakvel_stacked_radial_south_{}.fits".format(wstring)))
 
-# total_spectrum_co_radial_n.sum(axis=(1, 2)).write(co_stackpath("peakvel_stacked_north_{0}.fits".format(maxrad_string)),
-#                                                   overwrite=True)
-# total_spectrum_co_radial_s.sum(axis=(1, 2)).write(co_stackpath("peakvel_stacked_south_{0}.fits".format(maxrad_string)),
-#                                                   overwrite=True)
-
+total_spectrum_co_radial_n.sum(axis=(1, 2)).write(co_stackpath("peakvel_stacked_north_{0}.fits".format(maxrad_string)),
+                                                  overwrite=True)
+total_spectrum_co_radial_s.sum(axis=(1, 2)).write(co_stackpath("peakvel_stacked_south_{0}.fits".format(maxrad_string)),
+                                                  overwrite=True)
 
 # Check how properties change with the masking
 props_all = []

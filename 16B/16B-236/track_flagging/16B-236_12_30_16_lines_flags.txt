@@ -13,4 +13,12 @@ mode='manual' spw='3' scan='58' timerange='>00:30:00'
 # Lots of outliers from these two channels
 mode='manual' spw='8:94~95'
 
+mode='manual' scan='4' timerange='<21:10:25'
+mode='manual' scan='16' timerange='<21:54:00'
+mode='manual' scan='20' timerange='<22:08:28'
+mode='manual' scan='28' timerange='<22:37:30'
+mode='manual' scan='32' timerange='<22:52:00'
+mode='manual' scan='44' timerange='<23:35:32'
+mode='manual' scan='56' timerange='<00:19:04'
+mode='manual' scan='60' timerange='<00:33:34'
 

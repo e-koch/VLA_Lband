@@ -3,19 +3,17 @@
 # Bad delay solutions
 mode='manual' antenna='ea21,ea26'
 
-mode='manual' scan='40' antenna='ea25'
-mode='manual' scan='41' antenna='ea25,ea10'
-mode='manual' scan='43' antenna='ea25,ea01,ea28'
+# Extra scatter between scans 34~47
+mode='manual' scan='31~47'
 
 mode='manual' scan='2' timerange='<05:40:10'
+mode='manual' scan='2' timerange='>05:48:00'
 
 mode='manual' scan='3' timerange='>05:49:40'
-
-mode='manual' spw='3' scan='40' timerange="<08:02:40"
-mode='manual' spw='3' scan='44' timerange=">08:19:50"
 
 mode='manual' spw='3' scan='35' antenna="ea06"
 
 # uv scatter throughout
 mode='manual' spw='9' antenna="ea04"
 
+mode='manual' scan='37' antenna="ea06"

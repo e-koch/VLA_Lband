@@ -4,7 +4,7 @@
 mode='manual' antenna='ea06'
 
 mode='manual' scan='6' antenna='ea19'
-mode='manual' scan='12' antenna='ea27,ea04'
+mode='manual' scan='12' antenna='ea27,ea04,ea16'
 mode='manual' scan='24,25' antenna='ea22'
 mode='manual' scan='32' antenna='ea27'
 mode='manual' scan='47' antenna='ea16'
@@ -28,3 +28,11 @@ mode='manual' spw='8,9' antenna='ea08&&ea16'
 
 # Consistently higher scatter
 mode='manual' spw='9' antenna='ea04'
+
+mode='manual' scan='8' timerange='<04:22:05'
+mode='manual' scan='12' timerange='<04:36:42'
+mode='manual' scan='16' timerange='<04:51:15'
+mode='manual' scan='20' timerange='<05:05:42'
+mode='manual' scan='36' timerange='<06:03:42'
+mode='manual' scan='48' timerange='<06:47:15'
+mode='manual' scan='60' timerange='<07:30:48'

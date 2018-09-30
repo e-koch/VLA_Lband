@@ -118,9 +118,10 @@ print("38'' median line widths. HI: {0}; CO: {1}"
 print("95'' median line widths. HI: {0}; CO: {1}"
       .format(np.median(hi_co_tab_5beam['sigma_HI'][good_pts_5beam]),
               np.median(hi_co_tab_5beam['sigma_CO'][good_pts_5beam])))
-# 19'' median line widths. HI: 7442.4097371; CO: 4422.97440623
-# 38'' median line widths. HI: 8351.11914113; CO: 5144.03043005
-# 95'' median line widths. HI: 11011.9116254; CO: 7543.48352746
+# 19'' median line widths. HI: 7429.32916764; CO: 4288.90275791
+# 38'' median line widths. HI: 8358.83189562; CO: 4999.51314003
+# 95'' median line widths. HI: 11022.19068; CO: 7419.73937683
+
 
 twocolumn_figure()
 
@@ -239,6 +240,9 @@ def bayes_linear(x, y, x_err, y_err, nWalkers=10, nBurn=100, nSample=1000,
     Fit a line w/ the intercept set to 0.
     '''
 
+    mean_scatter = np.mean(np.sqrt(x_err**2 + y_err**2))
+    std_scatter = np.std(np.sqrt(x_err**2 + y_err**2))
+
     if fix_intercept:
         def _logprob(p, x, y, x_err, y_err):
             theta = p[0]
@@ -247,30 +251,33 @@ def bayes_linear(x, y, x_err, y_err, nWalkers=10, nBurn=100, nSample=1000,
 
             Delta = (np.cos(theta) * y - np.sin(theta) * x)**2
             Sigma = np.sin(theta)**2 * x_err**2 + np.cos(theta)**2 * y_err**2
-            lp = -0.5 * np.nansum(Delta / Sigma) - \
-                0.5 * np.nansum(np.log(Sigma))
+            lp = -0.5 * np.nansum(Delta / (Sigma + p[1]**2)) - \
+                0.5 * np.nansum(np.log(Sigma + p[1]**2))
             return lp
 
         ndim = 2
 
         p0 = np.zeros((nWalkers, ndim))
         p0[:, 0] = np.pi / 4 + np.random.randn(nWalkers) * 0.1
+        p0[:, 1] = np.random.normal(mean_scatter, std_scatter, size=nWalkers)
 
     else:
         def _logprob(p, x, y, x_err, y_err):
-            theta, b = p[0], p[1]
+            theta, bcos = p[0], p[1]
             if np.abs(theta - np.pi / 4) > np.pi / 4:
                 return -np.inf
-            Delta = (np.cos(theta) * y - np.sin(theta) * x - b * np.cos(theta))**2
+            Delta = (np.cos(theta) * y - np.sin(theta) * x - bcos)**2
             Sigma = (np.sin(theta))**2 * x_err**2 + (np.cos(theta))**2 * y_err**2
-            lp = -0.5 * np.nansum(Delta / Sigma) - 0.5 * np.nansum(np.log(Sigma))
+            lp = -0.5 * np.nansum(Delta / (Sigma + p[2]**2)) - \
+                0.5 * np.nansum(np.log(Sigma + p[2]**2))
 
             return lp
 
-        ndim = 2
+        ndim = 3
         p0 = np.zeros((nWalkers, ndim))
         p0[:, 0] = np.pi / 4 + np.random.randn(nWalkers) * 0.1
         p0[:, 1] = np.random.randn(nWalkers) * y.std() + y.mean()
+        p0[:, 2] = np.random.normal(mean_scatter, std_scatter, size=nWalkers)
 
     sampler = emcee.EnsembleSampler(nWalkers, ndim, _logprob,
                                     args=[x, y, x_err, y_err])
@@ -287,7 +294,7 @@ def bayes_linear(x, y, x_err, y_err, nWalkers=10, nBurn=100, nSample=1000,
 
     else:
         slopes = np.tan(sampler.flatchain[:, 0])
-        intercepts = sampler.flatchain[:, 1]
+        intercepts = sampler.flatchain[:, 1] / np.cos(sampler.flatchain[:, 0])
 
         slope = np.median(slopes)
         intercept = np.median(intercepts)
@@ -301,15 +308,14 @@ def bayes_linear(x, y, x_err, y_err, nWalkers=10, nBurn=100, nSample=1000,
 
     return params, error_intervals, sampler
 
-
 # Fit the smoothed relations
 
-params, cis, sampler = \
-    bayes_linear(hi_co_tab_2beam['sigma_HI'][good_pts_2beam],
-                 hi_co_tab_2beam['sigma_CO'][good_pts_2beam],
-                 hi_co_tab_2beam['sigma_stderr_HI'][good_pts_2beam],
-                 hi_co_tab_2beam['sigma_stderr_CO'][good_pts_2beam],
-                 nBurn=500, nSample=2000, nThin=2)
+# params, cis, sampler = \
+#     bayes_linear(hi_co_tab_2beam['sigma_HI'][good_pts_2beam],
+#                  hi_co_tab_2beam['sigma_CO'][good_pts_2beam],
+#                  hi_co_tab_2beam['sigma_stderr_HI'][good_pts_2beam],
+#                  hi_co_tab_2beam['sigma_stderr_CO'][good_pts_2beam],
+#                  nBurn=500, nSample=2000, nThin=2)
 
 # Just fit ratio (intercept is 0)
 slope_ratio, slope_ratio_ci, sampler_ratio = \
@@ -327,17 +333,17 @@ hist2d(hi_co_tab_2beam['sigma_HI'][good_pts_2beam] / 1000.,
 plt.xlabel(r"$\sigma_{\rm HI}$ (km/s)")
 plt.ylabel(r"$\sigma_{\rm CO}$ (km/s)")
 
-slope = params[0]
-inter = params[1] / 1000.
-slope_ci = cis[0]
-inter_cis = cis[1] / 1000.
-plt.plot([4, 12], [4. * slope + inter, 12. * slope + inter])
-plt.fill_between([4, 12], [4. * slope_ci[0] + inter_cis[0],
-                           12. * slope_ci[0] + inter_cis[0]],
-                 [4. * slope_ci[1] + inter_cis[1],
-                  12. * slope_ci[1] + inter_cis[1]],
-                 facecolor=sb.color_palette()[0],
-                 alpha=0.5)
+# slope = params[0]
+# inter = params[1] / 1000.
+# slope_ci = cis[0]
+# inter_cis = cis[1] / 1000.
+# plt.plot([4, 12], [4. * slope + inter, 12. * slope + inter])
+# plt.fill_between([4, 12], [4. * slope_ci[0] + inter_cis[0],
+#                            12. * slope_ci[0] + inter_cis[0]],
+#                  [4. * slope_ci[1] + inter_cis[1],
+#                   12. * slope_ci[1] + inter_cis[1]],
+#                  facecolor=sb.color_palette()[0],
+#                  alpha=0.5)
 plt.plot([4, 12], [4. * slope_ratio[0], 12. * slope_ratio[0]],
          '--', color=sb.color_palette()[1], linewidth=3)
 
@@ -345,25 +351,24 @@ plt.plot([4, 12], [4, 12], '-.', linewidth=3, alpha=0.8,
          color=sb.color_palette()[2])
 
 plt.tight_layout()
+
 plt.savefig(allfigs_path("co_vs_hi/sigma_HI_vs_H2_w_fit_38arcsec.png"))
 plt.savefig(allfigs_path("co_vs_hi/sigma_HI_vs_H2_w_fit_38arcsec.pdf"))
 plt.close()
 
-print("2-beam Slope: {0} {1}".format(slope, slope_ci))
-print("2-beam Intercept: {0} {1}".format(inter, inter_cis))
-# 2-beam Slope: 0.887158997448 [ 0.87919073  0.89495123]
-# 2-beam Intercept: -2.36967399617 [-2.43536236 -2.29912222]
+# print("2-beam Slope: {0} {1}".format(slope, slope_ci))
+# print("2-beam Intercept: {0} {1}".format(inter, inter_cis))
 
 print("2-beam Ratio Slope: {0} {1}".format(slope_ratio, slope_ratio_ci))
-# 2-beam Ratio Slope: [ 0.616269] [ 0.61471011  0.61780726]
+# 2-beam Ratio Slope: [ 0.58267779] [ 0.58147617  0.58379101]
 
 
-params_5, cis_5, sampler_5 = \
-    bayes_linear(hi_co_tab_5beam['sigma_HI'][good_pts_5beam],
-                 hi_co_tab_5beam['sigma_CO'][good_pts_5beam],
-                 hi_co_tab_5beam['sigma_stderr_HI'][good_pts_5beam],
-                 hi_co_tab_5beam['sigma_stderr_CO'][good_pts_5beam],
-                 nBurn=500, nSample=2000, nThin=2)
+# params_5, cis_5, sampler_5 = \
+#     bayes_linear(hi_co_tab_5beam['sigma_HI'][good_pts_5beam],
+#                  hi_co_tab_5beam['sigma_CO'][good_pts_5beam],
+#                  hi_co_tab_5beam['sigma_stderr_HI'][good_pts_5beam],
+#                  hi_co_tab_5beam['sigma_stderr_CO'][good_pts_5beam],
+#                  nBurn=500, nSample=2000, nThin=2)
 
 # Just fit ratio (intercept is 0)
 slope_ratio_5, slope_ratio_ci_5, sampler_ratio_5 = \
@@ -381,17 +386,17 @@ hist2d(hi_co_tab_5beam['sigma_HI'][good_pts_5beam] / 1000.,
 plt.xlabel(r"$\sigma_{\rm HI}$ (km/s)")
 plt.ylabel(r"$\sigma_{\rm CO}$ (km/s)")
 
-slope_5 = params_5[0]
-inter_5 = params_5[1] / 1000.
-slope_ci_5 = cis_5[0]
-inter_cis_5 = cis_5[1] / 1000.
-plt.plot([4, 17], [4. * slope_5 + inter_5, 17. * slope_5 + inter_5])
-plt.fill_between([4, 17], [4. * slope_ci_5[0] + inter_cis_5[0],
-                           17. * slope_ci_5[0] + inter_cis_5[0]],
-                 [4. * slope_ci_5[1] + inter_cis_5[1],
-                  17. * slope_ci_5[1] + inter_cis_5[1]],
-                 facecolor=sb.color_palette()[0],
-                 alpha=0.5)
+# slope_5 = params_5[0]
+# inter_5 = params_5[1] / 1000.
+# slope_ci_5 = cis_5[0]
+# inter_cis_5 = cis_5[1] / 1000.
+# plt.plot([4, 17], [4. * slope_5 + inter_5, 17. * slope_5 + inter_5])
+# plt.fill_between([4, 17], [4. * slope_ci_5[0] + inter_cis_5[0],
+#                            17. * slope_ci_5[0] + inter_cis_5[0]],
+#                  [4. * slope_ci_5[1] + inter_cis_5[1],
+#                   17. * slope_ci_5[1] + inter_cis_5[1]],
+#                  facecolor=sb.color_palette()[0],
+#                  alpha=0.5)
 plt.plot([4, 17], [4. * slope_ratio_5[0], 17. * slope_ratio_5[0]],
          '--', color=sb.color_palette()[1], linewidth=3)
 
@@ -403,10 +408,8 @@ plt.savefig(allfigs_path("co_vs_hi/sigma_HI_vs_H2_w_fit_95arcsec.png"))
 plt.savefig(allfigs_path("co_vs_hi/sigma_HI_vs_H2_w_fit_95arcsec.pdf"))
 plt.close()
 
-print("5-beam Slope: {0} {1}".format(slope_5, slope_ci_5))
-print("5-beam Intercept: {0} {1}".format(inter_5, inter_cis_5))
-# 5-beam Slope: 0.798407145319 [ 0.79328406  0.80368867]
-# 5-beam Intercept: -1.29348305024 [-1.35364808 -1.23455831]
+# print("5-beam Slope: {0} {1}".format(slope_5, slope_ci_5))
+# print("5-beam Intercept: {0} {1}".format(inter_5, inter_cis_5))
 
 print("5-beam Ratio Slope: {0} {1}".format(slope_ratio_5, slope_ratio_ci_5))
-# 5-beam Ratio Slope: [ 0.68633695] [ 0.68523338  0.68743561]
+# 5-beam Ratio Slope: [ 0.64666956] [ 0.64529164  0.64804791]

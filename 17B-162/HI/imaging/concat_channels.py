@@ -31,8 +31,8 @@ for suff in suffixes:
 
     for num in range(num_imgs):
 
-        chan_img = glob("{0}/{1}_channel*.{2}".format(path_to_data, filename,
-                                                      suff))
+        chan_img = glob("{0}/channel_{1}/{2}_channel*.{3}"
+                        .format(path_to_data, num, filename, suff))
         if chan_img == 1:
             chan_img.append(chan_img[0])
 

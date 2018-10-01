@@ -67,11 +67,13 @@ try:
 except Exception:
     int_settings = True
 
-# Check if the products already exist and we should avoid recomputing the PSF
-# and residuals
+# Check if the summary dictionary has already been saved for this channel
+# If so, there is no need to clean any further
 
-if  not os.path.exists("{}.image".format(imagename)):
-    casalog.post("Image must already exist! Run initial cleaning first.")
+summ_files = glob("{}*.npy".format(imagename))
+
+if len(summ_files) == 2:
+    casalog.post("Summary file already exists! No need to clean further!")
     import sys
     sys.exit(0)
 

@@ -33,7 +33,7 @@ for suff in suffixes:
 
         chan_img = glob("{0}/channel_{1}/{2}_channel*.{3}"
                         .format(path_to_data, num, filename, suff))
-        if chan_img == 1:
+        if len(chan_img) == 1:
             chan_img.append(chan_img[0])
 
     if len(images) == 0:

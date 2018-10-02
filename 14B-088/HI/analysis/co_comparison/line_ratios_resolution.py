@@ -109,18 +109,24 @@ good_pts_5beam = np.logical_and(~hi_co_tab_5beam['multicomp_flag_HI'],
 #                                 hi_co_tab_5beam["sigma_HI"] > 3800)
 
 # What are the median line widths
-print("19'' median line widths. HI: {0}; CO: {1}"
-      .format(np.median(hi_co_tab['sigma_HI'][good_pts]),
-              np.median(hi_co_tab['sigma_CO'][good_pts])))
-print("38'' median line widths. HI: {0}; CO: {1}"
-      .format(np.median(hi_co_tab_2beam['sigma_HI'][good_pts_2beam]),
-              np.median(hi_co_tab_2beam['sigma_CO'][good_pts_2beam])))
-print("95'' median line widths. HI: {0}; CO: {1}"
-      .format(np.median(hi_co_tab_5beam['sigma_HI'][good_pts_5beam]),
-              np.median(hi_co_tab_5beam['sigma_CO'][good_pts_5beam])))
-# 19'' median line widths. HI: 7429.32916764; CO: 4288.90275791
-# 38'' median line widths. HI: 8358.83189562; CO: 4999.51314003
-# 95'' median line widths. HI: 11022.19068; CO: 7419.73937683
+print("19'' 15th, 50th, 85th line widths. HI: {0}; CO: {1}"
+      .format(np.percentile(hi_co_tab['sigma_HI'][good_pts], [15, 50, 85]),
+              np.percentile(hi_co_tab['sigma_CO'][good_pts], [15, 50, 85])))
+print("38'' 15th, 50th, 85th line widths. HI: {0}; CO: {1}"
+      .format(np.percentile(hi_co_tab_2beam['sigma_HI'][good_pts_2beam], [15, 50, 85]),
+              np.percentile(hi_co_tab_2beam['sigma_CO'][good_pts_2beam], [15, 50, 85])))
+print("95'' 15th, 50th, 85th line widths. HI: {0}; CO: {1}"
+      .format(np.percentile(hi_co_tab_5beam['sigma_HI'][good_pts_5beam], [15, 50, 85]),
+              np.percentile(hi_co_tab_5beam['sigma_CO'][good_pts_5beam], [15, 50, 85])))
+# 19'' 15th, 50th, 85th line widths.
+# HI: [ 6151.29135369  7429.32916764  9175.82252398];
+# CO: [ 3289.7303243   4288.90275791  5801.99530487]
+# 38'' 15th, 50th, 85th line widths.
+# HI: [  7179.47168223   8358.83189562  10151.71567788];
+# CO: [ 3935.75509445  4999.51314003  6359.43123789]
+# 95'' 15th, 50th, 85th line widths.
+# HI: [  9071.86256852  11022.19067997  13678.21229086];
+# CO: [ 5795.67825932  7419.73937683  9789.86425635]
 
 
 twocolumn_figure()

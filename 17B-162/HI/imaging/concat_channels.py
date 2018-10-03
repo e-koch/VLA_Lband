@@ -40,13 +40,11 @@ for num in range(num_imgs):
 
 if len(images) == 0:
     casalog.post("No images found for {}".format(suffix))
-    continue
 
 if len(images) != num_imgs:
     casalog.post("Number of images found ({0}) does not match"
                  " expected number ({1}) for {2}. Skipping cube creation."
                  .format(len(images), num_imgs, suffix))
-    continue
 
 cubename = "{0}/{1}.{2}".format(path_to_data, filename, suffix)
 

@@ -1,7 +1,7 @@
 import astropy.units as u
 from spectral_cube import OneDSpectrum, SpectralCube
 import numpy as np
-from pandas import DataFrame
+from pandas import DataFrame, read_csv
 from astropy.io import fits
 from astropy.table import Table, Column
 from os.path import join as osjoin
@@ -11,7 +11,7 @@ from astropy import log
 
 from cube_analysis.spectral_stacking_models import find_hwhm, fit_hwhm
 
-from paths import (iram_co21_14B088_data_path,
+from paths import (iram_co21_14B088_data_path, fourteenB_HI_data_path,
                    allfigs_path, alltables_path, fourteenB_HI_data_wGBT_path)
 
 '''
@@ -51,7 +51,7 @@ hi_fit_vals = {}
 labels = ["Cent. Sub.", "Peak Sub."]
 file_labels = ["centsub", "peaksub"]
 
-sigma_noise = (20.33 * u.mK).to(u.K).value
+sigma_noise = (16 * u.mK).to(u.K).value
 sigma_noise_hi = 2.8  # K
 
 # Pixels in each radial bin
@@ -77,7 +77,7 @@ for co_spectrum, hi_spectrum, label, file_label in zip(spectra, hi_spectra,
         fit_hwhm(vels[vel_mask], co_spectrum.value[vel_mask],
                  sigma_noise=sigma_noise,
                  nbeams=num_pix_total / npix_beam,
-                 niters=100)
+                 niters=1000)[:-1]
 
     co_fit_vals[label + " Params"] = parvals_hwhm
     co_fit_vals[label + " Lower Limit"] = parerrs_hwhm[0]
@@ -91,7 +91,7 @@ for co_spectrum, hi_spectrum, label, file_label in zip(spectra, hi_spectra,
         fit_hwhm(hi_vels, hi_spectrum.value,
                  sigma_noise=sigma_noise_hi,
                  nbeams=num_pix_total / npix_beam,
-                 niters=100)
+                 niters=1000)[:-1]
 
     hi_fit_vals[label + " Params"] = parvals_hwhm
     hi_fit_vals[label + " Lower Limit"] = parerrs_hwhm[0]
@@ -183,7 +183,7 @@ for ctr, (r0, r1) in enumerate(zip(inneredge,
             fit_hwhm(vels[vel_mask], spectrum.value[vel_mask],
                      sigma_noise=sigma_noise_hi,
                      nbeams=pix_in_bin / npix_beam,
-                     niters=100)
+                     niters=1000)[:-1]
         hi_models[label].append(hwhm_mod)
 
         for idx, name in enumerate(names):
@@ -208,7 +208,7 @@ for ctr, (r0, r1) in enumerate(zip(inneredge,
             fit_hwhm(vels[vel_mask], spectrum.value[vel_mask],
                      sigma_noise=sigma_noise,
                      nbeams=num_pix[ctr] / npix_beam,
-                     niters=100)
+                     niters=1000)[:-1]
 
         co_models[label].append(hwhm_mod)
 
@@ -258,7 +258,7 @@ hi_fit_vals = {}
 labels = ["Cent. Sub.", "Peak Sub."]
 file_labels = ["centsub", "peaksub"]
 
-sigma_noise = (20.33 * u.mK).to(u.K).value
+sigma_noise = (16 * u.mK).to(u.K).value
 sigma_noise_hi = 2.8  # K
 
 # Pixels in each radial bin
@@ -284,7 +284,7 @@ for co_spectrum, hi_spectrum, label, file_label in zip(spectra, hi_spectra,
         fit_hwhm(vels[vel_mask], co_spectrum.value[vel_mask],
                  sigma_noise=sigma_noise,
                  nbeams=num_pix_total / npix_beam,
-                 niters=100)
+                 niters=1000)[:-1]
 
     co_fit_vals[label + " Params"] = parvals_hwhm
     co_fit_vals[label + " Lower Limit"] = parerrs_hwhm[0]
@@ -298,7 +298,7 @@ for co_spectrum, hi_spectrum, label, file_label in zip(spectra, hi_spectra,
         fit_hwhm(hi_vels, hi_spectrum.value,
                  sigma_noise=sigma_noise_hi,
                  nbeams=num_pix_total / npix_beam,
-                 niters=100)
+                 niters=1000)[:-1]
 
     hi_fit_vals[label + " Params"] = parvals_hwhm
     hi_fit_vals[label + " Lower Limit"] = parerrs_hwhm[0]
@@ -390,7 +390,7 @@ for ctr, (r0, r1) in enumerate(zip(inneredge,
             fit_hwhm(vels[vel_mask], spectrum.value[vel_mask],
                      sigma_noise=sigma_noise_hi,
                      nbeams=pix_in_bin / npix_beam,
-                     niters=100)
+                     niters=1000)[:-1]
         hi_models[label].append(hwhm_mod)
 
         for idx, name in enumerate(names):
@@ -415,7 +415,7 @@ for ctr, (r0, r1) in enumerate(zip(inneredge,
             fit_hwhm(vels[vel_mask], spectrum.value[vel_mask],
                      sigma_noise=sigma_noise,
                      nbeams=num_pix[ctr] / npix_beam,
-                     niters=100)
+                     niters=1000)[:-1]
 
         co_models[label].append(hwhm_mod)
 
@@ -440,3 +440,58 @@ co_radial_fits.to_csv(iram_co21_14B088_data_path("smooth_5beam/tables/co_hwhm_to
 hi_radial_fits.to_latex(alltables_path("hi_hwhm_totalprof_fits_95arcsec_radial_{}.tex".format(wstring)))
 hi_radial_fits.to_csv(fourteenB_HI_data_wGBT_path("smooth_5beam/tables/hi_hwhm_totalprof_fits_95arcsec_radial_{}.csv".format(wstring),
                                                   no_check=True))
+
+# Plot the total profile line widths as a function of scale
+
+
+# co_param_df = read_csv(iram_co21_14B088_data_path("tables/co_gaussian_totalprof_fits_hwhm.csv"),
+#                        index_col=0)
+
+# hi_param_df = read_csv(fourteenB_HI_data_path("tables/hi_gaussian_totalprof_hwhm_fits.csv"),
+#                        index_col=0)
+
+
+# co_param_df_38 = read_csv(iram_co21_14B088_data_path("smooth_2beam/tables/co_gaussian_totalprof_fits_hwhm_38arcsec.csv"),
+#                           index_col=0)
+
+# hi_param_df_38 = read_csv(fourteenB_HI_data_wGBT_path("smooth_2beam/tables/hi_gaussian_totalprof_fits_hwhm_38arcsec.csv"),
+#                           index_col=0)
+
+# co_param_df_95 = read_csv(iram_co21_14B088_data_path("smooth_5beam/tables/co_gaussian_totalprof_fits_hwhm_95arcsec.csv"),
+#                           index_col=0)
+
+# hi_param_df_95 = read_csv(fourteenB_HI_data_wGBT_path("smooth_5beam/tables/hi_gaussian_totalprof_fits_hwhm_95arcsec.csv"),
+#                           index_col=0)
+
+
+# import matplotlib.pyplot as plt
+# import seaborn as sb
+
+# from plotting_styles import onecolumn_figure
+
+# col_pal = sb.color_palette()
+
+# onecolumn_figure()
+
+# scales = [80, 160, 350]
+
+# co_lwidths = [co_param_df['Peak Sub. Params']['sigma'],
+#               co_param_df_38['Peak Sub. Params']['sigma'],
+#               co_param_df_95['Peak Sub. Params']['sigma']]
+
+# hi_lwidths = [hi_param_df['Feath. Peak Sub. Params']['sigma'],
+#               hi_param_df_38['Peak Sub. Params']['sigma'],
+#               hi_param_df_95['Peak Sub. Params']['sigma']]
+
+# plt.errorbar(scales, hi_lwidths, yerr=[0.1] * 3,
+#              label='HI', color=col_pal[2])
+
+# plt.errorbar(scales, co_lwidths, yerr=[0.9] * 3,
+#              label='CO(2-1)', color=col_pal[1],
+#              linestyle='--')
+# plt.legend(frameon=True)
+# plt.grid()
+
+# plt.ylabel(r"\sigma_{\rm HWHM}")
+# plt.xlabel("Scale (pc)")
+# plt.tight_layout()

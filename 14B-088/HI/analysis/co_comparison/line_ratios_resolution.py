@@ -26,32 +26,47 @@ co_tab_5beam = Table.read(iram_co21_14B088_data_path("smooth_5beam/tables/co_hwh
 
 bin_centers = np.arange(0., 6.6, 0.5) + 0.25
 
-onecolumn_Npanel_figure(N=3)
-plt.subplot(311)
-plt.errorbar(bin_centers, hi_tab['peaksub_sigma'],
-             yerr=hi_tab['peaksub_sigma_low_lim'], label='19"',
+onecolumn_Npanel_figure(N=2)
+
+fig, ax = plt.subplots(2, 1, sharex=True, sharey=True)
+
+ax0 = ax[0]
+ax1 = ax[1]
+
+ax0.errorbar(bin_centers, hi_tab['peaksub_sigma'],
+             yerr=hi_tab['peaksub_sigma_low_lim'], label='80 pc',
              drawstyle='steps-mid')
-plt.errorbar(bin_centers, hi_tab_2beam['peaksub_sigma'],
-             yerr=hi_tab_2beam['peaksub_sigma_low_lim'], label='38"',
-             drawstyle='steps-mid')
-plt.errorbar(bin_centers, hi_tab_5beam['peaksub_sigma'],
-             yerr=hi_tab_5beam['peaksub_sigma_low_lim'], label='95"',
-             drawstyle='steps-mid')
-plt.ylabel(r"$\sigma_{\rm HI}$ (km/s)")
-plt.grid()
-plt.legend(frameon=True)
-plt.subplot(312)
-plt.errorbar(bin_centers, co_tab['peaksub_sigma'],
+ax0.errorbar(bin_centers, hi_tab_2beam['peaksub_sigma'],
+             yerr=hi_tab_2beam['peaksub_sigma_low_lim'], label='160 pc',
+             drawstyle='steps-mid', linestyle='--')
+ax0.errorbar(bin_centers, hi_tab_5beam['peaksub_sigma'],
+             yerr=hi_tab_5beam['peaksub_sigma_low_lim'], label='350 pc',
+             drawstyle='steps-mid', linestyle=':')
+ax0.set_ylabel(r"$\sigma_{\rm HI}$ (km/s)")
+ax0.grid()
+ax0.legend(frameon=True)
+ax0.set_ylim([0, 16])
+
+ax1.errorbar(bin_centers, co_tab['peaksub_sigma'],
              yerr=co_tab['peaksub_sigma_low_lim'], label='19"',
              drawstyle='steps-mid')
-plt.errorbar(bin_centers, co_tab_2beam['peaksub_sigma'],
+ax1.errorbar(bin_centers, co_tab_2beam['peaksub_sigma'],
              yerr=co_tab_2beam['peaksub_sigma_low_lim'], label='38"',
-             drawstyle='steps-mid')
-plt.errorbar(bin_centers, co_tab_5beam['peaksub_sigma'],
+             drawstyle='steps-mid', linestyle='--')
+ax1.errorbar(bin_centers, co_tab_5beam['peaksub_sigma'],
              yerr=co_tab_5beam['peaksub_sigma_low_lim'], label='95"',
-             drawstyle='steps-mid')
-plt.ylabel(r"$\sigma_{\rm CO}$ (km/s)")
-plt.grid()
+             drawstyle='steps-mid', linestyle=':')
+ax1.set_ylabel(r"$\sigma_{\rm CO}$ (km/s)")
+
+ax1.grid()
+
+ax1.set_xlabel("Radius (kpc)")
+
+plt.tight_layout()
+
+plt.savefig(allfigs_path("stacked_profiles/total_profile_radial_widths_HI_CO21_varyres.pdf"))
+plt.savefig(allfigs_path("stacked_profiles/total_profile_radial_widths_HI_CO21_varyres.png"))
+plt.close()
 
 ratio = co_tab['peaksub_sigma'] / hi_tab['peaksub_sigma']
 ratio_err = ratio * np.sqrt((co_tab['peaksub_sigma_low_lim'] / co_tab['peaksub_sigma'])**2 +
@@ -67,7 +82,8 @@ ratio_5beam_err = ratio_5beam * \
     np.sqrt((co_tab_5beam['peaksub_sigma_low_lim'] / co_tab_5beam['peaksub_sigma'])**2 +
             (hi_tab_5beam['peaksub_sigma_low_lim'] / hi_tab_5beam['peaksub_sigma'])**2)
 
-plt.subplot(313)
+onecolumn_figure()
+
 plt.errorbar(bin_centers, ratio,
              yerr=ratio_err, label='19"',
              drawstyle='steps-mid')
@@ -83,8 +99,8 @@ plt.grid()
 
 plt.tight_layout()
 
-plt.savefig(allfigs_path("stacked_profiles/total_profile_radial_widths_HI_CO21_varyres.pdf"))
-plt.savefig(allfigs_path("stacked_profiles/total_profile_radial_widths_HI_CO21_varyres.png"))
+plt.savefig(allfigs_path("stacked_profiles/total_profile_radial_widthratios_HI_CO21_varyres.pdf"))
+plt.savefig(allfigs_path("stacked_profiles/total_profile_radial_widthratios_HI_CO21_varyres.png"))
 plt.close()
 
 # Load the LOS tables

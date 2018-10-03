@@ -36,15 +36,17 @@ for num in range(num_imgs):
     chan_img = glob("{0}/channel_{1}/{2}_channel*.{3}"
                     .format(path_to_data, num, filename, suffix))
     if len(chan_img) == 1:
-        chan_img.append(chan_img[0])
+        images.append(chan_img[0])
 
 if len(images) == 0:
     casalog.post("No images found for {}".format(suffix))
+    sys.exit(1)
 
 if len(images) != num_imgs:
     casalog.post("Number of images found ({0}) does not match"
                  " expected number ({1}) for {2}. Skipping cube creation."
                  .format(len(images), num_imgs, suffix))
+    sys.exit(1)
 
 cubename = "{0}/{1}.{2}".format(path_to_data, filename, suffix)
 

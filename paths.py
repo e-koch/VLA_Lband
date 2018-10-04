@@ -40,6 +40,7 @@ archival_path = os.path.join(root, 'AT0206')
 a_path = os.path.join(root, '16B')
 archival_12_path = os.path.join(root, '12A-403')
 ancillary_path = os.path.join(root, 'ancillary_data')
+b_path = os.path.join(root, '17B-162')
 
 c_hi_analysispath = \
     partial(name_return_check, path=os.path.join(c_path, 'HI/analysis'))
@@ -64,6 +65,24 @@ fourteenB_HI_data_path = \
 fourteenB_HI_data_wGBT_path = \
     partial(name_return_check,
             path=os.path.join(data_path, "VLA/14B-088/HI/full_imaging_wGBT/"))
+
+seventeenB_HI_data_02kms_path = \
+    partial(name_return_check,
+            path=os.path.join(data_path,
+                              "VLA/17B-162/HI/full_imaging_02kms_noSD/"))
+seventeenB_HI_data_02kms_wGBT_path = \
+    partial(name_return_check,
+            path=os.path.join(data_path,
+                              "VLA/17B-162/HI/full_imaging_02kms_wGBT/"))
+
+seventeenB_HI_data_1kms_path = \
+    partial(name_return_check,
+            path=os.path.join(data_path,
+                              "VLA/17B-162/HI/full_imaging_1kms_noSD/"))
+seventeenB_HI_data_1kms_wGBT_path = \
+    partial(name_return_check,
+            path=os.path.join(data_path,
+                              "VLA/17B-162/HI/full_imaging_1kms_wGBT/"))
 
 arecibo_HI_data_path = \
     partial(name_return_check,

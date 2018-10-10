@@ -123,7 +123,8 @@ for i, (y, x) in enumerate(ProgressBar(zip(yposns, xposns))):
     co_params, co_stderrs, co_cov, co_parnames, co_model = \
         fit_gaussian(co_specaxis, co_spectrum.quantity,
                      sigma=co_err, use_discrete=True,
-                     kernel=np.array([k, 1 - 2 * k, k]))
+                     kernel=np.array([k, 1 - 2 * k, k]),
+                     add_chan_width_err=False)
 
     if np.isnan(co_cov).any():
         results["multicomp_flag_CO"][i] = True
@@ -172,7 +173,8 @@ for i, (y, x) in enumerate(ProgressBar(zip(yposns, xposns))):
     hi_params, hi_stderrs, hi_cov, hi_parnames, hi_model = \
         fit_gaussian(hi_specaxis[hwhm_mask],
                      hi_spectrum.quantity[hwhm_mask], p0=p0,
-                     sigma=hi_err)
+                     sigma=hi_err,
+                     add_chan_width_err=False)
 
     if np.isnan(hi_cov).any():
         results["multicomp_flag_HI"][i] = True
@@ -208,7 +210,8 @@ for i, (y, x) in enumerate(ProgressBar(zip(yposns, xposns))):
     hi_params_nomask, hi_stderrs_nomask, hi_cov_nomask, hi_parnames, \
         hi_model_nomask = \
         fit_gaussian(hi_specaxis,
-                     hi_spectrum.quantity, p0=p0, sigma=hi_err)
+                     hi_spectrum.quantity, p0=p0, sigma=hi_err,
+                     add_chan_width_err=False)
 
     results["amp_HI_nomask"][i] = hi_params_nomask[0] * u.K
     results["mean_HI_nomask"][i] = hi_params_nomask[1] * u.m / u.s
@@ -495,8 +498,8 @@ for i, (y, x) in enumerate(ProgressBar(zip(yposns[rand_ord],
     co_params, co_stderrs, co_cov, co_parnames, co_model = \
         fit_gaussian(co_specaxis, co_spectrum.quantity,
                      sigma=co_err, use_discrete=True,
-                     kernel=np.array([k, 1 - 2 * k, k]))
-
+                     kernel=np.array([k, 1 - 2 * k, k]),
+                     add_chan_width_err=False)
     if np.isnan(co_cov).any():
         results["multicomp_flag_CO"][i] = True
 
@@ -544,7 +547,8 @@ for i, (y, x) in enumerate(ProgressBar(zip(yposns[rand_ord],
     hi_params, hi_stderrs, hi_cov, hi_parnames, hi_model = \
         fit_gaussian(hi_specaxis[hwhm_mask],
                      hi_spectrum.quantity[hwhm_mask], p0=p0,
-                     sigma=hi_err)
+                     sigma=hi_err,
+                     add_chan_width_err=False)
 
     if np.isnan(hi_cov).any():
         results["multicomp_flag_HI"][i] = True
@@ -580,7 +584,8 @@ for i, (y, x) in enumerate(ProgressBar(zip(yposns[rand_ord],
     hi_params_nomask, hi_stderrs_nomask, hi_cov_nomask, hi_parnames, \
         hi_model_nomask = \
         fit_gaussian(hi_specaxis,
-                     hi_spectrum.quantity, p0=p0, sigma=hi_err)
+                     hi_spectrum.quantity, p0=p0, sigma=hi_err,
+                     add_chan_width_err=False)
 
     results["amp_HI_nomask"][i] = hi_params_nomask[0] * u.K
     results["mean_HI_nomask"][i] = hi_params_nomask[1] * u.m / u.s

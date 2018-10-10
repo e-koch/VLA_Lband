@@ -104,39 +104,47 @@ def bayes_linear(x, y, x_err, y_err, nWalkers=10, nBurn=100, nSample=1000,
 
     if fix_intercept:
         def _logprob(p, x, y, x_err, y_err):
-            theta = p[0]
+            theta, var = p[0], p[1]
             if np.abs(theta - np.pi / 4) > np.pi / 4:
+                return -np.inf
+            if var < 0:
                 return -np.inf
 
             Delta = (np.cos(theta) * y - np.sin(theta) * x)**2
             Sigma = np.sin(theta)**2 * x_err**2 + np.cos(theta)**2 * y_err**2
-            lp = -0.5 * np.nansum(Delta / (Sigma + p[1]**2)) - \
-                0.5 * np.nansum(np.log(Sigma + p[1]**2))
+            lp = -0.5 * np.nansum(Delta / (Sigma + var)) - \
+                0.5 * np.nansum(np.log(Sigma + var))
             return lp
 
         ndim = 2
 
         p0 = np.zeros((nWalkers, ndim))
-        p0[:, 0] = np.pi / 4 + np.random.randn(nWalkers) * 0.1
-        p0[:, 1] = np.random.normal(mean_scatter, std_scatter, size=nWalkers)
+        p0[:, 0] = np.tan(np.nanmean(y / x)) + np.random.randn(nWalkers) * 0.1
+        p0[:, 1] = np.random.normal(mean_scatter, 0.1 * std_scatter,
+                                    size=nWalkers)
 
     else:
         def _logprob(p, x, y, x_err, y_err):
-            theta, bcos = p[0], p[1]
+            theta, bcos, var = p[0], p[1], p[2]
             if np.abs(theta - np.pi / 4) > np.pi / 4:
                 return -np.inf
+            if var < 0:
+                return -np.inf
+
             Delta = (np.cos(theta) * y - np.sin(theta) * x - bcos)**2
-            Sigma = (np.sin(theta))**2 * x_err**2 + (np.cos(theta))**2 * y_err**2
-            lp = -0.5 * np.nansum(Delta / (Sigma + p[2]**2)) - \
-                0.5 * np.nansum(np.log(Sigma + p[2]**2))
+            Sigma = (np.sin(theta))**2 * x_err**2 + \
+                (np.cos(theta))**2 * y_err**2
+            lp = -0.5 * np.nansum(Delta / (Sigma + var)) - \
+                0.5 * np.nansum(np.log(Sigma + var))
 
             return lp
 
         ndim = 3
         p0 = np.zeros((nWalkers, ndim))
-        p0[:, 0] = np.pi / 4 + np.random.randn(nWalkers) * 0.1
+        p0[:, 0] = np.tan(np.nanmean(y / x)) + np.random.randn(nWalkers) * 0.1
         p0[:, 1] = np.random.randn(nWalkers) * y.std() + y.mean()
-        p0[:, 2] = np.random.normal(mean_scatter, std_scatter, size=nWalkers)
+        p0[:, 2] = np.random.normal(mean_scatter, 0.1 * std_scatter,
+                                    size=nWalkers)
 
     sampler = emcee.EnsembleSampler(nWalkers, ndim, _logprob,
                                     args=[x, y, x_err, y_err])
@@ -147,9 +155,15 @@ def bayes_linear(x, y, x_err, y_err, nWalkers=10, nBurn=100, nSample=1000,
     if fix_intercept:
         slopes = np.tan(sampler.flatchain[:, 0])
         slope = np.median(slopes)
-        params = np.array([slope])
+
+        var = np.sqrt(sampler.flatchain[:, 1])
+        add_stddev = np.median(var)
+
+        params = np.array([slope, add_stddev])
         # Use the percentiles given in conf_interval
-        error_intervals = np.percentile(slopes, conf_interval)
+        error_intervals = np.empty((2, 2))
+        error_intervals[0] = np.percentile(slopes, conf_interval)
+        error_intervals[1] = np.percentile(var, conf_interval)
 
     else:
         slopes = np.tan(sampler.flatchain[:, 0])
@@ -158,12 +172,16 @@ def bayes_linear(x, y, x_err, y_err, nWalkers=10, nBurn=100, nSample=1000,
         slope = np.median(slopes)
         intercept = np.median(intercepts)
 
-        params = np.array([slope, intercept])
+        var = np.sqrt(sampler.flatchain[:, 1])
+        add_stddev = np.median(var)
+
+        params = np.array([slope, intercept, var])
 
         # Use the percentiles given in conf_interval
-        error_intervals = np.empty((2, 2))
+        error_intervals = np.empty((3, 2))
         error_intervals[0] = np.percentile(slopes, conf_interval)
         error_intervals[1] = np.percentile(intercepts, conf_interval)
+        error_intervals[2] = np.percentile(var, conf_interval)
 
     return params, error_intervals, sampler
 
@@ -176,12 +194,18 @@ def bayes_linear(x, y, x_err, y_err, nWalkers=10, nBurn=100, nSample=1000,
 #                  nBurn=500, nSample=2000, nThin=2)
 
 # Just fit ratio (intercept is 0)
-slope_ratio, slope_ratio_ci, sampler_ratio = \
+pars_ratio, pars_ratio_ci, sampler_ratio = \
     bayes_linear(tab['sigma_HI'][good_pts], tab['sigma_CO'][good_pts],
                  tab['sigma_stderr_HI'][good_pts],
                  tab['sigma_stderr_CO'][good_pts],
-                 nBurn=500, nSample=2000, nThin=2,
+                 nBurn=500, nSample=5000, nThin=1,
                  fix_intercept=True)
+
+slope_ratio = pars_ratio[0]
+slope_ratio_ci = pars_ratio_ci[0]
+
+add_stddev_ratio = pars_ratio[1]
+add_stddev_ratio_ci = pars_ratio_ci[1]
 
 onecolumn_figure()
 hist2d(tab['sigma_HI'][good_pts] / 1000.,
@@ -202,9 +226,19 @@ plt.ylabel(r"$\sigma_{\rm CO}$ (km/s)")
 #                   12. * slope_ci[1] + inter_cis[1]],
 #                  facecolor=sb.color_palette()[0],
 #                  alpha=0.5)
-plt.plot([4, 12], [4. * slope_ratio[0], 12. * slope_ratio[0]],
+plt.plot([4, 12], [4. * slope_ratio, 12. * slope_ratio],
          '--', color=sb.color_palette()[1], linewidth=3,
          label='Ratio Fit')
+
+# Shade in the region from the added variance
+# y_var = add_stddev_ratio * np.sin(np.tan(slope_ratio)) / 1000.
+
+# plt.fill_between([4, 12], [4. * slope_ratio - y_var,
+#                            12. * slope_ratio - y_var],
+#                  [4. * slope_ratio + y_var,
+#                   12. * slope_ratio + y_var],
+#                  facecolor=sb.color_palette()[1],
+#                  alpha=0.35)
 
 plt.plot([4, 12], [4, 12], '-.', linewidth=3, alpha=0.8,
          color=sb.color_palette()[2],
@@ -221,13 +255,16 @@ plt.tight_layout()
 
 plt.savefig(osjoin(fig_path, "sigma_HI_vs_H2_w_fit.png"))
 plt.savefig(osjoin(fig_path, "sigma_HI_vs_H2_w_fit.pdf"))
-plt.close()
+# plt.close()
 
 # print("Slope: {0} {1}".format(slope, slope_ci))
 # print("Intercept: {0} {1}".format(inter, inter_cis))
 
 print("Ratio Slope: {0} {1}".format(slope_ratio, slope_ratio_ci))
-# Ratio Slope: [ 0.5750746] [ 0.57380588  0.57633586]
+# Ratio Slope: 0.563181915083 [ 0.5621998   0.56414808]
+
+print("Added stddev: {0} {1}".format(add_stddev_ratio, add_stddev_ratio_ci))
+# Added stddev: 520.947992994 [ 514.89901222  527.00225878]
 
 # What does this relation look like for line widths from the second moment
 co_lwidth = Projection.from_hdu(fits.open(iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI.lwidth.fits"))[0])
@@ -240,7 +277,7 @@ hi_lwidth_vals = hi_lwidth.value[tab['ypts'][good_pts], tab['xpts'][good_pts]] /
 
 hist2d(hi_lwidth_vals, co_lwidth_vals, bins=13,
        data_kwargs={"alpha": 0.5})
-plt.plot([4, 16], [4. * slope_ratio[0], 16. * slope_ratio[0]],
+plt.plot([4, 16], [4. * slope_ratio, 16. * slope_ratio],
          '--', color=sb.color_palette()[1], linewidth=3,
          label='Ratio Fit')
 
@@ -551,7 +588,7 @@ for low, up, ax in zip(amp_CO_percs[:-1], amp_CO_percs[1:], axes.ravel()):
                      nBurn=500, nSample=1000, nThin=2,
                      fix_intercept=True)
     slope = params_ampCO_bin[0]
-    slope_ci = cis_ampCO_bin
+    slope_ci = cis_ampCO_bin[0]
 
     ratio_ampCO_bins.append([slope, slope_ci])
 
@@ -577,10 +614,8 @@ print("Median CO {}".format(median_CO))
 print("Ratios: {}".format(ratio_ampCO_bins))
 # Bins: [ 0.0219169   0.09599498  0.13232244  0.19245095  0.80435075]
 # Median HI [7.8417065991420429, 7.5443055678764352, 7.319231497156256, 7.1817473529057017]
-#Median CO [5.3499201185891607, 4.4162685854964181, 3.9670922291672444, 3.6825616949564433]
-# Ratios: [[0.66013118082300504, array([ 0.65705675,  0.66318105])], [0.59511854011802079, array([ 0.59247636,  0.59774402])], [0.55479946493436527, array([ 0.55242757,  0.55708554])], [0.53141917453202669, array([ 0.52931531,  0.53356832])]]
-
-
+# Median CO [5.3499201185891607, 4.4162685854964181, 3.9670922291672444, 3.6825616949564433]
+# Ratios: [[0.65052747954370571, array([ 0.64805208,  0.65321125])], [0.58825734786640749, array([ 0.5860826 ,  0.59031582])], [0.54988030892882245, array([ 0.54802902,  0.55170164])], [0.52596686764429645, array([ 0.52458116,  0.52725499])]]
 
 # Where are the different bins located? Different clouds or inter-cloud
 # variation?
@@ -612,11 +647,11 @@ params_nomask, cis_nomask, sampler_nomask = \
                  tab['sigma_stderr_CO'][good_pts],
                  nBurn=500, nSample=2000, nThin=2, fix_intercept=True)
 ratio = params_nomask[0]
-ratio_ci = cis_nomask
+ratio_ci = cis_nomask[0]
 
 print("HI sigma no mask vs. CO")
 print("Ratio: {0} {1}".format(ratio, ratio_ci))
-# Ratio: 0.507352535864 [ 0.50624905  0.50844422]
+# Ratio: 0.504485636162 [ 0.50344384  0.50547394]
 
 onecolumn_figure()
 

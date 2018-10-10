@@ -267,39 +267,47 @@ def bayes_linear(x, y, x_err, y_err, nWalkers=10, nBurn=100, nSample=1000,
 
     if fix_intercept:
         def _logprob(p, x, y, x_err, y_err):
-            theta = p[0]
+            theta, var = p[0], p[1]
             if np.abs(theta - np.pi / 4) > np.pi / 4:
+                return -np.inf
+            if var < 0:
                 return -np.inf
 
             Delta = (np.cos(theta) * y - np.sin(theta) * x)**2
             Sigma = np.sin(theta)**2 * x_err**2 + np.cos(theta)**2 * y_err**2
-            lp = -0.5 * np.nansum(Delta / (Sigma + p[1]**2)) - \
-                0.5 * np.nansum(np.log(Sigma + p[1]**2))
+            lp = -0.5 * np.nansum(Delta / (Sigma + var)) - \
+                0.5 * np.nansum(np.log(Sigma + var))
             return lp
 
         ndim = 2
 
         p0 = np.zeros((nWalkers, ndim))
-        p0[:, 0] = np.pi / 4 + np.random.randn(nWalkers) * 0.1
-        p0[:, 1] = np.random.normal(mean_scatter, std_scatter, size=nWalkers)
+        p0[:, 0] = np.tan(np.nanmean(y / x)) + np.random.randn(nWalkers) * 0.1
+        p0[:, 1] = np.random.normal(mean_scatter, 0.1 * std_scatter,
+                                    size=nWalkers)
 
     else:
         def _logprob(p, x, y, x_err, y_err):
-            theta, bcos = p[0], p[1]
+            theta, bcos, var = p[0], p[1], p[2]
             if np.abs(theta - np.pi / 4) > np.pi / 4:
                 return -np.inf
+            if var < 0:
+                return -np.inf
+
             Delta = (np.cos(theta) * y - np.sin(theta) * x - bcos)**2
-            Sigma = (np.sin(theta))**2 * x_err**2 + (np.cos(theta))**2 * y_err**2
-            lp = -0.5 * np.nansum(Delta / (Sigma + p[2]**2)) - \
-                0.5 * np.nansum(np.log(Sigma + p[2]**2))
+            Sigma = (np.sin(theta))**2 * x_err**2 + \
+                (np.cos(theta))**2 * y_err**2
+            lp = -0.5 * np.nansum(Delta / (Sigma + var)) - \
+                0.5 * np.nansum(np.log(Sigma + var))
 
             return lp
 
         ndim = 3
         p0 = np.zeros((nWalkers, ndim))
-        p0[:, 0] = np.pi / 4 + np.random.randn(nWalkers) * 0.1
+        p0[:, 0] = np.tan(np.nanmean(y / x)) + np.random.randn(nWalkers) * 0.1
         p0[:, 1] = np.random.randn(nWalkers) * y.std() + y.mean()
-        p0[:, 2] = np.random.normal(mean_scatter, std_scatter, size=nWalkers)
+        p0[:, 2] = np.random.normal(mean_scatter, 0.1 * std_scatter,
+                                    size=nWalkers)
 
     sampler = emcee.EnsembleSampler(nWalkers, ndim, _logprob,
                                     args=[x, y, x_err, y_err])
@@ -310,9 +318,15 @@ def bayes_linear(x, y, x_err, y_err, nWalkers=10, nBurn=100, nSample=1000,
     if fix_intercept:
         slopes = np.tan(sampler.flatchain[:, 0])
         slope = np.median(slopes)
-        params = np.array([slope])
+
+        var = np.sqrt(sampler.flatchain[:, 1])
+        add_stddev = np.median(var)
+
+        params = np.array([slope, add_stddev])
         # Use the percentiles given in conf_interval
-        error_intervals = np.percentile(slopes, conf_interval)
+        error_intervals = np.empty((2, 2))
+        error_intervals[0] = np.percentile(slopes, conf_interval)
+        error_intervals[1] = np.percentile(var, conf_interval)
 
     else:
         slopes = np.tan(sampler.flatchain[:, 0])
@@ -321,14 +335,19 @@ def bayes_linear(x, y, x_err, y_err, nWalkers=10, nBurn=100, nSample=1000,
         slope = np.median(slopes)
         intercept = np.median(intercepts)
 
-        params = np.array([slope, intercept])
+        var = np.sqrt(sampler.flatchain[:, 1])
+        add_stddev = np.median(var)
+
+        params = np.array([slope, intercept, var])
 
         # Use the percentiles given in conf_interval
-        error_intervals = np.empty((2, 2))
+        error_intervals = np.empty((3, 2))
         error_intervals[0] = np.percentile(slopes, conf_interval)
         error_intervals[1] = np.percentile(intercepts, conf_interval)
+        error_intervals[2] = np.percentile(var, conf_interval)
 
     return params, error_intervals, sampler
+
 
 # Fit the smoothed relations
 
@@ -340,13 +359,19 @@ def bayes_linear(x, y, x_err, y_err, nWalkers=10, nBurn=100, nSample=1000,
 #                  nBurn=500, nSample=2000, nThin=2)
 
 # Just fit ratio (intercept is 0)
-slope_ratio, slope_ratio_ci, sampler_ratio = \
+pars_ratio, pars_ratio_ci, sampler_ratio = \
     bayes_linear(hi_co_tab_2beam['sigma_HI'][good_pts_2beam],
                  hi_co_tab_2beam['sigma_CO'][good_pts_2beam],
                  hi_co_tab_2beam['sigma_stderr_HI'][good_pts_2beam],
                  hi_co_tab_2beam['sigma_stderr_CO'][good_pts_2beam],
-                 nBurn=500, nSample=2000, nThin=2,
+                 nBurn=500, nSample=5000, nThin=1,
                  fix_intercept=True)
+
+slope_ratio = pars_ratio[0]
+slope_ratio_ci = pars_ratio_ci[0]
+
+add_stddev_ratio = pars_ratio[1]
+add_stddev_ratio_ci = pars_ratio_ci[1]
 
 onecolumn_figure()
 hist2d(hi_co_tab_2beam['sigma_HI'][good_pts_2beam] / 1000.,
@@ -366,7 +391,7 @@ plt.ylabel(r"$\sigma_{\rm CO}$ (km/s)")
 #                   12. * slope_ci[1] + inter_cis[1]],
 #                  facecolor=sb.color_palette()[0],
 #                  alpha=0.5)
-plt.plot([4, 12], [4. * slope_ratio[0], 12. * slope_ratio[0]],
+plt.plot([4, 12], [4. * slope_ratio, 12. * slope_ratio],
          '--', color=sb.color_palette()[1], linewidth=3)
 
 plt.plot([4, 12], [4, 12], '-.', linewidth=3, alpha=0.8,
@@ -382,7 +407,10 @@ plt.close()
 # print("2-beam Intercept: {0} {1}".format(inter, inter_cis))
 
 print("2-beam Ratio Slope: {0} {1}".format(slope_ratio, slope_ratio_ci))
-# 2-beam Ratio Slope: [ 0.58267779] [ 0.58147617  0.58379101]
+# 2-beam Ratio Slope: 0.566189501877 [ 0.56529157  0.56708893]
+
+print("2-beam Added stddev: {0} {1}".format(add_stddev_ratio, add_stddev_ratio_ci))
+# Added stddev: 302.786781711 [ 294.64176568  310.5069717 ]
 
 
 # params_5, cis_5, sampler_5 = \
@@ -393,13 +421,19 @@ print("2-beam Ratio Slope: {0} {1}".format(slope_ratio, slope_ratio_ci))
 #                  nBurn=500, nSample=2000, nThin=2)
 
 # Just fit ratio (intercept is 0)
-slope_ratio_5, slope_ratio_ci_5, sampler_ratio_5 = \
+pars_ratio_5, pars_ratio_ci_5, sampler_ratio_5 = \
     bayes_linear(hi_co_tab_5beam['sigma_HI'][good_pts_5beam],
                  hi_co_tab_5beam['sigma_CO'][good_pts_5beam],
                  hi_co_tab_5beam['sigma_stderr_HI'][good_pts_5beam],
                  hi_co_tab_5beam['sigma_stderr_CO'][good_pts_5beam],
-                 nBurn=500, nSample=2000, nThin=2,
+                 nBurn=500, nSample=5000, nThin=1,
                  fix_intercept=True)
+
+slope_ratio_5 = pars_ratio_5[0]
+slope_ratio_ci_5 = pars_ratio_ci_5[0]
+
+add_stddev_ratio_5 = pars_ratio_5[1]
+add_stddev_ratio_ci_5 = pars_ratio_ci_5[1]
 
 onecolumn_figure()
 hist2d(hi_co_tab_5beam['sigma_HI'][good_pts_5beam] / 1000.,
@@ -419,7 +453,7 @@ plt.ylabel(r"$\sigma_{\rm CO}$ (km/s)")
 #                   17. * slope_ci_5[1] + inter_cis_5[1]],
 #                  facecolor=sb.color_palette()[0],
 #                  alpha=0.5)
-plt.plot([4, 17], [4. * slope_ratio_5[0], 17. * slope_ratio_5[0]],
+plt.plot([4, 17], [4. * slope_ratio_5, 17. * slope_ratio_5],
          '--', color=sb.color_palette()[1], linewidth=3)
 
 plt.plot([4, 17], [4, 17], '-.', linewidth=3, alpha=0.8,
@@ -434,4 +468,8 @@ plt.close()
 # print("5-beam Intercept: {0} {1}".format(inter_5, inter_cis_5))
 
 print("5-beam Ratio Slope: {0} {1}".format(slope_ratio_5, slope_ratio_ci_5))
-# 5-beam Ratio Slope: [ 0.64666956] [ 0.64529164  0.64804791]
+# 5-beam Ratio Slope: 0.632291388013 [ 0.63100664  0.63355342]
+
+print("5-beam Added stddev: {0} {1}".format(add_stddev_ratio_5,
+                                            add_stddev_ratio_ci_5))
+# Added stddev: 23.4024470066 [ 11.42358035  38.02678363]

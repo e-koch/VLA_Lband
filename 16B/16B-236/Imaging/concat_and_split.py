@@ -13,7 +13,7 @@ myvis = glob("*.speclines.ms")
 
 assert len(myvis) == 12
 
-default('concat')
+default('virtualconcat')
 virtualconcat(vis=myvis, concatvis='16B-236_lines_all.ms',
               keepcopy=False)
 

@@ -21,4 +21,4 @@ cd $scratch_path
 Xvfb :1 &
 export DISPLAY=:1
 
-$HOME/casa-release-5.3.0-143.el7/bin/casa --nologger --nogui --log2term --nocrashreport -c $HOME/code/VLA_Lband/16B/16B-236/imaging/concat_and_split.py
+$HOME/casa-release-5.3.0-143.el7/bin/casa --nologger --nogui --log2term --nocrashreport -c $HOME/code/VLA_Lband/16B/16B-236/Imaging/concat_and_split.py

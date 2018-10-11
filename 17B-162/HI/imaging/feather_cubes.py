@@ -68,7 +68,7 @@ if run_gbt_02kms:
         os.mkdir(output_path)
 
     save_name = osjoin(output_path,
-                       "M33_14_17B_HI_contsub_width_02kms.image.pbcor.GBT_feathered.fits")
+                       "M33_14B_17B_HI_contsub_width_02kms.image.pbcor.GBT_feathered.fits")
 
     feather_cube(vla_cube, gbt_cube, restfreq=hi_freq, save_feather=True,
                  save_name=save_name, num_cores=num_cores,
@@ -98,7 +98,7 @@ if run_gbt_1kms:
         os.mkdir(output_path)
 
     save_name = osjoin(output_path,
-                       "M33_14_17B_HI_contsub_width_1kms.image.pbcor.GBT_feathered.fits")
+                       "M33_14B_17B_HI_contsub_width_1kms.image.pbcor.GBT_feathered.fits")
 
     feather_cube(vla_cube, gbt_cube, restfreq=hi_freq, save_feather=True,
                  save_name=save_name, num_cores=num_cores,

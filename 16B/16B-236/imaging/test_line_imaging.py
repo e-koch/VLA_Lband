@@ -2,7 +2,7 @@
 '''
 Create a dirty for the given SPW
 
-Should be run from the 17B-162_imaging folder on cedar
+Should be run from the 16B-236_imaging folder on cedar
 '''
 
 import os
@@ -23,10 +23,10 @@ if not os.path.exists(output_path):
     os.mkdir(output_path)
 
 # Grab all of the MS tracks in the folder (should be 17)
-myvis = "17B-162_lines.ms"
+myvis = "16B-236_lines.ms"
 
 # Load in the SPW dict in the repo on cedar
-execfile(os.path.expanduser("~/code/VLA_Lband/17B-162/spw_setup.py"))
+execfile(os.path.expanduser("~/code/VLA_Lband/16B/16B-236/spw_setup.py"))
 
 # Assume we can set reasonable image parameters from any of the tracks
 mycellsize = set_cellsize(myvis, spw_num, sample_factor=6.,
@@ -46,14 +46,18 @@ casalog.post("Image size: {}".format(myimagesize))
 # Image ALL channels in the MS. Just looking for reduction issues
 default('tclean')
 
+# Lots of noise here, so set fairly large channels
+chan_width = {0: 25, 1: 5, 2: 5, 3: 5, 4: 5,
+              5: 5, 6: 5, 7: 5, 8: 5, 9: 5}
+
 # Don't image the channel edges
 pad_chan = int(np.ceil(linespw_dict[spw_num][2] * 0.05))
-num_chan = int(linespw_dict[spw_num][2]) - 2 * pad_chan
+num_chan = int((linespw_dict[spw_num][2] - 2 * pad_chan) / chan_width[spw_num])
 
 tclean(vis=myvis,
        datacolumn='corrected',
        imagename=os.path.join(output_path,
-                              'M33_17B-162_{0}_spw_{1}.dirty'
+                              'M33_16B-236_{0}_spw_{1}.dirty'
                               .format(linespw_dict[spw_num][0], spw_num)),
        spw=str(spw_num),
        field='M33*',
@@ -68,7 +72,7 @@ tclean(vis=myvis,
        weighting='natural',
        niter=0,
        threshold='3.2mJy/beam',
-       phasecenter='J2000 01h33m50.904 +30d39m35.79',
+       phasecenter='J2000 01h33m33.191 +30d32m06.72',
        restfreq=linespw_dict[spw_num][1],
        outframe='LSRK',
        pblimit=mypblimit,

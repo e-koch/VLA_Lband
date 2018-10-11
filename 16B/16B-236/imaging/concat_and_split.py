@@ -23,4 +23,4 @@ split(vis='16B-236_lines_all.ms', outputvis='16B-236_lines.ms',
       datacolumn='corrected',
       keepflags=False)
 
-os.system("rm -r 17B-162_lines_all.ms")
+os.system("rm -r 16B-236_lines_all.ms")

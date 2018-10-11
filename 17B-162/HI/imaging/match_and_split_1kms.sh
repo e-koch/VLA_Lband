@@ -5,7 +5,7 @@
 #SBATCH --nodes=1
 #SBATCH --job-name=M33_HI_match_and_combine-1kms-%A-%a
 #SBATCH --output=casa-m33_HI_match_and_combine-1kms-%A-%a.out
-#SBATCH --array=0-11%1
+#SBATCH --array=0-1%1
 
 # In array mode, one job will run at a time. The match_and_split.py script will
 # Check the stage that the previous job got to, then pick up from where the last one

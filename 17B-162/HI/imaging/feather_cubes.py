@@ -22,7 +22,7 @@ run_gbt_02kms = True
 run_gbt_1kms = False
 
 num_cores = 4
-chunk = 10
+chunk = 8
 
 
 def taper_weights(mask, sigma, nsig_cut=3):
@@ -59,7 +59,7 @@ if run_gbt_02kms:
     weight = taper_weights(np.isfinite(pb_plane), 30, nsig_cut=5)
 
     gbt_path = osjoin(data_path, "GBT")
-    gbt_name = osjoin(gbt_path, "17B-162_items/m33_gbt_vlsr_highres_Tmb_17B162_02kms.fits")
+    gbt_name = osjoin(gbt_path, "17B-162_items/m33_gbt_vlsr_highres_Tmb_17B162_02kms_spectralregrid.fits")
     gbt_cube = SpectralCube.read(gbt_name)
 
     output_path = osjoin(data_path,
@@ -72,7 +72,7 @@ if run_gbt_02kms:
 
     feather_cube(vla_cube, gbt_cube, restfreq=hi_freq, save_feather=True,
                  save_name=save_name, num_cores=num_cores,
-                 weights=weight, chunk=chunk)
+                 weights=weight, chunk=chunk, verbose=False)
 
 if run_gbt_1kms:
     log.info("Feathering with 1 km/s GBT")
@@ -102,4 +102,4 @@ if run_gbt_1kms:
 
     feather_cube(vla_cube, gbt_cube, restfreq=hi_freq, save_feather=True,
                  save_name=save_name, num_cores=num_cores,
-                 weights=weight, chunk=chunk)
+                 weights=weight, chunk=chunk, verbose=False)

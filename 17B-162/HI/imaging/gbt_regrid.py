@@ -4,14 +4,17 @@ Regrid the GBT data to match the VLA HI data.
 '''
 
 from spectral_cube import SpectralCube
+from radio_beam import Beam
 from astropy.utils.console import ProgressBar
 import numpy as np
 import os
+import astropy.units as u
 
 from cube_analysis.io_utils import create_huge_fits
 
 from paths import (seventeenB_HI_data_02kms_path,
                    seventeenB_HI_data_1kms_path, data_path)
+from constants import hi_freq
 
 run_02kms = True
 run_1kms = False
@@ -26,6 +29,12 @@ Tmb_conv = 1.052
 
 cube = SpectralCube.read(os.path.join(gbt_path, "m33_gbt_vlsr_highres.fits"))
 
+# Update the beams to be the optimal found for the 14B data
+beam_fwhm = lambda diam: ((1.18 * hi_freq.to(u.cm, u.spectral())) /
+                           diam.to(u.cm)) * u.rad
+gbt_eff_beam = beam_fwhm(87.5 * u.m).to(u.deg)
+
+
 if run_02kms:
     # Load the non-pb masked cube
     vla_cube = SpectralCube.read(seventeenB_HI_data_02kms_path("M33_14B_17B_HI_contsub_width_02kms.image.pbcor.fits"))
@@ -36,6 +45,7 @@ if run_02kms:
     if not os.path.exists(save_name):
 
         cube = cube.spectral_interpolate(vla_cube.spectral_axis)
+        cube = cube.with_beam(Beam(gbt_eff_beam))
 
         if cube._is_huge:
             output_fits = create_huge_fits(save_name, cube.header,
@@ -98,6 +108,7 @@ if run_1kms:
     if not os.path.exists(save_name):
 
         cube = cube.spectral_interpolate(vla_cube.spectral_axis)
+        cube = cube.with_beam(Beam(gbt_eff_beam))
 
         if cube._is_huge:
             output_fits = create_huge_fits(save_name, cube.header,

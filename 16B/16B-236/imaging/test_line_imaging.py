@@ -26,7 +26,7 @@ if not os.path.exists(output_path):
 myvis = "16B-236_lines.ms"
 
 # Load in the SPW dict in the repo on cedar
-execfile(os.path.expanduser("~/code/VLA_Lband/16B/16B-236/spw_setup.py"))
+execfile(os.path.expanduser("~/code/VLA_Lband/16B/spw_setup.py"))
 
 # Assume we can set reasonable image parameters from any of the tracks
 mycellsize = set_cellsize(myvis, spw_num, sample_factor=6.,

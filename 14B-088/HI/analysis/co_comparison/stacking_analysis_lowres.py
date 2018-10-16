@@ -9,7 +9,7 @@ import os
 from radio_beam import Beam
 from astropy import log
 
-from cube_analysis.spectral_stacking_models import find_hwhm, fit_hwhm
+from cube_analysis.spectral_stacking_models import fit_hwhm
 
 from paths import (iram_co21_14B088_data_path, fourteenB_HI_data_path,
                    allfigs_path, alltables_path, fourteenB_HI_data_wGBT_path)

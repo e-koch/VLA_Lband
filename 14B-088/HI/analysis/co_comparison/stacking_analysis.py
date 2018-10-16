@@ -1,4 +1,5 @@
 import astropy.units as u
+import astropy.constants as const
 from spectral_cube import OneDSpectrum, SpectralCube
 import numpy as np
 import matplotlib.pyplot as p
@@ -98,8 +99,8 @@ ax[2].grid()
 
 p.tight_layout()
 
-fig.savefig(osjoin(figure_folder, "total_profile_corrected_velocity_HI_CO21.pdf"))
-fig.savefig(osjoin(figure_folder, "total_profile_corrected_velocity_HI_CO21.png"))
+# fig.savefig(osjoin(figure_folder, "total_profile_corrected_velocity_HI_CO21.pdf"))
+# fig.savefig(osjoin(figure_folder, "total_profile_corrected_velocity_HI_CO21.png"))
 
 p.close()
 
@@ -130,7 +131,7 @@ hwhm_models = {}
 labels = ["Rot. Sub.", "Cent. Sub.", "Peak Sub."]
 file_labels = ["rotsub", "centsub", "peaksub"]
 
-sigma_noise = (20.33 * u.mK).to(u.K).value
+sigma_noise = (16 * u.mK).to(u.K).value
 num_pix_total = (fits.open(iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI_source_mask.fits"))[0].data > 0).sum()
 
 # Data is smoothed and reprojected to match the HI beam size
@@ -152,7 +153,7 @@ for spectrum, label, file_label in zip(spectra, labels, file_labels):
         fit_hwhm(vels[vel_mask], norm_intens[vel_mask],
                  sigma_noise=sigma_noise / np.nanmax(spectrum.value),
                  nbeams=num_pix_total / npix_beam,
-                 niters=100)
+                 niters=1000)[:-1]
 
     # parvals_gauss = fit_gaussian(vels, norm_intens)
     # print(parvals_hwhm[0], parvals_gauss[0])
@@ -203,31 +204,44 @@ co_param_df.to_latex(alltables_path("co_gaussian_totalprof_fits_hwhm.tex"))
 co_param_df.to_csv(iram_co21_14B088_data_path("tables/co_gaussian_totalprof_fits_hwhm.csv",
                                               no_check=True))
 
+# Load up already saved version
+# import pandas as pd
+# co_param_df = pd.read_csv(iram_co21_14B088_data_path("tables/co_gaussian_totalprof_fits_hwhm.csv"), index_col=0)
+
 # Single plot of just the peak velocity profiles with the width highlighted
 onecolumn_figure()
 cpal = sb.color_palette()
 p.plot(total_spectrum_hi_peakvel.spectral_axis.to(u.km / u.s).value,
        (total_spectrum_hi_peakvel / total_spectrum_hi_peakvel.max()).value,
-       '-', drawstyle='steps-mid', label="HI")
-p.axvline(hi_tab['Feath. Peak Sub. Params'][1] +
-          hi_tab['Feath. Peak Sub. Params'][0] *
-          np.sqrt(2 * np.log(2)), linestyle='-', color=cpal[0], linewidth=3,
-          alpha=0.75)
-p.axvline(hi_tab['Feath. Peak Sub. Params'][1] -
-          hi_tab['Feath. Peak Sub. Params'][0] *
-          np.sqrt(2 * np.log(2)), linestyle='-', color=cpal[0], linewidth=3,
-          alpha=0.75)
+       '-', drawstyle='steps-mid', label="HI", color=cpal[2])
+p.plot(total_spectrum_hi_peakvel.spectral_axis.to(u.km / u.s).value,
+       Gaussian1D(1.0, hi_tab['Feath. Peak Sub. Params'][1],
+                  hi_tab['Feath. Peak Sub. Params'][0])(total_spectrum_hi_peakvel.spectral_axis.to(u.km / u.s).value),
+       color=cpal[2], linewidth=4, alpha=0.5, zorder=-1)
+# p.axvline(hi_tab['Feath. Peak Sub. Params'][1] +
+#           hi_tab['Feath. Peak Sub. Params'][0] *
+#           np.sqrt(2 * np.log(2)), linestyle='-', color=cpal[2], linewidth=3,
+#           alpha=0.75)
+# p.axvline(hi_tab['Feath. Peak Sub. Params'][1] -
+#           hi_tab['Feath. Peak Sub. Params'][0] *
+#           np.sqrt(2 * np.log(2)), linestyle='-', color=cpal[2], linewidth=3,
+#           alpha=0.75)
 p.plot(total_spectrum_co_peakvel.spectral_axis.to(u.km / u.s).value,
        (total_spectrum_co_peakvel / total_spectrum_co_peakvel.max()).value,
-       '--', drawstyle='steps-mid', label="CO(2-1)")
-p.axvline(co_param_df['Peak Sub. Params'][1] +
-          co_param_df['Peak Sub. Params'][0] *
-          np.sqrt(2 * np.log(2)), linestyle='--', color=cpal[1], linewidth=3,
-          alpha=0.75)
-p.axvline(co_param_df['Peak Sub. Params'][1] -
-          co_param_df['Peak Sub. Params'][0] *
-          np.sqrt(2 * np.log(2)), linestyle='--', color=cpal[1], linewidth=3,
-          alpha=0.75)
+       '--', drawstyle='steps-mid', label="CO(2-1)", color=cpal[1])
+p.plot(total_spectrum_hi_peakvel.spectral_axis.to(u.km / u.s).value,
+       Gaussian1D(1.0, co_param_df['Peak Sub. Params'][1],
+                  co_param_df['Peak Sub. Params'][0])(total_spectrum_hi_peakvel.spectral_axis.to(u.km / u.s).value),
+       color=cpal[1], linewidth=4, alpha=0.5, zorder=-1)
+
+# p.axvline(co_param_df['Peak Sub. Params'][1] +
+#           co_param_df['Peak Sub. Params'][0] *
+#           np.sqrt(2 * np.log(2)), linestyle='--', color=cpal[1], linewidth=3,
+#           alpha=0.75)
+# p.axvline(co_param_df['Peak Sub. Params'][1] -
+#           co_param_df['Peak Sub. Params'][0] *
+#           np.sqrt(2 * np.log(2)), linestyle='--', color=cpal[1], linewidth=3,
+#           alpha=0.75)
 p.ylabel("Normalized Total Intensity")
 p.xlabel("Velocity (km/s)")
 p.ylim([-0.02, 1.1])
@@ -255,12 +269,12 @@ ax[0].plot(total_spectrum_hi_peakvel.spectral_axis.to(u.km / u.s).value,
            '-', drawstyle='steps-mid', label="HI")
 ax[0].axvline(hi_tab['Feath. Peak Sub. Params'][1] +
               hi_tab['Feath. Peak Sub. Params'][0] *
-              np.sqrt(2 * np.log(2)), linestyle='-', color=cpal[0],
+              np.sqrt(2 * np.log(2)), linestyle='-', color=cpal[2],
               linewidth=3,
               alpha=0.75)
 ax[0].axvline(hi_tab['Feath. Peak Sub. Params'][1] -
               hi_tab['Feath. Peak Sub. Params'][0] *
-              np.sqrt(2 * np.log(2)), linestyle='-', color=cpal[0],
+              np.sqrt(2 * np.log(2)), linestyle='-', color=cpal[2],
               linewidth=3,
               alpha=0.75)
 ax[0].plot(total_spectrum_co_peakvel.spectral_axis.to(u.km / u.s).value,
@@ -289,12 +303,12 @@ ax[1].plot(vels,
            alpha=0.5, linewidth=4)
 ax[1].axvline(hi_tab['Feath. Peak Sub. Params'][1] +
               hi_tab['Feath. Peak Sub. Params'][0] *
-              np.sqrt(2 * np.log(2)), linestyle='-', color=cpal[0],
+              np.sqrt(2 * np.log(2)), linestyle='-', color=cpal[2],
               linewidth=3,
               alpha=0.75)
 ax[1].axvline(hi_tab['Feath. Peak Sub. Params'][1] -
               hi_tab['Feath. Peak Sub. Params'][0] *
-              np.sqrt(2 * np.log(2)), linestyle='-', color=cpal[0],
+              np.sqrt(2 * np.log(2)), linestyle='-', color=cpal[2],
               linewidth=3,
               alpha=0.75)
 ax[1].set_ylabel("Normalized Total Intensity")
@@ -437,7 +451,7 @@ for ctr, (r0, r1) in enumerate(zip(inneredge,
             fit_hwhm(vels[vel_mask], spectrum[vel_mask],
                      sigma_noise=sigma_noise_hi,
                      nbeams=pix_in_bin / npix_beam,
-                     niters=100)
+                     niters=1000)[:-1]
         hi_models[label].append(hwhm_mod)
 
         for idx, name in enumerate(names):
@@ -469,7 +483,7 @@ for ctr, (r0, r1) in enumerate(zip(inneredge,
             fit_hwhm(vels[vel_mask], spectrum[vel_mask],
                      sigma_noise=sigma_noise,
                      nbeams=num_pix[ctr] / npix_beam,
-                     niters=100)
+                     niters=1000)[:-1]
 
         co_models[label].append(hwhm_mod)
 
@@ -494,6 +508,14 @@ co_radial_fits.to_csv(iram_co21_14B088_data_path("tables/co_hwhm_totalprof_fits_
 hi_radial_fits.to_latex(alltables_path("hi_hwhm_totalprof_fits_radial_{}.tex".format(wstring)))
 hi_radial_fits.to_csv(fourteenB_HI_data_wGBT_path("tables/hi_hwhm_totalprof_fits_radial_{}.csv".format(wstring),
                                                   no_check=True))
+
+# Load previously saved version
+# co_radial_fits = pd.read_csv(iram_co21_14B088_data_path("tables/co_hwhm_totalprof_fits_radial_{}.csv".format(wstring)),
+#                              index_col=0)
+# hi_radial_fits = pd.read_csv(fourteenB_HI_data_wGBT_path("tables/hi_hwhm_totalprof_fits_radial_{}.csv".format(wstring)),
+#                              index_col=0)
+# co_params = co_radial_fits
+# hi_params = hi_radial_fits
 
 # Overplot HI and CO stacks with their equivalent models
 
@@ -656,23 +678,66 @@ onecolumn_figure()
 p.errorbar(bin_cents, hi_params["peaksub_sigma"],
            yerr=[hi_params["peaksub_sigma_low_lim"],
                  hi_params["peaksub_sigma_up_lim"]],
-           label='HI',
+           label='HI', color=cpal[2],
            drawstyle='steps-mid')
 p.errorbar(bin_cents, co_params["peaksub_sigma"],
            yerr=[co_params["peaksub_sigma_low_lim"],
                  co_params["peaksub_sigma_up_lim"]],
            linestyle='--', label='CO(2-1)',
-           drawstyle='steps-mid')
-p.legend(loc='upper right', frameon=True)
+           drawstyle='steps-mid', color=cpal[1])
+p.legend(loc='lower right', frameon=True)
 p.grid()
-p.ylim([2.5, 9])
+p.ylim([0, 9])
 p.xlabel("Radius (kpc)")
-p.ylabel("Gaussian Width (km/s)")
+p.ylabel(r"$\sigma_{\rm HWHM}$ (km/s)")
 
 p.tight_layout()
 
 p.savefig(osjoin(figure_folder, "total_profile_radial_widths_peakvel_HI_CO21.pdf"))
 p.savefig(osjoin(figure_folder, "total_profile_radial_widths_peakvel_HI_CO21.png"))
+
+p.close()
+
+onecolumn_Npanel_figure(N=2)
+
+fig, axs = p.subplots(2, 1, sharex=True)
+
+axs[0].errorbar(bin_cents, hi_params["peaksub_sigma"],
+                yerr=[hi_params["peaksub_sigma_low_lim"],
+                      hi_params["peaksub_sigma_up_lim"]],
+                label='HI', color=cpal[2],
+                drawstyle='steps-mid')
+axs[0].errorbar(bin_cents, co_params["peaksub_sigma"],
+                yerr=[co_params["peaksub_sigma_low_lim"],
+                      co_params["peaksub_sigma_up_lim"]],
+                linestyle='--', label='CO(2-1)',
+                drawstyle='steps-mid', color=cpal[1])
+axs[0].legend(loc='lower right', frameon=True)
+axs[0].grid()
+axs[0].set_ylim([0, 9])
+axs[0].set_ylabel(r"$\sigma_{\rm HWHM}$ (km/s)")
+
+axs[1].errorbar(bin_cents, hi_params["peaksub_f_wings"],
+                yerr=[hi_params["peaksub_f_wings_low_lim"],
+                      hi_params["peaksub_f_wings_up_lim"]],
+                label='HI', color=cpal[2],
+                drawstyle='steps-mid')
+axs[1].errorbar(bin_cents, co_params["peaksub_f_wings"],
+                yerr=[co_params["peaksub_f_wings_low_lim"],
+                      co_params["peaksub_f_wings_up_lim"]],
+                linestyle='--', label='CO(2-1)',
+                drawstyle='steps-mid', color=cpal[1])
+axs[1].grid()
+axs[1].set_ylim([-0.1, 0.5])
+axs[1].set_ylabel(r"$f_{\rm wings}$")
+
+axs[1].set_xlabel("Radius (kpc)")
+
+
+p.tight_layout()
+
+p.savefig(osjoin(figure_folder, "total_profile_radial_widths_fwings_peakvel_HI_CO21.pdf"))
+p.savefig(osjoin(figure_folder, "total_profile_radial_widths_fwings_peakvel_HI_CO21.png"))
 
 p.close()
 
@@ -758,6 +823,7 @@ ax[0].text(1.3, 0.58, "Rotation subtracted",
            bbox={"boxstyle": "square", "facecolor": "w"})
 # ax[0].set_xlabel("Radius (kpc)")
 ax[0].set_ylabel(r"$f_{\rm wings}$")
+ax[0].axhline(0., color='k', linestyle=':')
 
 ax[1].errorbar(bin_cents, hi_params["centsub_f_wings"],
                yerr=[hi_params["centsub_f_wings_low_lim"],
@@ -773,6 +839,7 @@ ax[1].grid()
 ax[1].set_xlabel("Radius (kpc)")
 ax[1].text(1.3, 0.58, "Centroid subtracted",
            bbox={"boxstyle": "square", "facecolor": "w"})
+ax[1].axhline(0., color='k', linestyle=':')
 
 ax[2].errorbar(bin_cents, hi_params["peaksub_f_wings"],
                yerr=[hi_params["peaksub_f_wings_low_lim"],
@@ -789,6 +856,7 @@ ax[2].legend(loc='lower left', frameon=True)
 # ax[2].set_xlabel("Radius (kpc)")
 ax[2].text(1.3, 0.58, "Peak Vel. subtracted",
            bbox={"boxstyle": "square", "facecolor": "w"})
+ax[2].axhline(0., color='k', linestyle=':')
 p.tight_layout()
 p.subplots_adjust(hspace=0.05,
                   wspace=0.05)
@@ -1019,5 +1087,26 @@ for ctr, param in enumerate(param_names):
     fig.savefig(osjoin(figure_folder, "total_profile_radial_N_S_{}_HI_CO21.png".format(param)))
 
     p.close()
+
+# Compare the amount of excess line wing flux to the error beam estimate from
+# Druard+14
+
+error_beam_flux = (2.5e7 * u.solMass) / ((24 * u.pc).to(u.cm))**2 / \
+    const.m_p.to(u.solMass) / (5e20 * u.cm**-2 / (u. K * u.km / u.s))
+
+spec = OneDSpectrum.from_hdu(fits.open(co_stackpath("peakvel_stacked_{}.fits"
+                                                    .format(maxrad_string))))
+
+vel_diff = np.abs(np.diff(spec.spectral_axis[:2])[0]).to(u.km / u.s)
+
+hwhm_mod = fit_hwhm(spec.spectral_axis.value, spec.value)
+
+# Only include the wings within the velocity mask that was used for fitting
+line_wing_flux = ((spec - hwhm_mod[-1](spec.spectral_axis.value) * u.K)[vel_mask].sum() *
+                  vel_diff)
+
+print("Error beam flux / Line wing excess flux: {}"
+      .format(error_beam_flux / line_wing_flux))
+# Error beam flux / Line wing excess flux: 0.449239614814
 
 default_figure()

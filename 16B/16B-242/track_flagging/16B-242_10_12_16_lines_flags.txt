@@ -6,6 +6,17 @@ mode='manual' scan='2' timerange='>01:47:20'
 mode='manual' scan='27' timerange='>03:16:15'
 
 # Significant RFI in SPW 8
-mode='manual' spw='8' scan='33~63'
+mode='manual' spw='8'
 
 mode='manual' scan='15,16' antenna='ea28'
+
+mode='manual' scan='4', timerange='<01:50:14' 
+mode='manual' scan='8', timerange='<02:04:44' 
+mode='manual' scan='16', timerange='<02:33:45' 
+mode='manual' scan='20', timerange='<02:48:15'
+mode='manual' scan='28', timerange='<03:17:15'
+mode='manual' scan='32', timerange='<03:31:48'
+mode='manual' scan='44', timerange='<04:15:20'
+mode='manual' scan='48', timerange='<04:29:50'
+mode='manual' scan='56', timerange='<04:58:50'
+mode='manual' scan='60', timerange='<05:13:20'

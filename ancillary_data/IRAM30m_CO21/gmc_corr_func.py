@@ -35,9 +35,10 @@ onecolumn_figure()
 
 plt.errorbar(phys_bins.value, test, yerr=test_err,
              drawstyle='steps-mid')
-plt.axhline(0., linestyle='--', color=sb.color_palette()[1])
+plt.axhline(0., linestyle='--', color='k')
 plt.grid()
 plt.xlabel("Separation (kpc)")
+plt.ylabel("Correlation")
 
 plt.tight_layout()
 
@@ -62,14 +63,14 @@ fig, ax = plt.subplots(2, 1, sharex=True, sharey=True)
 
 ax[0].errorbar(phys_bins.value, test, yerr=test_err, label='Standard',
                drawstyle='steps-mid')
-ax[0].axhline(0., linestyle='--', color=sb.color_palette()[1])
+ax[0].axhline(0., linestyle='--', color='k')
 ax[0].legend(frameon=True)
 ax[0].grid()
 
 ax[1].errorbar(phys_bins.value, test_ls, yerr=test_err_ls,
                label='Landy-Szalay',
                drawstyle='steps-mid')
-ax[1].axhline(0., linestyle='--', color=sb.color_palette()[1])
+ax[1].axhline(0., linestyle='--', color='k')
 ax[1].legend(frameon=True)
 ax[1].grid()
 ax[1].set_xlabel("Separation (kpc)")

@@ -255,7 +255,7 @@ plt.tight_layout()
 
 plt.savefig(osjoin(fig_path, "sigma_HI_vs_H2_w_fit.png"))
 plt.savefig(osjoin(fig_path, "sigma_HI_vs_H2_w_fit.pdf"))
-# plt.close()
+plt.close()
 
 # print("Slope: {0} {1}".format(slope, slope_ci))
 # print("Intercept: {0} {1}".format(inter, inter_cis))

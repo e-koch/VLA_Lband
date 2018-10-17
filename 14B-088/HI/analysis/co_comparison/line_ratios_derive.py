@@ -12,7 +12,7 @@ import astropy.constants as c
 from paths import allfigs_path
 
 from plotting_styles import (default_figure, twocolumn_twopanel_figure,
-                             onecolumn_figure)
+                             onecolumn_figure, twocolumn_figure)
 
 
 default_figure()
@@ -55,9 +55,16 @@ def size_lwidth(l, l_s, T, mu, index=0.5):
     return np.sqrt(turb_sigma**2 + c_s**2)
 
 
+scales = [80, 160, 380]
+
 # From stacking
-sigma_HI = 6.6 * u.km / u.s
-sigma_CO = 4.5 * u.km / u.s
+sigma_HI = [6.6, 8.0, 8.9] * u.km / u.s
+sigma_CO = [4.62, 5.95, 7.2] * u.km / u.s
+
+# From LOS average
+sigma_HI_los = [7.4, 8.4, 11.0] * u.km / u.s
+sigma_CO_los = [4.3, 5.0, 7.3] * u.km / u.s
+
 
 # ASSUME that the turbulent field is the same through the cloud and the
 # envelope.
@@ -65,10 +72,10 @@ sigma_CO = 4.5 * u.km / u.s
 # turbulence
 
 T_CO = 10 * u.K
-sigma_turb = np.sqrt(sigma_CO**2 - lwidth(T_CO, 2.3)**2)
+sigma_turb = np.sqrt(sigma_CO[0]**2 - lwidth(T_CO, 2.3)**2)
 
 # Set T_HI assuming this holds for both
-c_HI = np.sqrt(sigma_HI**2 - sigma_turb**2)
+c_HI = np.sqrt(sigma_HI[0]**2 - sigma_turb**2)
 T_HI = (c_HI**2 * 1.4 * c.m_p / c.k_B).to(u.K)
 # T_HI = 5000 * u.K
 # About 4000 K. Reasonable.
@@ -77,14 +84,14 @@ scales = np.arange(0.05, 1500, 0.1) * u.pc
 
 beam_size = 80 * u.pc
 
-l_HI = sonic_length(sigma_HI, beam_size, T_HI, 1.4)
-l_CO = sonic_length(sigma_CO, beam_size, T_CO, 2.3)
+l_HI = sonic_length(sigma_HI[0], beam_size, T_HI, 1.4)
+l_CO = sonic_length(sigma_CO[0], beam_size, T_CO, 2.3)
 
 sigma_COs = size_lwidth(scales, l_CO, T_CO, 2.3)
 sigma_HIs = size_lwidth(scales, l_HI, T_HI, 1.4)
 
 # What if the HI index is closer to 1/3?
-l_HI_one3 = sonic_length(sigma_HI, beam_size, T_HI, 1.4, index=1 / 3.)
+l_HI_one3 = sonic_length(sigma_HI[0], beam_size, T_HI, 1.4, index=1 / 3.)
 sigma_HIs_one3 = size_lwidth(scales, l_HI_one3, T_HI, 1.4, index=1 / 3.)
 
 twocolumn_twopanel_figure()
@@ -93,10 +100,14 @@ plt.loglog(scales.value, sigma_COs.value, label='CO')
 plt.loglog(scales.value, sigma_HIs.value, label='HI')
 plt.loglog(scales.value, sigma_HIs_one3.value, label='HI - 1/3 index')
 plt.axhline(0.19 * (100 / l_CO.value)**0.5)
-plt.errorbar([80, 160, 380], [4.5, 6.0, 7.25], yerr=[1.3] * 3,
+plt.errorbar(scales, sigma_CO.value, yerr=[1.3] * 3,
              fmt='D', label='CO Width')
-plt.errorbar([80, 160, 380], [6.6, 8.0, 8.9], yerr=[0.1] * 3,
+plt.errorbar(scales, sigma_HI.value, yerr=[0.1] * 3,
              fmt='o', label='HI Width')
+plt.errorbar(scales, [4.3, 5.0, 7.25], yerr=[1.3] * 3,
+             fmt='D', label='LOS CO Width')
+plt.errorbar(scales, [7.4, 8.4, 11.0], yerr=[0.1] * 3,
+             fmt='o', label='LOS HI Width')
 plt.grid()
 plt.legend(frameon=True)
 plt.xlabel("Scale (pc)")
@@ -106,7 +117,7 @@ plt.loglog(scales.value, sigma_COs.value / sigma_HIs.value,
            label='HI Index = 1/2')
 plt.loglog(scales.value, sigma_COs.value / sigma_HIs_one3.value,
            label='HI Index = 1/3')
-plt.errorbar([80, 160, 380], [4.5 / 6.6, 6.0 / 8.0, 7.25 / 8.9],
+plt.errorbar(scales, [4.5 / 6.6, 6.0 / 8.0, 7.25 / 8.9],
              yerr=[0.2, 0.16, 0.15],
              fmt='D')
 plt.plot([40], [0.23], 'D')
@@ -122,10 +133,10 @@ plt.tight_layout()
 # plt.savefig(allfigs_path("co_vs_hi/size_linewidth_peaksub_ratio.pdf"))
 plt.close()
 
-onecolumn_figure()
+twocolumn_figure()
 
 # Long legend requires a slightly larger figure
-plt.figure(figsize=(4.5, 3.24))
+plt.figure(figsize=(7.6, 3.55))
 
 # Need some extra colors
 sb.set_palette('colorblind', n_colors=8)
@@ -138,10 +149,16 @@ plt.loglog(scales.value, sigma_HIs.value, "--", color=cpal[1],
            label='HI - 1/2 index')
 plt.loglog(scales.value, sigma_HIs_one3.value, "-.", color=cpal[1],
            label='HI - 1/3 index')
-plt.errorbar([80, 160, 380], [4.5, 6.0, 7.25], yerr=[1.3] * 3, color=cpal[2],
-             fmt='D', label='M33 CO(2-1) Width')
-plt.errorbar([80, 160, 380], [6.6, 8.0, 8.9], yerr=[0.1] * 3, color=cpal[2],
-             fmt='o', label='M33 HI Width')
+plt.errorbar(scales, sigma_CO.value, yerr=[0.9] * 3, color=cpal[2],
+             fmt='D', label='M33 CO(2-1) Stack Width')
+plt.errorbar(scales, sigma_HI.value, yerr=[0.1] * 3, color=cpal[2],
+             fmt='o', label='M33 HI Stack Width')
+
+# plt.errorbar(scales, sigma_CO_los, yerr=[0.5] * 3,
+#              fmt='D', label='M33 CO(2-1) LOS Width')
+# plt.errorbar(scales, sigma_HI_los, yerr=[0.1] * 3,
+#              fmt='o', label='M33 HI LOS Width')
+
 # Show the mean value from Fukui+09
 plt.errorbar([40], [14.1 / 2.35], yerr=[3.3 / 2.35], fmt='s',
              label='LMC HI Avg.',
@@ -151,7 +168,8 @@ plt.errorbar([40], [4.6 / 2.35], yerr=[1.6 / 2.35], fmt='X',
              color=cpal[3])
 
 # Narrow line width in M31 from Caldu-Primo + Schruba 2016
-plt.errorbar([85], [7.5 / 2.35], yerr=[0.4], fmt='X', label='M31 CO(1-0) Stack',
+plt.errorbar([85], [7.5 / 2.35], yerr=[0.4], fmt='X',
+             label='M31 CO(1-0) Stack',
              color=cpal[5])
 
 # NGC 2403 CO and HI from Caldu-Primo+2013
@@ -176,8 +194,8 @@ ngc2403_widths = np.array([[12.3, 15.3, 0.8],
                            [10.8, 7.6, 1.4],
                            [10.8, 7.2, 1.5],
                            [9.7, 12.2, 0.8]])
-hi_err = 1.0
-co_err = 3.0
+hi_err = 1.0 * 0.35
+co_err = 3.0 * 0.35
 
 # Exclude inner points that are likely affected by beam smearing
 plt.errorbar([200], ngc2403_widths[3:, 0].mean(),
@@ -204,6 +222,8 @@ plt.legend(frameon=True)
 plt.xlabel("Scale (pc)")
 plt.ylabel(r"$\sigma$ (km/s)")
 plt.tight_layout()
+
+print(argh)
 
 plt.savefig(allfigs_path("co_vs_hi/size_linewidth_peaksub_comparison.png"))
 plt.savefig(allfigs_path("co_vs_hi/size_linewidth_peaksub_comparison.pdf"))

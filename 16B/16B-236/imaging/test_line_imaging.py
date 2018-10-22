@@ -47,8 +47,8 @@ casalog.post("Image size: {}".format(myimagesize))
 default('tclean')
 
 # Lots of noise here, so set fairly large channels
-chan_width = {0: 25, 1: 5, 2: 5, 3: 5, 4: 5,
-              5: 5, 6: 5, 7: 5, 8: 5, 9: 5}
+chan_width = {0: 25, 1: 3, 2: 3, 3: 5, 4: 3,
+              5: 5, 6: 5, 7: 5, 8: 3, 9: 3}
 
 # Don't image the channel edges
 pad_chan = int(np.ceil(linespw_dict[spw_num][2] * 0.05))

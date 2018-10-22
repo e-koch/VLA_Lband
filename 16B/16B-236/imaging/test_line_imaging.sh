@@ -5,7 +5,7 @@
 #SBATCH --nodes=1
 #SBATCH --job-name=M33_16B-236_dirty_cube-%A-%a
 #SBATCH --output=casa-m33_16B-236_dirtycube-%A-%a.out
-#SBATCH --array=0-9
+#SBATCH --array=0-9%1
 
 export OMP_NUM_THREADS=$SLURM_JOB_CPUS_PER_NODE
 

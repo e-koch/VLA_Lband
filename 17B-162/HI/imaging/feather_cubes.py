@@ -90,7 +90,7 @@ if run_gbt_1kms:
 
     gbt_path = osjoin(data_path, "GBT")
     gbt_name = osjoin(gbt_path,
-                      "17B-162_items/m33_gbt_vlsr_highres_Tmb_17B162_1kms.fits")
+                      "17B-162_items/m33_gbt_vlsr_highres_Tmb_17B162_1kms_spectralregrid.fits")
     gbt_cube = SpectralCube.read(gbt_name)
 
     output_path = osjoin(data_path, "VLA/17B-162/HI/full_imaging_1kms_wGBT/")

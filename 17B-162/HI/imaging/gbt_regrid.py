@@ -99,7 +99,7 @@ if run_02kms:
 
 if run_1kms:
     # Load the non-pb masked cube
-    vla_cube = SpectralCube.read(seventeenB_HI_data_1kms_path("M33_14_17B_HI_contsub_width_1kms.pbcor.image.fits"))
+    vla_cube = SpectralCube.read(seventeenB_HI_data_1kms_path("M33_14B_17B_HI_contsub_width_1kms.image.pbcor.fits"))
 
     save_name = os.path.join(gbt_path,
                              "17B-162_items/m33_gbt_vlsr_highres_Tmb_17B162_1kms_spectralregrid.fits")

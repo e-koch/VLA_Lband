@@ -34,13 +34,13 @@ ax0 = ax[0]
 ax1 = ax[1]
 
 ax0.errorbar(bin_centers, hi_tab['peaksub_sigma'],
-             yerr=hi_tab['peaksub_sigma_low_lim'], label='80 pc',
+             yerr=hi_tab['peaksub_sigma_low_lim'], label='80 pc (19")',
              drawstyle='steps-mid')
 ax0.errorbar(bin_centers, hi_tab_2beam['peaksub_sigma'],
-             yerr=hi_tab_2beam['peaksub_sigma_low_lim'], label='160 pc',
+             yerr=hi_tab_2beam['peaksub_sigma_low_lim'], label='160 pc (38")',
              drawstyle='steps-mid', linestyle='--')
 ax0.errorbar(bin_centers, hi_tab_5beam['peaksub_sigma'],
-             yerr=hi_tab_5beam['peaksub_sigma_low_lim'], label='350 pc',
+             yerr=hi_tab_5beam['peaksub_sigma_low_lim'], label='380 pc (95")',
              drawstyle='steps-mid', linestyle=':')
 ax0.set_ylabel(r"$\sigma_{\rm HI}$ (km/s)")
 ax0.grid()

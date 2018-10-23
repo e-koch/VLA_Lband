@@ -252,11 +252,11 @@ bin_cents = (bin_edges[1:] + bin_edges[:-1]) / 2.
 plt.axhline(0.2, color=col_pal[3], linestyle='--', linewidth=4, alpha=0.75)
 plt.axhline(2.6, color=col_pal[5], linestyle=':', linewidth=4, alpha=0.75)
 plt.errorbar(bin_cents, med_bin, fmt='o-', drawstyle='steps-mid',
-             yerr=std_bin, label='19"')
+             yerr=std_bin, label='80 pc (19")')
 plt.errorbar(bin_cents, med_bin_38, fmt='D-', drawstyle='steps-mid',
-             yerr=std_bin_38, label='38"')
+             yerr=std_bin_38, label='160 pc (38")')
 plt.errorbar(bin_cents, med_bin_95, fmt='^-', drawstyle='steps-mid',
-             yerr=std_bin_95, label='95"')
+             yerr=std_bin_95, label='380 pc (95")')
 plt.legend(frameon=True)
 plt.grid()
 plt.ylabel("Standard deviation of\n peak velocity (km/s)")

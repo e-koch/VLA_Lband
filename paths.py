@@ -164,6 +164,18 @@ fourteenB_HI_file_dict = \
 fourteenB_wGBT_HI_file_dict = \
     find_dataproduct_names(fourteenB_HI_data_wGBT_path("", no_check=True))
 
+seventeenB_02kms_HI_file_dict = \
+    find_dataproduct_names(seventeenB_HI_data_02kms_path("", no_check=True))
+seventeenB_02kms_wGBT_HI_file_dict = \
+    find_dataproduct_names(seventeenB_HI_data_02kms_wGBT_path("",
+                                                              no_check=True))
+
+seventeenB_1kms_HI_file_dict = \
+    find_dataproduct_names(seventeenB_HI_data_1kms_path("", no_check=True))
+seventeenB_1kms_wGBT_HI_file_dict = \
+    find_dataproduct_names(seventeenB_HI_data_1kms_wGBT_path("",
+                                                             no_check=True))
+
 if __name__ == "__main__":
 
     # Append the repo directory to the path so paths is importable

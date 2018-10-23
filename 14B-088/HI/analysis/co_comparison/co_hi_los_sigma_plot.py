@@ -24,7 +24,7 @@ from paths import (fourteenB_HI_data_wGBT_path, fourteenB_wGBT_HI_file_dict,
                    allfigs_path,
                    iram_co21_14B088_data_path)
 from constants import (hi_freq, hi_coldens_Kkms)
-from plotting_styles import default_figure, onecolumn_twopanel_figure
+from plotting_styles import default_figure, onecolumn_Npanel_figure
 from galaxy_params import gal_feath as gal
 
 default_figure()
@@ -55,12 +55,14 @@ co_moment0 = fits.open(iram_co21_14B088_data_path("m33.co21_iram.14B-088_HI.mom0
 
 co_noise_map = fits.open(iram_co21_14B088_data_path("m33.rms.14B-088_HI.fits"))[0]
 
-onecolumn_twopanel_figure()
+onecolumn_Npanel_figure(N=1.5)
 
 img_slice = (slice(902, 1084), slice(400, 650))
 offset = [902, 400]
 
-ax = plt.subplot(211, projection=mom0_proj[img_slice].wcs)
+fig = plt.figure(figsize=(4.4, 5.84))
+
+ax = fig.add_axes((0.15, 0.5, 0.8, 0.45), projection=mom0_proj[img_slice].wcs)
 im = ax.imshow(moment0_coldens[img_slice],
                origin='lower',
                interpolation='nearest',
@@ -112,13 +114,30 @@ good_pts = np.logical_and(good_pts,
 good_pts = np.logical_and(good_pts,
                           tab["sigma_CO"] >= 2600)
 
-ax2 = plt.subplot(212)
+ax2 = fig.add_axes((0.15, 0.1, 0.8, 0.35))
+
 hist2d(tab['sigma_HI'][good_pts] / 1000.,
        np.array(tab['sigma_CO'])[good_pts] / 1000., bins=13,
-       data_kwargs={"alpha": 0.5},
-       ax=ax2)
+       data_kwargs={"alpha": 0.5}, ax=ax2)
 plt.xlabel(r"$\sigma_{\rm HI}$ (km/s)")
 plt.ylabel(r"$\sigma_{\rm CO}$ (km/s)")
+
+# From line_ratios_analysis.py
+slope_ratio = 0.56318
+plt.plot([4, 12], [4. * slope_ratio, 12. * slope_ratio],
+         '--', color=sb.color_palette()[1], linewidth=3,
+         label='Ratio Fit', alpha=0.8)
+
+# plt.plot([4, 12], [4, 12], '-.', linewidth=3, alpha=0.6,
+#          color=sb.color_palette()[2],
+#          label=r'$\sigma_{\rm CO} = \sigma_{\rm HI}$')
+
+ax2.set_ylim([0.5, 8])
+ax2.legend(frameon=True, loc='lower right')
+ax2.grid()
+
+ax2.set_xlabel(r"$\sigma_{\rm HI}$ (km/s)")
+ax2.set_ylabel(r"$\sigma_{\rm CO}$ (km/s)")
 
 # Overplot the points in the three regions
 
@@ -146,8 +165,6 @@ ax2.scatter(tab['sigma_HI'][reg2_mask] / 1000.,
 ax2.scatter(tab['sigma_HI'][reg3_mask] / 1000.,
             tab['sigma_CO'][reg3_mask] / 1000., c=col_pal[5],
             marker='s')
-
-plt.tight_layout()
 
 plt.savefig(os.path.join(fig_path, "sigma_HI_vs_H2_w_example_regions.png"))
 plt.savefig(os.path.join(fig_path, "sigma_HI_vs_H2_w_example_regions.pdf"))

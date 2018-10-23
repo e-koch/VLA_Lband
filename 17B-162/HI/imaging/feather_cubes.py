@@ -103,3 +103,8 @@ if run_gbt_1kms:
     feather_cube(vla_cube, gbt_cube, restfreq=hi_freq, save_feather=True,
                  save_name=save_name, num_cores=num_cores,
                  weights=weight, chunk=chunk, verbose=False)
+
+    # Now resave a minimal version of the feathered cube
+    cube = SpectralCube.read(save_name)
+    cube.minimal_subcube().write(save_name, overwrite=True)
+    del cube

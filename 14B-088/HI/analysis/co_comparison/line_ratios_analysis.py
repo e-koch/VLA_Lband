@@ -21,11 +21,15 @@ from paths import (fourteenB_HI_data_wGBT_path, fourteenB_wGBT_HI_file_dict,
 from plotting_styles import (default_figure, onecolumn_figure,
                              twocolumn_twopanel_figure,
                              twocolumn_figure)
-from constants import co21_mass_conversion
+from constants import co21_mass_conversion, hi_mass_conversion
+from galaxy_params import gal_feath as gal
 
 fig_path = allfigs_path("co_vs_hi")
 if not os.path.exists(fig_path):
     os.mkdir(fig_path)
+
+
+inc = np.cos(gal.inclination)
 
 # Start with checking the column densities from the fitting.
 
@@ -61,30 +65,36 @@ good_pts = np.logical_and(good_pts,
 # twocolumn_twopanel_figure()
 cpal = sb.color_palette()
 
-# ax1 = plt.subplot(121)
+ax1 = plt.subplot(121)
 
-# hist2d(tab["coldens_CO_FWHM"][good_pts],
-#        tab["coldens_CO_gauss"][good_pts],
-#        data_kwargs={"alpha": 0.6}, ax=ax1)
+hist2d(tab["coldens_CO_gauss"][good_pts] / (inc * co21_mass_conversion).value,
+       tab["coldens_CO_FWHM"][good_pts] / (inc * co21_mass_conversion).value,
+       data_kwargs={"alpha": 0.6}, ax=ax1)
 # plt.plot([0, 60], [0, 60], c=cpal[0], linewidth=3, linestyle='dashed')
-# plt.grid()
+plt.plot([0, 15], [0, 15], c=cpal[0], linewidth=3, linestyle='dashed')
+plt.grid()
 # plt.xlabel("Gaussian Fit $\Sigma_{\mathrm{H2}}$ (M$_{\odot}$ pc$^{-2}$)")
 # plt.ylabel("FWHM $\Sigma_{\mathrm{H2}}$ (M$_{\odot}$ pc$^{-2}$)")
+plt.xlabel("CO Integrated Intensity\nfrom Gaussian Fit (K km s$^{-1}$)")
+plt.ylabel("CO Integrated Intensity\nin FWHM fit window\n(K km s$^{-1}$)")
 
-# ax2 = plt.subplot(122)
-# hist2d(tab["coldens_HI_FWHM"][good_pts],
-#        tab["coldens_HI_gauss"][good_pts],
-#        data_kwargs={"alpha": 0.6}, ax=ax2)
+ax2 = plt.subplot(122)
+hist2d(tab["coldens_HI_gauss"][good_pts] / (inc * hi_mass_conversion).value,
+       tab["coldens_HI_FWHM"][good_pts] / (inc * hi_mass_conversion).value,
+       data_kwargs={"alpha": 0.6}, ax=ax2)
 # plt.plot([0, 25], [0, 25], c=cpal[0], linewidth=3, linestyle='dashed')
-# plt.grid()
+plt.plot([0, 2300], [0, 2300], c=cpal[0], linewidth=3, linestyle='dashed')
+plt.grid()
 # plt.xlabel("Gaussian Fit $\Sigma_{\mathrm{HI}}$ (M$_{\odot}$ pc$^{-2}$)")
 # plt.ylabel("FWHM $\Sigma_{\mathrm{HI}}$ (M$_{\odot}$ pc$^{-2}$)")
+plt.xlabel("{\sc HI} Integrated Intensity\nfrom Gaussian Fit (K km s$^{-1}$)")
+plt.ylabel("{\sc HI} Integrated Intensity\nin FWHM fit window\n(K km s$^{-1}$)")
 
-# plt.tight_layout()
+plt.tight_layout()
 
-# plt.savefig(osjoin(fig_path, "coldens_fit_vs_fwhm_check.png"))
-# plt.savefig(osjoin(fig_path, "coldens_fit_vs_fwhm_check.pdf"))
-# plt.close()
+plt.savefig(osjoin(fig_path, "coldens_fit_vs_fwhm_check.png"))
+plt.savefig(osjoin(fig_path, "coldens_fit_vs_fwhm_check.pdf"))
+plt.close()
 
 
 # Before loading the column densities from the moment arrays, use this
@@ -329,7 +339,8 @@ plt.close()
 
 # HI vs H2 column density
 
-hist2d(tab['coldens_HI_gauss'][good_pts], tab['coldens_CO_gauss'][good_pts],
+hist2d(tab['coldens_HI_gauss'][good_pts],
+       tab['coldens_CO_gauss'][good_pts],
        bins=30,
        data_kwargs={"alpha": 0.5})
 plt.grid()
@@ -429,22 +440,38 @@ twocolumn_twopanel_figure()
 fig, axs = plt.subplots(1, 2, sharex=False, sharey=False)
 
 ax1 = axs[1]
-hist2d(mom_tab["Sigma_HI"][overlap_mask],
-       tab['coldens_HI_gauss'][good_pts],
+# hist2d(mom_tab["Sigma_HI"][overlap_mask],
+#        tab['coldens_HI_gauss'][good_pts],
+#        data_kwargs={"alpha": 0.6}, ax=ax1)
+# Plot everything in data units so we don't need to adopt a X_CO factor for
+# paper 2 (not needed for results)
+hist2d(mom_tab["Sigma_HI"][overlap_mask] / (inc * hi_mass_conversion).value,
+       tab['coldens_HI_gauss'][good_pts] / (inc * hi_mass_conversion).value,
        data_kwargs={"alpha": 0.6}, ax=ax1)
-ax1.plot([0, 25], [0, 25], c=cpal[0], linewidth=3, linestyle='dashed')
+# ax1.plot([0, 25], [0, 25], c=cpal[0], linewidth=3, linestyle='dashed')
+ax1.plot([0, 2300], [0, 2300], c=cpal[0], linewidth=3, linestyle='dashed')
 ax1.grid()
-ax1.set_xlabel("Moment $\Sigma_{\mathrm{HI}}$ (M$_{\odot}$ pc$^{-2}$)")
-ax1.set_ylabel("Gaussian Fit $\Sigma_{\mathrm{HI}}$ (M$_{\odot}$ pc$^{-2}$)")
+ax1.set_xlabel("{\sc HI} Integrated Intensity (K km s$^{-1}$)")
+ax1.set_ylabel("{\sc HI} Integrated Intensity\n from Gaussian Fit (K km s$^{-1}$)")
+
+# ax1.set_xlabel("Moment $\Sigma_{\mathrm{HI}}$ (M$_{\odot}$ pc$^{-2}$)")
+# ax1.set_ylabel("Gaussian Fit $\Sigma_{\mathrm{HI}}$ (M$_{\odot}$ pc$^{-2}$)")
 
 ax2 = axs[0]
-hist2d(mom_tab["Sigma_H2"][overlap_mask],
-       tab['coldens_CO_gauss'][good_pts],
+# hist2d(mom_tab["Sigma_H2"][overlap_mask],
+#        tab['coldens_CO_gauss'][good_pts],
+#        data_kwargs={"alpha": 0.6}, ax=ax2, bins=20)
+hist2d(mom_tab["Sigma_H2"][overlap_mask] / (inc * co21_mass_conversion).value,
+       tab['coldens_CO_gauss'][good_pts] / (inc * co21_mass_conversion).value,
        data_kwargs={"alpha": 0.6}, ax=ax2, bins=20)
-ax2.plot([0, 65], [0, 65], c=cpal[0], linewidth=3, linestyle='dashed')
+# ax2.plot([0, 65], [0, 65], c=cpal[0], linewidth=3, linestyle='dashed')
+ax2.plot([0, 16], [0, 16], c=cpal[0], linewidth=3, linestyle='dashed')
 ax2.grid()
-ax2.set_xlabel("Moment $\Sigma_{\mathrm{H2}}$ (M$_{\odot}$ pc$^{-2}$)")
-ax2.set_ylabel("Gaussian Fit $\Sigma_{\mathrm{H2}}$ (M$_{\odot}$ pc$^{-2}$)")
+ax2.set_xlabel("CO Integrated Intensity (K km s$^{-1}$)")
+ax2.set_ylabel("CO Integrated Intensity\n from Gaussian Fit (K km s$^{-1}$)")
+
+# ax2.set_xlabel("Moment $\Sigma_{\mathrm{H2}}$ (M$_{\odot}$ pc$^{-2}$)")
+# ax2.set_ylabel("Gaussian Fit $\Sigma_{\mathrm{H2}}$ (M$_{\odot}$ pc$^{-2}$)")
 
 plt.tight_layout()
 

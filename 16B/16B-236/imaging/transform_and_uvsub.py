@@ -61,11 +61,12 @@ uvcontsub(vis=out_vis_mms,
           want_cont=False)
 
 default('split')
-split(vis=out_mms_vis_cs, outputvis=out_vis_cs, keepmms=False)
-
+split(vis=out_mms_vis_cs, outputvis=out_vis_cs, keepmms=False,
+      datacolumn='data')
 os.system("rm -r {}".format(out_mms_vis_cs))
 
 default('split')
-split(vis=out_vis_mms, outputvis=out_vis, keepmms=False)
+split(vis=out_vis_mms, outputvis=out_vis, keepmms=False,
+      datacolumn='data')
 
 os.system("rm -r {}".format(out_vis_mms))

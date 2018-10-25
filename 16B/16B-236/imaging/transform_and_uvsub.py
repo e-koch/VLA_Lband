@@ -56,7 +56,7 @@ out_mms_vis_cs = "16B-236_{0}_spw_{1}_LSRK.mms.contsub"\
 
 default('uvcontsub')
 uvcontsub(vis=out_vis_mms,
-          fitspw='0:{1}'.format(linespw_236_uvsub[spw_num]),
+          fitspw='0:{}'.format(linespw_236_uvsub[spw_num]),
           fitorder=0 if spw_num != 0 else 1,
           want_cont=False)
 

@@ -14,7 +14,8 @@ orig_dir = os.getcwd()
 # from CASA_functions import (set_imagermode, set_imagesize, set_cellsize)
 
 # Loop through all 5 lines
-spws = [1, 2, 4, 8, 9]
+# spws = [1, 2, 4, 8, 9]
+spws = [1]
 
 execfile(os.path.expanduser("~/Dropbox/code_development/VLA_Lband/17B-162/spw_setup.py"))
 
@@ -64,7 +65,7 @@ for spw in spws:
     #                           pblevel=pblimit, max_size=max_size)
     imagermode = 'cube'
     cellsize = '0.5arcsec'
-    imagesize = [7168, 6912]
+    imagesize = [8000, 8000]
 
     print("Output image cell size: {}".format(cellsize))
     print("Image pixel size: {}".format(imagesize))

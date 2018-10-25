@@ -34,7 +34,8 @@ for spw_num in range(0, 10):
         out_vis = "17B-162_{0}_spw_{1}_LSRK.ms.contsub"\
             .format(linespw_dict[spw_num][0], spw_num)
 
-    mstransform(vis=myvis, outputvis=out_vis, spw=str(spw_num), datacolumn='data',
+    mstransform(vis=myvis, outputvis=out_vis, spw=str(spw_num),
+                datacolumn='data',
                 regridms=True, mode='channel', interpolation='fftshift',
                 phasecenter='J2000 01h33m50.904 +30d39m35.79',
                 restfreq=linespw_dict[spw_num][1], outframe='LSRK',

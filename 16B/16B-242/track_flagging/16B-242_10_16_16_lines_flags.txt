@@ -14,3 +14,10 @@ mode='manual' scan='31' antenna='ea05'
 mode='manual' scan='38' antenna='ea05'
 
 mode='manual' spw='9' antenna='ea04'
+
+mode='manual' scan='8', timerange='<02:30:10'
+mode='manual' scan='20', timerange='<03:13:45'
+mode='manual' scan='24', timerange='<03:28:14'
+mode='manual' scan='36', timerange='<04:11:45'
+mode='manual' scan='48', timerange='<04:55:18'
+mode='manual' scan='60', timerange='<05:38:50'

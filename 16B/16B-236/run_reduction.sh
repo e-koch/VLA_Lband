@@ -11,7 +11,7 @@ pids=
 
 echo 16B-236_11_11_16
 cd 16B-236_11_11_16
-(tar -xf 16B-236.sb32623829.eb32998154.57703.975014375.tar && 16B-236.sb32623829.eb32998154.57703.975014375.tar && ~/casa-release-5.1.2-4.el7/bin/casa -c ~/Dropbox/code_development/VLA_Lband/16B/pipeline_scripts/ms_split.py 16B-236.sb32623829.eb32998154.57703.975014375 F lines && cd $two36_path/16B-236_11_11_16/16B-236_11_11_16_speclines &&  ~/casa-release-5.1.2-4.el7/bin/casa --pipeline -c ~/Dropbox/code_development/VLA_Lband/16B/pipeline_scripts/casa_pipeline_lines.py 16B-236.sb32623829.eb32998154.57703.975014375.speclines.ms) &
+(tar -xf 16B-236.sb32623829.eb32998154.57703.975014375.tar && rm 16B-236.sb32623829.eb32998154.57703.975014375.tar && ~/casa-release-5.1.2-4.el7/bin/casa -c ~/Dropbox/code_development/VLA_Lband/16B/pipeline_scripts/ms_split.py 16B-236.sb32623829.eb32998154.57703.975014375 F lines && cd $two36_path/16B-236_11_11_16/16B-236_11_11_16_speclines &&  ~/casa-release-5.1.2-4.el7/bin/casa --pipeline -c ~/Dropbox/code_development/VLA_Lband/16B/pipeline_scripts/casa_pipeline_lines.py 16B-236.sb32623829.eb32998154.57703.975014375.speclines.ms) &
 pids+=" $!"
 
 

@@ -6,4 +6,14 @@ mode='manual' scan='2' timerange='>01:17:55'
 mode='manual' spw='3' scan='29' timerange=">02:54:10"
 mode='manual' spw='3' scan='32' timerange=">03:04:30"
 
+# Poor phase solutions
+mode='manual' scan='15' antenna='ea11'
 
+mode='manual' scan='8' timerange='<01:34:34'
+mode='manual' scan='20' timerange='<02:18:05'
+mode='manual' scan='32' timerange='<03:01:38'
+mode='manual' scan='36' timerange='<03:16:08'
+mode='manual' scan='44' timerange='<03:45:10'
+mode='manual' scan='48' timerange='<03:59:40'
+mode='manual' scan='56' timerange='<04:28:40'
+mode='manual' scan='60' timerange='<04:43:10'

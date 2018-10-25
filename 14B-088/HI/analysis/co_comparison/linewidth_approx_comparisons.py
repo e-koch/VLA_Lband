@@ -7,12 +7,10 @@ affects the line shape.
 import matplotlib.pyplot as plt
 import seaborn as sb
 import numpy as np
-import astropy.units as u
 from astropy.modeling import models, fitting
-from astropy.convolution import convolve_fft, Gaussian1DKernel
+from astropy.convolution import convolve_fft
 from scipy.special import erf
 from scipy.interpolate import InterpolatedUnivariateSpline
-import os
 from os.path import join as osjoin
 from scipy.optimize import curve_fit
 

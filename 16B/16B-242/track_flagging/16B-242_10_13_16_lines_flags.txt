@@ -6,6 +6,10 @@ mode='manual' scan='1'
 # Poor phase gain solutions in ea11. And amp issues in scan 2
 mode='manual' antenna='ea11'
 
+# Poor phases from ea05, ea07
+mode='manual' antenna='ea05,ea07' scan='63' timerange='>05:40:10'
+mode='manual' antenna='ea05,ea07' scan='64,65'
+
 # Pipeline flagged all of scan 30, 36, 38, 60. Ensure it stays flagged
 # mode='manual' scan='6,9,30,36,38,54,60,62'
 
@@ -15,12 +19,22 @@ mode='manual' scan='2' timerange='>02:00:50'
 mode='manual' scan='3' timerange='<02:02:20'
 
 mode='manual' scan='61' spw='3'
+mode='manual' spw='3' scan='19' timerange='>03:00:40'
 
 mode='manual' scan='28,29' antenna='ea22'
 mode='manual' scan='34,35,37,41,49' antenna='ea27'
 mode='manual' scan='37,40,41' antenna='ea19'
 mode='manual' scan='51' antenna='ea05'
 mode='manual' scan='53' antenna='ea26'
+
+mode='manual' scan='12' timerange='<02:32:40'
+mode='manual' scan='24' timerange='<03:16:15'
+mode='manual' scan='36' timerange='<03:59:47'
+
+mode='manual' scan='40' timerange='<04:14:15'
+
+mode='manual' scan='48' timerange='<04:43:17'
+mode='manual' scan='52' timerange='<04:57:48'
 
 
 

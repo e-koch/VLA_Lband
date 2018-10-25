@@ -30,7 +30,10 @@ casalog.post("On SPW {}".format(spw_num))
 out_vis = "16B-236_{0}_spw_{1}_LSRK.ms"\
     .format(linespw_dict[spw_num][0], spw_num)
 
-mstransform(vis=myvis, outputvis=out_vis, spw=str(spw_num),
+out_vis_mms = "16B-236_{0}_spw_{1}_LSRK.mms"\
+    .format(linespw_dict[spw_num][0], spw_num)
+
+mstransform(vis=myvis, outputvis=out_vis_mms, spw=str(spw_num),
             datacolumn='data',
             regridms=True, mode='channel', interpolation='fftshift',
             # phasecenter='J2000 01h33m50.904 +30d39m35.79',
@@ -47,14 +50,13 @@ out_mms_vis_cs = "16B-236_{0}_spw_{1}_LSRK.mms.contsub"\
 
 # The operation is much fast in parallel, so make an MMS and then
 # convert back
-default('partition')
-partition(vis=out_vis, outputvis=out_vis[:-3] + ".mms", createmms=True,
-          separationaxis='auto', flagbackup=False)
+# default('partition')
+# partition(vis=out_vis, outputvis=out_vis[:-3] + ".mms", createmms=True,
+#           separationaxis='auto', flagbackup=False)
 
 default('uvcontsub')
-uvcontsub(vis=out_vis[:-3] + ".mms",
-          fitspw='{0}:{1}'.format(spw_num,
-                                  linespw_236_uvsub[spw_num]),
+uvcontsub(vis=out_vis_mms,
+          fitspw='0:{1}'.format(linespw_236_uvsub[spw_num]),
           fitorder=0 if spw_num != 0 else 1,
           want_cont=False)
 
@@ -62,3 +64,8 @@ default('split')
 split(vis=out_mms_vis_cs, outputvis=out_vis_cs, keepmms=False)
 
 os.system("rm -r {}".format(out_mms_vis_cs))
+
+default('split')
+split(vis=out_vis_mms, outputvis=out_vis, keepmms=False)
+
+os.system("rm -r {}".format(out_vis_mms))

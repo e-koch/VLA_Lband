@@ -19,3 +19,17 @@ mv 16B-236_12_15_16_speclines/products $out_path/16B-236_12_15_16
 mv 16B-236_12_17_16_speclines/products $out_path/16B-236_12_17_16
 mv 16B-236_12_30_16_speclines/products $out_path/16B-236_12_30_16
 mv 16B-236_01_01_17_speclines/products $out_path/16B-236_01_01_17
+
+# Make sure the extra source flagging versions, if needed, are saved.
+cp -r 16B-236_11_11_16_speclines/*.ms.flagversions $out_path/16B-236_11_11_16/
+cp -r 16B-236_11_16_16_speclines/*.ms.flagversions $out_path/16B-236_11_16_16/
+cp -r 16B-236_11_26_16_speclines/*.ms.flagversions $out_path/16B-236_11_26_16/
+cp -r 16B-236_11_27_16_speclines/*.ms.flagversions $out_path/16B-236_11_27_16/
+cp -r 16B-236_11_28_16_speclines/*.ms.flagversions $out_path/16B-236_11_28_16/
+cp -r 16B-236_11_29_16_speclines/*.ms.flagversions $out_path/16B-236_11_29_16/
+cp -r 16B-236_12_08_16_speclines/*.ms.flagversions $out_path/16B-236_12_08_16/
+cp -r 16B-236_12_09_16_speclines/*.ms.flagversions $out_path/16B-236_12_09_16/
+cp -r 16B-236_12_15_16_speclines/*.ms.flagversions $out_path/16B-236_12_15_16/
+cp -r 16B-236_12_17_16_speclines/*.ms.flagversions $out_path/16B-236_12_17_16/
+cp -r 16B-236_12_30_16_speclines/*.ms.flagversions $out_path/16B-236_12_30_16/
+cp -r 16B-236_01_01_17_speclines/*.ms.flagversions $out_path/16B-236_01_01_17/

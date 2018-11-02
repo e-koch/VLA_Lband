@@ -13,10 +13,23 @@ myvis = '16B-236_HI_spw_0_LSRK.ms.contsub'
 
 spw_num = '0'
 
+imagename = 'M33_16B-236_{0}_spw_{1}.clean_5sig'\
+    .format(linespw_dict[spw_num][0], spw_num)
+
+if os.path.exists("{}.psf".format(imagename)):
+    calcres = False
+    calcpsf = False
+
+    # Force startmodel to use the model on disk
+    startmodel = None
+
+else:
+    calcres = True
+    calcpsf = True
+
 tclean(vis=myvis,
        datacolumn='corrected',
-       imagename='M33_16B-236_{0}_spw_{1}.clean_5sig'
-                 .format(linespw_dict[spw_num][0], spw_num),
+       imagename=imagename,
        spw=str(spw_num),
        field='M33*',
        imsize=[8000, 8000],
@@ -41,6 +54,8 @@ tclean(vis=myvis,
        pbcor=False,
        veltype='radio',
        chanchunks=-1,
-       restoration=False,
+       restoration=True,
        parallel=True,
+       calcpsf=calcpsf,
+       calcres=calcres,
        )

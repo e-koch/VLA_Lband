@@ -15,9 +15,8 @@ spw_num = '0'
 
 tclean(vis=myvis,
        datacolumn='corrected',
-       imagename=os.path.join(output_path,
-                              'M33_16B-236_{0}_spw_{1}.clean_5sig'
-                              .format(linespw_dict[spw_num][0], spw_num)),
+       imagename='M33_16B-236_{0}_spw_{1}.clean_5sig'
+                 .format(linespw_dict[spw_num][0], spw_num),
        spw=str(spw_num),
        field='M33*',
        imsize=[8000, 8000],

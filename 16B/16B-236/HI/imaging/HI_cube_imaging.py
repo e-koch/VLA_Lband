@@ -11,7 +11,7 @@ execfile(os.path.expanduser("~/code/VLA_Lband/16B/spw_setup.py"))
 
 myvis = '16B-236_HI_spw_0_LSRK.ms.contsub'
 
-spw_num = '0'
+spw_num = 0
 
 imagename = 'M33_16B-236_{0}_spw_{1}.clean_5sig'\
     .format(linespw_dict[spw_num][0], spw_num)

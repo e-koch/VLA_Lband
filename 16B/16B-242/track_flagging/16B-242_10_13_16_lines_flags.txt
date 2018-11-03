@@ -30,9 +30,7 @@ mode='manual' scan='53' antenna='ea26'
 mode='manual' scan='12' timerange='<02:32:40'
 mode='manual' scan='24' timerange='<03:16:15'
 mode='manual' scan='36' timerange='<03:59:47'
-
 mode='manual' scan='40' timerange='<04:14:15'
-
 mode='manual' scan='48' timerange='<04:43:17'
 mode='manual' scan='52' timerange='<04:57:48'
 

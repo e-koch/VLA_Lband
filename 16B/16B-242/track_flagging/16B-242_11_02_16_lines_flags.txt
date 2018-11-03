@@ -8,4 +8,6 @@ mode='manual' spw='3' scan='62' timerange='>10:54:40'
 
 mode='manual' scan='19' antenna='ea05'
 
+mode='manual' scan='4' timerange='<07:20:35'
+
 

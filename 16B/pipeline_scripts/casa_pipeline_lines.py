@@ -26,6 +26,16 @@ else:
 
 context.set_state('ProjectSummary', 'piname', 'Eric Koch')
 
+# A couple tracks in 16B-242 need to avoid the default refant
+if "16B-242.sb32614458.eb32984330.57698.29168733796" in mySDM:
+    refant_ignore = 'ea01'
+elif "16B-242.sb32614458.eb32982501.57696.352311215276":
+    refant_ignore = 'ea01,ea25'
+elif "16B-242.sb32614458.eb32980749.57695.35484743056" in mySDM:
+    refant_ignore = 'ea01,ea25'
+else:
+    refant_ignore = ""
+
 try:
     hifv_importdata(ocorr_mode='co', nocopy=False, vis=[mySDM],
                     createmms='automatic', asis='Receiver CalAtmosphere',
@@ -75,15 +85,15 @@ try:
 
     hifv_vlasetjy(fluxdensity=-1, scalebychan=True, reffreq='1GHz', spix=0)
     hifv_priorcals(tecmaps=False)
-    hifv_testBPdcals(weakbp=False)
+    hifv_testBPdcals(weakbp=False, refantignore=refant_ignore)
     hifv_flagbaddef(pipelinemode="automatic")
     hifv_checkflag(pipelinemode="automatic")
-    hifv_semiFinalBPdcals(weakbp=False)
+    hifv_semiFinalBPdcals(weakbp=False, refantignore=refant_ignore)
     hifv_checkflag(checkflagmode='semi')
-    hifv_semiFinalBPdcals(weakbp=False)
-    hifv_solint(pipelinemode="automatic")
-    hifv_fluxboot(pipelinemode="automatic")
-    hifv_finalcals(weakbp=False)
+    hifv_semiFinalBPdcals(weakbp=False, refantignore=refant_ignore)
+    hifv_solint(pipelinemode="automatic", refantignore=refant_ignore)
+    hifv_fluxboot(pipelinemode="automatic", refantignore=refant_ignore)
+    hifv_finalcals(weakbp=False, refantignore=refant_ignore)
     hifv_applycals(flagdetailedsum=True, flagbackup=True, calwt=[True],
                    flagsum=True, gainmap=False)
 # Keep the following two steps in the script if cont.dat exists.

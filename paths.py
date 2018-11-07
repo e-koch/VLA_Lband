@@ -19,7 +19,8 @@ def name_return_check(filename, path, no_check=False):
 
 if socket.gethostname() == 'ewk':
     root = os.path.expanduser('~/Dropbox/code_development/VLA_Lband/')
-    data_path = "/mnt/MyRAID/M33/"
+    # data_path = "/mnt/MyRAID/M33/"
+    data_path = "/home/eric/bigdata/ekoch/M33/"
 # Add in path for NRAO and cloud instances
 elif socket.gethostname() == 'caterwauler':
     root = os.path.expanduser('~/Dropbox/code_development/VLA_Lband/')

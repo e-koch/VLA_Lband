@@ -29,7 +29,7 @@ context.set_state('ProjectSummary', 'piname', 'Eric Koch')
 # A couple tracks in 16B-242 need to avoid the default refant
 if "16B-242.sb32614458.eb32984330.57698.29168733796" in mySDM:
     refant_ignore = 'ea01'
-elif "16B-242.sb32614458.eb32982501.57696.352311215276":
+elif "16B-242.sb32614458.eb32982501.57696.352311215276" in mySDM:
     refant_ignore = 'ea01,ea25'
 elif "16B-242.sb32614458.eb32980749.57695.35484743056" in mySDM:
     refant_ignore = 'ea01,ea25'

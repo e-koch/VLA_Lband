@@ -8,6 +8,7 @@ continuum MS.
 import sys
 import os
 from shutil import copyfile
+import numpy as np
 from tasks import split, importasdm, concat
 
 mySDM = "16B-242.sb32614458.eb32984320.57697.291263148145"
@@ -40,7 +41,7 @@ print("Make MMS: {}".format(parallel_run))
 
 project_code = "16B-242"
 
-if not os.path.exists(ms_active):
+if not os.path.exists(ms_active) and not os.path.exists(ms_active2):
     importasdm(asdm=mySDM, vis=ms_active, ocorr_mode='co',
                applyflags=True, savecmds=True, tbuff=1.5,
                outfile='{}.flagonline.txt'.format(mySDM),
@@ -48,13 +49,36 @@ if not os.path.exists(ms_active):
 
     importasdm(asdm=mySDM2, vis=ms_active2, ocorr_mode='co',
                applyflags=True, savecmds=True, tbuff=1.5,
-               outfile='{}.flagonline.txt'.format(mySDM),
+               outfile='{}.flagonline.txt'.format(mySDM2),
                createmms=parallel_run)
 
-    concat(vis=[ms_active, ms_active2],
-           concatvis=ms_active,
+    # Concat these together
+    concat(vis=[ms_active, ms_active2], outputvis=ms_active2,
            timesort=True)
-    default("concat")
+
+    # But the pipeline will treat these as individual observations
+    # We don't want that. So we need to remove information from the
+    # ObsID
+    tb.open(ms_active, nomodify=False)
+    obsid = tb.getcol('OBSERVATION_ID')
+    tb.putcol('OBSERVATION_ID', np.zeros_like(obs_ids))
+    tb.close()
+
+    # We also need to alter the OBSERVATION table
+    tb.open(ms_active + "/OBSERVATION", nomodify=False)
+
+    time_range = tb.getcol("TIME_RANGE")
+    new_time_range = np.array([time_range.min(),
+                               time_range.max()]).reshape((2, 1))
+    new_log = tb.getcol("LOG")[0][:1].reshape((1, 1))
+
+    # Delete the second column
+    tb.removerows(1)
+
+    tb.putcol("TIME_RANGE", new_time_range)
+
+    tb.close()
+
 
 else:
     print("MS already exists. Skipping importasdm")
@@ -67,7 +91,7 @@ if split_lines:
     if not os.path.exists(lines_folder):
         os.mkdir(lines_folder)
 
-    project_path = os.path.expanduser("~/Dropbox/code_development/VLA_Lband/16B/pipeline_scripts")
+    project_path = os.path.expanduser("~/ownCloud/code_development/VLA_Lband/16B/pipeline_scripts")
 
     # Copy the cont.dat file from the repo
     if project_code == "16B-236":
@@ -79,7 +103,7 @@ if split_lines:
     # Check for a flag template and copy if in the repo
     # Naming conventions is 16B-236_month_day_year_lines_flags.txt
     flag_filename = "{}_lines_flags.txt".format(parentdir)
-    flag_path = os.path.expanduser("~/Dropbox/code_development/VLA_Lband/16B/{}/track_flagging".format(project_code))
+    flag_path = os.path.expanduser("~/ownCloud/code_development/VLA_Lband/16B/{}/track_flagging".format(project_code))
     full_flag_filename = os.path.join(flag_path, flag_filename)
 
     if os.path.exists(full_flag_filename):
@@ -102,7 +126,7 @@ if split_cont:
     # Check for a flag template and copy if in the repo
     # Naming conventions is 17B-162_month_day_year_lines_flags.txt
     flag_filename = "{}_continuum_flags.txt".format(parentdir)
-    flag_path = os.path.expanduser("~/Dropbox/code_development/VLA_Lband/16B/{}/track_flagging".format(project_code))
+    flag_path = os.path.expanduser("~/ownCloud/code_development/VLA_Lband/16B/{}/track_flagging".format(project_code))
     full_flag_filename = os.path.join(flag_path, flag_filename)
     if os.path.exists(full_flag_filename):
         copyfile(full_flag_filename,

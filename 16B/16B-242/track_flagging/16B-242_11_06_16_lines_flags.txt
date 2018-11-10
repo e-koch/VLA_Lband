@@ -5,7 +5,11 @@ mode='manual' antenna='ea04,ea19'
 
 mode='manual' spw='0' antenna='ea11,ea12'
 
+# Issue in scan 2 only gives ~10 sec on source for ea05
+mode='manual' antenna='ea05'
+
 # ea22 has some bad amp gain cals that may need to be flagged
+mode='manual' antenna='ea22' scan='39~59'
 
 mode='manual' scan='2' timerange='<07:04:30'
 mode='manual' scan='2' timerange='>07:08:30'
@@ -15,10 +19,25 @@ mode='manual' scan='3' timerange='<07:10:17'
 mode='manual' scan='61' timerange='<10:40:40'
 
 mode='manual' spw='3' scan='17' timerange='>07:58:30'
-mode='manual' spw='3' scan='53,61'
+mode='manual' spw='3' scan='53,58,61'
 mode='manual' spw='3' scan='56' timerange='<10:21:40'
-mode='manual' spw='3' scan='58' timerange='<10:31:30'
 
 mode='manual' scan='3' antenna='ea05'
 mode='manual' scan='22,45,46' antenna='ea22'
 mode='manual' scan='47' antenna='ea19'
+
+mode='manual' scan='4' timerange='<07:12:05'
+mode='manual' scan='8' timerange='<07:26:34'
+
+mode='manual' scan='19' spw='3' timerange='08:08:35' antenna='ea10&&ea20'
+mode='manual' scan='63' spw='3' timerange='>10:49:05'
+
+# Poor phase solutions
+mode='manual' antenna='ea02' scan='59~63'
+mode='manual' antenna='ea16' scan='55~63'
+mode='manual' antenna='ea17' scan='55'
+mode='manual' antenna='ea18' scan='59~63'
+mode='manual' antenna='ea26' scan='55~63'
+
+# Consistently high scatter in SPW 9
+mode='manual' spw='9'

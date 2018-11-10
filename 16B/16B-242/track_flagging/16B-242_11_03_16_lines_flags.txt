@@ -1,25 +1,55 @@
 # Custom flags for 16B-242.sb32614458.eb32980749.57695.35484743056 line SPWs
+# Avoid ea01 and ea25 as ref ants
 
 # Large scatter from ea12 in scan 2 SPW 0
-# mode='manual' spw='0' antenna='ea12'
 mode='manual' spw='0' antenna='ea11&&ea12'
 mode='manual' spw='0' antenna='ea11&&ea13'
 mode='manual' spw='0' antenna='ea12&&ea13'
 
-
 mode='manual' scan='2' timerange='<08:33:25'
 mode='manual' scan='2' timerange='>08:38:20'
 
-mode='manual' scan='14' antenna='ea11'
+mode='manual' scan='2' antenna='ea08' timerange='>08:37:14'
 
-# Re-run with the correctly flagged BP scan, then check these
-# mode='manual' scan='3~18' antenna='ea05'
-# mode='manual' scan='14,15' antenna='ea11'
-# mode='manual' scan='43' antenna='ea12'
-# mode='manual' scan='52~63' antenna='ea02,ea08,ea16'
-# mode='manual' scan='60~63' antenna='ea21,ea28'
+# Many poor phase solutions
+mode='manual' antenna='ea01' scan='59'
+mode='manual' antenna='ea02' scan='55~63'
+mode='manual' antenna='ea03' scan='35'
+mode='manual' antenna='ea03' scan='55~63'
+mode='manual' antenna='ea04' scan='39~63'
+mode='manual' antenna='ea05' scan='3~15'
+mode='manual' antenna='ea05' scan='59~63'
+mode='manual' antenna='ea06' scan='39'
+mode='manual' antenna='ea06' scan='59~63'
+mode='manual' antenna='ea07' scan='39,59'
+mode='manual' antenna='ea08' scan='55~63'
+mode='manual' antenna='ea09' scan='39'
+mode='manual' antenna='ea09' scan='59~63'
+mode='manual' antenna='ea11' scan='15'
+mode='manual' antenna='ea12' scan='39'
+mode='manual' antenna='ea12' scan='59~63'
+mode='manual' antenna='ea13' scan='39~63'
+mode='manual' antenna='ea15' scan='39~63'
+mode='manual' antenna='ea16' scan='55~63'
+mode='manual' antenna='ea17' scan='39~63'
+mode='manual' antenna='ea18' scan='35,55'
+mode='manual' antenna='ea19' scan='59'
+mode='manual' antenna='ea21' scan='39~63'
+mode='manual' antenna='ea22' scan='35,59'
+mode='manual' antenna='ea23' scan='47~63'
+mode='manual' antenna='ea25' scan='59'
+mode='manual' antenna='ea26'
+mode='manual' antenna='ea27' scan='35~63'
+mode='manual' antenna='ea28' scan='39~63'
+
+mode='manual' scan='14' antenna='ea11'
 
 mode='manual' spw='3' scan='43' timerange='>11:07:40'
 mode='manual' spw='3' scan='33' timerange='<10:31:20'
 mode='manual' spw='3' scan='38' timerange='<10:49:40'
 mode='manual' spw='3' scan='41' timerange='<10:59:30'
+mode='manual' spw='3' scan='48' timerange='>11:25:30'
+mode='manual' spw='3' scan='44' timerange='<11:10:20'
+
+# Large scatter throughout SPW 9. Just flag it.
+mode='manual' spw='9'

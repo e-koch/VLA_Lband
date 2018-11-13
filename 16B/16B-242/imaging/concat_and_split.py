@@ -19,7 +19,7 @@ virtualconcat(vis=myvis, concatvis='16B-242_lines_all.ms',
 
 default('split')
 split(vis='16B-242_lines_all.ms', outputvis='16B-242_lines.ms',
-      field='M33*',
+      field='NGC604',
       datacolumn='corrected',
       keepflags=False)
 

@@ -37,7 +37,7 @@ casalog.post("Cell size: {}".format(mycellsize))
 mypblimit = 0.2
 
 # Will look for all M33 fields and assume they are all used in the mosaic
-source = 'M33'
+source = 'NGC604'
 
 myimagesize = set_imagesize(myvis, spw_num, source, sample_factor=6.,
                             max_size=15000, pblevel=mypblimit)
@@ -60,7 +60,7 @@ tclean(vis=myvis,
                               'M33_16B-242_{0}_spw_{1}.dirty'
                               .format(linespw_dict[spw_num][0], spw_num)),
        spw=str(spw_num),
-       field='M33*',
+       field='NGC604',
        imsize=myimagesize,
        cell=mycellsize,
        specmode='cube',

@@ -9,7 +9,7 @@ from glob import glob
 from tasks import virtualconcat, split
 
 # Grab all of the MS tracks in the folder (should be 12)
-myvis = glob("*.speclines.ms")
+myvis = glob("16B-242.*.ms")
 
 assert len(myvis) == 12
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --time=72:00:00
-#SBATCH --mem=1547000M
+#SBATCH --mem=128000M
 #SBATCH --ntasks-per-node=32
 #SBATCH --nodes=1
 #SBATCH --job-name=M33_14B-088_5kms_clean_cube-%J
@@ -25,4 +25,4 @@ export DISPLAY=:1
 
 echo "OMP_NUM_THREADS "$OMP_NUM_THREADS
 
-$HOME/casa-release-5.3.0-143.el7/bin/mpicasa -n $OMP_NUM_THREADS $HOME/casa-release-5.3.0-143.el7/bin/casa --nologger --nogui --log2term --nocrashreport -c $HOME/code/VLA_Lband/14B-088/HI/imaging/cedar/HI_cube_5kms.py
+$HOME/casa-release-5.4.0-68.el7/bin/mpicasa -n $OMP_NUM_THREADS $HOME/casa-release-5.4.0-68.el7/bin/casa --nologger --nogui --log2term --nocrashreport -c $HOME/code/VLA_Lband/14B-088/HI/imaging/cedar/HI_cube_5kms.py

@@ -18,23 +18,26 @@ def name_return_check(filename, path, no_check=False):
 
 
 if socket.gethostname() == 'ewk':
-    root = os.path.expanduser('~/Dropbox/code_development/VLA_Lband/')
+    root = os.path.expanduser('~/ownCloud/code_development/VLA_Lband/')
     # data_path = "/mnt/MyRAID/M33/"
     data_path = "/home/eric/bigdata/ekoch/M33/"
 # Add in path for NRAO and cloud instances
 elif socket.gethostname() == 'caterwauler':
-    root = os.path.expanduser('~/Dropbox/code_development/VLA_Lband/')
+    root = os.path.expanduser('~/ownCloud/code_development/VLA_Lband/')
     data_path = os.path.expanduser("~/volume/data/")
 # NRAO
 elif "nmpost" in socket.gethostname():
     root = os.path.expanduser("~/VLA_Lband")
     data_path = os.path.expanduser("~/data")
 elif "segfault" == socket.gethostname():
-    root = os.path.expanduser("~/Dropbox/code_development/VLA_Lband/")
+    root = os.path.expanduser("~/ownCloud/code_development/VLA_Lband/")
     data_path = "/mnt/bigdata/ekoch/M33"
 elif "cedar.computecanada" in socket.gethostname():
     root = "/home/ekoch/code/VLA_Lband/"
     data_path = "/home/ekoch/project/ekoch/"
+elif 'ewk-laptop' in socket.gethostname():
+    root = os.path.expanduser("~/ownCloud/code_development/VLA_Lband/")
+    data_path = os.path.expanduser("~/storage/M33")
 
 c_path = os.path.join(root, '14B-088')
 archival_path = os.path.join(root, 'AT0206')

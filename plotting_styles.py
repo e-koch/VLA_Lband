@@ -7,10 +7,10 @@ Set style for figures.
 
 
 def default_figure(font_scale=1.0):
-    sb.set(font='Times New Roman', style='ticks',
+    sb.set("poster", font_scale=font_scale,
+           palette='colorblind',
+           font='Times New Roman', style='ticks',
            rc={'text.usetex': True})
-    sb.set_context("poster", font_scale=font_scale)
-    sb.set_palette("colorblind")
 
 
 def twocolumn_figure(fig_ratio=None, font_scale=1.25):
@@ -25,9 +25,11 @@ def twocolumn_figure(fig_ratio=None, font_scale=1.25):
     if fig_ratio is not None:
         figsize = (width, width * fig_ratio)
 
-    sb.set_context("paper", font_scale=font_scale,
-                   rc={"figure.figsize": figsize})
-    sb.set_palette("colorblind")
+    sb.set("paper", font_scale=font_scale,
+           rc={"figure.figsize": figsize,
+               'text.usetex': True},
+           palette='colorblind',
+           font='Times New Roman', style='ticks')
 
 
 def twocolumn_twopanel_figure(fig_ratio=None, **kwargs):
@@ -55,9 +57,12 @@ def onecolumn_figure(fig_ratio=None, font_scale=1.2):
     if fig_ratio is not None:
         figsize = (width, width * fig_ratio)
 
-    sb.set_context("paper", font_scale=font_scale,
-                   rc={"figure.figsize": figsize})
-    sb.set_palette("colorblind")
+    sb.set("paper", font_scale=font_scale,
+           rc={"figure.figsize": figsize,
+               'text.usetex': True},
+           palette='colorblind',
+           font='Times New Roman', style='ticks')
+    # sb.set_palette("colorblind")
 
 
 def onecolumn_Npanel_figure(N, font_scale=1.2):

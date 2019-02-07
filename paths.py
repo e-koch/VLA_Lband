@@ -111,18 +111,18 @@ hst_phat_path = \
           path=os.path.join(data_path, "Hubble/big/"))
 
 # Paper figures path
-papers_path = os.path.expanduser("~/Dropbox/My_Papers/")
+papers_path = os.path.expanduser("~/ownCloud/My_Papers/")
 paper1_figures_path = \
     lambda x: os.path.join(papers_path, "In Prep/m33-HI-paper1/figures/", x)
 paper1_tables_path = \
     lambda x: os.path.join(papers_path, "In Prep/m33-HI-paper1/tables/", x)
 
 # Proposal Figures
-varfig_path = os.path.expanduser("~/Dropbox/Various Plots/Proposals")
+varfig_path = os.path.expanduser("~/ownCloud/Various Plots/Proposals")
 proposal_figures_path = lambda x: os.path.join(varfig_path, x)
 
 # All figures
-fig_path = os.path.expanduser("~/Dropbox/Various Plots/M33/")
+fig_path = os.path.expanduser("~/ownCloud/Various Plots/M33/")
 allfigs_path = lambda x: os.path.join(fig_path, x)
 alltables_path = lambda x: os.path.join(fig_path, "tables", x)
 

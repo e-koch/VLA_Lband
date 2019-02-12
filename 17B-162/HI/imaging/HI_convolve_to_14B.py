@@ -27,7 +27,7 @@ reproject_cube(seventeenB_02kms_wGBT_HI_file_dict['Cube'],
                output_folder=out_folder,
                save_spectral=False,
                is_huge=True,
-               reproject_type='all',
+               reproject_type='spatial',
                common_beam=True,
                verbose=True,
                chunk=40)

@@ -124,6 +124,20 @@ def krumholz2013_sigmaHI(Sigma, Z=0.5, c=1):
     return SigmaHI
 
 
+def krumholz2013_sigmaHI_H2(Sigma, Z=0.5, c=1):
+    '''
+    Return the predicted HI and H2 sigma as a function of the total Sigma.
+    '''
+
+    RH2 = krumholz2013_ratio_model(Sigma, Z=Z, c=c)
+
+    SigmaHI = Sigma / (1 + RH2)
+
+    SigmaH2 = RH2 * SigmaHI
+
+    return SigmaHI, SigmaH2
+
+
 def optimize_clump_factors(Sigma, R, Z=0.5, c_init=1.):
     '''
     Solve for the clump factor needed to intersect each point.

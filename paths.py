@@ -133,8 +133,9 @@ def find_dataproduct_names(path):
     convention used in this repository.
     '''
 
-    search_dict = {"Moment0": "mom0",
-                   "Moment1": "mom1",
+    search_dict = {"Moment0": "mom0.",
+                   "Moment0_err": "mom0_err",
+                   "Moment1": "mom1.",
                    "LWidth": "lwidth",
                    "Skewness": "skewness",
                    "Kurtosis": "kurtosis",

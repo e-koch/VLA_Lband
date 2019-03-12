@@ -13,6 +13,21 @@ def default_figure(font_scale=1.0):
            rc={'text.usetex': True})
 
 
+def fullpage_figure(font_scale=1.25):
+    default_figure()
+
+    width = 8.4
+    height = 11
+
+    figsize = (width, height)
+
+    sb.set("paper", font_scale=font_scale,
+           rc={"figure.figsize": figsize,
+               'text.usetex': True},
+           palette='colorblind',
+           font='Times New Roman', style='ticks')
+
+
 def twocolumn_figure(fig_ratio=None, font_scale=1.25):
     default_figure()
 

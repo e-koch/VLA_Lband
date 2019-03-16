@@ -17,7 +17,10 @@ import seaborn as sb
 from paths import (fourteenB_HI_data_wGBT_path,
                    data_path, allfigs_path,
                    iram_co21_14B088_data_path)
-from plotting_styles import default_figure, twocolumn_figure
+from plotting_styles import (default_figure,
+                             twocolumn_figure,
+                             twocolumn_twopanel_figure,
+                             onecolumn_figure)
 from galaxy_params import gal_feath as gal
 
 
@@ -156,7 +159,11 @@ def bayes_linear(x, y, x_err, y_err, nWalkers=10, nBurn=100, nSample=1000,
 
 twocolumn_figure()
 
-fig, axs = plt.subplots(2, 2, sharex=True, sharey=True)
+# Original included the "D" column. But since it's poorly
+# sampled, remove from plotting.
+
+# fig, axs = plt.subplots(2, 2, sharex=True, sharey=True)
+fig, axs = plt.subplots(1, 3, sharex=True, sharey=True)
 
 fitted_ratios = []
 fitted_ratio_errs = []
@@ -164,7 +171,8 @@ fitted_ratio_errs = []
 intrinsic_scatter = []
 intrinsic_scatter_errs = []
 
-for c_type, ax in zip(['A', 'B', 'C', 'D'], axs.ravel()):
+# for c_type, ax in zip(['A', 'B', 'C', 'D'], axs.ravel()):
+for c_type, ax in zip(['A', 'B', 'C'], axs.ravel()):
 
     type_pts = np.logical_and(good_pts,
                               tab['cloud_type'] == c_type)
@@ -189,38 +197,41 @@ for c_type, ax in zip(['A', 'B', 'C', 'D'], axs.ravel()):
     intrinsic_scatter_errs.append(add_stddev_ratio_ci)
 
     hist2d(tab['sigma_HI'][type_pts] / 1000.,
-           np.array(tab['sigma_CO'])[type_pts] / 1000., bins=13,
+           np.array(tab['sigma_CO'])[type_pts] / 1000.,
+           bins=10,
            data_kwargs={"alpha": 0.5},
-           ax=ax)
+           ax=ax, range=[(2, 12), (2, 12)])
 
-    ax.text(0.85, 0.1, c_type, transform=ax.transAxes, fontsize=20,
-            bbox={"boxstyle": "round", "facecolor": "w"})
-
-    ax.plot([4, 12], [4. * slope_ratio, 12. * slope_ratio],
+    ax.plot([2, 12], [2. * slope_ratio, 12. * slope_ratio],
             '--', color=sb.color_palette()[2], linewidth=3,
             label='Ratio Fit')
 
-    ax.plot([4, 12], [4, 12], '-', linewidth=3, alpha=0.8,
+    ax.plot([2, 12], [2, 12], '-', linewidth=3, alpha=0.8,
             color=sb.color_palette()[3],
             label=r'$\sigma_{\rm CO} = \sigma_{\rm HI}$')
 
+    ax.text(0.1, 0.8, c_type, transform=ax.transAxes, fontsize=20,
+            bbox={"boxstyle": "round", "facecolor": "w"})
+
     ax.axhline(2.6, color=sb.color_palette()[4], linestyle=':',
                alpha=0.5, linewidth=3)
+    ax.axhline(8.0, color=sb.color_palette()[4], linestyle=':',
+               alpha=0.5, linewidth=3)
 
-    # plt.ylim([0.5, 8])
-    # plt.legend(frameon=True, loc='lower right')
-    ax.grid()
+axs[1].set_xlabel(r"$\sigma_{\rm HI}$ (km/s)")
+axs[0].set_ylabel(r"$\sigma_{\rm CO}$ (km/s)")
 
-axs[1, 0].set_xlabel(r"$\sigma_{\rm HI}$ (km/s)")
-axs[1, 1].set_xlabel(r"$\sigma_{\rm HI}$ (km/s)")
-axs[0, 0].set_ylabel(r"$\sigma_{\rm CO}$ (km/s)")
-axs[1, 0].set_ylabel(r"$\sigma_{\rm CO}$ (km/s)")
+# axs[1, 0].set_xlabel(r"$\sigma_{\rm HI}$ (km/s)")
+# axs[1, 1].set_xlabel(r"$\sigma_{\rm HI}$ (km/s)")
+# axs[0, 0].set_ylabel(r"$\sigma_{\rm CO}$ (km/s)")
+# axs[1, 0].set_ylabel(r"$\sigma_{\rm CO}$ (km/s)")
 
 plt.savefig(osjoin(fig_path, "sigma_HI_vs_H2_w_cloudtype.png"))
 plt.savefig(osjoin(fig_path, "sigma_HI_vs_H2_w_cloudtype.pdf"))
 plt.close()
 
-for i, c_type in enumerate(['A', 'B', 'C', 'D']):
+# for i, c_type in enumerate(['A', 'B', 'C', 'D']):
+for i, c_type in enumerate(['A', 'B', 'C']):
     print("Ratio of {0}: {1}  {2}".format(c_type, fitted_ratios[i],
                                           fitted_ratio_errs[i]))
     print("Scatter of {0}: {1}  {2}".format(c_type, intrinsic_scatter[i],
@@ -234,3 +245,228 @@ for i, c_type in enumerate(['A', 'B', 'C', 'D']):
 # Scatter of C: 486.39031452483346  [479.67843996 492.94783184]
 # Ratio of D: 0.5237602437236004  [0.52091347 0.52662596]
 # Scatter of D: 158.28200242599462  [129.2197323  188.37514809]
+
+# Make a version w/o the fits
+
+twocolumn_twopanel_figure()
+
+fig, axs = plt.subplots(1, 3, sharex=True, sharey=True)
+
+for c_type, ax in zip(['A', 'B', 'C'], axs.ravel()):
+
+    type_pts = np.logical_and(good_pts,
+                              tab['cloud_type'] == c_type)
+
+    hist2d(tab['sigma_HI'][type_pts] / 1000.,
+           np.array(tab['sigma_CO'])[type_pts] / 1000., bins=10,
+           data_kwargs={"alpha": 0.5},
+           ax=ax, range=[(2, 12), (2, 12)])
+
+    ax.plot([2, 12], [2, 12], '-', linewidth=3, alpha=0.8,
+            color=sb.color_palette()[3],
+            label=r'$\sigma_{\rm CO} = \sigma_{\rm HI}$')
+
+    ax.text(0.1, 0.8, c_type, transform=ax.transAxes, fontsize=20,
+            bbox={"boxstyle": "round", "facecolor": "w"})
+
+    ax.axhline(2.6, color=sb.color_palette()[4], linestyle=':',
+               alpha=0.5, linewidth=3)
+    ax.axhline(8.0, color=sb.color_palette()[4], linestyle=':',
+               alpha=0.5, linewidth=3)
+
+axs[1].set_xlabel(r"$\sigma_{\rm HI}$ (km/s)")
+axs[0].set_ylabel(r"$\sigma_{\rm CO}$ (km/s)")
+
+plt.tight_layout()
+
+plt.savefig(osjoin(fig_path, "sigma_HI_vs_H2_w_cloudtype_nofit.png"))
+plt.savefig(osjoin(fig_path, "sigma_HI_vs_H2_w_cloudtype_nofit.pdf"))
+plt.close()
+
+
+# Make histograms of each distribution and the cloud types
+from astropy.stats import histogram
+
+onecolumn_figure()
+
+vals, bins = histogram(tab['sigma_HI'][good_pts] / 1000.,
+                       bins='knuth')
+vals_a = histogram(tab['sigma_HI'][good_pts & (tab['cloud_type'] == "A")] / 1000.,
+                   bins=bins)[0]
+vals_b = histogram(tab['sigma_HI'][good_pts & (tab['cloud_type'] == "B")] / 1000.,
+                   bins=bins)[0]
+vals_c = histogram(tab['sigma_HI'][good_pts & (tab['cloud_type'] == "C")] / 1000.,
+                   bins=bins)[0]
+
+plt.plot((bins[1:] + bins[:-1]) * 0.5, vals, 'k', linewidth=3,
+         drawstyle='steps-mid')
+
+plt.grid()
+plt.xlabel(r"$\sigma_{\rm HI}$ (km/s)")
+plt.tight_layout()
+plt.savefig(osjoin(fig_path, "sigma_HI_hist.png"))
+plt.savefig(osjoin(fig_path, "sigma_HI_hist.pdf"))
+plt.close()
+
+plt.plot((bins[1:] + bins[:-1]) * 0.5, vals, 'k', linewidth=3,
+         drawstyle='steps-mid')
+plt.plot((bins[1:] + bins[:-1]) * 0.5, vals_a, linewidth=1.5,
+         drawstyle='steps-mid', label='A')
+plt.plot((bins[1:] + bins[:-1]) * 0.5, vals_b, linewidth=1.5,
+         drawstyle='steps-mid', label='B')
+plt.plot((bins[1:] + bins[:-1]) * 0.5, vals_c, linewidth=1.5,
+         drawstyle='steps-mid', label='C')
+
+plt.grid()
+plt.legend(frameon=True)
+plt.xlabel(r"$\sigma_{\rm HI}$ (km/s)")
+plt.tight_layout()
+plt.savefig(osjoin(fig_path, "sigma_HI_hist_wcloudtype.png"))
+plt.savefig(osjoin(fig_path, "sigma_HI_hist_wcloudtype.pdf"))
+plt.close()
+
+# Make a second version in density
+
+vals, bins = histogram(tab['sigma_HI'][good_pts] / 1000.,
+                       bins='knuth', density=True)
+vals_a = histogram(tab['sigma_HI'][good_pts & (tab['cloud_type'] == "A")] / 1000.,
+                   bins=bins, density=True)[0]
+vals_b = histogram(tab['sigma_HI'][good_pts & (tab['cloud_type'] == "B")] / 1000.,
+                   bins=bins, density=True)[0]
+vals_c = histogram(tab['sigma_HI'][good_pts & (tab['cloud_type'] == "C")] / 1000.,
+                   bins=bins, density=True)[0]
+
+plt.plot((bins[1:] + bins[:-1]) * 0.5, vals, 'k', linewidth=3,
+         drawstyle='steps-mid')
+plt.plot((bins[1:] + bins[:-1]) * 0.5, vals_a, linewidth=1.5,
+         drawstyle='steps-mid', label='A')
+plt.plot((bins[1:] + bins[:-1]) * 0.5, vals_b, linewidth=1.5,
+         drawstyle='steps-mid', label='B')
+plt.plot((bins[1:] + bins[:-1]) * 0.5, vals_c, linewidth=1.5,
+         drawstyle='steps-mid', label='C')
+
+plt.grid()
+plt.legend(frameon=True)
+plt.xlabel(r"$\sigma_{\rm HI}$ (km/s)")
+plt.tight_layout()
+plt.savefig(osjoin(fig_path, "sigma_HI_hist_density_wcloudtype.png"))
+plt.savefig(osjoin(fig_path, "sigma_HI_hist_density_wcloudtype.pdf"))
+plt.close()
+# Now make a CDF plot
+
+plt.plot((bins[1:] + bins[:-1]) * 0.5,
+         np.cumsum(vals) / np.sum(vals),
+         'k', linewidth=3,
+         drawstyle='steps-mid')
+plt.plot((bins[1:] + bins[:-1]) * 0.5,
+         np.cumsum(vals_a) / np.sum(vals_a),
+         linewidth=1.5,
+         drawstyle='steps-mid', label='A')
+plt.plot((bins[1:] + bins[:-1]) * 0.5,
+         np.cumsum(vals_b) / np.sum(vals_b),
+         linewidth=1.5,
+         drawstyle='steps-mid', label='B')
+plt.plot((bins[1:] + bins[:-1]) * 0.5,
+         np.cumsum(vals_c) / np.sum(vals_c),
+         linewidth=1.5,
+         drawstyle='steps-mid', label='C')
+
+plt.grid()
+plt.legend(frameon=True)
+plt.xlabel(r"$\sigma_{\rm HI}$ (km/s)")
+plt.tight_layout()
+plt.savefig(osjoin(fig_path, "sigma_HI_cdf_wcloudtype.png"))
+plt.savefig(osjoin(fig_path, "sigma_HI_cdf_wcloudtype.pdf"))
+plt.close()
+
+# And CO
+
+vals, bins = histogram(tab['sigma_CO'][good_pts] / 1000.,
+                       bins='knuth')
+vals_a = histogram(tab['sigma_CO'][good_pts & (tab['cloud_type'] == "A")] / 1000.,
+                   bins=bins)[0]
+vals_b = histogram(tab['sigma_CO'][good_pts & (tab['cloud_type'] == "B")] / 1000.,
+                   bins=bins)[0]
+vals_c = histogram(tab['sigma_CO'][good_pts & (tab['cloud_type'] == "C")] / 1000.,
+                   bins=bins)[0]
+
+plt.plot((bins[1:] + bins[:-1]) * 0.5, vals, 'k', linewidth=3,
+         drawstyle='steps-mid')
+plt.grid()
+plt.xlabel(r"$\sigma_{\rm CO}$ (km/s)")
+plt.tight_layout()
+plt.savefig(osjoin(fig_path, "sigma_CO_hist.png"))
+plt.savefig(osjoin(fig_path, "sigma_CO_hist.pdf"))
+plt.close()
+
+plt.plot((bins[1:] + bins[:-1]) * 0.5, vals, 'k', linewidth=3,
+         drawstyle='steps-mid')
+plt.plot((bins[1:] + bins[:-1]) * 0.5, vals_a, linewidth=1.5,
+         drawstyle='steps-mid', label='A')
+plt.plot((bins[1:] + bins[:-1]) * 0.5, vals_b, linewidth=1.5,
+         drawstyle='steps-mid', label='B')
+plt.plot((bins[1:] + bins[:-1]) * 0.5, vals_c, linewidth=1.5,
+         drawstyle='steps-mid', label='C')
+
+plt.grid()
+plt.legend(frameon=True)
+plt.xlabel(r"$\sigma_{\rm CO}$ (km/s)")
+plt.tight_layout()
+plt.savefig(osjoin(fig_path, "sigma_CO_hist_wcloudtype.png"))
+plt.savefig(osjoin(fig_path, "sigma_CO_hist_wcloudtype.pdf"))
+plt.close()
+
+# And density
+
+vals, bins = histogram(tab['sigma_CO'][good_pts] / 1000.,
+                       bins='knuth', density=True)
+vals_a = histogram(tab['sigma_CO'][good_pts & (tab['cloud_type'] == "A")] / 1000.,
+                   bins=bins, density=True)[0]
+vals_b = histogram(tab['sigma_CO'][good_pts & (tab['cloud_type'] == "B")] / 1000.,
+                   bins=bins, density=True)[0]
+vals_c = histogram(tab['sigma_CO'][good_pts & (tab['cloud_type'] == "C")] / 1000.,
+                   bins=bins, density=True)[0]
+
+plt.plot((bins[1:] + bins[:-1]) * 0.5, vals, 'k', linewidth=3,
+         drawstyle='steps-mid')
+plt.plot((bins[1:] + bins[:-1]) * 0.5, vals_a, linewidth=1.5,
+         drawstyle='steps-mid', label='A')
+plt.plot((bins[1:] + bins[:-1]) * 0.5, vals_b, linewidth=1.5,
+         drawstyle='steps-mid', label='B')
+plt.plot((bins[1:] + bins[:-1]) * 0.5, vals_c, linewidth=1.5,
+         drawstyle='steps-mid', label='C')
+
+plt.grid()
+plt.legend(frameon=True)
+plt.xlabel(r"$\sigma_{\rm CO}$ (km/s)")
+plt.tight_layout()
+plt.savefig(osjoin(fig_path, "sigma_CO_hist_density_wcloudtype.png"))
+plt.savefig(osjoin(fig_path, "sigma_CO_hist_density_wcloudtype.pdf"))
+plt.close()
+
+# CO CDF
+
+plt.plot((bins[1:] + bins[:-1]) * 0.5,
+         np.cumsum(vals) / np.sum(vals),
+         'k', linewidth=3,
+         drawstyle='steps-mid')
+plt.plot((bins[1:] + bins[:-1]) * 0.5,
+         np.cumsum(vals_a) / np.sum(vals_a),
+         linewidth=1.5,
+         drawstyle='steps-mid', label='A')
+plt.plot((bins[1:] + bins[:-1]) * 0.5,
+         np.cumsum(vals_b) / np.sum(vals_b),
+         linewidth=1.5,
+         drawstyle='steps-mid', label='B')
+plt.plot((bins[1:] + bins[:-1]) * 0.5,
+         np.cumsum(vals_c) / np.sum(vals_c),
+         linewidth=1.5,
+         drawstyle='steps-mid', label='C')
+
+plt.grid()
+plt.legend(frameon=True)
+plt.xlabel(r"$\sigma_{\rm CO}$ (km/s)")
+plt.tight_layout()
+plt.savefig(osjoin(fig_path, "sigma_CO_cdf_wcloudtype.png"))
+plt.savefig(osjoin(fig_path, "sigma_CO_cdf_wcloudtype.pdf"))
+plt.close()

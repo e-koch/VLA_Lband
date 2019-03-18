@@ -1,6 +1,6 @@
 
 '''
-VLA pipeline for casa 4.5.1
+VLA pipeline for casa 5.4.1
 '''
 
 import sys

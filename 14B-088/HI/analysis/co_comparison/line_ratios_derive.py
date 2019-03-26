@@ -55,7 +55,7 @@ def size_lwidth(l, l_s, T, mu, index=0.5):
     return np.sqrt(turb_sigma**2 + c_s**2)
 
 
-scales = [80, 160, 380]
+scales_meas = [80, 160, 380]
 
 # From stacking
 sigma_HI = [6.6, 8.0, 8.9] * u.km / u.s
@@ -72,10 +72,10 @@ sigma_CO_los = [4.3, 5.0, 7.3] * u.km / u.s
 # turbulence
 
 T_CO = 10 * u.K
-sigma_turb = np.sqrt(sigma_CO[0]**2 - lwidth(T_CO, 2.3)**2)
+sigma_turb = np.sqrt(sigma_CO_los[0]**2 - lwidth(T_CO, 2.3)**2)
 
 # Set T_HI assuming this holds for both
-c_HI = np.sqrt(sigma_HI[0]**2 - sigma_turb**2)
+c_HI = np.sqrt(sigma_HI_los[0]**2 - sigma_turb**2)
 T_HI = (c_HI**2 * 1.4 * c.m_p / c.k_B).to(u.K)
 # T_HI = 5000 * u.K
 # About 4000 K. Reasonable.
@@ -84,14 +84,14 @@ scales = np.arange(0.05, 1500, 0.1) * u.pc
 
 beam_size = 80 * u.pc
 
-l_HI = sonic_length(sigma_HI[0], beam_size, T_HI, 1.4)
-l_CO = sonic_length(sigma_CO[0], beam_size, T_CO, 2.3)
+l_HI = sonic_length(sigma_HI_los[0], beam_size, T_HI, 1.4)
+l_CO = sonic_length(sigma_CO_los[0], beam_size, T_CO, 2.3)
 
 sigma_COs = size_lwidth(scales, l_CO, T_CO, 2.3)
 sigma_HIs = size_lwidth(scales, l_HI, T_HI, 1.4)
 
 # What if the HI index is closer to 1/3?
-l_HI_one3 = sonic_length(sigma_HI[0], beam_size, T_HI, 1.4, index=1 / 3.)
+l_HI_one3 = sonic_length(sigma_HI_los[0], beam_size, T_HI, 1.4, index=1 / 3.)
 sigma_HIs_one3 = size_lwidth(scales, l_HI_one3, T_HI, 1.4, index=1 / 3.)
 
 twocolumn_twopanel_figure()
@@ -100,13 +100,13 @@ plt.loglog(scales.value, sigma_COs.value, label='CO')
 plt.loglog(scales.value, sigma_HIs.value, label='HI')
 plt.loglog(scales.value, sigma_HIs_one3.value, label='HI - 1/3 index')
 plt.axhline(0.19 * (100 / l_CO.value)**0.5)
-plt.errorbar(scales, sigma_CO.value, yerr=[1.3] * 3,
+plt.errorbar(scales_meas, sigma_CO.value, yerr=[1.3] * 3,
              fmt='D', label='CO Width')
-plt.errorbar(scales, sigma_HI.value, yerr=[0.1] * 3,
+plt.errorbar(scales_meas, sigma_HI.value, yerr=[0.1] * 3,
              fmt='o', label='HI Width')
-plt.errorbar(scales, [4.3, 5.0, 7.25], yerr=[1.3] * 3,
+plt.errorbar(scales_meas, [4.3, 5.0, 7.25], yerr=[1.3] * 3,
              fmt='D', label='LOS CO Width')
-plt.errorbar(scales, [7.4, 8.4, 11.0], yerr=[0.1] * 3,
+plt.errorbar(scales_meas, [7.4, 8.4, 11.0], yerr=[0.1] * 3,
              fmt='o', label='LOS HI Width')
 plt.grid()
 plt.legend(frameon=True)
@@ -117,7 +117,7 @@ plt.loglog(scales.value, sigma_COs.value / sigma_HIs.value,
            label='HI Index = 1/2')
 plt.loglog(scales.value, sigma_COs.value / sigma_HIs_one3.value,
            label='HI Index = 1/3')
-plt.errorbar(scales, [4.5 / 6.6, 6.0 / 8.0, 7.25 / 8.9],
+plt.errorbar(scales_meas, [4.5 / 6.6, 6.0 / 8.0, 7.25 / 8.9],
              yerr=[0.2, 0.16, 0.15],
              fmt='D')
 plt.plot([40], [0.23], 'D')
@@ -149,9 +149,9 @@ plt.loglog(scales.value, sigma_HIs.value, "--", color=cpal[1],
            label='HI - 1/2 index')
 plt.loglog(scales.value, sigma_HIs_one3.value, "-.", color=cpal[1],
            label='HI - 1/3 index')
-plt.errorbar(scales, sigma_CO.value, yerr=[0.9] * 3, color=cpal[2],
+plt.errorbar(scales_meas, sigma_CO.value, yerr=[0.9] * 3, color=cpal[2],
              fmt='D', label='M33 CO(2-1) Stack Width')
-plt.errorbar(scales, sigma_HI.value, yerr=[0.1] * 3, color=cpal[2],
+plt.errorbar(scales_meas, sigma_HI.value, yerr=[0.1] * 3, color=cpal[2],
              fmt='o', label='M33 HI Stack Width')
 
 # plt.errorbar(scales, sigma_CO_los, yerr=[0.5] * 3,
@@ -238,3 +238,61 @@ plt.close()
 # plt.loglog(scales.value, sigma_CO_cutoff)
 
 # plt.loglog(scales, sigma_CO_cutoff / sigma_HIs)
+
+# Series of plots adding to the size line width with everything
+onecolumn_figure()
+
+plt.loglog(scales.value, sigma_COs.value, color=cpal[0],
+           label='CO - 1/2 index')
+plt.loglog(scales.value, sigma_HIs.value, "--", color=cpal[1],
+           label='HI - 1/2 index')
+plt.grid()
+plt.xlabel("Scale (pc)")
+plt.ylabel(r"$\sigma$ (km/s)")
+plt.xlim([1, 2e3])
+plt.tight_layout()
+plt.savefig(allfigs_path("co_vs_hi/size_linewidth_relations.png"))
+plt.savefig(allfigs_path("co_vs_hi/size_linewidth_relations.pdf"))
+plt.close()
+
+
+plt.loglog(scales.value, sigma_COs.value, color=cpal[0],
+           label='CO - 1/2 index')
+plt.loglog(scales.value, sigma_HIs.value, "--", color=cpal[1],
+           label='HI - 1/2 index')
+plt.errorbar(scales_meas, [4.3, 5.0, 7.25], yerr=[1.3] * 3,
+             fmt='D', label='LOS CO Width')
+plt.errorbar(scales_meas, [7.4, 8.4, 11.0], yerr=[0.1] * 3,
+             fmt='o', label='LOS HI Width')
+plt.grid()
+plt.xlabel("Scale (pc)")
+plt.ylabel(r"$\sigma$ (km/s)")
+plt.xlim([1, 2e3])
+plt.tight_layout()
+plt.savefig(allfigs_path("co_vs_hi/size_linewidth_relations_m33_los.png"))
+plt.savefig(allfigs_path("co_vs_hi/size_linewidth_relations_m33_los.pdf"))
+plt.close()
+
+plt.loglog(scales.value, sigma_COs.value, color=cpal[0],
+           label='CO - 1/2 index')
+plt.loglog(scales.value, sigma_HIs.value, "--", color=cpal[1],
+           label='HI - 1/2 index')
+plt.errorbar(scales_meas, [4.3, 5.0, 7.25], yerr=[1.3] * 3,
+             fmt='D', label='LOS CO Width')
+plt.errorbar(scales_meas, [7.4, 8.4, 11.0], yerr=[0.1] * 3,
+             fmt='o', label='LOS HI Width')
+plt.errorbar([40], [14.1 / 2.35], yerr=[3.3 / 2.35], fmt='o',
+             label='LMC HI Avg.',
+             color=cpal[3])
+plt.errorbar([40], [4.6 / 2.35], yerr=[1.6 / 2.35], fmt='D',
+             label='LMC CO(1-0) Avg.',
+             color=cpal[3])
+plt.grid()
+plt.xlabel("Scale (pc)")
+plt.ylabel(r"$\sigma$ (km/s)")
+plt.xlim([1, 2e3])
+plt.tight_layout()
+plt.savefig(allfigs_path("co_vs_hi/size_linewidth_relations_m33_lmc_los.png"))
+plt.savefig(allfigs_path("co_vs_hi/size_linewidth_relations_m33_lmc_los.pdf"))
+plt.close()
+

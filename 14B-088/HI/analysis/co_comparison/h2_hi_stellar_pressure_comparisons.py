@@ -527,3 +527,459 @@ plt.savefig(osjoin(fig_path, "pext_m33_phangs_cdf_comparison.pdf"))
 plt.savefig(osjoin(fig_path, "pext_m33_phangs_cdf_comparison.png"))
 plt.close()
 
+# These are weighted by # LOS. Weighting by intensity is closer to
+# Jiayi's values and likely explain the low GMC pressures I'm finding
+# Let's try weighting the histograms by intensity here:
+
+
+return_finite = lambda tab, y: tab[y][np.isfinite(tab[y])]
+
+twocolumn_figure()
+
+fig, ax = plt.subplots(2, 2, sharey=True, sharex=True)
+
+# Total pressure
+
+vals_m33, bins_m33 = \
+    np.histogram(np.log10(pext_on_gmc_5beam[0][co_mask].value),
+              bins=10,
+              weights=(co_surfdens + hi_surfdens).value[co_mask],
+              density=True)
+
+ax[0, 0].plot((bins_m33[1:] + bins_m33[:-1]) * 0.5,
+              np.cumsum(vals_m33) / vals_m33.sum(),
+              drawstyle='steps-mid',
+              alpha=0.5,
+              label='M33 (380 pc HI)')
+
+p_4540 = return_finite(tab_ngc4540, "<P_DE_pix_90pc>")
+vals_4540, bins_4540 = \
+    histogram(np.log10(p_4540),
+              bins='knuth')
+ax[0, 0].plot((bins_4540[1:] + bins_4540[:-1]) * 0.5,
+              np.cumsum(vals_4540) / vals_4540.sum(),
+              drawstyle='steps-mid',
+              alpha=0.5,
+              label='NGC 4540')
+
+p_5042 = return_finite(tab_ngc5042, "<P_DE_pix_90pc>")
+vals_5042, bins_5042 = \
+    histogram(np.log10(p_5042),
+              bins='knuth')
+ax[0, 0].plot((bins_5042[1:] + bins_5042[:-1]) * 0.5,
+              np.cumsum(vals_5042) / vals_5042.sum(),
+              drawstyle='steps-mid',
+              alpha=0.5,
+              label='NGC 5042')
+
+p_5068 = return_finite(tab_ngc5068, "<P_DE_pix_90pc>")
+vals_5068, bins_5068 = \
+    histogram(np.log10(p_5068),
+              bins='knuth')
+ax[0, 0].plot((bins_5068[1:] + bins_5068[:-1]) * 0.5,
+              np.cumsum(vals_5068) / vals_5068.sum(),
+              drawstyle='steps-mid',
+              alpha=0.5,
+              label='NGC 5068')
+
+ax[0, 0].text(0.05, 0.85, "Total",
+              transform=ax[0, 0].transAxes,
+              bbox={"boxstyle": "square", "facecolor": "w",
+                    "edgecolor": "gray"})
+ax[0, 0].grid()
+ax[0, 0].legend(loc='lower left')
+
+# GMC pressure
+
+vals_m33, bins_m33 = \
+    np.histogram(np.log10(pext_on_gmc_5beam[1][co_mask].value),
+                 bins=10,
+                 weights=(co_surfdens + hi_surfdens).value[co_mask],
+                 density=True)
+
+ax[1, 0].plot((bins_m33[1:] + bins_m33[:-1]) * 0.5,
+              np.cumsum(vals_m33) / vals_m33.sum(),
+              drawstyle='steps-mid',
+              alpha=0.5,
+              label='M33 (380 pc HI)')
+
+p_4540 = return_finite(tab_ngc4540, "<P_DE^molg_pix_90pc>")
+vals_4540, bins_4540 = \
+    histogram(np.log10(p_4540),
+              bins='knuth')
+ax[1, 0].plot((bins_4540[1:] + bins_4540[:-1]) * 0.5,
+              np.cumsum(vals_4540) / vals_4540.sum(),
+              drawstyle='steps-mid',
+              alpha=0.5,
+              label='NGC 4540')
+
+p_5042 = return_finite(tab_ngc5042, "<P_DE^molg_pix_90pc>")
+vals_5042, bins_5042 = \
+    histogram(np.log10(p_5042),
+              bins='knuth')
+ax[1, 0].plot((bins_5042[1:] + bins_5042[:-1]) * 0.5,
+              np.cumsum(vals_5042) / vals_5042.sum(),
+              drawstyle='steps-mid',
+              alpha=0.5,
+              label='NGC 5042')
+
+p_5068 = return_finite(tab_ngc5068, "<P_DE^molg_pix_90pc>")
+vals_5068, bins_5068 = \
+    histogram(np.log10(p_5068),
+              bins='knuth')
+ax[1, 0].plot((bins_5068[1:] + bins_5068[:-1]) * 0.5,
+              np.cumsum(vals_5068) / vals_5068.sum(),
+              drawstyle='steps-mid',
+              alpha=0.5,
+              label='NGC 5068')
+
+ax[1, 0].text(0.05, 0.85, "GMC Press.",
+              transform=ax[1, 0].transAxes,
+              bbox={"boxstyle": "square", "facecolor": "w",
+                    "edgecolor": "gray"})
+ax[1, 0].grid()
+
+# Stellar pressure on GMC
+
+vals_m33, bins_m33 = \
+    np.histogram(np.log10(pext_on_gmc_5beam[2][co_mask].value),
+                 bins=10,
+                 weights=(co_surfdens + hi_surfdens).value[co_mask],
+                 density=True)
+
+ax[0, 1].plot((bins_m33[1:] + bins_m33[:-1]) * 0.5,
+              np.cumsum(vals_m33) / vals_m33.sum(),
+              drawstyle='steps-mid',
+              alpha=0.5,
+              label='M33 (380 pc HI)')
+
+p_4540 = return_finite(tab_ngc4540, "<P_DE^starg_pix_90pc>")
+vals_4540, bins_4540 = \
+    histogram(np.log10(p_4540),
+              bins='knuth')
+ax[0, 1].plot((bins_4540[1:] + bins_4540[:-1]) * 0.5,
+              np.cumsum(vals_4540) / vals_4540.sum(),
+              drawstyle='steps-mid',
+              alpha=0.5,
+              label='NGC 4540')
+
+p_5042 = return_finite(tab_ngc5042, "<P_DE^starg_pix_90pc>")
+vals_5042, bins_5042 = \
+    histogram(np.log10(p_5042),
+              bins='knuth')
+ax[0, 1].plot((bins_5042[1:] + bins_5042[:-1]) * 0.5,
+              np.cumsum(vals_5042) / vals_5042.sum(),
+              drawstyle='steps-mid',
+              alpha=0.5,
+              label='NGC 5042')
+
+p_5068 = return_finite(tab_ngc5068, "<P_DE^starg_pix_90pc>")
+vals_5068, bins_5068 = \
+    histogram(np.log10(p_5068),
+              bins='knuth')
+ax[0, 1].plot((bins_5068[1:] + bins_5068[:-1]) * 0.5,
+              np.cumsum(vals_5068) / vals_5068.sum(),
+              drawstyle='steps-mid',
+              alpha=0.5,
+              label='NGC 5068')
+
+ax[0, 1].text(0.05, 0.85, "Stellar on GMC",
+              transform=ax[0, 1].transAxes,
+              bbox={"boxstyle": "square", "facecolor": "w",
+                    "edgecolor": "gray"})
+ax[0, 1].grid()
+
+# Stellar pressure on HI + HI self-grav
+
+vals_m33, bins_m33 = \
+    np.histogram(np.log10(pext_on_gmc_5beam[3][co_mask].value +
+                          pext_on_gmc_5beam[4][co_mask].value),
+                 bins=10,
+                 weights=(co_surfdens + hi_surfdens).value[co_mask],
+                 density=True)
+
+ax[1, 1].plot((bins_m33[1:] + bins_m33[:-1]) * 0.5,
+              np.cumsum(vals_m33) / vals_m33.sum(),
+              drawstyle='steps-mid',
+              alpha=0.5,
+              label='M33 (380 pc HI)')
+
+p_4540 = return_finite(tab_ngc4540, "P_DE^atom")
+vals_4540, bins_4540 = \
+    histogram(np.log10(p_4540),
+              bins='knuth')
+ax[1, 1].plot((bins_4540[1:] + bins_4540[:-1]) * 0.5,
+              np.cumsum(vals_4540) / vals_4540.sum(),
+              drawstyle='steps-mid',
+              alpha=0.5,
+              label='NGC 4540')
+
+p_5042 = return_finite(tab_ngc5042, "P_DE^atom")
+vals_5042, bins_5042 = \
+    histogram(np.log10(p_5042),
+              bins='knuth')
+ax[1, 1].plot((bins_5042[1:] + bins_5042[:-1]) * 0.5,
+              np.cumsum(vals_5042) / vals_5042.sum(),
+              drawstyle='steps-mid',
+              alpha=0.5,
+              label='NGC 5042')
+
+p_5068 = return_finite(tab_ngc5068, "P_DE^atom")
+vals_5068, bins_5068 = \
+    histogram(np.log10(p_5068),
+              bins='knuth')
+ax[1, 1].plot((bins_5068[1:] + bins_5068[:-1]) * 0.5,
+              np.cumsum(vals_5068) / vals_5068.sum(),
+              drawstyle='steps-mid',
+              alpha=0.5,
+              label='NGC 5068')
+
+ax[1, 1].text(0.05, 0.85, "HI Press.",
+              transform=ax[1, 1].transAxes,
+              bbox={"boxstyle": "square", "facecolor": "w",
+                    "edgecolor": "gray"})
+ax[1, 1].grid()
+
+
+fig.text(0.5, 0.04, r"log Pressure (K cm$^{-3}$)",
+         ha='center', va='center')
+fig.text(0.06, 0.5, r'CDF',
+         ha='center', va='center', rotation='vertical')
+
+plt.savefig(osjoin(fig_path, "pext_m33_intweighted_phangs_cdf_comparison.pdf"))
+plt.savefig(osjoin(fig_path, "pext_m33_intweighted_phangs_cdf_comparison.png"))
+plt.close()
+
+# No significant difference...
+
+# What if I use the surface densities from Sun+2018
+
+tab_sun18 = Table.read(osjoin(phangs_data_dir, "sun18_perposn_measurements.txt"),
+                       format='ascii')
+
+Sigma_sun18_80pc = tab_sun18['Sigma'][(tab_sun18['Name'] == 'M33') &
+                                      (tab_sun18['Resolution'] == 80)]
+
+Sigma_sun18_120pc = tab_sun18['Sigma'][(tab_sun18['Name'] == 'M33') &
+                                       (tab_sun18['Resolution'] == 120)]
+
+# Also compare those above the completeness threshold
+Sigma_sun18_80pc_comp = tab_sun18['Sigma'][(tab_sun18['Name'] == 'M33') &
+                                           (tab_sun18['Resolution'] == 80) &
+                                           (tab_sun18['Mask2'] == "True")]
+
+Sigma_sun18_120pc_comp = tab_sun18['Sigma'][(tab_sun18['Name'] == 'M33') &
+                                            (tab_sun18['Resolution'] == 120) &
+                                            (tab_sun18['Mask2'] == "True")]
+
+
+twocolumn_twopanel_figure()
+
+fig, ax = plt.subplots(1, 2, sharex=True, sharey=True)
+
+vals_co_sd_m33, bins_co_sd_m33 = \
+    histogram(co_surfdens[co_mask].value,
+              bins='knuth')
+
+vals_sun18_80pc, bins_sun18_80pc = \
+    histogram(Sigma_sun18_80pc,
+              bins='knuth')
+
+vals_sun18_120pc, bins_sun18_120pc = \
+    histogram(Sigma_sun18_120pc,
+              bins='knuth')
+
+ax[0].plot(np.log10((bins_co_sd_m33[1:] + bins_co_sd_m33[:-1]) * 0.5),
+           np.cumsum(vals_co_sd_m33) / vals_co_sd_m33.sum(),
+           drawstyle='steps-mid',
+           alpha=0.5,
+           label='LOS 80 pc')
+# Scaling resolution to 840 kpc distance
+ax[0].plot(np.log10((bins_sun18_80pc[1:] + bins_sun18_80pc[:-1]) * 0.5),
+           np.cumsum(vals_sun18_80pc) / vals_sun18_80pc.sum(),
+           drawstyle='steps-mid',
+           alpha=0.5,
+           label='Sun+18 ~70 pc')
+
+ax[0].plot(np.log10((bins_sun18_120pc[1:] + bins_sun18_120pc[:-1]) * 0.5),
+           np.cumsum(vals_sun18_120pc) / vals_sun18_120pc.sum(),
+           drawstyle='steps-mid',
+           alpha=0.5,
+           label='Sun+18 ~110 pc')
+
+ax[0].grid()
+ax[0].set_xlabel(r"log $\Sigma_{\rm H2}$ (M$_{\odot}$ / pc$^2$)")
+
+# W/ completeness cuts
+
+vals_sun18_80pc, bins_sun18_80pc = \
+    histogram(Sigma_sun18_80pc_comp,
+              bins='knuth')
+
+vals_sun18_120pc, bins_sun18_120pc = \
+    histogram(Sigma_sun18_120pc_comp,
+              bins='knuth')
+
+ax[1].plot(np.log10((bins_co_sd_m33[1:] + bins_co_sd_m33[:-1]) * 0.5),
+           np.cumsum(vals_co_sd_m33) / vals_co_sd_m33.sum(),
+           drawstyle='steps-mid',
+           alpha=0.5,
+           label='LOS 80 pc')
+# Scaling resolution to 840 kpc distance
+ax[1].plot(np.log10((bins_sun18_80pc[1:] + bins_sun18_80pc[:-1]) * 0.5),
+           np.cumsum(vals_sun18_80pc) / vals_sun18_80pc.sum(),
+           drawstyle='steps-mid',
+           alpha=0.5,
+           label='Sun+18 ~70 pc')
+
+ax[1].plot(np.log10((bins_sun18_120pc[1:] + bins_sun18_120pc[:-1]) * 0.5),
+           np.cumsum(vals_sun18_120pc) / vals_sun18_120pc.sum(),
+           drawstyle='steps-mid',
+           alpha=0.5,
+           label='Sun+18 ~110 pc')
+
+ax[1].grid()
+ax[1].set_xlabel(r"log $\Sigma_{\rm H2}$ (M$_{\odot}$ / pc$^2$)")
+ax[1].legend(frameon=True)
+
+plt.tight_layout()
+
+plt.savefig(osjoin(fig_path, "m33_co_surfdens_compare_to_sun18.pdf"))
+plt.savefig(osjoin(fig_path, "m33_co_surfdens_compare_to_sun18.png"))
+plt.close()
+
+# The LOS are dominated by many more low SD LOS. The difference gets
+# worse w/ completeness cuts.
+
+# Calculate the GMC pressure with the different surface densities
+import astropy.constants as con
+
+
+def gmc_pressure(Sigma_gmc):
+
+    f = 3 / 8.
+
+    P_GMC = f * np.pi * (con.G * Sigma_gmc**2).to(u.dyne / u.cm**2)
+    return (P_GMC / con.k_B).to(u.cm**-3 * u.K)
+
+
+twocolumn_twopanel_figure()
+
+fig, ax = plt.subplots(1, 2, sharex=True, sharey=True)
+
+vals_m33, bins_m33 = \
+    histogram(np.log10(pext_on_gmc[1][co_mask].value),
+              bins='knuth')
+
+vals_sun18_80pc, bins_sun18_80pc = \
+    histogram(np.log10(gmc_pressure(Sigma_sun18_80pc.quantity).value),
+              bins='knuth')
+
+vals_sun18_120pc, bins_sun18_120pc = \
+    histogram(np.log10(gmc_pressure(Sigma_sun18_120pc.quantity).value),
+              bins='knuth')
+
+ax[0].plot((bins_m33[1:] + bins_m33[:-1]) * 0.5,
+           np.cumsum(vals_m33) / vals_m33.sum(),
+           drawstyle='steps-mid',
+           alpha=0.5,
+           label='LOS 80 pc')
+# Scaling resolution to 840 kpc distance
+ax[0].plot((bins_sun18_80pc[1:] + bins_sun18_80pc[:-1]) * 0.5,
+           np.cumsum(vals_sun18_80pc) / vals_sun18_80pc.sum(),
+           drawstyle='steps-mid',
+           alpha=0.5,
+           label='Sun+18 ~70 pc')
+
+ax[0].plot((bins_sun18_120pc[1:] + bins_sun18_120pc[:-1]) * 0.5,
+           np.cumsum(vals_sun18_120pc) / vals_sun18_120pc.sum(),
+           drawstyle='steps-mid',
+           alpha=0.5,
+           label='Sun+18 ~110 pc')
+
+ax[0].grid()
+ax[0].set_xlabel(r"log Pressure (K cm$^{-3}$)")
+
+# W/ completeness cuts
+
+vals_sun18_80pc, bins_sun18_80pc = \
+    histogram(np.log10(gmc_pressure(Sigma_sun18_80pc_comp.quantity).value),
+              bins='knuth')
+
+vals_sun18_120pc, bins_sun18_120pc = \
+    histogram(np.log10(gmc_pressure(Sigma_sun18_120pc_comp.quantity).value),
+              bins='knuth')
+
+ax[1].plot((bins_m33[1:] + bins_m33[:-1]) * 0.5,
+           np.cumsum(vals_m33) / vals_m33.sum(),
+           drawstyle='steps-mid',
+           alpha=0.5,
+           label='LOS 80 pc')
+# Scaling resolution to 840 kpc distance
+ax[1].plot((bins_sun18_80pc[1:] + bins_sun18_80pc[:-1]) * 0.5,
+           np.cumsum(vals_sun18_80pc) / vals_sun18_80pc.sum(),
+           drawstyle='steps-mid',
+           alpha=0.5,
+           label='Sun+18 ~70 pc')
+
+ax[1].plot((bins_sun18_120pc[1:] + bins_sun18_120pc[:-1]) * 0.5,
+           np.cumsum(vals_sun18_120pc) / vals_sun18_120pc.sum(),
+           drawstyle='steps-mid',
+           alpha=0.5,
+           label='Sun+18 ~110 pc')
+
+ax[1].grid()
+ax[1].set_xlabel(r"log Pressure (K cm$^{-3}$)")
+ax[1].legend(frameon=True)
+
+plt.tight_layout()
+
+plt.savefig(osjoin(fig_path, "m33_gmc_pressure_compare_to_sun18.pdf"))
+plt.savefig(osjoin(fig_path, "m33_gmc_pressure_compare_to_sun18.png"))
+plt.close()
+
+# And weighted
+
+onecolumn_figure()
+
+vals_m33, bins_m33 = \
+    histogram(np.log10(pext_on_gmc[1][co_mask].value),
+              bins=15, weights=co_surfdens[co_mask].value)
+
+# W/ completeness cuts
+
+vals_sun18_80pc, bins_sun18_80pc = \
+    histogram(np.log10(gmc_pressure(Sigma_sun18_80pc_comp.quantity).value),
+              bins=15, weights=Sigma_sun18_80pc_comp.quantity.value)
+
+vals_sun18_120pc, bins_sun18_120pc = \
+    histogram(np.log10(gmc_pressure(Sigma_sun18_120pc_comp.quantity).value),
+              bins=15, weights=Sigma_sun18_120pc_comp.quantity.value)
+
+plt.plot((bins_m33[1:] + bins_m33[:-1]) * 0.5,
+         np.cumsum(vals_m33) / vals_m33.sum(),
+         drawstyle='steps-mid',
+         alpha=0.5,
+         label='LOS 80 pc')
+# Scaling resolution to 840 kpc distance
+plt.plot((bins_sun18_80pc[1:] + bins_sun18_80pc[:-1]) * 0.5,
+         np.cumsum(vals_sun18_80pc) / vals_sun18_80pc.sum(),
+         drawstyle='steps-mid',
+         alpha=0.5,
+         label='Sun+18 ~70 pc')
+
+plt.plot((bins_sun18_120pc[1:] + bins_sun18_120pc[:-1]) * 0.5,
+         np.cumsum(vals_sun18_120pc) / vals_sun18_120pc.sum(),
+         drawstyle='steps-mid',
+         alpha=0.5,
+         label='Sun+18 ~110 pc')
+
+plt.grid()
+plt.xlabel(r"log Pressure (K cm$^{-3}$)")
+plt.legend(frameon=True)
+
+plt.tight_layout()
+
+plt.savefig(osjoin(fig_path, "m33_gmc_pressure_weightedhist_compare_to_sun18.pdf"))
+plt.savefig(osjoin(fig_path, "m33_gmc_pressure_weightedhist_compare_to_sun18.png"))
+plt.close()

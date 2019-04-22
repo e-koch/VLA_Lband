@@ -53,13 +53,13 @@ if split_lines:
         os.mkdir(lines_folder)
 
     # Copy the cont.dat file from the repo
-    source_path = os.path.expanduser("~/Dropbox/code_development/VLA_Lband/17B-162/pipeline_scripts/cont.dat")
+    source_path = os.path.expanduser("~/ownCloud/code_development/VLA_Lband/17B-162/pipeline_scripts/cont.dat")
     copyfile(source_path, lines_folder + "/cont.dat")
 
     # Check for a flag template and copy if in the repo
     # Naming conventions is 17B-162_month_day_year_lines_flags.txt
     flag_filename = "{}_lines_flags.txt".format(parentdir)
-    flag_path = os.path.expanduser("~/Dropbox/code_development/VLA_Lband/17B-162/pipeline_scripts/track_flagging")
+    flag_path = os.path.expanduser("~/ownCloud/code_development/VLA_Lband/17B-162/pipeline_scripts/track_flagging")
     full_flag_filename = os.path.join(flag_path, flag_filename)
 
     if os.path.exists(full_flag_filename):
@@ -88,7 +88,7 @@ if split_cont:
     # Check for a flag template and copy if in the repo
     # Naming conventions is 17B-162_month_day_year_lines_flags.txt
     flag_filename = "{}_continuum_flags.txt".format(parentdir)
-    flag_path = os.path.expanduser("~/Dropbox/code_development/VLA_Lband/17B-162/pipeline_scripts/track_flagging")
+    flag_path = os.path.expanduser("~/ownCloud/code_development/VLA_Lband/17B-162/pipeline_scripts/track_flagging")
     full_flag_filename = os.path.join(flag_path, flag_filename)
     if os.path.exists(full_flag_filename):
         copyfile(full_flag_filename,

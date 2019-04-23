@@ -29,4 +29,4 @@ echo "Running SPW "$spw
 
 spw=$SLURM_ARRAY_TASK_ID
 
-$HOME/casa-release-5.3.0-143.el7/bin/mpicasa -n 32 $HOME/casa-release-5.3.0-143.el7/bin/casa --nologger --nogui --log2term --nocrashreport -c $HOME/code/VLA_Lband/16B/16B-242/imaging/test_line_imaging.py $spw
+$HOME/casa-release-5.4.1-32.el7/bin/mpicasa -n 32 $HOME/casa-release-5.4.1-32.el7/bin/casa --nologger --nogui --log2term --nocrashreport -c $HOME/code/VLA_Lband/16B/16B-242/imaging/test_line_imaging.py $spw

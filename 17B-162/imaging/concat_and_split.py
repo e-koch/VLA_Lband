@@ -23,11 +23,11 @@ split(vis='17B-162_lines_all.ms', outputvis='17B-162_lines.ms',
       datacolumn='corrected',
       keepflags=False)
 
-default('split')
-split(vis='17B-162_lines_all.ms',
-      outputvis='17B-162_lines_cals.ms',
-      field='J0319+4130,*3C138,*3C48',
-      datacolumn='corrected',
-      keepflags=False)
+# default('split')
+# split(vis='17B-162_lines_all.ms',
+#       outputvis='17B-162_lines_cals.ms',
+#       field='J0319+4130,*3C138,*3C48',
+#       datacolumn='corrected',
+#       keepflags=False)
 
-os.system("rm -r 17B-162_lines_all.ms")
+# os.system("rm -r 17B-162_lines_all.ms")

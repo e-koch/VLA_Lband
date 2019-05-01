@@ -28,7 +28,7 @@ echo "Running SPW "$spw
 
 spw=5
 
-$HOME/casa-release-5.3.0-143.el7/bin/mpicasa -n 32 $HOME/casa-release-5.3.0-143.el7/bin/casa --nologger --nogui --log2term --nocrashreport -c $HOME/code/VLA_Lband/17B-162/imaging/test_line_imaging.py $spw
+$HOME/casa-release-5.4.1-32.el7/bin/mpicasa -n 32 $HOME/casa-release-5.4.1-32.el7/bin/casa --nologger --nogui --log2term --nocrashreport -c $HOME/code/VLA_Lband/17B-162/imaging/test_line_imaging.py $spw
 
 # Copy the dirty_cube folder into project space
 # cp -R $scratch_path/dirty_cube $project_path

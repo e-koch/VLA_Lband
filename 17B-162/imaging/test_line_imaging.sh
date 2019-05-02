@@ -3,8 +3,10 @@
 #SBATCH --mem=1547000M
 #SBATCH --ntasks-per-node=32
 #SBATCH --nodes=1
-#SBATCH --job-name=M33_dirty_cube-%J
-#SBATCH --output=casa-m33_dirtycube-%J.out
+#SBATCH --job-name=M33_17B-162_dirty_cube-%A-%a
+#SBATCH --output=casa-m33_17B-162_dirtycube-%A-%a.out
+#SBATCH --array=0-9%1
+
 export OMP_NUM_THREADS=$SLURM_JOB_CPUS_PER_NODE
 
 module restore my_default
@@ -26,7 +28,7 @@ export DISPLAY=:1
 echo "OMP_NUM_THREADS "$OMP_NUM_THREADS
 echo "Running SPW "$spw
 
-spw=5
+spw=$SLURM_ARRAY_TASK_ID
 
 $HOME/casa-release-5.4.1-32.el7/bin/mpicasa -n 32 $HOME/casa-release-5.4.1-32.el7/bin/casa --nologger --nogui --log2term --nocrashreport -c $HOME/code/VLA_Lband/17B-162/imaging/test_line_imaging.py $spw
 

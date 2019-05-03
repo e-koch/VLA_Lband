@@ -46,9 +46,12 @@ casalog.post("Image size: {}".format(myimagesize))
 # Image ALL channels in the MS. Just looking for reduction issues
 default('tclean')
 
+chan_width = {0: 5, 1: 3, 2: 3, 3: 5, 4: 3,
+              5: 5, 6: 5, 7: 5, 8: 3, 9: 3}
+
 # Don't image the channel edges
 pad_chan = int(np.ceil(linespw_dict[spw_num][2] * 0.05))
-num_chan = int(linespw_dict[spw_num][2]) - 2 * pad_chan
+num_chan = int((linespw_dict[spw_num][2] - 2 * pad_chan) / chan_width[spw_num])
 
 tclean(vis=myvis,
        datacolumn='corrected',
@@ -61,7 +64,7 @@ tclean(vis=myvis,
        cell=mycellsize,
        specmode='cube',
        start=pad_chan,
-       width=1,
+       width=chan_width[spw_num],
        nchan=num_chan,
        startmodel=None,
        gridder='mosaic',

@@ -24,7 +24,7 @@ casalog.post("On SPW {}".format(spw_num))
 # Note that the combined MS already only includes the calibrated data
 # with all flagged data removed.
 
-out_vis = "17B-162_{1}_spw_{2}_LSRK.ms"\
+out_vis = "17B-162_{0}_spw_{1}_LSRK.ms"\
     .format(linespw_dict[spw_num][0], spw_num)
 
 

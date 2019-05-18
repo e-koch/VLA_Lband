@@ -26,7 +26,7 @@ mypblimit = 0.2
 
 # Capture all emission near centre of galaxy
 start_vel = "-110km/s"
-width_vel = "1km/s"
+width_vel = "-1km/s"
 nchans = 130
 
 if not os.path.exists(output_path):

@@ -181,6 +181,42 @@ plt.savefig(osjoin(fig_path, "coldens_map_14B088_feather.png"))
 
 plt.close()
 
+# Make a colour version
+ax = plt.subplot(111)  # , projection=moment0_wcs)
+cmap = plt.cm.afmhot_r
+cmap.set_bad(color='w')
+im = ax.imshow(np.ma.array(moment0_coldens_feath, mask=np.isnan(moment0_coldens_feath)),
+               origin='lower',
+               interpolation='nearest',
+               cmap=cmap,
+               vmax=np.nanpercentile(moment0_coldens_feath, 97))
+# ax.set_ylabel("DEC (J2000)")
+# ax.set_xlabel("RA (J2000)")
+# lon = ax.coords[0]
+# lon.set_major_formatter('hh:mm')
+# ax.add_patch(beam.ellipse_to_plot(int(0.123 * moment0.shape[0]),
+#                                   int(0.05 * moment0.shape[1]), pixscale))
+
+# formatter = tkr.ScalarFormatter(useMathText=True)
+# formatter.set_scientific(True)
+# formatter.set_powerlimits((-2, 2))
+
+cbar = plt.colorbar(im) # , format=formatter)
+# cbar.set_label(r"HI Column Density (cm$^{-2}$)")
+
+# Scale bar
+length = (1. * u.kpc / (840 * u.kpc)).to(u.deg, u.dimensionless_angles())
+length_pix = length.value / np.abs(moment0.header['CDELT2'])
+ax.plot([200, 200], [200 - length_pix / 2., 200 + length_pix / 2.], 'k',
+        linewidth=2)
+ax.text(80, 200,
+        "1 kpc", color='k', va='center')
+
+plt.savefig(osjoin(fig_path, "coldens_map_14B088_feather_colour.pdf"))
+plt.savefig(osjoin(fig_path, "coldens_map_14B088_feather_colour.png"))
+
+plt.close()
+
 # Make a version with the example spectra in Paper I's figure positions
 example_posns = [(924, 445), (986, 505), (624, 955), (651, 735),
                  (659, 745), (802, 640)]

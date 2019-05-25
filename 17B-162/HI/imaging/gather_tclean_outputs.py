@@ -52,7 +52,10 @@ for i in chan_nums:
         if len(npy_file) == 0:
             continue
 
-        out_dict = np.load(npy_file[0]).item()
+        # out_dict = np.load(npy_file[0]).item()
+        # When loading in python3:
+        out_dict = np.load(npy_file[0], allow_pickle=True, encoding='latin1').item()
+
         out_dict['stage'] = 1
 
     out_dict['channel'] = i

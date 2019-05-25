@@ -218,18 +218,25 @@ for chan in range(start, nchan + 1):
     if not os.path.exists(ind_chan_path):
         os.mkdir(ind_chan_path)
 
-    sevenB_split_msname = "{0}_channel_{1}".format(seventeenB_ms, chan)
+    sevenB_split_msname = "{0}_channel_{1}.ms".format(seventeenB_ms, chan)
 
     start_17B = chan * navg_channel + start_17B_chan
     end_17B = (chan + 1) * navg_channel + start_17B_chan - 1
 
+    if navg_channel == 1:
+        # These should equal when not averaging channels
+        assert start_17B == end_17B
+        spw_selec = "0:{0}".format(start_17B)
+    else:
+        spw_selec = '0:{0}~{1}'.format(start_17B, end_17B)
+
     mstransform(vis=seventeenB_ms,
-                outputvis=os.path.join(ind_chan_path, sevenB_split_msname + ".ms"),
+                outputvis=os.path.join(ind_chan_path, sevenB_split_msname),
                 datacolumn='data',
                 mode='channel',
                 field=myfields,
-                spw='0:{0}~{1}'.format(start_17B, end_17B),
-                chanaverage=True,
+                spw=spw_selec,
+                chanaverage=True if navg_channel > 1 else False,
                 chanbin=navg_channel)
 
     fourB_split_msname = "{0}_channel_{1}.ms".format(fourteenB_ms, chan)

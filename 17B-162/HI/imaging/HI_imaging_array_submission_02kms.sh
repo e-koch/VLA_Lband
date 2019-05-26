@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --time=15:00:00
+#SBATCH --time=30:00:00
 #SBATCH --mem=128000M
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=32

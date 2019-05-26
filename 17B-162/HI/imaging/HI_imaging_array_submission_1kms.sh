@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --time=15:00:00
+#SBATCH --time=30:00:00
 #SBATCH --mem=128000M
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=32
@@ -58,7 +58,7 @@ for (( chan_num = $start_chan; chan_num < $end_chan; chan_num++ )); do
 
     echo "Running channel "$chan_num
 
-    $HOME/casa-release-5.3.0-143.el7/bin/mpicasa -n 8 $HOME/casa-release-5.3.0-143.el7/bin/casa --nologger --nogui --logfile $scratch_path/HI_contsub_10kms/casa_M33_HI_14B_17B_1kms_${chan_num}_${SLURM_JOB_ID}_$(date "+%Y%m%d-%H%M%S")_stage${stage}.log --nocrashreport -c $script_name $chan_num $param_file "HI_contsub_10kms" &
+    $HOME/casa-release-5.5.0-149.el7/bin/mpicasa -n 8 $HOME/casa-release-5.5.0-149.el7/bin/casa --nologger --nogui --logfile $scratch_path/HI_contsub_10kms/casa_M33_HI_14B_17B_1kms_${chan_num}_${SLURM_JOB_ID}_$(date "+%Y%m%d-%H%M%S")_stage${stage}.log --nocrashreport -c $script_name $chan_num $param_file "HI_contsub_1_0kms" &
     pids+=" $!"
 
     # Avoid starting up multiple CASA sessions at once. Runs into ipython database issues.

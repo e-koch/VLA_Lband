@@ -259,3 +259,10 @@ for chan in range(start, nchan + 1):
                 spw=spw_selec,
                 chanaverage=True if navg_channel > 1 else False,
                 chanbin=navg_channel)
+
+    # tclean calls have been ignoring the C-config data
+    # concat the channel MSs for imaging
+    concat(vis=[os.path.join(ind_chan_path, sevenB_split_msname),
+                os.path.join(ind_chan_path, fourB_split_msname)],
+           concatvis=os.path.join(ind_chan_path,
+                                  '14B_17B_channel_{}.ms'.format(chan)))

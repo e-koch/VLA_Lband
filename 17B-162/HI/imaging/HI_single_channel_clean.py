@@ -6,6 +6,7 @@ from distutils.dir_util import mkpath
 import re
 import numpy as np
 import time
+import  socket
 
 from tasks import tclean, tget
 
@@ -14,8 +15,10 @@ Cleans a single channel given the channel name
 '''
 
 # Load in the SPW dict in the repo on cedar
-execfile(os.path.expanduser("~/code/VLA_Lband/17B-162/spw_setup.py"))
-# execfile(os.path.expanduser("~/Dropbox/code_development/VLA_Lband/17B-162/spw_setup.py"))
+if socket.gethostname().lower() == 'segfault':
+    execfile(os.path.expanduser("~/ownCloud/code_development/VLA_Lband/17B-162/spw_setup.py"))
+else:
+    execfile(os.path.expanduser("~/code/VLA_Lband/17B-162/spw_setup.py"))
 
 chan_num = int(sys.argv[-3])
 
@@ -30,9 +33,12 @@ channel_path = sys.argv[-1]
 tget(tclean, parameter_file)
 
 # Append the full channel path to the vis's
-vis = [os.path.join(channel_path, "channel_{}".format(chan_num),
-                    "{0}_channel_{1}".format(mss, chan_num))
-       for mss in vis]
+# vis = [os.path.join(channel_path, "channel_{}".format(chan_num),
+#                     "{0}_channel_{1}.ms".format(mss, chan_num))
+#        for mss in vis]
+
+vis = os.path.join(channel_path, "channel_{}".format(chan_num),
+                   "14B_17B_HI_contsub_channel_{}.ms".format(chan_num))
 
 # Get the output path and create directories, if needed, based on
 # the imagename
@@ -113,7 +119,9 @@ if mask is not None and len(mask) > 0 and usemask == "user":
         raise ValueError("Given mask name ({0}) does not exist".format(mask))
 
 # Grab freq from the SPW dict
-spw_num = int(spw)
+# spw_num = int(spw)
+# We're only imaging HI here
+spw_num = 0
 
 # Only update a few parameters, as needed
 
@@ -223,6 +231,7 @@ paramList = ImagerParameters(msname=vis,
                              minbeamfrac=minbeamfrac,
                              cutthreshold=cutthreshold,
                              growiterations=growiterations,
+                             fastnoise=fastnoise,
                              dogrowprune=True,
                              minpercentchange=0.0,
                              verbose=True,
@@ -300,7 +309,13 @@ try:
 
         # (7) Run the iteration loops
         mincyc_num = 1
-        while (not imager.hasConverged()):
+
+        # Add an additional stopping criteria when the model flux between
+        # major cycles changes by less than a set threshold.
+        # Setting threshold to be 0.1%
+        delta_model_flux_thresh = 1e-3
+
+        while (not imager.hasConverged()) or (not model_flux_criterion):
             casalog.post("On minor cycle {}".format(mincyc_num))
 
             t0_l = time.time()
@@ -314,6 +329,17 @@ try:
             t3_l = time.time()
             casalog.post("Time for major cycle: {}".format(mincyc_num + 1) +
                          "%.2f" % (t3_l - t2_l) + " sec")
+
+            summ = imager.IBtool.getiterationsummary()
+
+            if mincyc_num == 0:
+                model_flux_criterion = False
+            else:
+                model_flux_prev = summ['summaryminor'][2,:][-2]
+                model_flux = summ['summaryminor'][2,:][-1]
+
+                model_flux_criterion = np.allclose(model_flux, model_flux_prev,
+                                                   rtol=delta_model_flux_thresh)
 
             imager.updateMask()
             mincyc_num += 1

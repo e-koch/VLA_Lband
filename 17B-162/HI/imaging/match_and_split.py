@@ -284,7 +284,7 @@ for chan in range(start, nchan + 1):
     # clusters don't like that.
     concat_ms = os.path.join(ind_chan_path,
                              '14B_17B_channel_{}.ms'.format(chan))
-    split(vis=concat_mms, outputvis=concat_ms, keep_mms=False)
+    split(vis=concat_mms, outputvis=concat_ms, keepmms=False)
 
     # Clean-up temporary MS
     os.system("rm -rf {}".format(concat_mms))

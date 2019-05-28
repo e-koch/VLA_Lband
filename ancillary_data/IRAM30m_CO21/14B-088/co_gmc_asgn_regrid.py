@@ -157,7 +157,47 @@ def bayes_linear(x, y, x_err, y_err, nWalkers=10, nBurn=100, nSample=1000,
     return params, error_intervals, sampler
 
 
-twocolumn_figure()
+# Make a single total pop. figure
+onecolumn_figure()
+fig = plt.figure()
+
+ax = plt.subplot(111)
+
+hist2d(tab['sigma_HI'][good_pts] / 1000.,
+       np.array(tab['sigma_CO'][good_pts]) / 1000.,
+       bins=10,
+       data_kwargs={"alpha": 0.5},
+       ax=ax, range=[(2, 12), (2, 12)])
+
+slope_ratio = 0.56
+ax.plot([2, 12], [2. * slope_ratio, 12. * slope_ratio],
+        '--', color=sb.color_palette()[2], linewidth=3,
+        label=r'Ratio Fit: $\sigma_{\rm CO} = 0.56\, \sigma_{\rm HI}$')
+
+ax.plot([2, 12], [2, 12], '-', linewidth=3, alpha=0.8,
+        color=sb.color_palette()[3],
+        label=r'$\sigma_{\rm CO} = \sigma_{\rm HI}$')
+
+ax.axhline(2.6, color=sb.color_palette()[4], linestyle=':',
+           alpha=0.5, linewidth=3)
+ax.axhline(8.0, color=sb.color_palette()[4], linestyle=':',
+           alpha=0.5, linewidth=3)
+
+ax.set_xlabel(r"$\sigma_{\rm HI}$ (km/s)")
+ax.set_ylabel(r"$\sigma_{\rm CO}$ (km/s)")
+
+ax.grid()
+
+ax.legend(frameon=True)
+
+plt.tight_layout()
+
+plt.savefig(osjoin(fig_path, "sigma_HI_vs_H2_equalaxes.png"))
+plt.savefig(osjoin(fig_path, "sigma_HI_vs_H2_equalaxes.pdf"))
+plt.close()
+
+# twocolumn_figure()
+twocolumn_twopanel_figure()
 
 # Original included the "D" column. But since it's poorly
 # sampled, remove from plotting.
@@ -221,6 +261,8 @@ for c_type, ax in zip(['A', 'B', 'C'], axs.ravel()):
 axs[1].set_xlabel(r"$\sigma_{\rm HI}$ (km/s)")
 axs[0].set_ylabel(r"$\sigma_{\rm CO}$ (km/s)")
 
+plt.tight_layout()
+
 # axs[1, 0].set_xlabel(r"$\sigma_{\rm HI}$ (km/s)")
 # axs[1, 1].set_xlabel(r"$\sigma_{\rm HI}$ (km/s)")
 # axs[0, 0].set_ylabel(r"$\sigma_{\rm CO}$ (km/s)")
@@ -229,6 +271,8 @@ axs[0].set_ylabel(r"$\sigma_{\rm CO}$ (km/s)")
 plt.savefig(osjoin(fig_path, "sigma_HI_vs_H2_w_cloudtype.png"))
 plt.savefig(osjoin(fig_path, "sigma_HI_vs_H2_w_cloudtype.pdf"))
 plt.close()
+
+print(argh)
 
 # for i, c_type in enumerate(['A', 'B', 'C', 'D']):
 for i, c_type in enumerate(['A', 'B', 'C']):

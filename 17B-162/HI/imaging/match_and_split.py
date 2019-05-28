@@ -27,7 +27,7 @@ import sys
 from glob import glob
 import os
 
-from tasks import mstransform
+from tasks import mstransform, partition, split, concat
 
 # Use astropy's spectral conversion
 # Needs to be installed separately
@@ -62,32 +62,44 @@ else:
 
     concat_vis = "14B_17B_HI_LSRK.ms"
 
-# Old version
+# Create an MMS prior to splitting to that the split can be run in parallel
 
-# seventeenB_ms_regrid = "{0}.{1}.regrid".format(seventeenB_ms, chan_width_label)
+seventeenB_mms = "{0}.{1}.regrid".format(seventeenB_ms, chan_width_label)
 
-# if os.path.exists(seventeenB_ms_regrid):
-#     casalog.post("Found the regridded 17B MS. Skipping mstransform.")
-# else:
-#     casalog.post("Regridding 17B")
+if os.path.exists(seventeenB_mms):
+    casalog.post("Found the 17B MMS. Skipping mstransform.")
+else:
+    casalog.post("Regridding 17B")
 
-#     mstransform(vis=seventeenB_ms,
-#                 outputvis=seventeenB_ms_regrid,
-#                 datacolumn='data',
-#                 spw='0', regridms=True, mode='velocity', veltype='radio',
-#                 start="{}km/s".format(start_vel),
-#                 width="{}km/s".format(chan_width), nchan=n_chan,
-#                 interpolation='fftshift', restfreq='1.420405752GHz',
-#                 createmms=True, separationaxis='auto', numsubms=31)
+    partition(vis=seventeenB_ms,
+              outputvis=seventeenB_mms,
+              createmms=True,
+              flagbackup=False,
+              numsubms=31)
 
-# # Now the 14B data. Only keep the fields used in the 17B data
-# fourteenB_ms_regrid = "{0}.{1}.regrid".format(fourteenB_ms, chan_width_label)
+    # mstransform(vis=seventeenB_ms,
+    #             outputvis=seventeenB_mms,
+    #             datacolumn='data',
+    #             spw='0', regridms=True, mode='velocity', veltype='radio',
+    #             start="{}km/s".format(start_vel),
+    #             width="{}km/s".format(chan_width), nchan=n_chan,
+    #             interpolation='fftshift', restfreq='1.420405752GHz',
+    #             createmms=True, separationaxis='auto', numsubms=31)
 
-# if os.path.exists(fourteenB_ms_regrid):
-#     casalog.post("Found the regridded 14B MS. Skipping mstransform.")
-# else:
+# Now the 14B data. Only keep the fields used in the 17B data
+fourteenB_mms = "{0}.{1}.regrid".format(fourteenB_ms, chan_width_label)
 
-#     casalog.post("Regridding 14B")
+if os.path.exists(fourteenB_mms):
+    casalog.post("Found the regridded 14B MS. Skipping mstransform.")
+else:
+
+    casalog.post("Regridding 14B")
+
+    partition(vis=fourteenB_ms,
+              outputvis=fourteenB_mms,
+              createmms=True,
+              flagbackup=False,
+              numsubms=31)
 
 #     # Also convert th 14B data to an MMS w/ the same number of sub-MS as 17B
 #     mstransform(vis=fourteenB_ms,
@@ -230,7 +242,7 @@ for chan in range(start, nchan + 1):
     else:
         spw_selec = '0:{0}~{1}'.format(start_17B, end_17B)
 
-    mstransform(vis=seventeenB_ms,
+    mstransform(vis=seventeenB_mms,
                 outputvis=os.path.join(ind_chan_path, sevenB_split_msname),
                 datacolumn='data',
                 mode='channel',
@@ -251,7 +263,7 @@ for chan in range(start, nchan + 1):
     else:
         spw_selec = '0:{0}~{1}'.format(start_14B, end_14B)
 
-    mstransform(vis=fourteenB_ms,
+    mstransform(vis=fourteenB_mms,
                 outputvis=os.path.join(ind_chan_path, fourB_split_msname),
                 datacolumn='data',
                 mode='channel',
@@ -262,7 +274,19 @@ for chan in range(start, nchan + 1):
 
     # tclean calls have been ignoring the C-config data
     # concat the channel MSs for imaging
+    concat_mms = os.path.join(ind_chan_path,
+                              '14B_17B_channel_{}.mms'.format(chan))
     concat(vis=[os.path.join(ind_chan_path, sevenB_split_msname),
                 os.path.join(ind_chan_path, fourB_split_msname)],
-           concatvis=os.path.join(ind_chan_path,
-                                  '14B_17B_channel_{}.ms'.format(chan)))
+           concatvis=concat_mms)
+
+    # Convert the final MMS to an MS b/c an MMS uses a lot of files and
+    # clusters don't like that.
+    concat_ms = os.path.join(ind_chan_path,
+                             '14B_17B_channel_{}.ms'.format(chan))
+    split(vis=concat_mms, outputvis=concat_ms, keep_mms=False)
+
+    # Clean-up temporary MS
+    os.system("rm -rf {}".format(concat_mms))
+    os.system("rm -rf {}".format(os.path.join(ind_chan_path, sevenB_split_msname)))
+    os.system("rm -rf {}".format(os.path.join(ind_chan_path, fourB_split_msname)))

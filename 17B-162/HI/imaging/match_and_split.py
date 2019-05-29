@@ -27,7 +27,7 @@ import sys
 from glob import glob
 import os
 
-from tasks import mstransform, partition, split, concat
+from tasks import mstransform, partition, split, virtualconcat
 
 # Use astropy's spectral conversion
 # Needs to be installed separately
@@ -276,9 +276,9 @@ for chan in range(start, nchan + 1):
     # concat the channel MSs for imaging
     concat_mms = os.path.join(ind_chan_path,
                               '14B_17B_channel_{}.mms'.format(chan))
-    concat(vis=[os.path.join(ind_chan_path, sevenB_split_msname),
-                os.path.join(ind_chan_path, fourB_split_msname)],
-           concatvis=concat_mms)
+    virtualconcat(vis=[os.path.join(ind_chan_path, sevenB_split_msname),
+                       os.path.join(ind_chan_path, fourB_split_msname)],
+                  concatvis=concat_mms)
 
     # Convert the final MMS to an MS b/c an MMS uses a lot of files and
     # clusters don't like that.
@@ -288,5 +288,3 @@ for chan in range(start, nchan + 1):
 
     # Clean-up temporary MS
     os.system("rm -rf {}".format(concat_mms))
-    os.system("rm -rf {}".format(os.path.join(ind_chan_path, sevenB_split_msname)))
-    os.system("rm -rf {}".format(os.path.join(ind_chan_path, fourB_split_msname)))

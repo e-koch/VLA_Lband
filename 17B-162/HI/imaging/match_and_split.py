@@ -278,11 +278,11 @@ for chan in range(start, nchan + 1):
     # clusters don't like that.
     split(vis=os.path.join(ind_chan_path, sevenB_split_mmsname),
           outputvis=os.path.join(ind_chan_path, sevenB_split_msname),
-          keepmms=False)
+          keepmms=False, datacolumn='DATA')
 
     split(vis=os.path.join(ind_chan_path, fourB_split_mmsname),
           outputvis=os.path.join(ind_chan_path, fourB_split_msname),
-          keepmms=False)
+          keepmms=False, datacolumn='DATA')
 
 
     # tclean calls have been ignoring the C-config data

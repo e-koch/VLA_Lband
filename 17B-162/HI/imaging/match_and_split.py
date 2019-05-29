@@ -27,7 +27,7 @@ import sys
 from glob import glob
 import os
 
-from tasks import mstransform, partition, split, virtualconcat
+from tasks import mstransform, partition, split, concat
 
 # Use astropy's spectral conversion
 # Needs to be installed separately
@@ -231,6 +231,7 @@ for chan in range(start, nchan + 1):
         os.mkdir(ind_chan_path)
 
     sevenB_split_msname = "{0}_channel_{1}.ms".format(seventeenB_ms, chan)
+    sevenB_split_mmsname = "{0}_channel_{1}.mms".format(seventeenB_ms, chan)
 
     start_17B = chan * navg_channel + start_17B_chan
     end_17B = (chan + 1) * navg_channel + start_17B_chan - 1
@@ -243,7 +244,7 @@ for chan in range(start, nchan + 1):
         spw_selec = '0:{0}~{1}'.format(start_17B, end_17B)
 
     mstransform(vis=seventeenB_mms,
-                outputvis=os.path.join(ind_chan_path, sevenB_split_msname),
+                outputvis=os.path.join(ind_chan_path, sevenB_split_mmsname),
                 datacolumn='data',
                 mode='channel',
                 field=myfields,
@@ -252,6 +253,7 @@ for chan in range(start, nchan + 1):
                 chanbin=navg_channel)
 
     fourB_split_msname = "{0}_channel_{1}.ms".format(fourteenB_ms, chan)
+    fourB_split_mmsname = "{0}_channel_{1}.mms".format(fourteenB_ms, chan)
 
     start_14B = chan * navg_channel + start_14B_chan
     end_14B = (chan + 1) * navg_channel + start_14B_chan - 1
@@ -264,7 +266,7 @@ for chan in range(start, nchan + 1):
         spw_selec = '0:{0}~{1}'.format(start_14B, end_14B)
 
     mstransform(vis=fourteenB_mms,
-                outputvis=os.path.join(ind_chan_path, fourB_split_msname),
+                outputvis=os.path.join(ind_chan_path, fourB_split_mmsname),
                 datacolumn='data',
                 mode='channel',
                 field=myfields,
@@ -272,19 +274,27 @@ for chan in range(start, nchan + 1):
                 chanaverage=True if navg_channel > 1 else False,
                 chanbin=navg_channel)
 
-    # tclean calls have been ignoring the C-config data
-    # concat the channel MSs for imaging
-    concat_mms = os.path.join(ind_chan_path,
-                              '14B_17B_channel_{}.mms'.format(chan))
-    virtualconcat(vis=[os.path.join(ind_chan_path, sevenB_split_msname),
-                       os.path.join(ind_chan_path, fourB_split_msname)],
-                  concatvis=concat_mms)
-
     # Convert the final MMS to an MS b/c an MMS uses a lot of files and
     # clusters don't like that.
+    split(vis=os.path.join(ind_chan_path, sevenB_split_mmsname),
+          outputvis=os.path.join(ind_chan_path, sevenB_split_msname),
+          keepmms=False)
+
+    split(vis=os.path.join(ind_chan_path, fourB_split_mmsname),
+          outputvis=os.path.join(ind_chan_path, fourB_split_msname),
+          keepmms=False)
+
+
+    # tclean calls have been ignoring the C-config data
+    # concat the channel MSs for imaging
     concat_ms = os.path.join(ind_chan_path,
                              '14B_17B_channel_{}.ms'.format(chan))
-    split(vis=concat_mms, outputvis=concat_ms, keepmms=False)
+    concat(vis=[os.path.join(ind_chan_path, sevenB_split_msname),
+                os.path.join(ind_chan_path, fourB_split_msname)],
+           concatvis=concat_ms)
 
     # Clean-up temporary MS
-    os.system("rm -rf {}".format(concat_mms))
+    os.system("rm -rf {}".format(os.path.join(ind_chan_path, sevenB_split_mmsname)))
+    os.system("rm -rf {}".format(os.path.join(ind_chan_path, sevenB_split_msname)))
+    os.system("rm -rf {}".format(os.path.join(ind_chan_path, fourB_split_mmsname)))
+    os.system("rm -rf {}".format(os.path.join(ind_chan_path, fourB_split_msname)))

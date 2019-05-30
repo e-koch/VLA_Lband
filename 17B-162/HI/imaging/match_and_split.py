@@ -289,6 +289,12 @@ for chan in range(start, nchan + 1):
     # concat the channel MSs for imaging
     concat_ms = os.path.join(ind_chan_path,
                              '14B_17B_channel_{}.ms'.format(chan))
+
+    # If the concat ms already exists, delete it. Otherwise more data
+    # will be appended on
+    if os.path.exists(concat_ms):
+        os.system("rm -rf {}".format(concat_ms))
+
     concat(vis=[os.path.join(ind_chan_path, sevenB_split_msname),
                 os.path.join(ind_chan_path, fourB_split_msname)],
            concatvis=concat_ms)

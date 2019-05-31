@@ -28,4 +28,4 @@ cd $scratch_path
 Xvfb :1 &
 export DISPLAY=:1
 
-$HOME/casa-release-5.5.0-149.el7/bin/mpicasa -n 32 $HOME/casa-release-5.5.0-149.el7/bin/casa --nologger --nogui --log2term --nocrashreport -c $HOME/code/VLA_Lband/17B-162/HI/imaging/match_and_split.py True 1
+$HOME/casa-release-5.4.1-32.el7/bin/mpicasa -n 32 $HOME/casa-release-5.4.1-32.el7/bin/casa --nologger --nogui --log2term --nocrashreport -c $HOME/code/VLA_Lband/17B-162/HI/imaging/match_and_split.py True 1

@@ -223,24 +223,24 @@ if run_1kms:
 
     # Also create a clean mask version from the regridded data.
 
-    thresh = 1.0 * u.K
+    # thresh = 3.0 * u.K
 
-    # Re-open the output an apply the brightness threshold to create a mask
-    new_header['BITPIX'] = 8
-    new_header['BUNIT'] = 'bool'
-    mask_save_name = os.path.join(gbt_path,
-                             "17B-162_items/m33_gbt_vlsr_highres_Tmb_17B162_1kms_mask.fits")
-    output_fits = create_huge_fits(mask_save_name, new_header, return_hdu=True)
+    # # Re-open the output an apply the brightness threshold to create a mask
+    # new_header['BITPIX'] = 8
+    # new_header['BUNIT'] = 'bool'
+    # mask_save_name = os.path.join(gbt_path,
+    #                          "17B-162_items/m33_gbt_vlsr_highres_Tmb_17B162_1kms_mask.fits")
+    # output_fits = create_huge_fits(mask_save_name, new_header, return_hdu=True)
 
-    hdu = fits.open(save_name, mode='denywrite')
+    # hdu = fits.open(save_name, mode='denywrite')
 
-    for chan in ProgressBar(nchan):
-        mask_chan = hdu[0].data[chan] > thresh.value
-        # Apply the pbmask
-        mask_chan = np.logical_and(mask_chan, vla_pbmask)
+    # for chan in ProgressBar(nchan):
+    #     mask_chan = hdu[0].data[chan] > thresh.value
+    #     # Apply the pbmask
+    #     mask_chan = np.logical_and(mask_chan, vla_pbmask)
 
-        output_fits[0].data[chan] = mask_chan.astype(">i2")
-        if chan % 50 == 0:
-            output_fits.flush()
+    #     output_fits[0].data[chan] = mask_chan.astype(">i2")
+    #     if chan % 50 == 0:
+    #         output_fits.flush()
 
-    output_fits.close()
+    # output_fits.close()

@@ -81,7 +81,7 @@ for (( chan_num = $start_chan; chan_num < $end_chan; chan_num++ )); do
 
     rc_path="${tmp_dir}/.casa"
 
-    casa-release-5.4.1-32.el7/bin/mpicasa -n 8 casa-release-5.4.1-32.el7/bin/casa --rcdir ${rc_path} --nologger --nogui --logfile $scratch_path/HI_contsub_1_0kms/casa_M33_HI_14B_17B_1kms_${chan_num}_${SLURM_JOB_ID}_$(date "+%Y%m%d-%H%M%S")_stage${stage}.log --nocrashreport -c $script_name $chan_num $param_file "HI_contsub_1_0kms" & cp -r HI_contsub_1_0kms/channel_${chan_num}/* $scratch_path/HI_contsub_1_0kms/channel_${chan_num}/ &
+    (casa-release-5.4.1-32.el7/bin/mpicasa -n 8 casa-release-5.4.1-32.el7/bin/casa --rcdir ${rc_path} --nologger --nogui --logfile $scratch_path/HI_contsub_1_0kms/casa_M33_HI_14B_17B_1kms_${chan_num}_${SLURM_JOB_ID}_$(date "+%Y%m%d-%H%M%S")_stage${stage}.log --nocrashreport -c $script_name $chan_num $param_file "HI_contsub_1_0kms"; cp -r HI_contsub_1_0kms/channel_${chan_num}/* $scratch_path/HI_contsub_1_0kms/channel_${chan_num}/) &
     pids+=" $!"
 
     # Avoid starting up multiple CASA sessions at once. Runs into ipython database issues.

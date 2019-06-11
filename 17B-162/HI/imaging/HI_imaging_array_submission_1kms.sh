@@ -19,7 +19,7 @@ job_num=$SLURM_ARRAY_TASK_ID
 
 # Build in a slight offset for each job to avoid starting a bunch of CASA
 # sessions at once
-sleep $(($job_num + 30))
+# sleep $(($job_num + 30))
 
 # Move to scratch space b/c casa write out the temporary files into the same folder
 export scratch_path=/home/ekoch/scratch/17B-162_imaging/
@@ -49,6 +49,9 @@ fi
 start_chan=$(($job_num * 4))
 end_chan=$((($job_num + 1) * 4))
 
+# Path to the casa files
+export casa_scratch_path="$HOME/scratch/casa-release-5.4.1-32.el7"
+
 # B/c CASA spawns other processes internally, and if something crashes in the scripts,
 # the wait command may hang until the job is killed
 # Try recording the casa interpreter PIDs and only make wait subject to those.
@@ -58,7 +61,27 @@ for (( chan_num = $start_chan; chan_num < $end_chan; chan_num++ )); do
 
     echo "Running channel "$chan_num
 
-    $HOME/casa-release-5.5.0-149.el7/bin/mpicasa -n 8 $HOME/casa-release-5.5.0-149.el7/bin/casa --nologger --nogui --logfile $scratch_path/HI_contsub_10kms/casa_M33_HI_14B_17B_1kms_${chan_num}_${SLURM_JOB_ID}_$(date "+%Y%m%d-%H%M%S")_stage${stage}.log --nocrashreport -c $script_name $chan_num $param_file "HI_contsub_1_0kms" &
+    # Make a new directory on the node storage
+    tmp_dir=$SLURM_TMPDIR/run_chan_${chan_num}
+    mkdir $tmp_dir
+
+    cd $tmp_dir
+
+    # Move the data to the temp path
+    mkdir HI_contsub_1_0kms
+    mkdir HI_contsub_1_0kms/channel_${chan_num}
+    cp -r $scratch_path/HI_contsub_1_0kms/channel_${chan_num}/* HI_contsub_1_0kms/channel_${chan_num}/
+
+    # Copy a new casa instance to avoid slower i/o on scratch or in home
+    cp -r $casa_scratch_path .
+
+    # Copy the init file
+    mkdir .casa
+    cp $HOME/.casa/init.py .casa/
+
+    rc_path="${tmp_dir}/.casa"
+
+    casa-release-5.4.1-32.el7/bin/mpicasa -n 8 casa-release-5.4.1-32.el7/bin/casa --rcdir ${rc_path} --nologger --nogui --logfile $scratch_path/HI_contsub_1_0kms/casa_M33_HI_14B_17B_1kms_${chan_num}_${SLURM_JOB_ID}_$(date "+%Y%m%d-%H%M%S")_stage${stage}.log --nocrashreport -c $script_name $chan_num $param_file "HI_contsub_1_0kms" & cp -r HI_contsub_1_0kms/channel_${chan_num}/* $scratch_path/HI_contsub_1_0kms/channel_${chan_num}/ &
     pids+=" $!"
 
     # Avoid starting up multiple CASA sessions at once. Runs into ipython database issues.

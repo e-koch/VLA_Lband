@@ -2,11 +2,11 @@
 
 import sys
 import os
-from distutils.dir_util import mkpath
+# from distutils.dir_util import mkpath
 import re
 import numpy as np
 import time
-import  socket
+import socket
 
 from tasks import tclean, tget
 
@@ -38,7 +38,7 @@ tget(tclean, parameter_file)
 #        for mss in vis]
 
 vis = os.path.join(channel_path, "channel_{}".format(chan_num),
-                   "14B_17B_HI_contsub_channel_{}.ms".format(chan_num))
+                   "14B_17B_channel_{}.ms".format(chan_num))
 
 # Get the output path and create directories, if needed, based on
 # the imagename
@@ -106,14 +106,16 @@ if startmodel is not None and len(startmodel) > 0:
 
     if not os.path.exists(startmodel):
         raise ValueError("Given startmodel does not exist")
+else:
+    startmodel = ""
 
 # The naming scheme should split name.mask to name_channel_{}.mask
 # The file MUST end in ".mask"
 if mask is not None and len(mask) > 0 and usemask == "user":
 
     mask = os.path.join(channel_path,
-                        "channel_".format(chan_num),
-                        "{0}_channel_{1}.mask"(mask.split(".image")[0], chan_num))
+                        "channel_{}".format(chan_num),
+                        "{0}_channel_{1}".format(mask, chan_num))
 
     if not os.path.exists(mask):
         raise ValueError("Given mask name ({0}) does not exist".format(mask))
@@ -142,101 +144,38 @@ interactive = 0  # Returns a summary dictionary
 
 # out_dict = tclean()
 
-# Alternatively, skip the mandatory plotting stage from the summary call
-
 ## (1) Import the python application layer
 
 # from imagerhelpers.imager_base import PySynthesisImager
+# imagerInst = PySynthesisImager
+
 from imagerhelpers.imager_parallel_continuum import PyParallelContSynthesisImager
+imagerInst = PyParallelContSynthesisImager
+
 from imagerhelpers.input_parameters import ImagerParameters
 
-## (2) Set up Input Parameters
-## - List all parameters that you need here
-## - Defaults will be assumed for unspecified parameters
-## - Nearly all parameters are identical to that in the task. Please look at the
-## list of parameters under __init__ using " help ImagerParameters " )
+
+# ## (2) Set up Input Parameters
+# ## - List all parameters that you need here
+# ## - Defaults will be assumed for unspecified parameters
+# ## - Nearly all parameters are identical to that in the task. Please look at the
+# ## list of parameters under __init__ using " help ImagerParameters " )
 
 
-    # Put all parameters into dictionaries and check them.
-paramList = ImagerParameters(msname=vis,
-                             field=field,
-                             spw=spw,
-                             timestr=timerange,
-                             uvdist=uvrange,
-                             antenna=antenna,
-                             scan=scan,
-                             obs=observation,
-                             state=intent,
-                             datacolumn=datacolumn,
-                             imagename=imagename,
-                             imsize=imsize,
-                             cell=cell,
-                             phasecenter=phasecenter,
-                             stokes=stokes,
-                             projection=projection,
-                             startmodel=startmodel,
-                             specmode=specmode,
-                             reffreq=reffreq,
-                             nchan=nchan,
-                             start=start,
-                             width=width,
-                             outframe=outframe,
-                             veltype=veltype,
-                             restfreq=linespw_dict[spw_num][1],
-                             sysvel='',
-                             sysvelframe='',
-                             interpolation=interpolation,
-                             gridder=gridder,
-                             facets=facets,
-                             chanchunks=chanchunks,
-                             wprojplanes=wprojplanes,
-                             vptable=vptable,
-                             aterm=aterm,
-                             psterm=psterm,
-                             wbawp=wbawp,
-                             cfcache=cfcache,
-                             conjbeams=conjbeams,
-                             computepastep=computepastep,
-                             rotatepastep=rotatepastep,
-                             pblimit=pblimit,
-                             normtype=normtype,
-                             outlierfile=outlierfile,
-                             restart=restart,
-                             weighting=weighting,
-                             robust=robust,
-                             npixels=npixels,
-                             uvtaper=uvtaper,
-                             niter=niter,
-                             cycleniter=cycleniter,
-                             loopgain=gain,
-                             threshold=threshold,
-                             nsigma=nsigma,
-                             cyclefactor=cyclefactor,
-                             minpsffraction=minpsffraction,
-                             maxpsffraction=maxpsffraction,
-                             interactive=0,
-                             deconvolver=deconvolver,
-                             scales=scales,
-                             nterms=nterms,
-                             scalebias=smallscalebias,
-                             restoringbeam=restoringbeam,
-                             usemask=usemask,
-                             mask=mask,
-                             pbmask=pbmask,
-                             sidelobethreshold=sidelobethreshold,
-                             noisethreshold=noisethreshold,
-                             lownoisethreshold=lownoisethreshold,
-                             negativethreshold=negativethreshold,
-                             smoothfactor=smoothfactor,
-                             minbeamfrac=minbeamfrac,
-                             cutthreshold=cutthreshold,
-                             growiterations=growiterations,
-                             fastnoise=fastnoise,
-                             dogrowprune=True,
-                             minpercentchange=0.0,
-                             verbose=True,
-                             savemodel=savemodel,
-                             )
+# Put all parameters into dictionaries and check them.
+# Changes introduced in CASA 5.5
+inpparams = locals().copy()
+inpparams['msname'] = inpparams.pop('vis')
+inpparams['timestr'] = inpparams.pop('timerange')
+inpparams['uvdist'] = inpparams.pop('uvrange')
+inpparams['obs'] = inpparams.pop('observation')
+inpparams['state'] = inpparams.pop('intent')
+inpparams['loopgain'] = inpparams.pop('gain')
+inpparams['scalebias'] = inpparams.pop('smallscalebias')
+defparm = dict(zip(ImagerParameters.__init__.__func__.__code__.co_varnames[1:],
+                   ImagerParameters.__init__.func_defaults))
+bparm = {k: inpparams[k] if k in inpparams else defparm[k] for k in defparm}
+paramList = ImagerParameters(**bparm)
 
 # (3) Construct the PySynthesisImager object, with all input parameters
 
@@ -261,7 +200,7 @@ try:
                  "%.2f" % (t1 - t0) + " sec")
 
     # Init minor cycle modules
-    if restoration and niter > 0:
+    if niter > 0:
         t2 = time.time()
         imager.initializeDeconvolvers()
         t3 = time.time()
@@ -280,6 +219,17 @@ try:
     if do_calcpsf:
         t6 = time.time()
         imager.makePSF()
+        # From casa 5.5 tclean
+        # if (psfphasecenter != '') and (gridder == 'mosaic'):
+        #     # print "doing with different phasecenter psf"
+        #     imager.unlockimages(0)
+        #     psfParameters = paramList.getAllPars()
+        #     psfParameters['phasecenter'] = psfphasecenter
+        #     psfParamList = ImagerParameters(**psfParameters)
+        #     psfimager = imagerInst(params=psfParamList)
+        #     psfimager.initializeImagers()
+        #     psfimager.setWeighting()
+        #     psfimager.makeImage('psf', psfParameters['imagename']+'.psf')
         t7 = time.time()
         casalog.post("Time for creating PSF: " +
                      "%.2f" % (t7 - t6) + " sec")
@@ -303,31 +253,35 @@ try:
         os.system("cp -r {0} {0}_init".format(imagename + ".residual"))
 
     if niter > 0:
+
         # (6) Make the initial clean mask
         imager.hasConverged()
         imager.updateMask()
 
         # (7) Run the iteration loops
-        mincyc_num = 1
 
         # Add an additional stopping criteria when the model flux between
         # major cycles changes by less than a set threshold.
         # Setting threshold to be 0.1%
         delta_model_flux_thresh = 1e-3
 
-        while (not imager.hasConverged()) or (not model_flux_criterion):
-            casalog.post("On minor cycle {}".format(mincyc_num))
+        model_flux_criterion = False
+
+        mincyc_num = 0
+
+        while not imager.hasConverged():
+            # casalog.post("On minor cycle {}".format(mincyc_num))
 
             t0_l = time.time()
             imager.runMinorCycle()
             t1_l = time.time()
-            casalog.post("Time for minor cycle: {}".format(mincyc_num) +
+            casalog.post("Time for minor cycle: " +
                          "%.2f" % (t1_l - t0_l) + " sec")
 
             t2_l = time.time()
             imager.runMajorCycle()
             t3_l = time.time()
-            casalog.post("Time for major cycle: {}".format(mincyc_num + 1) +
+            casalog.post("Time for major cycle: " +
                          "%.2f" % (t3_l - t2_l) + " sec")
 
             summ = imager.IBtool.getiterationsummary()
@@ -335,13 +289,26 @@ try:
             if mincyc_num == 0:
                 model_flux_criterion = False
             else:
-                model_flux_prev = summ['summaryminor'][2,:][-2]
-                model_flux = summ['summaryminor'][2,:][-1]
+                model_flux_prev = summ['summaryminor'][2, :][-2]
+                model_flux = summ['summaryminor'][2, :][-1]
+
+                casalog.post("Previous model flux {0}. New model flux {1}".format(model_flux_prev, model_flux))
 
                 model_flux_criterion = np.allclose(model_flux, model_flux_prev,
                                                    rtol=delta_model_flux_thresh)
 
-            imager.updateMask()
+            # Has the model converged?
+            if model_flux_criterion:
+                casalog.post("Model flux converged to within {}% between "
+                             "major cycles.".format(delta_model_flux_thresh * 100))
+                break
+            else:
+                time.sleep(10)
+
+                imager.updateMask()
+
+                time.sleep(10)
+
             mincyc_num += 1
 
     # (8) Finish up

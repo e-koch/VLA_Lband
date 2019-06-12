@@ -7,6 +7,7 @@ import numpy as np
 import time
 import scipy.ndimage as nd
 from glob import glob
+import socket
 
 from tasks import tclean, tget
 
@@ -25,8 +26,10 @@ unlike the first stage.
 '''
 
 # Load in the SPW dict in the repo on cedar
-execfile(os.path.expanduser("~/code/VLA_Lband/17B-162/spw_setup.py"))
-# execfile(os.path.expanduser("~/Dropbox/code_development/VLA_Lband/17B-162/spw_setup.py"))
+if socket.gethostname().lower() == 'segfault':
+    execfile(os.path.expanduser("~/ownCloud/code_development/VLA_Lband/17B-162/spw_setup.py"))
+else:
+    execfile(os.path.expanduser("~/code/VLA_Lband/17B-162/spw_setup.py"))
 
 chan_num = int(sys.argv[-3])
 
@@ -41,9 +44,12 @@ channel_path = sys.argv[-1]
 tget(tclean, parameter_file)
 
 # Append the full channel path to the vis's
-vis = [os.path.join(channel_path, "channel_{}".format(chan_num),
-                    "{0}_channel_{1}".format(mss, chan_num))
-       for mss in vis]
+# vis = [os.path.join(channel_path, "channel_{}".format(chan_num),
+#                     "{0}_channel_{1}".format(mss, chan_num))
+#        for mss in vis]
+
+vis = os.path.join(channel_path, "channel_{}".format(chan_num),
+                   "14B_17B_channel_{}.ms".format(chan_num))
 
 # Now update the imagename with the channel number
 imagename = os.path.join(channel_path, "channel_{}".format(chan_num),
@@ -88,140 +94,140 @@ startmodel = None
 # then expand the remaining regions to ensure all emission is captured in the
 # masked region.
 
-myimage = imagename + ".image"
+# myimage = imagename + ".image"
 
-new_maskname = "{0}.mask_stage2".format(imagename)
+# new_maskname = "{0}.mask_stage2".format(imagename)
 
-if not os.path.exists(new_maskname):
+# if not os.path.exists(new_maskname):
 
-    # Also set the name of the mask
-    maskname = "{0}.mask".format(imagename)
+#     # Also set the name of the mask
+#     maskname = "{0}.mask".format(imagename)
 
-    ia.open(maskname)
+#     ia.open(maskname)
 
-    orig_mask_data = ia.getchunk().squeeze()
+#     orig_mask_data = ia.getchunk().squeeze()
 
-    ia.done()
-    ia.close()
+#     ia.done()
+#     ia.close()
 
-    # arcsec
-    major = imhead(imagename=myimage, mode='get', hdkey='beammajor')['value']
-    minor = imhead(imagename=myimage, mode='get', hdkey='beamminor')['value']
-    unitCDELT = imhead(imagename=myimage, mode='get', hdkey='cdelt2')['unit']
-    cdelt2 = imhead(imagename=myimage, mode='get', hdkey='cdelt2')['value']
-    assert unitCDELT == 'rad'
-    pixelsize = cdelt2 * (180. / np.pi) * 3600
-    beamarea = (major * minor * np.pi) / (pixelsize**2)
+#     # arcsec
+#     major = imhead(imagename=myimage, mode='get', hdkey='beammajor')['value']
+#     minor = imhead(imagename=myimage, mode='get', hdkey='beamminor')['value']
+#     unitCDELT = imhead(imagename=myimage, mode='get', hdkey='cdelt2')['unit']
+#     cdelt2 = imhead(imagename=myimage, mode='get', hdkey='cdelt2')['value']
+#     assert unitCDELT == 'rad'
+#     pixelsize = cdelt2 * (180. / np.pi) * 3600
+#     beamarea = (major * minor * np.pi) / (pixelsize**2)
 
-    # Create new thresholded mask
+#     # Create new thresholded mask
 
-    # Threshold set by comparing to the cycle threshold saved in the previous
-    # clean call
-    results_dict = np.load(imagename + ".results_dict.npy").item()
+#     # Threshold set by comparing to the cycle threshold saved in the previous
+#     # clean call
+#     results_dict = np.load(imagename + ".results_dict.npy").item()
 
-    # Set mask threshold at 2 * sigma
-    # Grab the residual peak after the last minor cycle. This
-    # is assumed to be set to 5-sigma from the first cycle!
-    sigma = (results_dict['summaryminor'][1][-1] / 5.)
-    thresh = sigma
+#     # Set mask threshold at 2 * sigma
+#     # Grab the residual peak after the last minor cycle. This
+#     # is assumed to be set to 5-sigma from the first cycle!
+#     sigma = (results_dict['summaryminor'][1][-1] / 5.)
+#     thresh = sigma
 
-    immath(imagename=myimage, outfile=new_maskname,
-           expr='iif(IM0 > ' + str(thresh) + ', 1.0, 0.0)')
+#     immath(imagename=myimage, outfile=new_maskname,
+#            expr='iif(IM0 > ' + str(thresh) + ', 1.0, 0.0)')
 
-    casalog.post("Creating clean mask")
-    casalog.post("Beam area is {0:.2f} pix^2".format(beamarea))
+#     casalog.post("Creating clean mask")
+#     casalog.post("Beam area is {0:.2f} pix^2".format(beamarea))
 
-    # Make a second mask, that will not be saved, at a threshold
-    # twice the original. Good regions must contain one point above
-    # the higher threshold
-    ia.open(myimage)
+#     # Make a second mask, that will not be saved, at a threshold
+#     # twice the original. Good regions must contain one point above
+#     # the higher threshold
+#     ia.open(myimage)
 
-    high_thresh_mask = ia.getchunk().squeeze() > thresh * 4.
+#     high_thresh_mask = ia.getchunk().squeeze() > thresh * 4.
 
-    ia.done()
-    ia.close()
+#     ia.done()
+#     ia.close()
 
-    # Remove small regions
-    ia.open(new_maskname)
-    mask_data = ia.getchunk()
+#     # Remove small regions
+#     ia.open(new_maskname)
+#     mask_data = ia.getchunk()
 
-    orig_shape = mask_data.shape
+#     orig_shape = mask_data.shape
 
-    mask_data = mask_data.squeeze()
+#     mask_data = mask_data.squeeze()
 
-    labels_mask, num = nd.label(mask_data, np.ones((3, 3)))
+#     labels_mask, num = nd.label(mask_data, np.ones((3, 3)))
 
-    pixel_sizes = nd.sum(mask_data, labels_mask, range(1, num + 1))
+#     pixel_sizes = nd.sum(mask_data, labels_mask, range(1, num + 1))
 
-    casalog.post("Removing small regions from clean mask")
-    casalog.post("Removing {0} of {1} regions from mask"
-                 .format(sum(pixel_sizes < beamarea * 0.5), num + 1))
+#     casalog.post("Removing small regions from clean mask")
+#     casalog.post("Removing {0} of {1} regions from mask"
+#                  .format(sum(pixel_sizes < beamarea * 0.5), num + 1))
 
-    new_mask_data = np.zeros_like(mask_data, dtype=bool)
+#     new_mask_data = np.zeros_like(mask_data, dtype=bool)
 
-    good_labels = np.where(pixel_sizes > beamarea * 0.5)[0] + 1
+#     good_labels = np.where(pixel_sizes > beamarea * 0.5)[0] + 1
 
-    for label in good_labels:
+#     for label in good_labels:
 
-        posns = np.where(labels_mask == label)
+#         posns = np.where(labels_mask == label)
 
-        # Check if any points in the region reach the higher
-        # threshold. If not, don't include in the mask
-        # Set the minimum at a tenth of the beam. Avoid single
-        # high-noise spikes
-        if sum(high_thresh_mask[posns]) < 0.3 * beamarea:
-            continue
+#         # Check if any points in the region reach the higher
+#         # threshold. If not, don't include in the mask
+#         # Set the minimum at a tenth of the beam. Avoid single
+#         # high-noise spikes
+#         if sum(high_thresh_mask[posns]) < 0.3 * beamarea:
+#             continue
 
-        new_mask_data[posns] = True
+#         new_mask_data[posns] = True
 
-    mask_data = new_mask_data
+#     mask_data = new_mask_data
 
-    # Check whether anything is left. If there isn't, there's no need
-    # to clean anymore!
-    if not mask_data.any():
-        casalog.post("No regions contained in the mask! No further cleaning"
-                     " is required.")
+#     # Check whether anything is left. If there isn't, there's no need
+#     # to clean anymore!
+#     if not mask_data.any():
+#         casalog.post("No regions contained in the mask! No further cleaning"
+#                      " is required.")
 
 
-        ia.putchunk(mask_data.reshape(orig_shape).astype(int))
-        ia.done()
-        ia.close()
+#         ia.putchunk(mask_data.reshape(orig_shape).astype(int))
+#         ia.done()
+#         ia.close()
 
-        import sys
-        sys.exit(0)
+#         import sys
+#         sys.exit(0)
 
-    casalog.post("Smoothing clean mask by six times larger than largest scale.")
+#     casalog.post("Smoothing clean mask by six times larger than largest scale.")
 
-    # Grab the largest multiscale scale
-    dilate_size = scales[-1] * 6
-    radius = dilate_size / 2
-    L = np.arange(-radius, radius + 1)
-    X, Y = np.meshgrid(L, L)
-    dilate_element = np.array((X ** 2 + Y ** 2) <= radius ** 2)
+#     # Grab the largest multiscale scale
+#     dilate_size = scales[-1] * 6
+#     radius = dilate_size / 2
+#     L = np.arange(-radius, radius + 1)
+#     X, Y = np.meshgrid(L, L)
+#     dilate_element = np.array((X ** 2 + Y ** 2) <= radius ** 2)
 
-    mask_data = nd.binary_dilation(mask_data, structure=dilate_element,
-                                   mask=orig_mask_data.astype(bool),
-                                   iterations=5)
+#     mask_data = nd.binary_dilation(mask_data, structure=dilate_element,
+#                                    mask=orig_mask_data.astype(bool),
+#                                    iterations=5)
 
-    # We should largely expect a single massive blob in the mask since the
-    # shape of the emission is dominated by the circular rotation
-    # So it is fairly safe to fill in holes in the mask
-    mask_data = nd.binary_fill_holes(mask_data)
+#     # We should largely expect a single massive blob in the mask since the
+#     # shape of the emission is dominated by the circular rotation
+#     # So it is fairly safe to fill in holes in the mask
+#     mask_data = nd.binary_fill_holes(mask_data)
 
-    ia.putchunk(mask_data.reshape(orig_shape).astype(int))
-    ia.done()
-    ia.close()
+#     ia.putchunk(mask_data.reshape(orig_shape).astype(int))
+#     ia.done()
+#     ia.close()
 
-    casalog.post("Finished creating clean mask")
+#     casalog.post("Finished creating clean mask")
 
-else:
-    casalog.post("Found a clean mask. Skipping making a new one.")
+# else:
+#     casalog.post("Found a clean mask. Skipping making a new one.")
 
-mask = new_maskname
-usemask = "user"
+# mask = new_maskname
+# usemask = "user"
 
 # Grab freq from the SPW dict
-spw_num = int(spw)
+spw_num = 0
 
 # Only update a few parameters, as needed
 
@@ -259,96 +265,30 @@ for fi in stage1_files:
     os.system("cp -r {0} {1}".format(fi, keep_old_path))
 
 
+# Don't do this if we're using a signal mask from the 14B-only
+# imaging.
 # If the original mask still exists, remove it
-old_maskname = "{0}.mask".format(imagename)
+# old_maskname = "{0}.mask".format(imagename)
 
-if os.path.exists(old_maskname):
-    os.system("rm -r {}".format(old_maskname))
+# if os.path.exists(old_maskname):
+#     os.system("rm -r {}".format(old_maskname))
 
 # from imagerhelpers.imager_base import PySynthesisImager
 from imagerhelpers.imager_parallel_continuum import PyParallelContSynthesisImager
 from imagerhelpers.input_parameters import ImagerParameters
 
-# Put all parameters into dictionaries and check them.
-paramList = ImagerParameters(msname=vis,
-                             field=field,
-                             spw=spw,
-                             timestr=timerange,
-                             uvdist=uvrange,
-                             antenna=antenna,
-                             scan=scan,
-                             obs=observation,
-                             state=intent,
-                             datacolumn=datacolumn,
-                             imagename=imagename,
-                             imsize=imsize,
-                             cell=cell,
-                             phasecenter=phasecenter,
-                             stokes=stokes,
-                             projection=projection,
-                             startmodel=startmodel,
-                             specmode=specmode,
-                             reffreq=reffreq,
-                             nchan=nchan,
-                             start=start,
-                             width=width,
-                             outframe=outframe,
-                             veltype=veltype,
-                             restfreq=linespw_dict[spw_num][1],
-                             sysvel='',
-                             sysvelframe='',
-                             interpolation=interpolation,
-                             gridder=gridder,
-                             facets=facets,
-                             chanchunks=chanchunks,
-                             wprojplanes=wprojplanes,
-                             vptable=vptable,
-                             aterm=aterm,
-                             psterm=psterm,
-                             wbawp=wbawp,
-                             cfcache=cfcache,
-                             conjbeams=conjbeams,
-                             computepastep=computepastep,
-                             rotatepastep=rotatepastep,
-                             pblimit=pblimit,
-                             normtype=normtype,
-                             outlierfile=outlierfile,
-                             restart=restart,
-                             weighting=weighting,
-                             robust=robust,
-                             npixels=npixels,
-                             uvtaper=uvtaper,
-                             niter=niter,
-                             cycleniter=cycleniter,
-                             loopgain=gain,
-                             threshold=threshold,
-                             nsigma=nsigma,
-                             cyclefactor=cyclefactor,
-                             minpsffraction=minpsffraction,
-                             maxpsffraction=maxpsffraction,
-                             interactive=0,
-                             deconvolver=deconvolver,
-                             scales=scales,
-                             nterms=nterms,
-                             scalebias=smallscalebias,
-                             restoringbeam=restoringbeam,
-                             usemask=usemask,
-                             mask=mask,
-                             pbmask=pbmask,
-                             sidelobethreshold=sidelobethreshold,
-                             noisethreshold=noisethreshold,
-                             lownoisethreshold=lownoisethreshold,
-                             negativethreshold=negativethreshold,
-                             smoothfactor=smoothfactor,
-                             minbeamfrac=minbeamfrac,
-                             cutthreshold=cutthreshold,
-                             growiterations=growiterations,
-                             dogrowprune=True,
-                             minpercentchange=0.0,
-                             verbose=True,
-                             savemodel=savemodel,
-                             )
-
+inpparams = locals().copy()
+inpparams['msname'] = inpparams.pop('vis')
+inpparams['timestr'] = inpparams.pop('timerange')
+inpparams['uvdist'] = inpparams.pop('uvrange')
+inpparams['obs'] = inpparams.pop('observation')
+inpparams['state'] = inpparams.pop('intent')
+inpparams['loopgain'] = inpparams.pop('gain')
+inpparams['scalebias'] = inpparams.pop('smallscalebias')
+defparm = dict(zip(ImagerParameters.__init__.__func__.__code__.co_varnames[1:],
+                   ImagerParameters.__init__.func_defaults))
+bparm = {k: inpparams[k] if k in inpparams else defparm[k] for k in defparm}
+paramList = ImagerParameters(**bparm)
 
 # imager = PySynthesisImager(params=paramList)
 imager = PyParallelContSynthesisImager(params=paramList)
@@ -409,28 +349,62 @@ try:
         os.system("cp -r {0} {0}_init".format(imagename + ".residual"))
 
     if niter > 0:
+
         # (6) Make the initial clean mask
         imager.hasConverged()
         imager.updateMask()
 
         # (7) Run the iteration loops
-        mincyc_num = 1
-        while (not imager.hasConverged()):
-            casalog.post("On minor cycle {}".format(mincyc_num))
+
+        # Add an additional stopping criteria when the model flux between
+        # major cycles changes by less than a set threshold.
+        # Setting threshold to be 0.1%
+        delta_model_flux_thresh = 1e-3
+
+        model_flux_criterion = False
+
+        mincyc_num = 0
+
+        while not imager.hasConverged():
+            # casalog.post("On minor cycle {}".format(mincyc_num))
 
             t0_l = time.time()
             imager.runMinorCycle()
             t1_l = time.time()
-            casalog.post("Time for minor cycle: {}".format(mincyc_num) +
+            casalog.post("Time for minor cycle: " +
                          "%.2f" % (t1_l - t0_l) + " sec")
 
             t2_l = time.time()
             imager.runMajorCycle()
             t3_l = time.time()
-            casalog.post("Time for major cycle: {}".format(mincyc_num + 1) +
+            casalog.post("Time for major cycle: " +
                          "%.2f" % (t3_l - t2_l) + " sec")
 
-            imager.updateMask()
+            summ = imager.IBtool.getiterationsummary()
+
+            if mincyc_num == 0:
+                model_flux_criterion = False
+            else:
+                model_flux_prev = summ['summaryminor'][2, :][-2]
+                model_flux = summ['summaryminor'][2, :][-1]
+
+                casalog.post("Previous model flux {0}. New model flux {1}".format(model_flux_prev, model_flux))
+
+                model_flux_criterion = np.allclose(model_flux, model_flux_prev,
+                                                   rtol=delta_model_flux_thresh)
+
+            # Has the model converged?
+            if model_flux_criterion:
+                casalog.post("Model flux converged to within {}% between "
+                             "major cycles.".format(delta_model_flux_thresh * 100))
+                break
+            else:
+                time.sleep(10)
+
+                imager.updateMask()
+
+                time.sleep(10)
+
             mincyc_num += 1
 
     if niter > 0:

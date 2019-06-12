@@ -40,6 +40,9 @@ tget(tclean, parameter_file)
 vis = os.path.join(channel_path, "channel_{}".format(chan_num),
                    "14B_17B_channel_{}.ms".format(chan_num))
 
+# Run initweights. Otherwise the C-config data is severely under-weighted
+initweights(vis=vis, wtmode='nyq')
+
 # Get the output path and create directories, if needed, based on
 # the imagename
 # if imagename.split("/") > 1:

@@ -38,7 +38,7 @@ for i in chan_nums:
                                  "{0}_channel_{1}.results_dict{2}.npy"
                                  .format(filename, i, file_end)))
     if len(npy_file) == 1:
-        out_dict = np.load(npy_file[0]).item()
+        out_dict = np.load(npy_file[0], allow_pickle=True, encoding='latin1').item()
         out_dict['stage'] = stage
     else:
         # If stage 2, check for a stage 1 file for those that didn't need

@@ -30,4 +30,4 @@ suffix_arr=($suffixes)
 
 job_num=$SLURM_ARRAY_TASK_ID
 
-$HOME/casa-release-5.3.0-143.el7/bin/casa --nologger --nogui --log2term --nocrashreport -c $HOME/code/VLA_Lband/17B-162/HI/imaging/concat_channels.py "HI_contsub_10kms" "M33_14B_17B_HI_contsub_width_1kms" 280 ${suffix_arr[$job_num]}
+$HOME/casa-release-5.4.1-32.el7/bin/casa --nologger --nogui --log2term --nocrashreport -c $HOME/code/VLA_Lband/17B-162/HI/imaging/concat_channels.py "HI_contsub_1_0kms" "M33_14B_17B_HI_contsub_width_1kms" 272 ${suffix_arr[$job_num]}

@@ -30,8 +30,8 @@ if run_1kms:
                # defaultaxes=True,
                # defaultaxesvalues=["", "", "", "I"])
 
-    ia.open(mask_save_name)
-    ia.adddegaxes(outfile=mask_save_name + ".stokes", stokes='I')
+    ia.open(mask_out_name)
+    ia.adddegaxes(outfile=mask_out_name + ".stokes", stokes='I')
     ia.close()
 
     # Split off each channel

@@ -51,7 +51,7 @@ if len(images) != num_imgs:
 cubename = "{0}/{1}.{2}".format(path_to_data, filename, suffix)
 
 ia.imageconcat(outfile=cubename, infiles=images, reorder=False,
-               overwrite=True)
+               overwrite=True, relax=True)
 ia.close()
 
 casalog.post("Look! I made a {} cube!".format(suffix))

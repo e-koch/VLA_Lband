@@ -53,7 +53,7 @@ for i in {0..272}; do
 done
 
 echo "Concatenating channels"
-$HOME/casa-release-5.4.1-32.el7/bin/casa --rcdir ${rc_path} --nologger --nogui --log2term --nocrashreport -c $HOME/code/VLA_Lband/17B-162/HI/imaging/concat_channels.py "HI_contsub_1_0kms" "M33_14B_17B_HI_contsub_width_1kms" 272 ${suffix_arr[$job_num]}
+casa-release-5.4.1-32.el7/bin/casa --rcdir ${rc_path} --nologger --nogui --log2term --nocrashreport -c $HOME/code/VLA_Lband/17B-162/HI/imaging/concat_channels.py "HI_contsub_1_0kms" "M33_14B_17B_HI_contsub_width_1kms" 272 ${suffix_arr[$job_num]}
 
 echo "Copying M33_14B_17B_HI_contsub_width_1kms.${suffix_arr[$job_num]} to scratch"
 cp -r "HI_contsub_1_0kms/M33_14B_17B_HI_contsub_width_1kms.${suffix_arr[$job_num]}" $scratch_path/HI_contsub_1_0kms

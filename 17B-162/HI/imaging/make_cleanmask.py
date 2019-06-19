@@ -122,7 +122,6 @@ if run_1kms:
     targ_header["NAXIS1"] = vla_pbmask.shape[1]
     targ_header["NAXIS2"] = vla_pbmask.shape[0]
 
-
     for chan in ProgressBar(nchan):
         mask_plane = mask_cube[chan].value.astype(bool)
 

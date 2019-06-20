@@ -18,11 +18,11 @@ from paths import (seventeenB_HI_data_02kms_path,
 from constants import hi_freq
 
 # Set which of the cubes to feather
-run_gbt_02kms = True
-run_gbt_1kms = False
+run_gbt_02kms = False
+run_gbt_1kms = True
 
-num_cores = 4
-chunk = 8
+num_cores = 5
+chunk = 50
 
 
 def taper_weights(mask, sigma, nsig_cut=3):
@@ -78,15 +78,15 @@ if run_gbt_1kms:
     log.info("Feathering with 1 km/s GBT")
 
     # Load the non-pb masked cube
-    vla_cube = SpectralCube.read(seventeenB_HI_data_1kms_path("M33_14B_17B_HI_contsub_width_1kms.image.pbcor.fits"))
+    vla_cube = SpectralCube.read(seventeenB_HI_data_1kms_path("M33_14B_17B_HI_contsub_width_1kms.image.fits"))
 
     pb_cube = SpectralCube.read(seventeenB_HI_data_1kms_path("M33_14B_17B_HI_contsub_width_1kms.pb.fits"))
     # PB minimally changes over the frequency range. So just grab one plane
-    pb_plane = pb_cube[0]
+    # pb_plane = pb_cube[0]
 
     # Smoothly taper data at the mosaic edge. This weight array tapers to
     # exp(-5^2/2)~4e-6 at the pb cut-off of 0.2.
-    weight = taper_weights(np.isfinite(pb_plane), 30, nsig_cut=5)
+    # weight = taper_weights(np.isfinite(pb_plane), 30, nsig_cut=5)
 
     gbt_path = osjoin(data_path, "GBT")
     gbt_name = osjoin(gbt_path,
@@ -100,9 +100,22 @@ if run_gbt_1kms:
     save_name = osjoin(output_path,
                        "M33_14B_17B_HI_contsub_width_1kms.image.pbcor.GBT_feathered.fits")
 
-    feather_cube(vla_cube, gbt_cube, restfreq=hi_freq, save_feather=True,
-                 save_name=save_name, num_cores=num_cores,
-                 weights=weight, chunk=chunk, verbose=False)
+    feather_cube(vla_cube, gbt_cube, pb_hi=pb_cube,
+                 restfreq=hi_freq, save_feather=True,
+                 save_name=save_name, overwrite=True,
+                 num_cores=num_cores,
+                 # weights=weight,
+                 chunk=chunk, verbose=False,
+                 relax_spectral_check=False,
+                 # NOTE: there is an offset of ~0.4 km/s between the cubes
+                 # The big GBT beam means this really doesn't matter (I
+                 # manually checked). The difference is 0.36 times the
+                 # channel size. I have no idea where this shift is coming
+                 # from since the freq axis used in `gbt_regrid.py` matches
+                 # the frequency in the individual channel MSs used in
+                 # imaging. It's not even a half-channel offset like I
+                 # would expect if the MS frequency was the channel edge...
+                 spec_check_kwargs={'rtol': 0.4})
 
     # Now resave a minimal version of the feathered cube
     cube = SpectralCube.read(save_name)

@@ -358,5 +358,73 @@ try:
 
         return mosaicInfo
 
+    def append_to_cube(folder, prefix, suffix, num_imgs,
+                       cube_name, chunk_size=250,
+                       delete_chunk_cubes=True,
+                       concat_kwargs={'relax': True, 'reorder': False,
+                                      'overwrite': True}):
+        '''
+        Append single images into a cube. Must be continuous along
+        spectral dimension.
+
+        Individual images in the folder must be sequentially numbered.
+        '''
+
+        from os.path import join as osjoin
+        import os
+
+        try:
+            import casatools
+            ia = casatools.image()
+        except ImportError:
+            try:
+                from taskinit import iatool
+                ia = iatool()
+            except ImportError:
+                raise ImportError("Cannot import iatool.")
+
+        imgs = [osjoin(folder, "{0}_{1}.{2}".format(prefix, chan, suffix))
+                for chan in range(num_imgs)]
+
+        # Make sure these all exist
+        for img in imgs:
+            if not os.path.exists(img):
+                raise OSError("{} does not exist.".format(img))
+
+        # Concatenate in chunks (Default of 250) b/c CASA doesn't like
+        # having too many images open at once.
+
+        num_chunks = (num_imgs // chunk_size) + 1
+
+        chunk_cubes = []
+
+        for i in range(num_chunks):
+
+            start = chunk_size * i
+            stop = min(chunk_size * (i + 1), num_imgs)
+
+            imgs_chunk = imgs[start:stop]
+
+            chunk_cube_name = "{0}_{1}".format(cube_name, i)
+            chunk_cubes.append(chunk_cube_name)
+
+            ia.imageconcat(outfile=chunk_cube_name,
+                           infiles=imgs_chunk,
+                           **concat_kwargs)
+            ia.done()
+            ia.close()
+
+        # Concat the chunks together
+
+        ia.imageconcat(outfile=cube_name,
+                       infiles=chunk_cubes,
+                       **concat_kwargs)
+        ia.done()
+        ia.close()
+
+        if delete_chunk_cubes:
+            for chunk_cube_name in chunk_cubes:
+                os.system("rm -rf {}".format(chunk_cube_name))
+
 except ImportError:
     warn("Could not import analysisUtils.")

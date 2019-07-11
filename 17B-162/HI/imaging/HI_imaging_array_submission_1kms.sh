@@ -35,7 +35,7 @@ stage=1
 if (( $stage==1 )); then
     script_name="${HOME}/code/VLA_Lband/17B-162/HI/imaging/HI_single_channel_clean.py"
     # Parameter file for tclean
-    param_file="/home/ekoch/code/VLA_Lband/17B-162/HI/imaging/param_files/14B_17B_1kms.saved"
+    param_file="/home/ekoch/code/VLA_Lband/17B-162/HI/imaging/param_files/14B_17B_1kms_v2.saved"
 elif (( $stage==2 )); then
     script_name="${HOME}/code/VLA_Lband/17B-162/HI/imaging/HI_single_channel_clean_stage2.py"
     param_file="/home/ekoch/code/VLA_Lband/17B-162/HI/imaging/param_files/14B_17B_1kms_stage2.saved"

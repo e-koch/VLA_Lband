@@ -1,4 +1,6 @@
-# Custom flags for 16B-242.sb32681213.eb32958324.57677.085873668984 line SPWs
+# Custom flags for 16B-242.sb32681213.eb32958324.57677.085873668984 continuum SPWs
+
+# NOTE: Need custom flagging for SPWs 1,2,4,5,7
 
 # Poor delay solutions
 mode='manual' antenna='ea17'
@@ -6,18 +8,23 @@ mode='manual' antenna='ea17'
 mode='manual' scan='2' timerange='<02:07:15'
 mode='manual' scan='2' timerange='>02:13:35'
 
-mode='manual' spw='3' scan='16'
+mode='manual' scan='3' timerange='<02:14:30'
 
 mode='manual' scan='27' antenna='ea28'
 mode='manual' scan='30' antenna='ea27,ea05'
 mode='manual' scan='31' antenna='ea05'
 mode='manual' scan='38' antenna='ea05'
 
-mode='manual' spw='9' antenna='ea04'
-
-mode='manual' scan='8' timerange='<02:30:10'
+mode='manual' scan='8', timerange='<02:30:15'
+mode='manual' scan='12' timerange='<02:44:45'
 mode='manual' scan='20' timerange='<03:13:45'
 mode='manual' scan='24' timerange='<03:28:14'
 mode='manual' scan='36' timerange='<04:11:45'
 mode='manual' scan='48' timerange='<04:55:18'
 mode='manual' scan='60' timerange='<05:38:50'
+
+# Need flagging at start of scan 
+mode='manual' scan='65' timerange='<06:00:30'
+
+mode='manual' scan='32,40,48,49,56,57' spw='3:115~125'
+mode='manual' scan='53,' spw='3'

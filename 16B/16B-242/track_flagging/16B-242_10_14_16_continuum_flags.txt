@@ -1,0 +1,32 @@
+# Custom flags for 16B-242.sb32681213.eb32954876.57674.07753513889 line SPWs
+
+# NOTE: Need custom flagging for SPWs 1,2,4,5,7
+
+mode='manual' scan='2' timerange='<01:12:50'
+mode='manual' scan='2' timerange='>01:17:55'
+
+# Poor phase solutions
+mode='manual' scan='15' antenna='ea11'
+
+mode='manual' scan='3' timerange='<01:18:55'
+mode='manual' scan='8' timerange='<01:34:34'
+mode='manual' scan='20' timerange='<02:18:05'
+mode='manual' scan='32' timerange='<03:01:38'
+mode='manual' scan='36' timerange='<03:16:08'
+mode='manual' scan='44' timerange='<03:45:10'
+mode='manual' scan='48' timerange='<03:59:40'
+mode='manual' scan='56' timerange='<04:28:40'
+mode='manual' scan='60' timerange='<04:43:10'
+
+mode='manual' scan='64' timerange='<04:59:00'
+mode='manual' scan='65' timerange='<05:06:00'
+
+# Large phase changes
+mode='manual' antenna='ea21'
+
+mode='manual' scan='54~56,62' spw='3:110~125'
+mode='manual' scan='54' timerange='>04:26:30'
+mode='manual' scan='62' timerange='>04:55:00'
+
+mode='manual' spw='6:43~53'
+mode='manual' spw='6:70~80'

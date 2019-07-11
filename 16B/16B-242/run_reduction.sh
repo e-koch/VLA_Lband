@@ -89,3 +89,73 @@ pids+=" $!"
 wait $pids || { echo "There was an error" >&2; exit 1; }
 
 echo "All CASA jobs exited. 3/3"
+
+# Continuum reduction
+
+export repo_path='/home/eric/ownCloud/code_development/VLA_Lband/'
+export repo_path='/home/ekoch/ownCloud/code_development/VLA_Lband/'
+
+
+export track_folder='16B-242_10_12_16'
+export track_name='16B-242.sb32681213.eb32949259.57673.06817918981'
+
+# Move the SDM file into the track folder
+mv "${track_name}.tar" $track_folder
+cd $track_folder
+tar -xf "${track_name}".tar
+~/casa-release-5.4.1-32.el7/bin/casa --nogui --log2term -c $repo_path/16B/pipeline_scripts/ms_split.py $track_name F cont
+# Clean up intermediate data
+# rm -f "${track_name}.tar"
+# rm -rf "${track_name}"
+cd "${track_folder}_continuum"
+# And reduce with the 5.4.1 pipeline
+~/casa-release-5.4.1-32.el7/bin/casa --pipeline --nogui --log2term -c $repo_path/16B/pipeline_scripts/casa_pipeline_continuum_v541.py "${track_name}.continuum.ms"
+cd ../../
+
+export track_folder='16B-242_10_13_16'
+export track_name='16B-242.sb32681213.eb32954876.57674.07753513889'
+
+# Move the SDM file into the track folder
+mv "${track_name}.tar" $track_folder
+cd $track_folder
+tar -xf "${track_name}".tar
+~/casa-release-5.4.1-32.el7/bin/casa --nogui --log2term -c $repo_path/16B/pipeline_scripts/ms_split.py $track_name F cont
+# Clean up intermediate data
+# rm -f "${track_name}.tar"
+# rm -rf "${track_name}"
+cd "${track_folder}_continuum"
+# And reduce with the 5.4.1 pipeline
+~/casa-release-5.4.1-32.el7/bin/casa --pipeline --nogui --log2term -c $repo_path/16B/pipeline_scripts/casa_pipeline_continuum_v541.py "${track_name}.continuum.ms"
+cd ../../
+
+export track_folder='16B-242_10_14_16'
+export track_name='16B-242.sb32681213.eb32956712.57675.0472325463'
+
+# Move the SDM file into the track folder
+mv "${track_name}.tar" $track_folder
+cd $track_folder
+tar -xf "${track_name}".tar
+~/casa-release-5.4.1-32.el7/bin/casa --nogui --log2term -c $repo_path/16B/pipeline_scripts/ms_split.py $track_name F cont
+# Clean up intermediate data
+# rm -f "${track_name}.tar"
+# rm -rf "${track_name}"
+cd "${track_folder}_continuum"
+# And reduce with the 5.4.1 pipeline
+~/casa-release-5.4.1-32.el7/bin/casa --pipeline --nogui --log2term -c $repo_path/16B/pipeline_scripts/casa_pipeline_continuum_v541.py "${track_name}.continuum.ms"
+cd ../../
+
+export track_folder='16B-242_10_16_16'
+export track_name='16B-242.sb32681213.eb32958324.57677.085873668984'
+
+# Move the SDM file into the track folder
+mv "${track_name}.tar" $track_folder
+cd $track_folder
+tar -xf "${track_name}".tar
+~/casa-release-5.4.1-32.el7/bin/casa --nogui --log2term -c $repo_path/16B/pipeline_scripts/ms_split.py $track_name F cont
+# Clean up intermediate data
+# rm -f "${track_name}.tar"
+# rm -rf "${track_name}"
+cd "${track_folder}_continuum"
+# And reduce with the 5.4.1 pipeline
+~/casa-release-5.4.1-32.el7/bin/casa --pipeline --nogui --log2term -c $repo_path/16B/pipeline_scripts/casa_pipeline_continuum_v541.py "${track_name}.continuum.ms"
+cd ../../

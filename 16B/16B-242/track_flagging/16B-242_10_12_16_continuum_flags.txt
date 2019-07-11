@@ -1,0 +1,35 @@
+# Custom flags for 16B-242.sb32681213.eb32949259.57673.06817918981 continuum SPWs
+
+# NOTE: Need custom flagging for SPWs 1,2,4,5,7
+
+# Amp gain variability
+mode='manual' antenna='ea21'
+
+mode='manual' scan='2' timerange='<01:42:20'
+mode='manual' scan='2' timerange='>01:47:20'
+
+mode='manual' scan='27' timerange='>03:16:15'
+
+mode='manual' scan='15,16' antenna='ea28'
+
+mode='manual' scan='4' timerange='<01:50:14' 
+mode='manual' scan='8' timerange='<02:04:44' 
+mode='manual' scan='16' timerange='<02:33:45' 
+mode='manual' scan='20' timerange='<02:48:15'
+mode='manual' scan='26' timerange='>03:15:00'
+mode='manual' scan='28' timerange='<03:17:15'
+mode='manual' scan='32' timerange='<03:31:48'
+mode='manual' scan='44' timerange='<04:15:20'
+mode='manual' scan='48' timerange='<04:29:50'
+mode='manual' scan='56' timerange='<04:58:50'
+mode='manual' scan='60' timerange='<05:13:20'
+
+mode='manual' scan='46,48,54,56' spw='3:115~125'
+
+mode='manual' scan='27' timerange='03:16:10~03:16:30'
+mode='manual' scan='31' timerange='<03:30:00'
+mode='manual' scan='55' timerange='<04:57:00'
+
+# Stron RFI spikes in SPW 6
+mode='manual' spw='6:58~68' scans='33~65'
+mode='manual' spw='6:85~95' scans='33~65'

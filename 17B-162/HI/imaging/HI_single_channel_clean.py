@@ -7,6 +7,7 @@ import re
 import numpy as np
 import time
 import socket
+import tarfile
 
 from tasks import tclean, tget
 
@@ -355,3 +356,16 @@ except Exception as e:
         pass
 
     raise e
+
+# Convert the workdirectory to a tar file to create less files on scratch
+casalog.post("Making workdirectory tar file.")
+
+workdir = "{}.workdirectory".format(imagename)
+workdirtar = "{}.tar".format(workdir)
+
+with tarfile.open(workdirtar, mode='w') as archive:
+    archive.add(workdir, recursive=True)
+
+os.system("rm -rf {}".format(workdir))
+
+casalog.post("Finished making workdirectory tar file.")

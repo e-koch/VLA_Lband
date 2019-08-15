@@ -7,10 +7,17 @@ Run in CASA.
 
 import sys
 from glob import glob
+import socket
 
 from taskinit import iatool
 
 ia = iatool()
+
+# https://github.com/e-koch/VLA_Lband/blob/master/CASA_functions/imaging_utils.py
+if socket.gethostname().lower() == 'segfault':
+    execfile("/home/ekoch/ownCloud/code_development/VLA_Lband/CASA_functions/imaging_utils.py")
+else:
+    execfile("/home/ekoch/code/VLA_Lband/CASA_functions/imaging_utils.py")
 
 path_to_data = sys.argv[-4]
 
@@ -33,8 +40,8 @@ images = []
 
 for num in range(num_imgs):
 
-    chan_img = glob("{0}/channel_{1}/{2}_channel*.{3}"
-                    .format(path_to_data, num, filename, suffix))
+    chan_img = glob("{0}/{1}_channel_{2}.{3}"
+                    .format(path_to_data, filename, num, suffix))
     if len(chan_img) == 1:
         images.append(chan_img[0])
 
@@ -50,8 +57,11 @@ if len(images) != num_imgs:
 
 cubename = "{0}/{1}.{2}".format(path_to_data, filename, suffix)
 
-ia.imageconcat(outfile=cubename, infiles=images, reorder=False,
-               overwrite=True, relax=True)
-ia.close()
+append_to_cube(path_to_data, "{}_channel".format(filename),
+               suffix, num_imgs,
+               cubename, chunk_size=250,
+               delete_chunk_cubes=True,
+               concat_kwargs={'relax': True, 'reorder': False,
+                              'overwrite': True})
 
 casalog.post("Look! I made a {} cube!".format(suffix))

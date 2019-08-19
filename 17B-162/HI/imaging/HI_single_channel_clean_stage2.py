@@ -8,6 +8,7 @@ import time
 import scipy.ndimage as nd
 from glob import glob
 import socket
+import tarfile
 
 from tasks import tclean, tget
 
@@ -264,6 +265,44 @@ stage1_files = glob(imagename + "*")
 for fi in stage1_files:
     os.system("cp -r {0} {1}".format(fi, keep_old_path))
 
+# Untar the workdirectory folder
+casalog.post("Unpacking workdirectory tar file.")
+
+workdir = "{}.workdirectory".format(imagename)
+workdirtar = "{}.tar".format(workdir)
+
+with tarfile.open(workdirtar, mode='r') as archive:
+    archive.extractall()
+
+os.system("rm -rf {}".format(workdirtar))
+
+casalog.post("Finished making workdirectory tar file.")
+
+# We're switching from auto-masking to pb masking for the final step
+# ensuring that we get all emission above the limit.
+# Need to delete the mask and image files from the workdir
+os.system("rm -rf {}".format(os.path.join(workdir, "*.image")))
+os.system("rm -rf {}".format(os.path.join(workdir, "*.mask")))
+
+# Don't do this if we're using a signal mask from the 14B-only
+# imaging.
+# If the original mask still exists, remove it
+old_maskname = "{0}.mask".format(imagename)
+old_maskname_move = "{0}.mask.stage1".format(imagename)
+os.system("cp -r {0} {1}".format(old_maskname, old_maskname_move))
+
+if os.path.exists(old_maskname):
+    os.system("rm -r {}".format(old_maskname))
+
+# Make a copy of the stage 1 image
+old_imagename = "{0}.image".format(imagename)
+old_imagename_move = "{0}.image.stage1".format(imagename)
+os.system("cp -r {0} {1}".format(old_imagename, old_imagename_move))
+
+# And residual
+old_residualname = "{0}.residual".format(imagename)
+old_residualname_move = "{0}.residual.stage1".format(imagename)
+os.system("cp -r {0} {1}".format(old_residualname, old_residualname_move))
 
 # Don't do this if we're using a signal mask from the 14B-only
 # imaging.

@@ -35,14 +35,18 @@ out_vis = "17B-162_{0}_spw_{1}_LSRK.ms"\
 
 # in casa 5.4.1, fftshift does something that is not linear interpolation
 # but it gives severe edge effects when I've used it on the 13A-213 data
-mstransform(vis=myvis, outputvis=out_vis, spw=str(spw_num),
-            datacolumn='data',
-            field='M33*',
-            regridms=True, mode='channel',
-            interpolation='linear',  # 'fftshift',
-            phasecenter='J2000 01h33m50.904 +30d39m35.79',
-            restfreq=linespw_dict[spw_num][1], outframe='LSRK',
-            douvcontsub=False)
+if os.path.exists(out_vis):
+    casalog.post("Already found {0}. Skipping split from main MS.")
+else:
+    mstransform(vis=myvis, outputvis=out_vis, spw=str(spw_num),
+                datacolumn='data',
+                field='M33*',
+                regridms=True, mode='channel',
+                interpolation='linear',  # 'fftshift',
+                phasecenter='J2000 01h33m50.904 +30d39m35.79',
+                restfreq=linespw_dict[spw_num][1],
+                outframe='LSRK',
+                douvcontsub=False)
 
 default('uvcontsub')
 

@@ -6,6 +6,7 @@ to LSRK, and subtract continuum in uv-plane
 
 import os
 import sys
+import socket
 
 from tasks import mstransform, uvcontsub
 
@@ -14,8 +15,12 @@ myvis = '17B-162_lines.ms'
 spw_num = int(sys.argv[-1])
 
 # Load in the SPW dict in the repo on cedar
-execfile(os.path.expanduser("~/code/VLA_Lband/17B-162/spw_setup.py"))
-
+if "cedar.computecanada" in socket.gethostname():
+    execfile(os.path.expanduser("~/code/VLA_Lband/17B-162/spw_setup.py"))
+elif 'segfault' in socket.gethostname():
+    execfile(os.path.expanduser("~/ownCloud/code_development/VLA_Lband/17B-162/spw_setup.py"))
+else:
+    raise ValueError("Don't recognize host name.")
 
 default('mstransform')
 
@@ -43,5 +48,5 @@ default('uvcontsub')
 
 # Separate uvcontsub call
 uvcontsub(vis=out_vis,
-          fitspw='{0}:{1}'.format(spw_num, linespw_dict[spw_num][3]),
+          fitspw='0:{0}'.format(linespw_dict[spw_num][3]),
           fitorder=0, want_cont=False)

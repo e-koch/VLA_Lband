@@ -21,7 +21,7 @@ from constants import hi_freq
 run_gbt_02kms = False
 run_gbt_1kms = True
 
-num_cores = 5
+num_cores = 2
 chunk = 50
 
 
@@ -118,6 +118,6 @@ if run_gbt_1kms:
                  spec_check_kwargs={'rtol': 0.4})
 
     # Now resave a minimal version of the feathered cube
-    cube = SpectralCube.read(save_name)
-    cube.minimal_subcube().write(save_name, overwrite=True)
+    # cube = SpectralCube.read(save_name)
+    # cube.minimal_subcube().write(save_name, overwrite=True)
     del cube

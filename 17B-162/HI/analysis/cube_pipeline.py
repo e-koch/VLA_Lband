@@ -7,7 +7,7 @@ from astropy import log
 from cube_analysis import run_pipeline
 
 
-run_02kms = True
+run_02kms = False
 run_1kms = True
 
 num_cores = 4
@@ -73,7 +73,8 @@ if run_1kms:
     run_pipeline(seventeenB_HI_data_1kms_path("M33_14B_17B_HI_contsub_width_1kms.image.pbcor.fits"),
                  seventeenB_HI_data_1kms_path("", no_check=True),
                  pb_file=seventeenB_HI_data_1kms_path("M33_14B_17B_HI_contsub_width_1kms.pb.fits"),
-                 pb_lim=0.5, convolve_to_common_beam=True,
+                 apply_pbmasking=False, pb_lim=0.15,
+                 convolve_to_common_beam=True,
                  masking_kwargs={"method": "ppv_connectivity",
                                  "save_cube": True,
                                  "is_huge": True,
@@ -87,15 +88,15 @@ if run_1kms:
                  moment_kwargs={"num_cores": num_cores,
                                 "verbose": True,
                                 "chunk_size": 1e5,
-                                "make_peakvels": False},
-                 combeam_kwargs={'epsilon': 9e-4})
+                                "make_peakvels": False},)
 
     # VLA+GBT cube
     log.info("Masking and moments for the VLA+GBT cube")
     run_pipeline(seventeenB_HI_data_1kms_wGBT_path("M33_14B_17B_HI_contsub_width_1kms.image.pbcor.GBT_feathered.fits"),
                  seventeenB_HI_data_1kms_wGBT_path("", no_check=True),
                  pb_file=seventeenB_HI_data_1kms_path("M33_14B_17B_HI_contsub_width_1kms.pb.fits"),
-                 pb_lim=0.5, convolve_to_common_beam=True,
+                 apply_pbmasking=False, pb_lim=0.15,
+                 convolve_to_common_beam=True,
                  masking_kwargs={"method": "ppv_connectivity",
                                  "save_cube": True,
                                  "is_huge": True,
@@ -109,5 +110,4 @@ if run_1kms:
                  moment_kwargs={"num_cores": num_cores,
                                 "verbose": True,
                                 "chunk_size": 1e5,
-                                "make_peakvels": False},
-                 combeam_kwargs={'epsilon': 9e-4})
+                                "make_peakvels": False},)

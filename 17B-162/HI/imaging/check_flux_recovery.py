@@ -192,6 +192,12 @@ if run_gbt_1kms:
     df = DataFrame({"VLA Mass": [vla_mass.value],
                     "GBT Mass": [gbt_mass.value],
                     "VLA+GBT Mass": [feathered_mass.value]})
+
+    out_folder = seventeenB_HI_data_1kms_wGBT_path("tables/",
+                                                   no_check=True)
+    if not os.path.exists(out_folder):
+        os.mkdir(out_folder)
+
     df.to_csv(seventeenB_HI_data_1kms_wGBT_path("tables/hi_masses_nomask_1kms.csv",
                                                 no_check=True))
 
@@ -220,7 +226,7 @@ if run_gbt_1kms:
                             unit=u.Jy, wcs=spec.wcs,
                             meta=spec.meta,
                             beam=gbt_cube.beam)
-    gbt_spec.write(ebhis_m31_HI_data_path(
-                      "17B-162_items/m33_gbt_vlsr_highres_Tmb_17B162_1kms_spectralregrid.total_flux_spec.fits", no_check=True))
+    gbt_spec.write(os.path.join(gbt_path,
+                      "17B-162_items/m33_gbt_vlsr_highres_Tmb_17B162_1kms_spectralregrid.total_flux_spec.fits"))
 
 default_figure()

@@ -30,7 +30,7 @@ Xvfb :1 &
 export DISPLAY=:1
 
 # Path to the casa files
-export casa_scratch_path="$HOME/scratch/casa-release-5.5.0-149.el7"
+export casa_scratch_path="$HOME/casa-release-5.5.0-149.el7"
 
 # Make a new directory on the node storage
 tmp_dir=$SLURM_TMPDIR/OH_imaging_${chan_num}
@@ -55,7 +55,7 @@ if (( $job_num==0 )); then
     mkdir $scratch_path/OH1612_imaging
 
     # Copy data
-    cp -r $scratch_path/17B-162_OH1612_spw_3_LSRK.ms.contsub
+    cp -r $scratch_path/17B-162_OH1612_spw_3_LSRK.ms.contsub .
 
     casa-release-5.5.0-149.el7/bin/casa --rcdir ${rc_path} --nologger --nogui --log2term --logfile $scratch_path/OH_17B_imaging_$(date "+%Y%m%d-%H%M%S")_1612.log --nocrashreport -c ~/code/VLA_Lband/17B-162/OH/OH_imaging.py 3 True $weighting False
 
@@ -67,7 +67,7 @@ elif (( $job_num==1 )); then
     mkdir $scratch_path/OH1612_imaging
 
     # Copy data
-    cp -r $scratch_path/17B-162_OH1612_spw_3_LSRK.ms.contsub
+    cp -r $scratch_path/17B-162_OH1612_spw_3_LSRK.ms.contsub .
 
     casa-release-5.5.0-149.el7/bin/casa --rcdir ${rc_path} --nologger --nogui --log2term --logfile $scratch_path/OH_17B_imaging_$(date "+%Y%m%d-%H%M%S")_1612_nocontsub.log --nocrashreport -c ~/code/VLA_Lband/17B-162/OH/OH_imaging.py 3 False $weighting False
 
@@ -79,7 +79,7 @@ elif (( $job_num==2 )); then
     mkdir $scratch_path/OH1665_imaging
 
     # Copy data
-    cp -r $scratch_path/17B-162_OH1665_spw_5_LSRK.ms.contsub
+    cp -r $scratch_path/17B-162_OH1665_spw_5_LSRK.ms.contsub .
 
     casa-release-5.5.0-149.el7/bin/casa --rcdir ${rc_path} --nologger --nogui --log2term --logfile $scratch_path/OH_17B_imaging_$(date "+%Y%m%d-%H%M%S")_1665.log --nocrashreport -c ~/code/VLA_Lband/17B-162/OH/OH_imaging.py 5 True $weighting False
 
@@ -91,7 +91,7 @@ elif (( $job_num==3 )); then
     mkdir $scratch_path/OH1665_imaging
 
     # Copy data
-    cp -r $scratch_path/17B-162_OH1665_spw_5_LSRK.ms
+    cp -r $scratch_path/17B-162_OH1665_spw_5_LSRK.ms .
 
     casa-release-5.5.0-149.el7/bin/casa --rcdir ${rc_path} --nologger --nogui --log2term --logfile $scratch_path/OH_17B_imaging_$(date "+%Y%m%d-%H%M%S")_1665_nocontsub.log --nocrashreport -c ~/code/VLA_Lband/17B-162/OH/OH_imaging.py 5 False $weighting False
 
@@ -103,7 +103,7 @@ elif (( $job_num==4 )); then
     mkdir $scratch_path/OH1667_imaging
 
     # Copy data
-    cp -r $scratch_path/17B-162_OH1667_spw_6_LSRK.ms.contsub
+    cp -r $scratch_path/17B-162_OH1667_spw_6_LSRK.ms.contsub .
 
     casa-release-5.5.0-149.el7/bin/casa --rcdir ${rc_path} --nologger --nogui --log2term --logfile $scratch_path/OH_17B_imaging_$(date "+%Y%m%d-%H%M%S")_1667.log --nocrashreport -c ~/code/VLA_Lband/17B-162/OH/OH_imaging.py 6 True $weighting False
 
@@ -115,7 +115,7 @@ elif (( $job_num==5 )); then
     mkdir $scratch_path/OH1667_imaging
 
     # Copy data
-    cp -r $scratch_path/17B-162_OH1667_spw_6_LSRK.ms
+    cp -r $scratch_path/17B-162_OH1667_spw_6_LSRK.ms .
 
     casa-release-5.5.0-149.el7/bin/casa --rcdir ${rc_path} --nologger --nogui --log2term --logfile $scratch_path/OH_17B_imaging_$(date "+%Y%m%d-%H%M%S")_1667_nocontsub.log --nocrashreport -c ~/code/VLA_Lband/17B-162/OH/OH_imaging.py 6 False $weighting False
 
@@ -127,7 +127,7 @@ elif (( $job_num==6 )); then
     mkdir $scratch_path/OH1720_imaging
 
     # Copy data
-    cp -r $scratch_path/17B-162_OH1720_spw_7_LSRK.ms.contsub
+    cp -r $scratch_path/17B-162_OH1720_spw_7_LSRK.ms.contsub .
 
     casa-release-5.5.0-149.el7/bin/casa --rcdir ${rc_path} --nologger --nogui --log2term --logfile $scratch_path/OH_17B_imaging_$(date "+%Y%m%d-%H%M%S")_1720.log --nocrashreport -c ~/code/VLA_Lband/17B-162/OH/OH_imaging.py 7 True $weighting False
 
@@ -139,7 +139,7 @@ elif (( $job_num==7 )); then
     mkdir $scratch_path/OH1720_imaging
 
     # Copy data
-    cp -r $scratch_path/17B-162_OH1720_spw_7_LSRK.ms
+    cp -r $scratch_path/17B-162_OH1720_spw_7_LSRK.ms .
 
     casa-release-5.5.0-149.el7/bin/casa --rcdir ${rc_path} --nologger --nogui --log2term --logfile $scratch_path/OH_17B_imaging_$(date "+%Y%m%d-%H%M%S")_1720_nocontsub.log --nocrashreport -c ~/code/VLA_Lband/17B-162/OH/OH_imaging.py 7 False $weighting False
 

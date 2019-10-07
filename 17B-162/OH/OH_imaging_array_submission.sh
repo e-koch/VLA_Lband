@@ -3,8 +3,8 @@
 #SBATCH --mem=256000M
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=32
-#SBATCH --job-name=M33_bc_1kms-%A-%a
-#SBATCH --output=casa-m33_bc_1kms-%A-%a.out
+#SBATCH --job-name=M33_17B_OH-%A-%a
+#SBATCH --output=casa-m33_17B_OH-%A-%a.out
 #SBATCH --array=0-7
 
 # Use array to set which channels will get imaged.

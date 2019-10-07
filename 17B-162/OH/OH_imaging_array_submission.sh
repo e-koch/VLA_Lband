@@ -67,7 +67,7 @@ elif (( $job_num==1 )); then
     mkdir $scratch_path/OH1612_imaging
 
     # Copy data
-    cp -r $scratch_path/17B-162_OH1612_spw_3_LSRK.ms.contsub .
+    cp -r $scratch_path/17B-162_OH1612_spw_3_LSRK.ms .
 
     casa-release-5.5.0-149.el7/bin/casa --rcdir ${rc_path} --nologger --nogui --log2term --logfile $scratch_path/OH_17B_imaging_$(date "+%Y%m%d-%H%M%S")_1612_nocontsub.log --nocrashreport -c ~/code/VLA_Lband/17B-162/OH/OH_imaging.py 3 False $weighting False
 

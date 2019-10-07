@@ -5,6 +5,7 @@ Only image the region directly around the OH detection
 
 import os
 import sys
+import socket
 
 from tasks import rmtables, impbcor, exportfits, tclean
 
@@ -25,7 +26,14 @@ single_chan_test = True if sys.argv[-1] == 'True' else False
 # The VLA_Lband directory needs to be in the path
 # from CASA_functions import (set_imagermode, set_imagesize, set_cellsize)
 
-execfile(os.path.expanduser("~/ownCloud/code_development/VLA_Lband/17B-162/spw_setup.py"))
+if 'cedar' in socket.gethostname().lower():
+    spw_file = os.path.expanduser('~/code/VLA_Lband/17B-162/spw_setup.py')
+elif 'segfault' in socket.gethostname().lower():
+    spw_file = os.path.expanduser("~/ownCloud/code_development/VLA_Lband/17B-162/spw_setup.py")
+else:
+    raise ValueError("Don't recognize host name.")
+
+execfile(spw_file)
 
 
 # With and without contsub

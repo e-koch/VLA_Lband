@@ -191,7 +191,7 @@ if single_chan_test:
 
 # Copy the dirty residual cube
 orig_res_cube = "{}.residual".format(out_image)
-backup_res_cube = "{}.residual".format(out_image)
+backup_res_cube = "{}.residual_orig".format(out_image)
 
 os.system("cp -r {0} {1}".format(orig_res_cube, backup_res_cube))
 

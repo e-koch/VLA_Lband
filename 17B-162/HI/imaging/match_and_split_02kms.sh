@@ -30,3 +30,6 @@ Xvfb :1 &
 export DISPLAY=:1
 
 $HOME/casa-release-5.5.0-149.el7/bin/mpicasa -n 32 $HOME/casa-release-5.5.0-149.el7/bin/casa --nologger --nogui --log2term --nocrashreport -c $HOME/code/VLA_Lband/17B-162/HI/imaging/match_and_split.py True 0.21
+
+# Local run for 0.42 km/s. NOT THE DIFFERENCE
+# ~/casa-release-5.4.1-32.el7/bin/casa --nologger --nogui --log2term --nocrashreport -c $HOME/ownCloud/code_development/VLA_Lband/17B-162/HI/imaging/match_and_split.py False 0.42

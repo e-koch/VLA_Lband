@@ -35,14 +35,19 @@ from astropy import units as u
 
 # This is here for local runs to avoid needing to make an MMS
 # Mostly for storage reasons.
-use_parallel = False
+use_parallel = True
 
-use_contsub = True if sys.argv[-2] == "True" else False
+use_contsub = True if sys.argv[-5] == "True" else False
 
 # All in km/s
-chan_width = float(sys.argv[-1])
+chan_width = float(sys.argv[-4])
 start_vel = -330
 end_vel = -50
+
+part = int(sys.argv[-3])
+total_parts = int(sys.argv[-2])
+
+out_path = str(sys.argv[-1])
 
 chan_width_label = "{}kms".format(chan_width).replace(".", "_")
 chan_width_quant = chan_width * u.km / u.s
@@ -208,32 +213,38 @@ if not os.path.exists(chan_path):
 
     start = 0
 
-else:
+# else:
 
-    # Check if some of the channels have already been split
-    exist_chans = glob("{}/channel_*".format(chan_path))
+#     # Check if some of the channels have already been split
+#     exist_chans = glob("{}/channel_*".format(chan_path))
 
-    # Didn't find any existing channels
-    if len(exist_chans) == 0:
-        start = 0
+#     # Didn't find any existing channels
+#     if len(exist_chans) == 0:
+#         start = 0
 
-    else:
-        # Pick out the channel numbers
-        nums = np.array([int(chan.split("_")[-1]) for chan in exist_chans])
+#     else:
+#         # Pick out the channel numbers
+#         nums = np.array([int(chan.split("_")[-1]) for chan in exist_chans])
 
-        # Assume that the last job stopped while part of the way through
-        # the final channel
-        final_chan = exist_chans[nums.argmax()]
+#         # Assume that the last job stopped while part of the way through
+#         # the final channel
+#         final_chan = exist_chans[nums.argmax()]
 
-        os.system("rm -r {}".format(final_chan))
+#         os.system("rm -r {}".format(final_chan))
 
-        start = nums.max() - 1
+#         start = nums.max() - 1
 
-if start == nchan:
-    casalog.post("No more channels to split!")
-    raise ValueError("No more channels to split!")
+# if start == nchan:
+#     casalog.post("No more channels to split!")
+#     raise ValueError("No more channels to split!")
 
-for chan in range(start, nchan + 1):
+nchan_part = int(np.ceil(nchan / total_parts))
+
+start = part * nchan_part
+end = min((part + 1) * nchan_part, nchan)
+
+# for chan in range(start, nchan + 1):
+for chan in range(start, end):
 
     casalog.post("On splitting channel {}".format(chan))
 
@@ -241,6 +252,26 @@ for chan in range(start, nchan + 1):
                                  "channel_{}".format(chan))
     if not os.path.exists(ind_chan_path):
         os.mkdir(ind_chan_path)
+
+    # Does the concat MS exist already? If yes, skip
+    concat_vis_name = '14B_17B_channel_{}.ms'.format(chan)
+
+    concat_ms = os.path.join(ind_chan_path, concat_vis_name)
+    if os.path.exists(concat_ms):
+        casalog.post("Channel {} already has an concatenated MS. Skipping.".format(chan))
+        continue
+
+    if use_parallel:
+        out_channel = os.path.join(out_path, "channel_{}".format(chan))
+        if not os.path.exists(out_channel):
+            os.mkdir(out_channel)
+        else:
+            # Does the MS already exist there? If so, skip it here.
+            scratch_ms = os.path.join(out_channel, concat_vis_name)
+            if os.path.exists(scratch_ms):
+                casalog.post("Found the split + concat MS for {} in scratch. "
+                             "Skipping.".format(chan))
+                continue
 
     sevenB_split_msname = "{0}_channel_{1}.ms".format(seventeenB_ms, chan)
     if use_parallel:
@@ -312,8 +343,6 @@ for chan in range(start, nchan + 1):
 
     # tclean calls have been ignoring the C-config data
     # concat the channel MSs for imaging
-    concat_ms = os.path.join(ind_chan_path,
-                             '14B_17B_channel_{}.ms'.format(chan))
 
     # If the concat ms already exists, delete it. Otherwise more data
     # will be appended on

@@ -46,20 +46,21 @@ export out_chan_folder="HI_nocontsub_0_42kms"
 # Move to scratch space b/c casa write out the temporary files into the same folder
 # cd $scratch_path
 
-Xvfb :1 &
-export DISPLAY=:1
-
 echo "Copy whole MS to node"
 
 # cp -r $scratch_path/17B-162_HI_spw_0_LSRK.ms.contsub .
 # cp -r $scratch_path/14B-088_HI_LSRK.ms.contsub .
 
-cp -r $scratch_path/17B-162_HI_spw_0_LSRK.ms .
-cp -r $scratch_path/14B-088_HI_LSRK.ms .
+# Run match_and_split_chunks.py to create smaller chunked versions of the MSs first.
+# The 17B data is too large to fit on node storage.
+
+# Only copy chunk MMSs over.
+cp -r $scratch_path/17B-162_HI_spw_0_LSRK.ms.0_42kms.mms_chunk_${job_num} .
+cp -r $scratch_path/14B-088_HI_LSRK.ms.0_42kms.mms_chunk_${job_num} .
 
 mkdir ${out_chan_folder}
 
-casa-release-5.4.1-32.el7/bin/mpicasa -n 32 casa-release-5.4.1-32.el7/bin/casa --rcdir ${rc_path} --nologger --nogui --log2term --nocrashreport -c $HOME/code/VLA_Lband/17B-162/HI/imaging/match_and_split.py False 0.42 $job_num 10 ${scratch_path}/${out_chan_folder}/
+casa-release-5.4.1-32.el7/bin/mpicasa -n 32 casa-release-5.4.1-32.el7/bin/casa --rcdir ${rc_path} --nologger --nogui --log2term --nocrashreport -c $HOME/code/VLA_Lband/17B-162/HI/imaging/match_and_split.py False 0.42 $job_num 10 ${scratch_path}
 
-# Local run for 0.42 km/s. NOT THE DIFFERENCE
+# Local run for 0.42 km/s. NOTE THE DIFFERENCE
 # ~/casa-release-5.4.1-32.el7/bin/casa --nologger --nogui --log2term --nocrashreport -c $HOME/ownCloud/code_development/VLA_Lband/17B-162/HI/imaging/match_and_split.py False 0.42

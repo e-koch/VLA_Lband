@@ -47,10 +47,15 @@ end_vel = -50
 part = int(sys.argv[-3])
 total_parts = int(sys.argv[-2])
 
-out_path = str(sys.argv[-1])
+scratch_path = str(sys.argv[-1])
 
 chan_width_label = "{}kms".format(chan_width).replace(".", "_")
 chan_width_quant = chan_width * u.km / u.s
+
+chan_path = "HI_{0}_{1}".format("contsub" if use_contsub else "nocontsub",
+                                chan_width_label)
+
+out_path = os.path.join(scratch_path, chan_path)
 
 # Common fields in B and C
 myfields = 'M33_2,M33_6,M33_7_center,M33_8,M33_11,M33_12,M33_14'
@@ -58,76 +63,87 @@ myfields = 'M33_2,M33_6,M33_7_center,M33_8,M33_11,M33_12,M33_14'
 # ~1334 for 0.21 km/s
 # n_chan = int(np.ceil((end_vel - start_vel) / chan_width))
 
+
+chunk_suffix = "{0}.mms_chunk_{1}".format(chan_width_label, part)
+
+
 if use_contsub:
-    fourteenB_ms = "14B-088_HI_LSRK.ms.contsub"
-    seventeenB_ms = "17B-162_HI_spw_0_LSRK.ms.contsub"
+
+    fourteenB_ms_orig = "{0}/14B-088_HI_LSRK.ms.contsub".format(scratch_path)
+    seventeenB_ms_orig = "{0}/17B-162_HI_spw_0_LSRK.ms.contsub".format(scratch_path)
+
+    fourteenB_ms = "14B-088_HI_LSRK.ms.contsub.{0}".format(chunk_suffix)
+    seventeenB_ms = "17B-162_HI_spw_0_LSRK.ms.contsub.{0}".format(chunk_suffix)
 
     concat_vis = "14B_17B_HI_LSRK.ms.contsub"
 
 else:
 
-    fourteenB_ms = "14B-088_HI_LSRK.ms"
-    seventeenB_ms = "17B-162_HI_spw_0_LSRK.ms"
+    fourteenB_ms_orig = "{0}/14B-088_HI_LSRK.ms".format(scratch_path)
+    seventeenB_ms_orig = "{0}/17B-162_HI_spw_0_LSRK.ms".format(scratch_path)
+
+    fourteenB_ms = "14B-088_HI_LSRK.ms.{0}".format(chunk_suffix)
+    seventeenB_ms = "17B-162_HI_spw_0_LSRK.ms.{0}".format(chunk_suffix)
 
     concat_vis = "14B_17B_HI_LSRK.ms"
 
 
-
-seventeenB_mms = "{0}.{1}.regrid".format(seventeenB_ms, chan_width_label)
-fourteenB_mms = "{0}.{1}.regrid".format(fourteenB_ms, chan_width_label)
+# The chunks are already an MMS. So don't worry about this part.
+seventeenB_mms = seventeenB_ms
+fourteenB_mms = fourteenB_ms
 
 # Create an MMS prior to splitting to that the split can be run in parallel
 
-if use_parallel:
+# if use_parallel:
 
-    if os.path.exists(seventeenB_mms):
-        casalog.post("Found the 17B MMS. Skipping mstransform.")
-    else:
-        casalog.post("Regridding 17B")
+#     if os.path.exists(seventeenB_mms):
+#         casalog.post("Found the 17B MMS. Skipping mstransform.")
+#     else:
+#         casalog.post("Regridding 17B")
 
-        partition(vis=seventeenB_ms,
-                  outputvis=seventeenB_mms,
-                  createmms=True,
-                  flagbackup=False,
-                  numsubms=31)
+#         partition(vis=seventeenB_ms,
+#                   outputvis=seventeenB_mms,
+#                   createmms=True,
+#                   flagbackup=False,
+#                   numsubms=31)
 
-        # mstransform(vis=seventeenB_ms,
-        #             outputvis=seventeenB_mms,
-        #             datacolumn='data',
-        #             spw='0', regridms=True, mode='velocity', veltype='radio',
-        #             start="{}km/s".format(start_vel),
-        #             width="{}km/s".format(chan_width), nchan=n_chan,
-        #             interpolation='fftshift', restfreq='1.420405752GHz',
-        #             createmms=True, separationaxis='auto', numsubms=31)
+#         # mstransform(vis=seventeenB_ms,
+#         #             outputvis=seventeenB_mms,
+#         #             datacolumn='data',
+#         #             spw='0', regridms=True, mode='velocity', veltype='radio',
+#         #             start="{}km/s".format(start_vel),
+#         #             width="{}km/s".format(chan_width), nchan=n_chan,
+#         #             interpolation='fftshift', restfreq='1.420405752GHz',
+#         #             createmms=True, separationaxis='auto', numsubms=31)
 
-    # Now the 14B data. Only keep the fields used in the 17B data
+#     # Now the 14B data. Only keep the fields used in the 17B data
 
-    if os.path.exists(fourteenB_mms):
-        casalog.post("Found the regridded 14B MS. Skipping mstransform.")
-    else:
+#     if os.path.exists(fourteenB_mms):
+#         casalog.post("Found the regridded 14B MS. Skipping mstransform.")
+#     else:
 
-        casalog.post("Regridding 14B")
+#         casalog.post("Regridding 14B")
 
-        partition(vis=fourteenB_ms,
-                  outputvis=fourteenB_mms,
-                  createmms=True,
-                  flagbackup=False,
-                  numsubms=31)
+#         partition(vis=fourteenB_ms,
+#                   outputvis=fourteenB_mms,
+#                   createmms=True,
+#                   flagbackup=False,
+#                   numsubms=31)
 
-    #     # Also convert th 14B data to an MMS w/ the same number of sub-MS as 17B
-    #     mstransform(vis=fourteenB_ms,
-    #                 outputvis=fourteenB_ms_regrid,
-    #                 datacolumn='data',
-    #                 field='M33_2,M33_6,M33_7_center,M33_8,M33_11,M33_12,M33_14',
-    #                 spw='0', regridms=True, mode='velocity', veltype='radio',
-    #                 start="{}km/s".format(start_vel),
-    #                 width="{}km/s".format(chan_width), nchan=n_chan,
-    #                 interpolation='fftshift', restfreq='1.420405752GHz',
-    #                 createmms=True, separationaxis='auto', numsubms=31)
-else:
+#     #     # Also convert th 14B data to an MMS w/ the same number of sub-MS as 17B
+#     #     mstransform(vis=fourteenB_ms,
+#     #                 outputvis=fourteenB_ms_regrid,
+#     #                 datacolumn='data',
+#     #                 field='M33_2,M33_6,M33_7_center,M33_8,M33_11,M33_12,M33_14',
+#     #                 spw='0', regridms=True, mode='velocity', veltype='radio',
+#     #                 start="{}km/s".format(start_vel),
+#     #                 width="{}km/s".format(chan_width), nchan=n_chan,
+#     #                 interpolation='fftshift', restfreq='1.420405752GHz',
+#     #                 createmms=True, separationaxis='auto', numsubms=31)
+# else:
 
-    seventeenB_mms = seventeenB_ms
-    fourteenB_mms = fourteenB_ms
+#     seventeenB_mms = seventeenB_ms
+#     fourteenB_mms = fourteenB_ms
 
 # New version:
 
@@ -149,14 +165,14 @@ def closest_channel(freqs, targ_freq):
 #n_chan = int(np.ceil((end_vel - start_vel) / chan_width))
 
 # Get the HI SPW freqs
-tb.open(os.path.join(fourteenB_ms, 'SPECTRAL_WINDOW'))
+tb.open(os.path.join(fourteenB_ms_orig, 'SPECTRAL_WINDOW'))
 chanfreqs_14B = tb.getcol('CHAN_FREQ').squeeze()
 tb.close()
 
 delta_freq_14B = np.abs(np.diff(chanfreqs_14B))[0]
 
 
-tb.open(os.path.join(seventeenB_ms, 'SPECTRAL_WINDOW'))
+tb.open(os.path.join(seventeenB_ms_orig, 'SPECTRAL_WINDOW'))
 chanfreqs_17B = tb.getcol('CHAN_FREQ').squeeze()
 tb.close()
 
@@ -204,9 +220,6 @@ if nchan_14B % navg_channel != 0:
 
 # Now split out individual channels for imaging.
 
-chan_path = "HI_{0}_{1}".format("contsub" if use_contsub else "nocontsub",
-                                chan_width_label)
-
 if not os.path.exists(chan_path):
 
     os.mkdir(chan_path)
@@ -244,7 +257,7 @@ start = part * nchan_part
 end = min((part + 1) * nchan_part, nchan)
 
 # for chan in range(start, nchan + 1):
-for chan in range(start, end):
+for chan_chunk, chan in enumerate(range(start, end)):
 
     casalog.post("On splitting channel {}".format(chan))
 
@@ -280,8 +293,12 @@ for chan in range(start, end):
     else:
         sevenB_split_mmsname = sevenB_split_msname
 
-    start_17B = chan * navg_channel + start_17B_chan
-    end_17B = (chan + 1) * navg_channel + start_17B_chan - 1
+    # Because of the chunks, we now just iterate through without the offsets
+    start_17B = chan_chunk * navg_channel
+    end_17B = (chan_chunk + 1) * navg_channel + - 1
+
+    # start_17B = chan * navg_channel + start_17B_chan
+    # end_17B = (chan + 1) * navg_channel + start_17B_chan - 1
 
     if navg_channel == 1:
         # These should equal when not averaging channels
@@ -305,8 +322,11 @@ for chan in range(start, end):
     else:
         fourB_split_mmsname = fourB_split_msname
 
-    start_14B = chan * navg_channel + start_14B_chan
-    end_14B = (chan + 1) * navg_channel + start_14B_chan - 1
+    start_14B = chan_chunk * navg_channel
+    end_14B = (chan_chunk + 1) * navg_channel + - 1
+
+    # start_14B = chan * navg_channel + start_14B_chan
+    # end_14B = (chan + 1) * navg_channel + start_14B_chan - 1
 
     if navg_channel == 1:
         # These should equal when not averaging channels

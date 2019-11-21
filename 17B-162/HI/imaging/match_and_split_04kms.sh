@@ -5,7 +5,7 @@
 #SBATCH --nodes=1
 #SBATCH --job-name=M33_HI_match_and_combine-%A-%a
 #SBATCH --output=casa-m33_HI_match_and_combine-%A-%a.out
-#SBATCH --array=0-9%1
+#SBATCH --array=0-9
 
 
 # Create regridded 14B and 17B HI MMS and split into individual channels

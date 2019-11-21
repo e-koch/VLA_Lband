@@ -62,10 +62,10 @@ mkdir ${out_chan_folder}
 
 casa-release-5.4.1-32.el7/bin/mpicasa -n 32 casa-release-5.4.1-32.el7/bin/casa --rcdir ${rc_path} --nologger --nogui --log2term --nocrashreport -c $HOME/code/VLA_Lband/17B-162/HI/imaging/match_and_split.py False 0.42 $job_num 10 ${scratch_path}
 
-echo "Copying split MSs into scratch"
-# Copy splits back to scratch location
-cp -r ${out_chan_folder}/* ${scratch_path}/${out_chan_folder}/
-echo "Finished copying split MSs into scratch"
+# echo "Copying split MSs into scratch"
+# # Copy splits back to scratch location
+# cp -r ${out_chan_folder}/* ${scratch_path}/${out_chan_folder}/
+# echo "Finished copying split MSs into scratch"
 
 echo "Finished."
 

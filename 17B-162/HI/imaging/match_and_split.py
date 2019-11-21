@@ -373,6 +373,17 @@ for chan_chunk, chan in enumerate(range(start, end)):
                 os.path.join(ind_chan_path, fourB_split_msname)],
            concatvis=concat_ms)
 
+    # If using parallel on cedar, copy the concat MS to scratch space.
+    if use_parallel:
+        # We checked earlier for the existence of the channel folder and
+        # another concat MS. No need to check again
+        out_channel = os.path.join(out_path, "channel_{}".format(chan))
+
+        casalog.post("Copying concat MS to scratch.")
+        scratch_ms = os.path.join(out_channel, concat_vis_name)
+
+        os.system("mv {0} {1}/".format(concat_ms, out_channel))
+
     # Clean-up temporary MS
     os.system("rm -rf {}".format(os.path.join(ind_chan_path,
                                               sevenB_split_msname)))

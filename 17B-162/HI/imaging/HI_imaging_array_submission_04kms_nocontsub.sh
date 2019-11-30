@@ -24,6 +24,8 @@ job_num=$SLURM_ARRAY_TASK_ID
 # Move to scratch space b/c casa write out the temporary files into the same folder
 export scratch_path=/home/ekoch/scratch/17B-162_imaging/
 
+export channel_folder_name=HI_nocontsub_0_42kms
+
 cd $scratch_path
 
 Xvfb :1 &
@@ -68,9 +70,9 @@ for (( chan_num = $start_chan; chan_num < $end_chan; chan_num++ )); do
     cd $tmp_dir
 
     # Move the data to the temp path
-    mkdir HI_nocontsub_0_42kms
-    mkdir HI_nocontsub_0_42kms/channel_${chan_num}
-    cp -r $scratch_path/HI_nocontsub_0_42kms/channel_${chan_num}/* HI_nocontsub_0_42kms/channel_${chan_num}/
+    mkdir ${channel_folder_name}
+    mkdir ${channel_folder_name}/channel_${chan_num}
+    cp -r $scratch_path/${channel_folder_name}/channel_${chan_num}/* ${channel_folder_name}/channel_${chan_num}/
 
     # Copy a new casa instance to avoid slower i/o on scratch or in home
     cp -r $casa_scratch_path .
@@ -81,7 +83,7 @@ for (( chan_num = $start_chan; chan_num < $end_chan; chan_num++ )); do
 
     rc_path="${tmp_dir}/.casa"
 
-    (casa-release-5.4.1-32.el7/bin/mpicasa -n 8 casa-release-5.4.1-32.el7/bin/casa --rcdir ${rc_path} --nologger --nogui --logfile $scratch_path/HI_contsub_1_0kms/casa_M33_HI_14B_17B_1kms_${chan_num}_${SLURM_JOB_ID}_$(date "+%Y%m%d-%H%M%S")_stage${stage}.log --nocrashreport -c $script_name $chan_num $param_file "HI_nocontsub_0_42kms"; cp -r HI_contsub_1_0kms/channel_${chan_num}/* $scratch_path/HI_contsub_1_0kms/channel_${chan_num}/) &
+    (casa-release-5.4.1-32.el7/bin/mpicasa -n 8 casa-release-5.4.1-32.el7/bin/casa --rcdir ${rc_path} --nologger --nogui --logfile $scratch_path/${channel_folder_name}/casa_M33_HI_14B_17B_042kms_nocontsub_${chan_num}_${SLURM_JOB_ID}_$(date "+%Y%m%d-%H%M%S")_stage${stage}.log --nocrashreport -c $script_name $chan_num $param_file "${channel_folder_name}"; cp -r ${channel_folder_name}/channel_${chan_num}/* $scratch_path/${channel_folder_name}/channel_${chan_num}/) &
     pids+=" $!"
 
     cd $tmp_dir

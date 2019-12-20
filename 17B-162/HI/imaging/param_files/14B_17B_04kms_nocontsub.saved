@@ -55,7 +55,6 @@ uvtaper            =  []
 niter              =  1000000
 gain               =  0.1
 threshold          = "2.0mJy/beam"
-nsigma             =  5.0
 cycleniter         =  -1
 cyclefactor        =  1.0
 minpsffraction     =  0.05

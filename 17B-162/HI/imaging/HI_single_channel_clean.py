@@ -302,16 +302,16 @@ try:
                                                    rtol=delta_model_flux_thresh)
 
             # Has the model converged?
-            if model_flux_criterion:
-                casalog.post("Model flux converged to within {}% between "
-                             "major cycles.".format(delta_model_flux_thresh * 100))
-                break
-            else:
-                time.sleep(10)
+            # if model_flux_criterion:
+            #     casalog.post("Model flux converged to within {}% between "
+            #                  "major cycles.".format(delta_model_flux_thresh * 100))
+            #     break
+            # else:
+            #     time.sleep(10)
 
-                imager.updateMask()
+            imager.updateMask()
 
-                time.sleep(10)
+            time.sleep(10)
 
             mincyc_num += 1
 

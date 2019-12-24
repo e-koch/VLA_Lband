@@ -253,17 +253,17 @@ interactive = 0  # Returns a summary dictionary
 
 # Copy the first stage files into another directory, in case the deep
 # clean goes badly
-keep_old_path = os.path.join(channel_path, "channel_{}".format(chan_num),
-                             "stage_1")
-if os.path.exists(keep_old_path):
-    os.system("rm -r {}".format(keep_old_path))
+# keep_old_path = os.path.join(channel_path, "channel_{}".format(chan_num),
+#                              "stage_1")
+# if os.path.exists(keep_old_path):
+#     os.system("rm -r {}".format(keep_old_path))
 
-os.mkdir(keep_old_path)
+# os.mkdir(keep_old_path)
 
-stage1_files = glob(imagename + "*")
+# stage1_files = glob(imagename + "*")
 
-for fi in stage1_files:
-    os.system("cp -r {0} {1}".format(fi, keep_old_path))
+# for fi in stage1_files:
+#     os.system("cp -r {0} {1}".format(fi, keep_old_path))
 
 # Untar the workdirectory folder
 casalog.post("Unpacking workdirectory tar file.")

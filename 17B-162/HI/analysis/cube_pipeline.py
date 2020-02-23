@@ -104,7 +104,7 @@ if run_1kms:
                                  "save_cube": True,
                                  "is_huge": True,
                                  "smooth_chans": 6,
-                                 "min_chan": 4,qy
+                                 "min_chan": 4,
                                  "peak_snr": 4.,
                                  "min_snr": 2,
                                  "edge_thresh": 1,

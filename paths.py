@@ -107,8 +107,12 @@ iram_co21_14B088_data_path = \
             path=os.path.join(data_path, "co21/14B-088/"))
 
 hst_phat_path = \
-  partial(name_return_check,
-          path=os.path.join(data_path, "Hubble/big/"))
+    partial(name_return_check,
+            path=os.path.join(data_path, "Hubble/big/"))
+
+aca_co21_data_path = partial(name_return_check,
+                             path=os.path.join(data_path,
+                                               "ALMA/ACA_Band6/"))
 
 # Paper figures path
 papers_path = os.path.expanduser("~/ownCloud/My_Papers/")

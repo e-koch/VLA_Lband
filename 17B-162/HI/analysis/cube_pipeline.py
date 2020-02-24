@@ -85,7 +85,7 @@ if run_1kms:
                                  "min_snr": 2,
                                  "edge_thresh": 1,
                                  "verbose": True,
-                                 "pb_map_name": seventeenB_HI_data_1kms_path("M33_14B_17B_HI_contsub_width_1kms.pb.fits")
+                                 # "pb_map_name": seventeenB_HI_data_1kms_path("M33_14B_17B_HI_contsub_width_1kms.pb.fits")
                                  },
                  moment_kwargs={"num_cores": num_cores,
                                 "verbose": True,
@@ -109,7 +109,7 @@ if run_1kms:
                                  "min_snr": 2,
                                  "edge_thresh": 1,
                                  "verbose": True,
-                                 "pb_map_name": seventeenB_HI_data_1kms_path("M33_14B_17B_HI_contsub_width_1kms.pb.fits")
+                                 # "pb_map_name": seventeenB_HI_data_1kms_path("M33_14B_17B_HI_contsub_width_1kms.pb.fits")
                                  },
                  moment_kwargs={"num_cores": num_cores,
                                 "verbose": True,

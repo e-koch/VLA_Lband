@@ -94,11 +94,11 @@ sc_factor, sc_err = find_scale_factor(np.hstack(low_pts), np.hstack(high_pts),
 plt.grid(True)
 plt.xlabel(r"ln I$_{\rm int}$ / I$_{\rm SD}$")
 plt.tight_layout()
-plt.savefig(allfigs_path("Imaging/ratio_hist_17B_vla_gbt_9.8arcmin_v2_w_weights.png"))
-plt.savefig(allfigs_path("Imaging/ratio_hist_17B_vla_gbt_9.8arcmin_v2_w_weights.pdf"))
+plt.savefig(allfigs_path("Imaging/ratio_hist_17B_vla_gbt_9.8arcmin_v3_w_weights.png"))
+plt.savefig(allfigs_path("Imaging/ratio_hist_17B_vla_gbt_9.8arcmin_v3_w_weights.pdf"))
 
 print("Factor: {0}+/-{1}".format(sc_factor, sc_err))
-# Factor: 1.1480796323048492+/-0.006036093657724898
+# Factor: 1.125046+/-0.00394768
 
 # This isn't a fantastic fit, so this error was significantly underestimated
 
@@ -148,8 +148,8 @@ plt.grid(True)
 
 plt.tight_layout()
 
-plt.savefig(allfigs_path("Imaging/ratio_hist_perchan_17B_vla_gbt_9.8arcmin_v2_w_weights.png"))
-plt.savefig(allfigs_path("Imaging/ratio_hist_perchan_17B_vla_gbt_9.8arcmin_v2_w_weights.pdf"))
+plt.savefig(allfigs_path("Imaging/ratio_hist_perchan_17B_vla_gbt_9.8arcmin_v3_w_weights.png"))
+plt.savefig(allfigs_path("Imaging/ratio_hist_perchan_17B_vla_gbt_9.8arcmin_v3_w_weights.pdf"))
 plt.close()
 
 # Now refit with the channels near the systemic velocity, where most of the HI
@@ -166,11 +166,11 @@ sc_factor_chrange, sc_err_chrange = \
 plt.grid(True)
 plt.xlabel(r"ln I$_{\rm int}$ / I$_{\rm SD}$")
 plt.tight_layout()
-plt.savefig(allfigs_path(f"Imaging/ratio_hist_17B_vla_gbt_9.8arcmin_chan_{chan_range.start}_{chan_range.stop}_v2_w_weights.png"))
-plt.savefig(allfigs_path(f"Imaging/ratio_hist_17B_vla_gbt_9.8arcmin_chan_{chan_range.start}_{chan_range.stop}_v2_w_weights.pdf"))
+plt.savefig(allfigs_path(f"Imaging/ratio_hist_17B_vla_gbt_9.8arcmin_chan_{chan_range.start}_{chan_range.stop}_v3_w_weights.png"))
+plt.savefig(allfigs_path(f"Imaging/ratio_hist_17B_vla_gbt_9.8arcmin_chan_{chan_range.start}_{chan_range.stop}_v3_w_weights.pdf"))
 
 print("Factor: {0}+/-{1}".format(sc_factor_chrange, sc_err_chrange))
-# Factor: 1.0992264313427604+/-0.007286031123700749
+# Factor: 1.105133+/-0.00463
 # Error still underestimated
 
 # The >1 factor is due to some emission in the GBT data being cut-off by the

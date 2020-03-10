@@ -7,6 +7,9 @@
 #SBATCH --output=casa-m33_bc_1kms-%A-%a.out
 #SBATCH --array=0-167
 
+# Stage 2
+# --array=0-83
+
 # Use array to set which channels will get imaged.
 # Run from a separate folder so the log files are in one place.
 
@@ -38,18 +41,27 @@ if (( $stage==1 )); then
     script_name="${HOME}/code/VLA_Lband/17B-162/HI/imaging/HI_single_channel_clean.py"
     # Parameter file for tclean
     param_file="/home/ekoch/code/VLA_Lband/17B-162/HI/imaging/param_files/14B_17B_04kms_nocontsub.saved"
+
+    # Start 4 channels running on the node
+    # This is well-suited for the cedar base nodes
+    start_chan=$(($job_num * 4))
+    end_chan=$((($job_num + 1) * 4))
+
 elif (( $stage==2 )); then
     script_name="${HOME}/code/VLA_Lband/17B-162/HI/imaging/HI_single_channel_clean_stage2.py"
     param_file="/home/ekoch/code/VLA_Lband/17B-162/HI/imaging/param_files/14B_17B_04kms_nocontsub_stage2.saved"
+
+    # Start 8 channels running on the node
+    # cleaning takes most of the time but uses fewer CPUs
+    # overload cpu usage
+    # This is well-suited for the cedar base nodes
+    start_chan=$(($job_num * 8))
+    end_chan=$((($job_num + 1) * 8))
+
 else
     echo "Stage must be 1 or 2, not ${stage}".
     exit 1
 fi
-
-# Start 5 channels running on the node
-# This is well-suited for the cedar base nodes
-start_chan=$(($job_num * 4))
-end_chan=$((($job_num + 1) * 4))
 
 # Path to the casa files
 export casa_scratch_path="$HOME/scratch/casa-release-5.4.1-32.el7"
@@ -89,7 +101,7 @@ for (( chan_num = $start_chan; chan_num < $end_chan; chan_num++ )); do
     cd $tmp_dir
 
     # Avoid starting up multiple CASA sessions at once. Runs into ipython database issues.
-    sleep 60
+    sleep 10
 
 done
 

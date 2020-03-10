@@ -68,8 +68,7 @@ if run_02kms:
 
     vla_spat_hdr = fits.Header.fromtextfile(seventeenB_HI_data_1kms_path("17B_14B_spatial_header.txt"))
 
-    print("YOU NEED TO UPDATE THIS PART")
-    print(argh)
+    raise NotImplementedError("YOU NEED TO UPDATE THIS PART")
     # Hard code in properties to make the spectral axis
     chan_width = 0.21
 
@@ -182,6 +181,7 @@ if run_1kms:
     new_header["NAXIS1"] = vla_pbmask.shape[1]
     new_header["NAXIS2"] = vla_pbmask.shape[0]
     new_header["NAXIS3"] = nchan
+    new_header['CUNIT3'] = 'm s-1'
     new_header['CRVAL3'] = vel_axis[0].value
     kwarg_skip = ['TELESCOP', 'BUNIT', 'INSTRUME']
     for key in cube.header:

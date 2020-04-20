@@ -73,18 +73,21 @@ try:
     hifv_solint(pipelinemode="automatic", refantignore='ea24')
     hifv_fluxboot(pipelinemode="automatic", refantignore='ea24')
     hifv_finalcals(weakbp=False, refantignore='ea24')
-    hifv_applycals(flagdetailedsum=True, flagbackup=True, calwt=[True],
-                   flagsum=True, gainmap=False)
+    # calwt not used in casa 5.4.1 VLA pipeline
+    # hifv_applycals(flagdetailedsum=True, flagbackup=True, calwt=[True],
+    #                flagsum=True, gainmap=False)
+    hifv_applycals(flagdetailedsum=True, gainmap=False, flagbackup=True, flagsum=True)
     hifv_targetflag(intents='*CALIBRATE*,*TARGET*')
     hifv_statwt(pipelinemode="automatic")
     hifv_plotsummary(pipelinemode="automatic")
     hif_makeimlist(nchan=-1, calmaxpix=300, intent='PHASE,BANDPASS')
-    hif_makeimages(tlimit=2.0, hm_negativethreshold=-999.0,
-                   subcontms=False, hm_masking='none', masklimit=4,
-                   maxncleans=1, hm_growiterations=-999, cleancontranges=False,
-                   noise='1.0Jy', hm_minbeamfrac=-999.0, target_list={}, robust=-999.0,
-                   parallel='automatic', weighting='briggs', hm_noisethreshold=-999.0,
-                   hm_lownoisethreshold=-999.0, npixels=0, hm_sidelobethreshold=-999.0)
+    hif_makeimages(tlimit=2.0, hm_minbeamfrac=-999.0, hm_dogrowprune=True,
+                   hm_negativethreshold=-999.0, calcsb=False, target_list={},
+                   hm_noisethreshold=-999.0, hm_masking='none',
+                   hm_minpercentchange=-999.0,
+                   parallel='automatic', masklimit=4, hm_lownoisethreshold=-999.0,
+                   hm_growiterations=-999, cleancontranges=False,
+                   hm_sidelobethreshold=-999.0)
 
     # Make a folder of products for restoring the pipeline solution
     os.mkdir('products/')

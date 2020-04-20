@@ -1,0 +1,35 @@
+imagename=outlier1
+imsize=[64,64]
+phasecenter=J2000 01:32:22.769 +30.44.08.711
+deconvolver=hogbom
+gridder=standard
+
+imagename=outlier2
+imsize=[64,64]
+phasecenter=J2000 01:35:22.961 +30.27.29.49
+deconvolver=hogbom
+gridder=standard
+
+imagename=outlier3
+imsize=[64, 64]
+phasecenter=J2000 01:37:26.8 +31.02.13.4
+deconvolver=hogbom
+gridder=standard
+
+imagename=outlier4
+imsize=[64, 64]
+phasecenter=J2000 01:36:17.6 +31.24.32.7
+deconvolver=hogbom
+gridder=standard
+
+imagename=outlier5
+imsize=[64,64]
+phasecenter=J2000 01:36:54.2 +31.14.31.6
+deconvolver=hogbom
+gridder=standard
+
+imagename=outlier6
+imsize=[64, 64]
+phasecenter=J2000 01:37:08.7 +31.22.36.3
+deconvolver=hogbom
+gridder=standard
